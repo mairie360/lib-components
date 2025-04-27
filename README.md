@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js App with Storybook and Chromatic
 
-## Getting Started
+## Description
 
-First, run the development server:
+Ce projet est une application développée avec **Next.js**.  
+Nous utilisons **Storybook** pour le développement et la documentation des composants UI, et **Chromatic** pour les tests de régression visuelle. Des tests complémentaires garantissent également la qualité du code de l’application.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Prérequis
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Node.js** (version recommandée : `20.x`)
+- **npm** ou **yarn**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Démarrage du Projet
 
-To learn more about Next.js, take a look at the following resources:
+Clonez le dépôt et installez les dépendances :
+    ```bash
+    git clone <repository-url>
+    cd <project-folder>
+    npm install
+    # ou
+    yarn install
+    ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Storybook
+Storybook permet de développer, visualiser et tester vos composants UI de manière isolée.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Lancer Storybook localement
+    Pour démarrer Storybook :
+    ```bash
+    npm run storybook
+    # ou
+    yarn storybook
+    ```
+Accédez ensuite à l’interface sur http://localhost:6006.
 
-## Deploy on Vercel
+## Chromatic
+Chromatic est utilisé pour effectuer des tests de régression visuelle et faciliter la revue d’interface.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Configuration
+Assurez-vous que votre fichier .env contient bien la variable suivante :
+    ```bash
+    CHROMATIC_PROJECT_TOKEN=clé_de_projet_chromatic
+    ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Lancer Chromatic
+Vous pouvez lancer Chromatic avec la commande suivante :
+    ```bash
+    npm run chromatic
+    # ou
+    yarn chromatic
+    ```
+Cela va construire votre Storybook et le publier sur Chromatic pour effectuer des tests de régression visuelle.
