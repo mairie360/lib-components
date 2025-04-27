@@ -17,14 +17,13 @@ Nous utilisons **Storybook** pour le développement et la documentation des comp
 ## Démarrage du Projet
 
 Clonez le dépôt et installez les dépendances :
-
-```bash
-git clone <repository-url>
-cd <project-folder>
-npm install
-# ou
-yarn install
-```
+    ```bash
+    git clone <repository-url>
+    cd <project-folder>
+    npm install
+    # ou
+    yarn install
+    ```
 
 ## Storybook
 Storybook permet de développer, visualiser et tester vos composants UI de manière isolée.
