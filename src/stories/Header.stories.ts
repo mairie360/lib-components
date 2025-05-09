@@ -1,33 +1,49 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
+import { Header, HeaderProps } from './Header';
 
-import { Header } from './Header';
-
-const meta = {
-  title: 'Example/Header',
+const meta: Meta<typeof Header> = {
+  title: 'Components/Header',
   component: Header,
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
   tags: ['autodocs'],
-  parameters: {
-    // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout
-    layout: 'fullscreen',
-  },
-  args: {
-    onLogin: fn(),
-    onLogout: fn(),
-    onCreateAccount: fn(),
-  },
-} satisfies Meta<typeof Header>;
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
-export const LoggedIn: Story = {
+const mockLinks = [
+  { id: '1', name: 'Accueil', url: '/' },
+  { id: '2', name: 'Services', url: '/services' },
+  { id: '3', name: 'Contact', url: '/contact' },
+];
+
+const LoggedInLinks = [
+  { id: '1', name: 'Accueil', url: '/' },
+  { id: '2', name: 'Calendriers', url: '/calendars' },
+  { id: '3', name: 'Projets', url: '/projects' },
+  { id: '4', name: 'Emails', url: '/emails'},
+  { id: '5', name: 'Messages', url: '/messages'},
+  { id: '6', name: 'Fichiers', url: '/files'},
+  { id: '7', name: 'Formation', url: '/e-learning'}
+];
+
+export const LoggedOut: StoryObj<HeaderProps> = {
   args: {
-    user: {
-      name: 'Jane Doe',
-    },
+    user: undefined,
+    links: mockLinks,
+    pathname: '/',
+    onLogin: () => alert('Connexion'),
+    onSelectModule: (module) => alert(`Module sélectionné : ${module.name}`),
   },
 };
 
-export const LoggedOut: Story = {};
+export const LoggedIn: StoryObj<HeaderProps> = {
+  args: {
+    user: {
+      name: 'Alice Dupont',
+      avatarUrl: '/logo.png',
+    },
+    links: LoggedInLinks,
+    pathname: '/services',
+    onLogout: () => alert('Déconnexion'),
+    onSelectModule: (module) => alert(`Module sélectionné : ${module.name}`),
+  },
+};
