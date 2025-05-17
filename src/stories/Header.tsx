@@ -91,7 +91,7 @@ export const Header = ({
             </ul>
           </div>
         ) : (
-          <button className="btn btn-sm" onClick={onLogin}>Se connecter</button>
+          <button className="btn btn-sm" onClick={onLogin}>Log in</button>
         )}
       </div>
     </div>
