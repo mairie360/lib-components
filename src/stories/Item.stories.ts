@@ -19,10 +19,10 @@ import { Item } from './Item';
  *   - `description`: A description of the item (default: `'Item Description'`).
  *   - `width`: The width of the item (default: `'320px'`).
  *   - `height`: The height of the item (default: `'80px'`).
- *   - `isdeleted`: A flag indicating whether the item is deleted (default: `false`).
- *   - `onClick`: A callback function triggered on item click (default: `fn()`).
  *
  * This meta object satisfies the `Meta<typeof Item>` type, ensuring type safety.
+ * 
+ * The item contains two buttons: delete and modify. The modify button should navigate to the modification page.
  */
 const meta = {
     title: 'Example/Item',
@@ -36,8 +36,6 @@ const meta = {
         description: 'Item Description',
         width: "320px", 
         height: "80px",
-        isdeleted: false,
-        onClick: fn(),
     },
 } satisfies Meta<typeof Item>;
 
@@ -48,9 +46,7 @@ export const Default: Story = {
     args: {
             title: 'Item Title',
             description: 'Item Description',
-            isdeleted: false,
             width: "320px", 
             height: "80px",
     },
 };
-export const Deleted: Story = {}
