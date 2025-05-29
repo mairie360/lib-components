@@ -59,9 +59,11 @@ jobs:
       - name: Serve Storybook in background
         run: |
           npm run local-storybook &
-        
-      - name: Wait for Storybook to be ready
-        run: npx wait-on http://localhost:8080
+
+      - name: Wait for Storybook to start
+        run: |
+          echo "Waiting for Storybook to start..."
+          sleep 10
 
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
