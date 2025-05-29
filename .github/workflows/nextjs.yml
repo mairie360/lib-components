@@ -57,11 +57,7 @@ jobs:
         run: npm ci
 
       - name: Run Lighthouse after starting Storybook
-        run: npx start-server-and-test "npx serve ./storybook-static -l 8080 --single" http://localhost:8080
-
-      - name: Test Storybook page is available
-        run: curl -I http://localhost:8080
-
+        run: npx start-server-and-test "npx serve ./storybook-static -l 8080" http://localhost:8080/index.html
 
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
