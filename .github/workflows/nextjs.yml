@@ -56,6 +56,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Serve Storybook in background
+        run: npx serve ./storybook-static -l 8080 &
+
+      - name: Wait for Storybook to be ready
+        run: npx wait-on http://localhost:8080
+
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
 
