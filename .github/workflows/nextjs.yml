@@ -59,7 +59,10 @@ jobs:
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
 
-      - name: Run Lighthouse and check accessibility
+      - name: Run Lighthouse
+        run: npm run lhci:run
+      
+      - name: Check accessibility
         run: npm run lhci:check
 
   deploy:
