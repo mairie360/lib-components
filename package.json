@@ -12,7 +12,8 @@
     "local-storybook": "npx serve ./storybook-static -l 8080",
     "lhci:urls": "node scripts/generate-lhci-urls.js",
     "lhci:run": "lhci autorun --config=./lighthouserc.js",
-    "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run",
+    "lhci:check": "node scripts/check-accessibility.js",
+    "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
     "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}"
   },
   "dependencies": {

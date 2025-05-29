@@ -49,3 +49,4 @@ chromatic.config.json
 # Lighthouse CI
 lhci-urls.json
 .lighthouseci
+lhci-reports
