@@ -1,135 +1,119 @@
-import React from "react";
-import { MoreHorizontal } from "lucide-react";
-import { useState } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 
 type ItemProps = {
   title?: string;
   description?: string;
-  isdeleted?: boolean;
-  onClick?: () => void;
   width?: string;
   height?: string;
+  onClick?: () => void;
+  onDelete?: () => void;
+  onEdit?: () => void;
 };
 
-/**
- * A functional React component that renders an interactive item with customizable
- * dimensions, title, description, and click behavior. The component is styled
- * with Tailwind CSS classes and includes a hover effect.
- *
- * @component
- * @param {Object} props - The properties object.
- * @param {string} props.title - The title text displayed at the top of the item.
- * @param {string} props.description - The description text displayed below the title.
- * @param {string} [props.width="320px"] - The width of the item container.
- * @param {string} [props.height="80px"] - The height of the item container.
- * @returns {JSX.Element} The rendered item component.
- */
-export const Item = ({
+export const Item: React.FC<ItemProps> = ({
   title,
   description,
   width = "320px",
   height = "80px",
-}: ItemProps) => {
-  const [pointIsClicked, setPointIsCliked] = useState(false);
-  const [isDeleted, setIsDeleted] = useState(false);
+  onClick,
+  onDelete,
+  onEdit,
+}) => {
+  const [showActions, setShowActions] = useState(false);
+  const itemRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        itemRef.current &&
+        !itemRef.current.contains(e.target as Node)
+      ) {
+        setShowActions(false);
+      }
+    };
 
-  if (isDeleted) {
-    return null; // Do not render the component if it is deleted
-  }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleMainClick = useCallback(() => {
+    setShowActions(false);
+    onClick?.();
+  }, [onClick]);
+
+  const handleDelete = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onDelete?.();
+    },
+    [onDelete]
+  );
+
+  const handleEdit = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      onEdit?.();
+    },
+    [onEdit]
+  );
 
   return (
     <div
-      className={`
-        rounded-xl 
-        border 
-        border-gray-500 
-        bg-[#0f1117] 
-        text-white 
-        px-4 
-        py-3 
-        cursor-pointer 
-        transition 
-        duration-150 
-        hover:border-white 
-        mx-auto
-        flex flex-col 
-        justify-between
-        relative
-      `}
+      ref={itemRef}
+      className="relative mx-auto flex flex-col justify-between rounded-2xl border border-gray-600 bg-[#0f1117] px-4 py-3 text-white shadow-md transition hover:border-white cursor-pointer"
       style={{ width, height }}
-      onClick={() => setPointIsCliked(false)}
+      onClick={handleMainClick}
+      role="button"
+      tabIndex={0}
     >
+      {/* Toggle Actions */}
       <div
-        className="absolute top-3 right-3  z-50 h-8 w-8 flex items-center justify-center"
+        className="absolute top-2 right-2 z-50 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition"
         onClick={(e) => {
-          e.stopPropagation(); // Prevent propagation to the parent
-          setPointIsCliked(true); // Toggle correct here
+          e.stopPropagation();
+          setShowActions((prev) => !prev);
         }}
       >
-        {!pointIsClicked && <MoreHorizontal size={18} className="text-white" />}
+        <MoreHorizontal size={20} className="text-white" />
       </div>
-      <div>
-        {title && <h2 className="text-sm font-medium">{title}</h2>}
-        {description && <p className="text-xs text-gray-400">{description}</p>}
-      </div>
-      <div>
-        {pointIsClicked && (
-           <div className="absolute top-0 right-0 flex gap-2 z-60 w-auto h-full items-start p-2">
 
-           {/* Bouton bleu - Modifier */}
-           <div
-              className="bg-blue-500 text-white p-2 h-full rounded-xl flex items-center cursor-pointer active:scale-95 active:brightness-90 transition-transform duration-100"
-              onClick={(e) => {
-                e.stopPropagation();
-                console.log("Modify color clicked");
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6 mr-1"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15.232 5.232l3.536 3.536M9 11l6.586-6.586a2 2 0 112.828 2.828L11.828 13.828a2 2 0 01-.707.707L7 15l1.465-4.121a2 2 0 01.707-.707z"
-                />
-              </svg>
-            </div>
-
-         
-           {/* Bouton rouge - Supprimer */}
-           <div
-             className="h-full bg-red-500 text-white p-2 rounded-xl flex items-center cursor-pointer"
-             onClick={(e) => {
-               e.stopPropagation();
-               setIsDeleted(true);
-             }}
-           >
-             <svg
-               xmlns="http://www.w3.org/2000/svg"
-               className="h-6 w-6 mr-1"
-               fill="none"
-               viewBox="0 0 24 24"
-               stroke="currentColor"
-             >
-               <path
-                 strokeLinecap="round"
-                 strokeLinejoin="round"
-                 strokeWidth={2}
-                 d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m-7 0a1 1 0 011-1h6a1 1 0 011 1m-8 0h10"
-               />
-             </svg>
-           </div>
-         </div>
-         
-         
+      {/* Content */}
+      <div>
+        {title && <h2 className="text-sm font-semibold truncate">{title}</h2>}
+        {description && (
+          <p className="text-xs text-gray-400 line-clamp-2">{description}</p>
         )}
       </div>
+
+      {/* Action Buttons */}
+      {showActions && (
+        <div className="absolute top-2 right-12 z-50 flex gap-2 items-center">
+          {/* Edit Button */}
+          <button
+            onClick={handleEdit}
+            className="group relative flex items-center rounded-xl bg-blue-600 p-2 text-white hover:bg-blue-700 transition active:scale-95"
+            aria-label="Modifier"
+          >
+            <Pencil size={18} />
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-50">
+              Modifier
+            </span>
+          </button>
+
+          {/* Delete Button */}
+          <button
+            onClick={handleDelete}
+            className="group relative flex items-center rounded-xl bg-red-600 p-2 text-white hover:bg-red-700 transition active:scale-95"
+            aria-label="Supprimer"
+          >
+            <Trash2 size={18} />
+            <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-50">
+              Supprimer
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
