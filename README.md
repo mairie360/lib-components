@@ -54,3 +54,12 @@ npm run chromatic
 yarn chromatic
 ```
 Cela va construire votre Storybook et le publier sur Chromatic pour effectuer des tests de régression visuelle.
+
+## Exécuter LightHouse
+LightHouse est un outil d’audit de performance et d’accessibilité. Vous pouvez l’exécuter sur votre application pour obtenir des rapports détaillés.
+Pour exécuter LightHouse, utilisez la commande suivante :
+```bash
+npm run lighthouse
+# ou
+yarn lighthouse
+```

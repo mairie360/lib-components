@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build_and_lighthouse:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,22 +29,36 @@ jobs:
           cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Storybook
         run: npm run build-storybook
 
+      - name: Serve Storybook
+        run: |
+         npm run local-storybook &
+
+      - name: Generate Lighthouse URLs
+        run: npm run lhci:urls
+
+      - name: Run Lighthouse
+        run: npm run lhci:run
+      
+      - name: Check accessibility
+        run: npm run lhci:check
+
       - name: Upload Storybook artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./storybook-static
+          path: storybook-static
 
   deploy:
-    needs: build
+    needs: [build_and_lighthouse]
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

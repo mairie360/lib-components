@@ -9,6 +9,11 @@
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "local-storybook": "npx serve ./storybook-static -l 8080",
+    "lhci:urls": "node scripts/generate-lhci-urls.js",
+    "lhci:run": "lhci autorun --config=./lighthouserc.js",
+    "lhci:check": "node scripts/check-accessibility.js",
+    "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
     "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}"
   },
   "dependencies": {
@@ -20,6 +25,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.6",
+    "@lhci/cli": "^0.14.0",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-onboarding": "^8.6.12",
     "@storybook/blocks": "^8.6.12",
@@ -37,9 +43,11 @@
     "chromatic": "^11.28.2",
     "daisyui": "^5.0.35",
     "playwright": "^1.52.0",
+    "start-server-and-test": "^2.0.12",
     "storybook": "^8.6.12",
     "tailwindcss": "^4.1.5",
     "typescript": "^5",
-    "vitest": "^3.1.2"
+    "vitest": "^3.1.2",
+    "wait-on": "^8.0.3"
   }
 }

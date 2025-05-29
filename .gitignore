@@ -40,6 +40,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# storybook
 *storybook.log
+storybook-static
 
 chromatic.config.json
+
+# Lighthouse CI
+lhci-urls.json
+.lighthouseci
+lhci-reports
