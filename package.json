@@ -13,6 +13,7 @@
     "lhci:urls": "node scripts/generate-lhci-urls.js",
     "lhci:run": "lhci autorun --config=./lighthouserc.js",
     "lhci:check": "node scripts/check-accessibility.js",
+    "lhci:test": "lhci collect --config=./lighthouserc.js && node scripts/check-accessibility.js",
     "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
     "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}"
   },
