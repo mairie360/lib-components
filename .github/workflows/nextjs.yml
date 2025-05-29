@@ -35,7 +35,8 @@ jobs:
         run: npm run build-storybook
 
       - name: Serve Storybook
-        run: npm run local-storybook
+        run: |
+         npm run local-storybook &
 
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
