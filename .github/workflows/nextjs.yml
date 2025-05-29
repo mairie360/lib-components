@@ -60,7 +60,7 @@ jobs:
         run: npm run lhci:urls
 
       - name: Run Lighthouse and check accessibility
-        run: npm run lhci:test
+        run: npm run lhci:check
 
   deploy:
     needs: [build, lighthouse]
