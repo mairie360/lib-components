@@ -56,9 +56,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Serve Storybook
-        run: npm run local-storybook &
-      
+      - name: Serve Storybook in background
+        run: |
+          npm run local-storybook &
+        
       - name: Wait for Storybook to be ready
         run: npx wait-on http://localhost:8080
 
