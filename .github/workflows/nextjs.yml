@@ -47,6 +47,11 @@ jobs:
       - name: Check accessibility
         run: npm run lhci:check
 
+      - name: Upload Storybook artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: storybook-static
+
   deploy:
     needs: [build_and_lighthouse]
     runs-on: ubuntu-latest
