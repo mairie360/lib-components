@@ -8,6 +8,7 @@ type MiniCardProps = {
   width?: string;
   height?: string;
   label?: string;
+  onOpen?: () => void;
   onClick?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
@@ -19,6 +20,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
   width = "320px",
   height = "auto",
   label = "Open Mini Card",
+  onOpen,
   onClick,
   onDelete,
   onEdit,
@@ -106,7 +108,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
 
         {/* CTA */}
         <div className="mt-6">
-          <Button label={label} primary />
+          <Button label={label} primary onClick={onOpen}/>
         </div>
       </div>
     </div>
