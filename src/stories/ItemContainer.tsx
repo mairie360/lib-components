@@ -81,7 +81,6 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
         </button>
       </div>
 
-      {/* Items */}
       <div
         className="flex flex-col gap-3 overflow-y-auto flex-1 mb-4 pr-1"
         role="list"
