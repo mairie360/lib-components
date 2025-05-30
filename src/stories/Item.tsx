@@ -38,13 +38,22 @@ export const Item: React.FC<ItemProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMainClick = useCallback(() => {
-    setShowActions(false);
-    onClick?.();
-  }, [onClick]);
+  const handleMainClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (
+        (e.target as HTMLElement).closest("button") ||
+        (e.target as HTMLElement).closest("[role='button']")
+      ) {
+        return;
+      }
+      setShowActions(false);
+      onClick?.();
+    },
+    [onClick]
+  );
 
   const handleEdit = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       setShowActions(false);
       onEdit?.();
@@ -53,7 +62,7 @@ export const Item: React.FC<ItemProps> = ({
   );
 
   const handleDeleteClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       setShowActions(false);
       setShowDeleteModal(true);
@@ -102,6 +111,7 @@ export const Item: React.FC<ItemProps> = ({
             {/* Edit Button */}
             <button
               onClick={handleEdit}
+              onPointerDown={(e) => e.stopPropagation()}
               className="group relative flex items-center rounded-xl bg-blue-600 p-2 text-white hover:bg-blue-700 transition active:scale-95"
               aria-label="Modifier"
             >
@@ -114,6 +124,7 @@ export const Item: React.FC<ItemProps> = ({
             {/* Delete Button */}
             <button
               onClick={handleDeleteClick}
+              onPointerDown={(e) => e.stopPropagation()}
               className="group relative flex items-center rounded-xl bg-red-600 p-2 text-white hover:bg-red-700 transition active:scale-95"
               aria-label="Supprimer"
             >
