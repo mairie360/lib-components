@@ -10,6 +10,7 @@ type ItemProps = {
   onClick?: () => void;
   onDelete?: () => void;
   onEdit?: () => void;
+  id?: string;
 };
 
 export const Item: React.FC<ItemProps> = ({
@@ -20,6 +21,7 @@ export const Item: React.FC<ItemProps> = ({
   onClick,
   onDelete,
   onEdit,
+  id = "",
 }) => {
   const [showActions, setShowActions] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -36,13 +38,22 @@ export const Item: React.FC<ItemProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMainClick = useCallback(() => {
-    setShowActions(false);
-    onClick?.();
-  }, [onClick]);
+  const handleMainClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (
+        (e.target as HTMLElement).closest("button") ||
+        (e.target as HTMLElement).closest("[role='button']")
+      ) {
+        return;
+      }
+      setShowActions(false);
+      onClick?.();
+    },
+    [onClick]
+  );
 
   const handleEdit = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       setShowActions(false);
       onEdit?.();
@@ -51,7 +62,7 @@ export const Item: React.FC<ItemProps> = ({
   );
 
   const handleDeleteClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
       setShowActions(false);
       setShowDeleteModal(true);
@@ -67,6 +78,7 @@ export const Item: React.FC<ItemProps> = ({
   return (
     <>
       <div
+        key={id}
         ref={itemRef}
         className="relative mx-auto flex flex-col justify-between rounded-2xl border border-gray-600 bg-[#0f1117] px-4 py-3 text-white shadow-md transition hover:border-white cursor-pointer"
         style={{ width, height }}
@@ -99,6 +111,7 @@ export const Item: React.FC<ItemProps> = ({
             {/* Edit Button */}
             <button
               onClick={handleEdit}
+              onPointerDown={(e) => e.stopPropagation()}
               className="group relative flex items-center rounded-xl bg-blue-600 p-2 text-white hover:bg-blue-700 transition active:scale-95"
               aria-label="Modifier"
             >
@@ -111,6 +124,7 @@ export const Item: React.FC<ItemProps> = ({
             {/* Delete Button */}
             <button
               onClick={handleDeleteClick}
+              onPointerDown={(e) => e.stopPropagation()}
               className="group relative flex items-center rounded-xl bg-red-600 p-2 text-white hover:bg-red-700 transition active:scale-95"
               aria-label="Supprimer"
             >
