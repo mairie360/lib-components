@@ -27,7 +27,7 @@ type ItemContainerProps = {
   description?: string;
   statusColor?: string;
   items: ItemData[];
-  onAddItem?: (title: string) => void;
+  onAddItem?: (title: string, description?: string) => void;
   onItemClick?: (id: string) => void;
   onItemDelete?: (id: string) => void;
   onItemEdit?: (id: string) => void;
@@ -67,9 +67,11 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
   const [showEditMenu, setShowEditMenu] = useState(false);
 
   const [search, setSearch] = useState("");
-  const [newItemTitle, setNewItemTitle] = useState("");
-
   const [sortedItems, setSortedItems] = useState<ItemData[]>(items);
+
+  const [showAddMenu, setShowAddMenu] = useState(false);
+  const [addTitle, setAddTitle] = useState("");
+  const [addDescription, setAddDescription] = useState("");
 
   useEffect(() => setEditedTitle(title), [title]);
   useEffect(() => setEditedDescription(description), [description]);
@@ -78,24 +80,27 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
 
   const menuRef = useRef<HTMLDivElement>(null);
   const editMenuRef = useRef<HTMLDivElement>(null);
+  const addMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
         (menuRef.current && !menuRef.current.contains(event.target as Node)) &&
-        (editMenuRef.current && !editMenuRef.current.contains(event.target as Node))
+        (editMenuRef.current && !editMenuRef.current.contains(event.target as Node)) &&
+        (addMenuRef.current && !addMenuRef.current.contains(event.target as Node))
       ) {
         setShowMenu(false);
         setShowEditMenu(false);
+        setShowAddMenu(false);
       }
     }
-    if (showMenu || showEditMenu) {
+    if (showMenu || showEditMenu || showAddMenu) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [showMenu, showEditMenu]);
+  }, [showMenu, showEditMenu, showAddMenu]);
 
   const saveEdits = () => {
     if (editedTitle.trim()) onTitleChange?.(editedTitle.trim());
@@ -123,9 +128,11 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
   );
 
   const handleAddNewItem = () => {
-    if (newItemTitle.trim()) {
-      onAddItem?.(newItemTitle.trim());
-      setNewItemTitle("");
+    if (addTitle.trim()) {
+      onAddItem?.(addTitle.trim(), addDescription.trim());
+      setAddTitle("");
+      setAddDescription("");
+      setShowAddMenu(false);
     }
   };
 
@@ -184,6 +191,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
             onClick={() => {
               setShowMenu((v) => !v);
               setShowEditMenu(false);
+              setShowAddMenu(false);
             }}
             className="p-1 rounded hover:bg-white/10 transition"
             aria-label="Open container menu"
@@ -197,6 +205,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 onClick={() => {
                   setShowEditMenu(true);
                   setShowMenu(false);
+                  setShowAddMenu(false);
                 }}
                 className="w-full text-left px-3 py-2 hover:bg-gray-700 text-gray-300 rounded-t-md"
               >
@@ -282,6 +291,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 <button
                   onClick={saveEdits}
                   className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+                  disabled={!editedTitle.trim()}
                 >
                   Save
                 </button>
@@ -336,24 +346,62 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
         </SortableContext>
       </DndContext>
 
-      {/* Ajouter un nouvel item */}
-      <div className="mt-2 flex gap-2 items-center">
-        <input
-          type="text"
-          value={newItemTitle}
-          onChange={(e) => setNewItemTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAddNewItem()}
-          placeholder="Add new item..."
-          className="flex-grow bg-transparent border-b border-gray-500 text-white focus:outline-none px-2 py-1 rounded"
-          aria-label="Add new item"
-        />
+      {/* Bouton + menu ajout item */}
+      <div className="mt-4 relative">
         <button
-          onClick={handleAddNewItem}
-          className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded"
-          aria-label="Add item"
+          onClick={() => {
+            setShowAddMenu((v) => !v);
+            setShowMenu(false);
+            setShowEditMenu(false);
+          }}
+          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full"
+          aria-haspopup="dialog"
+          aria-expanded={showAddMenu}
         >
-          Add
+          Add Item
         </button>
+
+        {showAddMenu && (
+          <div
+            ref={addMenuRef}
+            className="absolute bottom-full mb-2 right-0 w-full bg-[#1c1f26] rounded-md shadow-lg p-4 flex flex-col gap-3 z-50 border border-gray-700"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Add new item"
+          >
+            <input
+              type="text"
+              placeholder="Title"
+              value={addTitle}
+              onChange={(e) => setAddTitle(e.target.value)}
+              className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+              autoFocus
+            />
+            <input
+              type="text"
+              placeholder="Description (optional)"
+              value={addDescription}
+              onChange={(e) => setAddDescription(e.target.value)}
+              className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+              onKeyDown={(e) => e.key === "Enter" && handleAddNewItem()}
+            />
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowAddMenu(false)}
+                className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddNewItem}
+                className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+                disabled={!addTitle.trim()}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
