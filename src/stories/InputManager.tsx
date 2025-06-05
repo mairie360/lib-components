@@ -1,159 +1,291 @@
-'use client';
+import React from "react";
+import { FaEye, FaEyeSlash, FaTrash, FaDownload, FaEnvelope, FaPhone } from "react-icons/fa";
+import axios from "axios";
+import Cookie from "js-cookie";
 
-import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
-
-interface InputOption {
+export type Option = {
   label: string;
   value: string;
-}
+};
 
-interface InputItem {
-  name: string;
+export type InputProps = {
   label: string;
-  type: 'text' | 'search' | 'checkbox' | 'select';
+  name: string;
+  type?:
+    | "text"
+    | "select"
+    | "file"
+    | "radio"
+    | "checkbox"
+    | "date"
+    | "password"
+    | "email"
+    | "telephone"
+    | "number"
+    | "default";
   value: any;
-  onChange: (name: string, value: any) => void;
-  error?: string;
-  options?: InputOption[];
-}
+  onChange: (event: React.ChangeEvent<any>) => void;
+  options?: Option[];
+  table?: string;
+  id?: string;
+  min?: number;
+  max?: number;
+  error?: string | null;
+};
 
-interface InputManagerProps {
-  inputs: InputItem[];
-}
+const InputManager: React.FC<InputProps> = ({
+  label,
+  name,
+  type = "text",
+  value,
+  onChange,
+  options = [],
+  table,
+  id,
+  min,
+  max,
+}) => {
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [emailError, setEmailError] = React.useState<string | null>(null);
+  const validateEmail = (email: string): boolean => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+  };
+  const [error, setError] = React.useState<string | null>(null);
 
-export const InputManager: React.FC<InputManagerProps> = ({ inputs }) => {
-  const [focusedField, setFocusedField] = useState<string | null>(null);
-  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [phoneError, setPhoneError] = React.useState<string | null>(null);
 
-  useEffect(() => {
-    const onClickOutside = (e: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
-        setFocusedField(null);
-        setHighlightedIndex(-1);
-      }
-    };
-    document.addEventListener('mousedown', onClickOutside);
-    return () => document.removeEventListener('mousedown', onClickOutside);
-  }, []);
-
-  const onInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>, input: InputItem) => {
-    const val = input.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-    input.onChange(input.name, val);
-    setHighlightedIndex(-1);
+  const validatePhone = (phone: string) => {
+    const regex = /^(\+33|0)[1-9](\d{2}){4}$/;
+    return regex.test(phone.replace(/\s+/g, ""));
   };
 
-  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>, input: InputItem) => {
-    if (!input.options) return;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(e);
+    const isValid = validatePhone(e.target.value);
+    setPhoneError(isValid ? null : "Numéro de téléphone invalide.");
+  };
 
-    const filtered = input.options.filter(o =>
-      o.label.toLowerCase().includes(input.value.toLowerCase())
-    );
-
-    if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      setHighlightedIndex(i => (i < filtered.length - 1 ? i + 1 : 0));
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      setHighlightedIndex(i => (i > 0 ? i - 1 : filtered.length - 1));
-    } else if (e.key === 'Enter' && highlightedIndex >= 0) {
-      e.preventDefault();
-      const sel = filtered[highlightedIndex];
-      if (sel) {
-        input.onChange(input.name, sel.value);
-        setFocusedField(null);
-        setHighlightedIndex(-1);
-      }
-    } else if (e.key === 'Escape') {
-      setFocusedField(null);
-      setHighlightedIndex(-1);
+  const handleChangeNumber = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val === "") {
+      setError(null);
+      onChange(e);
+      return;
     }
+
+    const numVal = Number(val);
+
+    if (isNaN(numVal)) {
+      setError("Veuillez entrer un nombre valide.");
+    } else if (min !== undefined && numVal < min) {
+      setError(`Le nombre doit être au moins ${min}.`);
+    } else if (max !== undefined && numVal > max) {
+      setError(`Le nombre doit être au maximum ${max}.`);
+    } else {
+      setError(null);
+    }
+
+    onChange(e);
+  };
+
+  const renderFileActions = () => {
+    if (!value || typeof value !== "string") return null;
+
+    const filename = value.split("/").pop();
+    const apiUrl = process.env.REACT_APP_API_URL;
+
+    const handleDelete = async () => {
+      try {
+        await axios.delete(`${apiUrl}file/${table}/${name}/${id}`, {
+          headers: {
+            Authorization: "Bearer " + Cookie.get("token"),
+          },
+        });
+
+        onChange({ target: { name, value: "" } } as React.ChangeEvent<any>);
+      } catch (error) {
+        console.error("Erreur lors de la suppression du fichier :", error);
+      }
+    };
+    
+
+    return (
+      <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+        <span>
+          Fichier existant : <span className="font-medium">{filename}</span>
+        </span>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            title="Aperçu du fichier"
+            onClick={() => window.open(`${apiUrl}preview/${filename}`, "_blank")}
+            className="text-green-500 hover:text-green-700"
+          >
+            <FaEye />
+          </button>
+          <button
+            type="button"
+            title="Télécharger le fichier"
+            onClick={() => window.open(`${apiUrl}download/${filename}`, "_blank")}
+            className="text-blue-500 hover:text-blue-700"
+          >
+            <FaDownload />
+          </button>
+          <button
+            type="button"
+            title="Supprimer le fichier"
+            onClick={handleDelete}
+            className="text-red-500 hover:text-red-700"
+          >
+            <FaTrash />
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const commonProps = {
+    id: name,
+    name,
+    value,
+    onChange,
+    className:
+      "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm",
   };
 
   return (
-    <div ref={wrapperRef} className="max-w-xl mx-auto p-6 bg-white rounded shadow space-y-6 font-sans">
-      {inputs.map(input => {
-        const isFocused = focusedField === input.name;
-        const filteredOptions = input.type === 'search' && input.options
-          ? input.options.filter(o => o.label.toLowerCase().includes(input.value.toLowerCase()))
-          : [];
+    <div className="mb-6">
+      <label htmlFor={name} className="block text-sm font-medium mb-1">
+        {label}
+      </label>
 
-        return (
-          <div key={input.name} className="relative">
-            <label htmlFor={input.name} className="block mb-1 font-semibold text-gray-900">
-              {input.label}
+      {type === "select" ? (
+        <select {...commonProps}>
+          {options.map((option) => (
+            <option key={option.value} value={option.value} className="text-black">
+              {option.label}
+            </option>
+          ))}
+        </select>
+      ) : type === "text" ? (
+        <textarea {...commonProps} className={`${commonProps.className} h-24`} />
+      ) : type === "file" ? (
+        <>
+          <input type="file" id={name} name={name} onChange={onChange} className={commonProps.className} />
+          {renderFileActions() || <p className="mt-2 text-sm text-gray-600">Aucun fichier sélectionné</p>}
+        </>
+      ) : type === "radio" ? (
+        <div className="mt-2 flex gap-4">
+          {options.map((option) => (
+            <label key={option.value} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={value === option.value}
+                onChange={onChange}
+                className="text-indigo-600 focus:ring-indigo-500"
+              />
+              <span className="font-bold">{option.label}</span>
             </label>
-
-            {(input.type === 'text' || input.type === 'search') && (
-              <>
-                <input
-                  id={input.name}
-                  type={input.type}
-                  value={input.value}
-                  onChange={e => onInputChange(e, input)}
-                  onFocus={() => setFocusedField(input.name)}
-                  onBlur={() => setTimeout(() => setFocusedField(null), 150)}
-                  onKeyDown={e => input.type === 'search' && onKeyDown(e, input)}
-                  placeholder={`Enter ${input.label.toLowerCase()}`}
-                  autoComplete="off"
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 text-gray-900"
-                />
-                {isFocused && filteredOptions.length > 0 && (
-                  <ul className="absolute z-20 w-full max-h-48 overflow-auto border border-gray-300 rounded bg-white mt-1 shadow">
-                    {filteredOptions.map((opt, idx) => (
-                      <li
-                        key={opt.value}
-                        onMouseDown={e => {
-                          e.preventDefault();
-                          input.onChange(input.name, opt.value);
-                          setFocusedField(null);
-                          setHighlightedIndex(-1);
-                        }}
-                        className={`px-3 py-2 cursor-pointer ${
-                          idx === highlightedIndex
-                            ? 'bg-blue-500 text-white'
-                            : 'hover:bg-gray-100 text-gray-900'
-                        }`}
-                      >
-                        {opt.label}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </>
-            )}
-
-            {input.type === 'checkbox' && (
-              <label className="inline-flex items-center cursor-pointer text-gray-900">
-                <input
-                  type="checkbox"
-                  checked={input.value}
-                  onChange={e => onInputChange(e, input)}
-                  className="mr-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-400"
-                />
-                {input.label}
-              </label>
-            )}
-
-            {input.type === 'select' && input.options && (
-              <select
-                id={input.name}
-                value={input.value}
-                onChange={e => onInputChange(e, input)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900"
-              >
-                {input.options.map(opt => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
-                ))}
-              </select>
-            )}
-
-            {input.error && <p className="text-red-600 mt-1">{input.error}</p>}
+          ))}
+        </div>
+      ) : type === "checkbox" ? (
+        <input
+          type="checkbox"
+          id={name}
+          name={name}
+          checked={!!value}
+          onChange={onChange}
+          className="mt-1 mr-2"
+        />
+      ) : type === "date" ? (
+        <input
+          type="date"
+          {...commonProps}
+        />
+      ) : type === "password" ? (
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            {...commonProps}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute inset-y-0 right-2 pr-2 flex items-center text-gray-500 hover:text-gray-700"
+            tabIndex={-1}
+          >
+            {showPassword ? <FaEyeSlash /> : <FaEye />}
+          </button>
+        </div>
+      ) : type === "email" ? (
+        <div className="mb-1">
+          <div className="relative">
+            <FaEnvelope className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <input
+              type="email"
+              id={name}
+              name={name}
+              value={value}
+              onChange={(e) => {
+                onChange(e);
+                const isValid = validateEmail(e.target.value);
+                setEmailError(isValid ? null : "Adresse email invalide.");
+              }}
+              placeholder="exemple@domaine.com"
+              required
+              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                emailError ? "border-red-500 focus:border-red-500" : "border-gray-300"
+              }`}
+            />
           </div>
-        );
-      })}
+
+          {emailError && (
+            <p className="mt-1 text-sm text-red-600">{emailError}</p>
+          )}
+        </div>
+      ) : type === "telephone" ? (
+        <div className="mb-1">
+          <div className="relative">
+            <FaPhone className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <input
+              type="tel"
+              id={name}
+              name={name}
+              value={value}
+              onChange={handleChange}
+              placeholder="06 12 34 56 78"
+              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+                phoneError ? "border-red-500 focus:border-red-500" : "border-gray-300"
+              }`}
+            />
+          </div>
+
+          {phoneError && <p className="mt-1 text-sm text-red-600">{phoneError}</p>}
+        </div>
+      ) : type === "number" ? (
+        <div className="mb-1">
+          <input
+            type="number"
+            id={name}
+            name={name}
+            value={value}
+            onChange={handleChangeNumber}
+            min={min}
+            max={max}
+            className={`block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
+              error ? "border-red-500 focus:border-red-500" : "border-gray-300"
+            }`}
+          />
+          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+      ) : (
+        <input type="text" {...commonProps} />
+      )}
     </div>
   );
 };
+
+export default InputManager;

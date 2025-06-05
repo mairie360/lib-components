@@ -1,279 +1,153 @@
-'use client';
+import React, { useState } from "react";
+import { Meta, StoryObj } from "@storybook/react";
+import InputManager from "./InputManager";
+import type { InputProps } from "./InputManager";
 
-import React, { useState } from 'react';
-import type { Meta, StoryObj } from '@storybook/nextjs';
-import { InputManager } from './InputManager';
-
-const meta = {
-  title: 'Components/Inputs/InputManager',
+const meta: Meta<typeof InputManager> = {
+  title: "Components/Input/InputManager",
   component: InputManager,
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'centered',
+  args: {
+    table: "exampleTable",
   },
-} satisfies Meta<typeof InputManager>;
+  tags: ["autodocs"],
+};
 
 export default meta;
-type Story = StoryObj<typeof meta>;
 
-/**
- * This story demonstrates the `InputManager` component with various input types.
- * It includes text inputs, a checkbox input, and a select input.
- * Each input type is managed with its own state and change handler.
- * The `InputManager` component is designed to handle different input types dynamically.
- * The story showcases how to use the `InputManager` to render and manage form inputs.
- * It is useful for building forms with multiple input types in a consistent way.
- */
+type Story = StoryObj<typeof InputManager>;
 
-export const TextInputs: Story = {
-  render: () => {
-    const [formData, setFormData] = useState({
-      username: '',
-      email: '',
-    });
+const Template = (args: any) => {
+  const [value, setValue] = useState(args.value || "");
 
-    const handleChange = (name: string, value: any) => {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    };
+  const handleChange = (e: React.ChangeEvent<any>) => {
+  const { type, checked, value } = e.target;
 
-    const inputs = [
-      {
-        name: 'username',
-        label: 'Username',
-        type: 'text',
-        value: formData.username,
-        onChange: handleChange,
-      },
-      {
-        name: 'email',
-        label: 'Email',
-        type: 'text',
-        value: formData.email,
-        onChange: handleChange,
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-  },
-  parameters: {
-    docs: {
-      source: {
-        code: `
-const [formData, setFormData] = useState({
-      username: '',
-      email: '',
-    });
-
-    const handleChange = (name: string, value: any) => {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const inputs = [
-      {
-        name: 'username',
-        label: 'Username',
-        type: 'text',
-        value: formData.username,
-        onChange: handleChange,
-      },
-      {
-        name: 'email',
-        label: 'Email',
-        type: 'text',
-        value: formData.email,
-        onChange: handleChange,
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-        `,
-      },
-    },
-  },
-};
-
-export const CheckboxInput: Story = {
-  render: () => {
-    const [subscribe, setSubscribe] = useState(false);
-
-    const handleChange = (name: string, value: any) => {
-      setSubscribe(value);
-    };
-
-    const inputs = [
-      {
-        name: 'subscribe',
-        label: 'Subscribe to newsletter',
-        type: 'checkbox',
-        value: subscribe,
-        onChange: handleChange,
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-  },
-  parameters: {
-    docs: {
-      source: {
-        code: `
-const [subscribe, setSubscribe] = useState(false);
-
-    const handleChange = (name: string, value: any) => {
-      setSubscribe(value);
-    };
-
-    const inputs = [
-      {
-        name: 'subscribe',
-        label: 'Subscribe to newsletter',
-        type: 'checkbox',
-        value: subscribe,
-        onChange: handleChange,
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-        `,
-      },
-    },
-  },
-};
-
-export const SelectInput: Story = {
-  render: () => {
-    const [country, setCountry] = useState('fr');
-
-    const handleChange = (name: string, value: any) => {
-      setCountry(value);
-    };
-
-    const inputs = [
-      {
-        name: 'country',
-        label: 'Country',
-        type: 'select',
-        value: country,
-        onChange: handleChange,
-        options: [
-          { label: 'France', value: 'fr' },
-          { label: 'USA', value: 'us' },
-          { label: 'Germany', value: 'de' },
-        ],
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-  },
-  parameters: {
-    docs: {
-      source: {
-        code: `
-const [country, setCountry] = useState('fr');
-    const handleChange = (name: string, value: any) => {
-      setCountry(value);
-    };
-
-    const inputs = [
-      {
-        name: 'country',
-        label: 'Country',
-        type: 'select',
-        value: country,
-        onChange: handleChange,
-        options: [
-          { label: 'France', value: 'fr' },
-          { label: 'USA', value: 'us' },
-          { label: 'Germany', value: 'de' },
-        ],
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-        `,
-      },
-    },
-  },
-};
-
-const fruits = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Orange', value: 'orange' },
-  { label: 'Pear', value: 'pear' },
-  { label: 'Pineapple', value: 'pineapple' },
-];
-
-
-export const DemoSearch = {
-  render: () => {
-    const [search, setSearch] = useState('');
-
-    const onChange = (name: string, value: any) => {
-      setSearch(value);
-    };
-
-    const inputs = [
-      {
-        name: 'fruit',
-        label: 'Choose a fruit',
-        type: 'search' as const,
-        value: search,
-        onChange,
-        options: fruits,
-      },
-    ];
-
-    return <InputManager inputs={inputs} />;
-  },
-  parameters: {
-    docs: {
-      source: {
-        code: `
-const fruits = [
-  { label: 'Apple', value: 'apple' },
-  { label: 'Banana', value: 'banana' },
-  { label: 'Orange', value: 'orange' },
-  { label: 'Pear', value: 'pear' },
-  { label: 'Pineapple', value: 'pineapple' },
-];
-
-const DemoSearch = () => {
-  const [search, setSearch] = React.useState('');
-
-  const onChange = (name, value) => {
-    setSearch(value);
-  };
-
-  const inputs = [
-    {
-      name: 'fruit',
-      label: 'Choose a fruit',
-      type: 'search',
-      value: search,
-      onChange,
-      options: fruits,
-    },
-  ];
-
-  return <InputManager inputs={inputs} />;
-};
-        `,
-      },
-      description: {
-        story: `
-This example demonstrates how to use the \`InputManager\` component
-to create a search input with predefined options.
-It allows users to search for fruits from a predefined list.
-The search input filters the options based on user input.
-The component manages the search state and updates the input value accordingly.
-Here is an example of a list to pass as options to the search input.
-You can modify the list to include any items you want to search for.
-        `,
-      },
-    },
-  },
+  const finalValue = type === "checkbox" ? checked : value;
+  setValue(finalValue);
 };
 
 
+  return <InputManager {...args} value={value} onChange={handleChange} />;
+};
 
+export const Textarea: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Description",
+    type: "text",
+    name: "description",
+    value: "Texte d'exemple",
+  },
+};
 
+export const Select: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Choisir une option",
+    type: "select",
+    name: "selectInput",
+    options: [
+      { value: "option1", label: "Option 1" },
+      { value: "option2", label: "Option 2" },
+    ],
+    value: "option1",
+  },
+};
+
+export const Radio: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Choisir une option",
+    type: "radio",
+    name: "radioInput",
+    options: [
+      { value: "option1", label: "Option 1" },
+      { value: "option2", label: "Option 2" },
+      { value: "option3", label: "Option 3" },
+    ],
+    value: "option1",
+  },
+};
+
+export const FileInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Ajouter un fichier",
+    type: "file",
+    name: "document",
+    value: "https://example.com/uploads/file.pdf",
+  },
+};
+
+export const DateInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Date de naissance",
+    type: "date",
+    name: "birthdate",
+    value: "01-01-1990",
+  },
+};
+
+export const Checkbox: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Accepter les conditions",
+    type: "checkbox",
+    name: "terms",
+    value: true,
+  },
+};
+
+export const NumberInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Quantité",
+    type: "number",
+    name: "quantity",
+    value: 10,
+    min: 1,
+    max: 100,
+    error: "La quantité doit être entre 1 et 100.",
+  },
+};
+
+export const PasswordInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Mot de passe",
+    type: "password",
+    name: "password",
+    value: "secret",
+  },
+};
+
+export const EmailInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Email",
+    type: "email",
+    name: "email",
+    value: "",
+  },
+};
+
+export const TelephoneInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Téléphone",
+    type: "telephone",
+    name: "phone",
+    value: "+33123456789",
+  },
+};
+
+export const DefaultInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Nom",
+    type: "text",
+    name: "username",
+    value: "Jean Dupont",
+  },
+};
