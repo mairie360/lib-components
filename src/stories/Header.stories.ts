@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs';
 import { Header, HeaderProps } from './Header';
 
 const meta: Meta<typeof Header> = {
-  title: 'Example/Header',
+  title: 'Components/Header/Header',
   component: Header,
   tags: ['autodocs'],
 };

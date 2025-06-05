@@ -25,7 +25,7 @@ import { Item } from './Item';
  * The item contains two buttons: delete and modify. The modify button should navigate to the modification page.
  */
 const meta = {
-    title: 'Example/Item',
+    title: 'Components/Items/Item',
     component: Item,
     tags: ['autodocs'],
     parameters: {
