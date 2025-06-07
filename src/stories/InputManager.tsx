@@ -1,5 +1,5 @@
 import React from "react";
-import { FaEye, FaEyeSlash, FaTrash, FaDownload, FaEnvelope, FaPhone } from "react-icons/fa";
+import { FaEye, FaEyeSlash, FaTrash, FaDownload, FaEnvelope, FaPhone, FaSearch } from "react-icons/fa";
 import axios from "axios";
 import Cookie from "js-cookie";
 
@@ -22,6 +22,7 @@ export type InputProps = {
     | "email"
     | "tel"
     | "number"
+    | "search"
     | "default";
   value: any;
   onChange: (event: React.ChangeEvent<any>) => void;
@@ -45,6 +46,20 @@ const InputManager: React.FC<InputProps> = ({
   min,
   max,
 }) => {
+  const [dropdownVisible, setDropdownVisible] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+
+  React.useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target as HTMLElement).closest(`#${name}-wrapper`)) {
+        setDropdownVisible(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+
   const [showPassword, setShowPassword] = React.useState(false);
   const [emailError, setEmailError] = React.useState<string | null>(null);
   const validateEmail = (email: string): boolean => {
@@ -161,13 +176,59 @@ const InputManager: React.FC<InputProps> = ({
       </label>
 
       {type === "select" ? (
-        <select {...commonProps}>
-          {options.map((option) => (
-            <option key={option.value} value={option.value} className="text-black">
+        <div className="relative" id={`${name}-wrapper`}>
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            id={name}
+            name={name}
+            value={options.find((o) => o.value === value)?.label || search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setDropdownVisible(true);
+              onChange({
+                target: {
+                  name,
+                  value: "",
+                },
+              } as React.ChangeEvent<HTMLInputElement>);
+            }}
+            onFocus={() => setDropdownVisible(true)}
+            placeholder="Rechercher une option..."
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
+    {dropdownVisible && (
+      <ul className="absolute z-10 mt-1 w-full bg-white text-black border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+        {options
+          .filter((option) =>
+            option.label.toLowerCase().includes(search.toLowerCase())
+          )
+          .map((option) => (
+            <li
+              key={option.value}
+              onClick={() => {
+                onChange({
+                  target: {
+                    name,
+                    value: option.value,
+                  },
+                } as React.ChangeEvent<HTMLInputElement>);
+                setSearch("");
+                setDropdownVisible(false);
+              }}
+              className="cursor-pointer px-4 py-2 hover:bg-indigo-100 text-sm"
+            >
               {option.label}
-            </option>
+            </li>
           ))}
-        </select>
+        {options.filter((o) =>
+          o.label.toLowerCase().includes(search.toLowerCase())
+        ).length === 0 && (
+          <li className="px-4 py-2 text-sm text-gray-500">Aucune option trouvée</li>
+        )}
+      </ul>
+    )}
+  </div>
       ) : type === "text" ? (
         <textarea {...commonProps} className={`${commonProps.className} h-24`} />
       ) : type === "file" ? (
@@ -280,6 +341,19 @@ const InputManager: React.FC<InputProps> = ({
             }`}
           />
           {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+      ) : type === "search" ? (
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <input
+            type="search"
+            id={name}
+            name={name}
+            value={value}
+            onChange={onChange}
+            placeholder="Rechercher..."
+            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
       ) : (
         <input type="text" {...commonProps} />

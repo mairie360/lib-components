@@ -40,17 +40,22 @@ export const Textarea: Story = {
   },
 };
 
-export const Select: Story = {
+export const SelectInput: Story = {
   render: (args) => <Template {...args} />,
   args: {
-    label: "Choisir une option",
+    label: "Recherche avec sélection",
     type: "select",
-    name: "selectInput",
+    name: "searchSelect",
     options: [
-      { value: "option1", label: "Option 1" },
-      { value: "option2", label: "Option 2" },
+      { value: "apple", label: "Apple" },
+      { value: "banana", label: "Banana" },
+      { value: "cherry", label: "Cherry" },
+      { value: "date", label: "Date" },
+      { value: "elderberry", label: "Elderberry" },
+      { value: "fig", label: "Fig" },
+      { value: "grape", label: "Grape" },
     ],
-    value: "option1",
+    value: "",
   },
 };
 
@@ -139,6 +144,15 @@ export const TelephoneInput: Story = {
     type: "telephone",
     name: "phone",
     value: "+33123456789",
+  },
+};
+
+export const SearchInput: Story = {
+  render: (args) => <Template {...args} />,
+  args: {
+    label: "Recherche",
+    type: "search",
+    name: "search",
   },
 };
 
