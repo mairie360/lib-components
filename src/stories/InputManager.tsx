@@ -20,7 +20,7 @@ export type InputProps = {
     | "date"
     | "password"
     | "email"
-    | "telephone"
+    | "tel"
     | "number"
     | "default";
   value: any;
@@ -214,7 +214,7 @@ const InputManager: React.FC<InputProps> = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-2 pr-2 flex items-center text-gray-500 hover:text-gray-700"
+            className="absolute inset-y-0 right-2 pr-2 flex items-center hover:text-blue-500 focus:outline-none"
             tabIndex={-1}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
@@ -246,7 +246,7 @@ const InputManager: React.FC<InputProps> = ({
             <p className="mt-1 text-sm text-red-600">{emailError}</p>
           )}
         </div>
-      ) : type === "telephone" ? (
+      ) : type === "tel" ? (
         <div className="mb-1">
           <div className="relative">
             <FaPhone className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
