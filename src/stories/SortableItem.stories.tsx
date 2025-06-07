@@ -20,7 +20,7 @@ import { SortableItem } from './SortableItem';
  * - args : Props par défaut passées au composant.
  */
 const meta = {
-  title: 'Example/SortableItem',
+  title: 'Components/Items/SortableItem',
   component: SortableItem,
   tags: ['autodocs'],
   parameters: {

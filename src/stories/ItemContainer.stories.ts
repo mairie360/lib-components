@@ -22,7 +22,7 @@ import { ItemContainer } from './ItemContainer';
  */
 
 const meta = {
-    title: 'Example/ItemContainer',
+    title: 'Components/Items/ItemContainer',
     component: ItemContainer,
     tags: ['autodocs'],
     parameters: {

@@ -23,7 +23,7 @@ import { MiniCard } from './MiniCard';
  */
 
 const meta = {
-    title: 'Example/MiniCard',
+    title: 'Components/Card/MiniCard',
     component: MiniCard,
     tags: ['autodocs'],
     parameters: {
