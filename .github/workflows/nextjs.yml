@@ -1,7 +1,9 @@
-name: Deploy Storybook to GitHub Pages
+name: Test & Deploy Storybook to GitHub Pages
 
 on:
   push:
+    branches: ["main"]
+  pull_request:
     branches: ["main"]
   workflow_dispatch:
 
@@ -53,6 +55,7 @@ jobs:
           path: storybook-static
 
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [build_and_lighthouse]
     runs-on: ubuntu-latest
     environment:
