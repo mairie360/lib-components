@@ -19,6 +19,8 @@ concurrency:
 jobs:
   build_and_lighthouse:
     runs-on: ubuntu-latest
+    outputs:
+      src_changed: ${{ steps.check_src.outputs.changed }}
 
     steps:
       - name: Checkout repository
@@ -38,16 +40,23 @@ jobs:
 
       - name: Serve Storybook
         run: |
-         npm run local-storybook &
+          npm run local-storybook &
 
       - name: Generate Lighthouse URLs
         run: npm run lhci:urls
 
       - name: Run Lighthouse
         run: npm run lhci:run
-      
+
       - name: Check accessibility
         run: npm run lhci:check
+
+      - name: Check if src/ has changed
+        id: check_src
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep '^src/' || true)
+          echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - name: Upload Storybook artifact
         uses: actions/upload-pages-artifact@v3
@@ -55,8 +64,8 @@ jobs:
           path: storybook-static
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [build_and_lighthouse]
+    needs: build_and_lighthouse
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
