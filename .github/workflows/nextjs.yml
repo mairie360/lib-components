@@ -78,7 +78,6 @@ jobs:
         uses: actions/deploy-pages@v4
 
   publish_package:
-    needs: deploy
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
