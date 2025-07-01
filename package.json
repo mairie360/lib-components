@@ -1,5 +1,5 @@
 {
-  "name": "@mairie360/lib-component",
+  "name": "@mairie360/lib-components",
   "version": "1.0.0",
   "private": false,
   "main": "dist/index.js",
@@ -21,8 +21,7 @@
     "lhci:run": "lhci autorun --config=./lighthouserc.js",
     "lhci:check": "node scripts/check-accessibility.js",
     "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
-    "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
-    "publish:github": "echo \"//npm.pkg.github.com/:_authToken=$GITHUB_TOKEN\" > .npmrc && npm publish && rm .npmrc"
+    "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -61,6 +60,7 @@
     "@vitest/coverage-v8": "^3.1.2",
     "chromatic": "^11.28.2",
     "daisyui": "^5.0.35",
+    "dotenv-cli": "^8.0.0",
     "playwright": "^1.52.0",
     "start-server-and-test": "^2.0.12",
     "storybook": "^9.0.15",
