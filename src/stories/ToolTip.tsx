@@ -7,7 +7,7 @@ export interface TooltipProps {
   children: React.ReactNode;
 }
 
-export const Tooltip = ({ text, children }: TooltipProps) => {
+export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
   const [visible, setVisible] = useState(false);
 
   return (
