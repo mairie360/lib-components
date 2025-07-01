@@ -50,3 +50,9 @@ chromatic.config.json
 lhci-urls.json
 .lighthouseci
 lhci-reports
+
+# Ignore the npmrc file in the root directory
+.npmrc
+
+# Ignore the dist directory
+/dist/

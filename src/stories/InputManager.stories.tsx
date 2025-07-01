@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Meta, StoryObj } from "@storybook/react";
-import InputManager from "./InputManager";
+import { InputManager } from "./InputManager";
 import type { InputProps } from "./InputManager";
 
 const meta: Meta<typeof InputManager> = {

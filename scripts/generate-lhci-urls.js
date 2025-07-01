@@ -1,5 +1,4 @@
 const glob = require("glob");
-const path = require("path");
 const fs = require("fs");
 
 const storyFiles = glob.sync("src/**/*.stories.@(js|jsx|ts|tsx)");

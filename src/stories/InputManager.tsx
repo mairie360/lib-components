@@ -34,7 +34,7 @@ export type InputProps = {
   error?: string | null;
 };
 
-const InputManager: React.FC<InputProps> = ({
+export const InputManager = ({
   label,
   name,
   type = "text",
@@ -45,7 +45,8 @@ const InputManager: React.FC<InputProps> = ({
   id,
   min,
   max,
-}) => {
+  ...props
+}: InputProps ) => {
   const [dropdownVisible, setDropdownVisible] = React.useState(false);
   const [search, setSearch] = React.useState("");
 
@@ -361,5 +362,3 @@ const InputManager: React.FC<InputProps> = ({
     </div>
   );
 };
-
-export default InputManager;

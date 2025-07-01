@@ -12,14 +12,15 @@ type SortableItemProps = {
   onEdit?: () => void;
 };
 
-export const SortableItem: React.FC<SortableItemProps> = ({
+export const SortableItem = ({
   id,
   title,
   description,
   onClick,
   onDelete,
   onEdit,
-}) => {
+  ...props
+}: SortableItemProps) => {
   const {
     attributes,
     listeners,
@@ -29,7 +30,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({
     isDragging,
   } = useSortable({ id });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
     transition,
     cursor: isDragging ? "grabbing" : "grab",
