@@ -114,7 +114,3 @@ jobs:
       - name: Publish package to GitHub Packages
         if: steps.version_check.outputs.exists == 'false'
         run: npm publish
-
-
-      - name: Clean up npmrc
-        run: rm -f ~/.npmrc
