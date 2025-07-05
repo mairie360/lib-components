@@ -81,36 +81,33 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
   
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    permissions:
+      contents: read
+      packages: write
   
-      - name: Setup Node.js and authenticate
-        uses: actions/setup-node@v4
+    steps:
+      - uses: actions/checkout@v4
+  
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://npm.pkg.github.com
           scope: '@mairie360'
           token: ${{ secrets.GITHUB_TOKEN }}
   
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
   
-      - name: Build package
-        run: npm run build
+      - run: npm run build
   
-      - name: Check if version already exists
-        id: version_check
+      - id: version_check
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          echo "Checking for $PACKAGE_NAME@$PACKAGE_VERSION..."
           if npm view $PACKAGE_NAME@$PACKAGE_VERSION --registry=https://npm.pkg.github.com > /dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
   
-      - name: Publish package to GitHub Packages
+      - run: npm publish
         if: steps.version_check.outputs.exists == 'false'
-        run: npm publish
