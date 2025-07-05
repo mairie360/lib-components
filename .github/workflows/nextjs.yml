@@ -108,6 +108,9 @@ jobs:
           else
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Debug npm config
+        run: npm config list
   
       - run: npm publish
         if: steps.version_check.outputs.exists == 'false'
