@@ -101,14 +101,22 @@ jobs:
         run: npm run build
 
       - name: Check if version already exists
+        id: version_check
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          EXISTS=$(npm view $PACKAGE_NAME@$PACKAGE_VERSION --registry=https://npm.pkg.github.com 2>/dev/null || echo "notfound")
-          if [[ "$EXISTS" != "notfound" ]]; then
-            echo "📦 Version $PACKAGE_VERSION already exists, skipping publish."
-            exit 0
+          echo "Checking for $PACKAGE_NAME@$PACKAGE_VERSION..."
+          if npm view $PACKAGE_NAME@$PACKAGE_VERSION --registry=https://npm.pkg.github.com > /dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Publish package to GitHub Packages
+        if: steps.version_check.outputs.exists == 'false'
         run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Clean up npmrc
+        run: rm -f ~/.npmrc
