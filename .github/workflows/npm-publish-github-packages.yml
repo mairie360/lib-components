@@ -67,7 +67,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add package.json package-lock.json
-          git commit -m "ci: bump patch version" || echo "No changes to commit"
+          git commit -m "ci: bump patch version [skip ci]" || echo "No changes to commit"
 
       - name: Push version bump
         run: git push origin HEAD:refs/heads/${{ steps.get_branch.outputs.BRANCH_NAME }}
