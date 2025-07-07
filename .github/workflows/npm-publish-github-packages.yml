@@ -55,8 +55,8 @@ jobs:
           git config user.email "github-actions@github.com"
           npm version patch --no-git-tag-version
           git add package.json package-lock.json
-          git commit -m "ci: bump version [skip ci]" || echo "No version bump needed"
-          git push
+          git commit -m "ci: bump version [skip ci]" || echo "Nothing to commit"
+          git push origin HEAD:main
 
       - name: Publish to GitHub Packages
         env:
