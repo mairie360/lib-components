@@ -1,7 +1,5 @@
 import React from "react";
 import { FaEye, FaEyeSlash, FaTrash, FaDownload, FaEnvelope, FaPhone, FaSearch } from "react-icons/fa";
-import axios from "axios";
-import Cookie from "js-cookie";
 
 export type Option = {
   label: string;
@@ -111,21 +109,10 @@ export const InputManager = ({
     const filename = value.split("/").pop();
     const apiUrl = process.env.REACT_APP_API_URL;
 
-    const handleDelete = async () => {
-      try {
-        await axios.delete(`${apiUrl}file/${table}/${name}/${id}`, {
-          headers: {
-            Authorization: "Bearer " + Cookie.get("token"),
-          },
-        });
-
-        onChange({ target: { name, value: "" } } as React.ChangeEvent<any>);
-      } catch (error) {
-        console.error("Erreur lors de la suppression du fichier :", error);
-      }
-    };
-    
-
+    const handleDelete = () => {
+      if (!filename || !apiUrl) return;
+    }
+      
     return (
       <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
         <span>
