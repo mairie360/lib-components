@@ -1,17 +1,23 @@
 {
   "name": "@mairie360/lib-components",
-  "version": "1.0.0",
+  "version": "0.1.2",
   "private": false,
   "main": "dist/index.js",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "sideEffects": false,
+  "browser": {
+    "fs": false,
+    "path": false,
+    "os": false
+  },
   "files": [
     "dist"
   ],
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/generate-exports.js",
-    "build": "tsup src/index.tsx --dts --format esm,cjs --out-dir dist",
+    "build": "tsup",
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
