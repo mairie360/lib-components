@@ -47,7 +47,7 @@ jobs:
       - run: npm ci
 
       - name: Set up .npmrc with Classic Token
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" > ~/.npmrc
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" >> ~/.npmrc
 
       - name: Check identity
         run: npm whoami --registry=https://npm.pkg.github.com
