@@ -14,8 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -23,7 +21,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build package
         run: npm run build
 
@@ -35,8 +33,6 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -44,13 +40,14 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@mairie360'
 
-      - run: npm ci
+      - name: Configure npm auth
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" > ~/.npmrc
 
-      - name: Set up .npmrc with Classic Token
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" >> ~/.npmrc
+      - name: Check .npmrc
+        run: cat ~/.npmrc | sed 's/:_authToken=.*/:_authToken=***MASKED***/'
 
-      - name: Check identity
-        run: npm whoami --registry=https://npm.pkg.github.com
+      - name: Install dependencies
+        run: npm ci
 
       - name: Bump patch version
         run: |
@@ -58,8 +55,10 @@ jobs:
           git config user.email "github-actions@github.com"
           npm version patch --no-git-tag-version
           git add package.json package-lock.json
-          git commit -m "ci: bump version [skip ci]"
+          git commit -m "ci: bump version [skip ci]" || echo "No version bump needed"
           git push
 
-      - name: Publish package
+      - name: Publish to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
         run: npm publish --access public
