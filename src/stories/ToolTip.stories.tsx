@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
-import { Tooltip } from '../components/ToolTip';
+import { ToolTip } from '../components/ToolTip';
 
-const meta: Meta<typeof Tooltip> = {
-  title: 'Components/Feedback/Tooltip',
-  component: Tooltip,
+const meta: Meta<typeof ToolTip> = {
+  title: 'Components/Feedback/ToolTip',
+  component: ToolTip,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -17,16 +17,16 @@ const meta: Meta<typeof Tooltip> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof Tooltip>;
+type Story = StoryObj<typeof ToolTip>;
 
 export const Default: Story = {
   args: {
     text: 'Info bulle par défaut',
   },
   render: (args) => (
-    <Tooltip {...args}>
+    <ToolTip {...args}>
       <button className="px-4 py-2 bg-blue-500 text-white rounded">Survoler moi</button>
-    </Tooltip>
+    </ToolTip>
   ),
 };
 
@@ -35,8 +35,8 @@ export const WithIcon: Story = {
     text: 'Icône avec info',
   },
   render: (args) => (
-    <Tooltip {...args}>
+    <ToolTip {...args}>
       <span className="text-xl cursor-help">❓</span>
-    </Tooltip>
+    </ToolTip>
   ),
 };
