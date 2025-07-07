@@ -1,15 +1,27 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: ["src/index.tsx"],
   format: ["esm", "cjs"],
   dts: true,
-  minify: false,
   sourcemap: true,
   clean: true,
   target: "es2018",
+  splitting: false,
+  minify: false,
   external: [
-    "react", "react-dom",
-    "fs", "zlib", "path", "stream", "http", "https"
-  ],
+    "react",
+    "react-dom",
+    "fs",
+    "zlib",
+    "path",
+    "stream",
+    "http",
+    "https",
+    "os",
+    "url",
+    "buffer",
+    "crypto",
+    "axios"
+  ]
 });

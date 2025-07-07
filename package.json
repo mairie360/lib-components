@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/generate-exports.js",
-    "build": "tsup src/index.tsx --dts --format esm,cjs --out-dir dist",
+    "build": "tsup",
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
