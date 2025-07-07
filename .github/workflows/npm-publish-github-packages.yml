@@ -14,6 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PACKAGES_TOKEN }}
+
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -28,10 +31,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -46,6 +51,15 @@ jobs:
 
       - name: Check identity
         run: npm whoami --registry=https://npm.pkg.github.com
+
+      - name: Bump patch version
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          npm version patch --no-git-tag-version
+          git add package.json package-lock.json
+          git commit -m "ci: bump version [skip ci]"
+          git push
 
       - name: Publish package
         run: npm publish --access public
