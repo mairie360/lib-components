@@ -3,6 +3,12 @@ name: Node.js Package
 on:
   release:
     types: [created]
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
 
 jobs:
   build:
@@ -13,7 +19,12 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npm test
+      
+      - name: PreBuild Package
+        run: npm run prebuild
+      
+      - name: Build package
+        run: npm run build
 
   publish-gpr:
     needs: build
