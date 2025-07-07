@@ -111,6 +111,9 @@ jobs:
 
       - name: Debug npm config
         run: npm config list
+        
+      - name: Debug whoami
+        run: npm whoami --registry=https://npm.pkg.github.com
   
       - run: npm publish
         if: steps.version_check.outputs.exists == 'false'
