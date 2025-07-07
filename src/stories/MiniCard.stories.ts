@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { fn } from 'storybook/test';
 
-import { MiniCard } from './MiniCard';
+import { MiniCard } from '../components/MiniCard';
 
 /**
  * Meta configuration for the `MiniCard` component story.

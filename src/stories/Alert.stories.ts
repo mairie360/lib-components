@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs';
 import { fn } from 'storybook/test';
 
-import { Alert } from './Alert';
+import { Alert } from '../components/Alert';
 
 const meta: Meta<typeof Alert> = {
 

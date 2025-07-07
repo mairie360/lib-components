@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Meta, StoryObj } from "@storybook/react";
-import { InputManager } from "./InputManager";
-import type { InputProps } from "./InputManager";
+import { InputManager } from "../components/InputManager";
+import type { InputProps } from "../components/InputManager";
 
 const meta: Meta<typeof InputManager> = {
   title: "Components/Input/InputManager",

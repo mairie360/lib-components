@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { fn } from 'storybook/test';
 
-import { ItemContainer } from './ItemContainer';
+import { ItemContainer } from '../components/ItemContainer';
 
 /**
  * Meta configuration for the `ItemContainer` component story.

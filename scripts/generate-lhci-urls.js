@@ -1,5 +1,5 @@
-const glob = require("glob");
-const fs = require("fs");
+import glob from "glob";
+import fs from "fs";
 
 const storyFiles = glob.sync("src/**/*.stories.@(js|jsx|ts|tsx)");
 

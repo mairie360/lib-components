@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
 
-import { SortableItem } from './SortableItem';
+import { SortableItem } from '../components/SortableItem';
 
 /**
  * Meta configuration pour le composant `SortableItem`.
