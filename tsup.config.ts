@@ -4,7 +4,12 @@ export default defineConfig({
   entry: ["src/index.ts"],
   format: ["esm", "cjs"],
   dts: true,
-  external: ["zlib", "fs", "path"],
-  noExternal: ["react"],
+  minify: false,
+  sourcemap: true,
   clean: true,
+  target: "es2018",
+  external: [
+    "react", "react-dom",
+    "fs", "zlib", "path", "stream", "http", "https"
+  ],
 });
