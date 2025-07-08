@@ -2,12 +2,11 @@ name: Node.js Package
 
 on:
   workflow_run:
-    workflows: ["Main CI Entry Point"]
+    workflows: ["Test, Deploy Storybook & Publish Package"]
     types:
       - completed
   release:
     types: [created]
-
 
 jobs:
   build:
