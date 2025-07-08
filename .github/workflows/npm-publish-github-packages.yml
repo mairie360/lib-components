@@ -2,7 +2,8 @@ name: Node.js Package
 
 on:
   workflow_run:
-    workflows: ["Test, Deploy Storybook & Publish Package"]
+    workflows: 
+      - Test & Deploy Storybook
     types:
       - completed
   release:

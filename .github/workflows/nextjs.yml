@@ -1,11 +1,12 @@
-name: Test, Deploy Storybook & Publish Package
+name: Test & Deploy Storybook
 
 on:
   workflow_run:
-    workflows: ["Main CI Entry Point"]
+    workflows:
+      - Main CI Entry Point
     types:
       - completed
-
+  
 permissions:
   contents: read
   pages: write
@@ -72,7 +73,7 @@ jobs:
 
   deploy:
     needs: build_and_lighthouse
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
+    if: github.event.workflow_run.head_branch == 'main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
