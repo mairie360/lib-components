@@ -1,11 +1,10 @@
 name: Test, Deploy Storybook & Publish Package
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Main CI Entry Point"]
+    types:
+      - completed
 
 permissions:
   contents: read
@@ -18,55 +17,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build_and_lighthouse:
-    runs-on: ubuntu-latest
-    outputs:
-      src_changed: ${{ steps.check_src.outputs.changed }}
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Storybook
-        run: npm run build-storybook
-
-      - name: Serve Storybook
-        run: |
-          npm run local-storybook &
-
-      - name: Generate Lighthouse URLs
-        run: npm run lhci:urls
-
-      - name: Run Lighthouse
-        run: npm run lhci:run
-
-      - name: Check accessibility
-        run: npm run lhci:check
-
-      - name: Check if src/ has changed
-        id: check_src
-        run: |
-          git fetch origin main
-          CHANGED=$(git diff --name-only origin/main...HEAD | grep '^src/' || true)
-          echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
-
-      - name: Upload Storybook artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: storybook-static
-
   deploy:
-    needs: build_and_lighthouse
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
