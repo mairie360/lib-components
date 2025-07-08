@@ -12,12 +12,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      src_changed: ${{ steps.check_src.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+
+      - name: Check if src/ has changed
+        id: check_src
+        run: |
+          git fetch origin main
+          CHANGED=$(git diff --name-only origin/main...HEAD | grep '^src/' || true)
+          echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
       - name: Install dependencies
         run: npm ci
@@ -27,6 +36,7 @@ jobs:
 
   publish-gpr:
     needs: build
+    if: needs.build.outputs.src_changed == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
