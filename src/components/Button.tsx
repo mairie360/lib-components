@@ -27,7 +27,7 @@ export const Button = ({
     <button
       type="button"
       className={`btn ${mode} ${size}`}
-      style={{ backgroundColor }}
+      style={backgroundColor ? { backgroundColor } : undefined}
       onClick={onClick}
       {...props}
     >

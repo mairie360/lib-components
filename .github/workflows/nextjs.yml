@@ -1,12 +1,14 @@
-name: Test, Deploy Storybook & Publish Package
+name: Test & Deploy Storybook
 
 on:
+  release:
+    types: [created]
+  workflow_dispatch:
   push:
     branches: ["main"]
   pull_request:
     branches: ["main"]
-  workflow_dispatch:
-
+  
 permissions:
   contents: read
   pages: write
@@ -19,6 +21,7 @@ concurrency:
 
 jobs:
   build_and_lighthouse:
+    name: Build Storybook & Run Lighthouse
     runs-on: ubuntu-latest
     outputs:
       src_changed: ${{ steps.check_src.outputs.changed }}
@@ -31,26 +34,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Storybook
-        run: npm run build-storybook
-
-      - name: Serve Storybook
-        run: |
-          npm run local-storybook &
-
-      - name: Generate Lighthouse URLs
-        run: npm run lhci:urls
-
-      - name: Run Lighthouse
-        run: npm run lhci:run
-
-      - name: Check accessibility
-        run: npm run lhci:check
+          cache: npm
 
       - name: Check if src/ has changed
         id: check_src
@@ -59,14 +43,39 @@ jobs:
           CHANGED=$(git diff --name-only origin/main...HEAD | grep '^src/' || true)
           echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
+      - name: Install dependencies
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm ci
+
+      - name: Build Storybook
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm run build-storybook
+
+      - name: Serve Storybook
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm run local-storybook &
+
+      - name: Generate Lighthouse URLs
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm run lhci:urls
+
+      - name: Run Lighthouse
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm run lhci:run
+
+      - name: Check accessibility
+        if: steps.check_src.outputs.changed == 'true'
+        run: npm run lhci:check
+
       - name: Upload Storybook artifact
+        if: steps.check_src.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: storybook-static
 
   deploy:
     needs: build_and_lighthouse
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
+    if: github.event.workflow_run.head_branch == 'main' && needs.build_and_lighthouse.outputs.src_changed == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -76,3 +85,4 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
