@@ -108,7 +108,6 @@ export const Item: React.FC<ItemProps> = ({
         {/* Action Buttons */}
         {showActions && (
           <div className="absolute top-2 right-12 z-50 flex gap-2 items-center">
-            {/* Edit Button */}
             <button
               onClick={handleEdit}
               onPointerDown={(e) => e.stopPropagation()}
@@ -121,7 +120,6 @@ export const Item: React.FC<ItemProps> = ({
               </span>
             </button>
 
-            {/* Delete Button */}
             <button
               onClick={handleDeleteClick}
               onPointerDown={(e) => e.stopPropagation()}
