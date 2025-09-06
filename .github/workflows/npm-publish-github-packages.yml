@@ -28,7 +28,6 @@ jobs:
           if git rev-parse HEAD^ >/dev/null 2>&1; then
             CHANGED=$(git diff --name-only HEAD^ HEAD | grep '^src/' || true)
           else
-            # Initial commit: diff against empty tree
             CHANGED=$(git diff --name-only 4b825dc642cb6eb9a060e54bf8d69288fbee4904 HEAD | grep '^src/' || true)
           fi
           echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
