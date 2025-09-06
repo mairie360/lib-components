@@ -31,6 +31,7 @@ jobs:
             CHANGED=$(git diff --name-only 4b825dc642cb6eb9a060e54bf8d69288fbee4904 HEAD | grep '^src/' || true)
           fi
           echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+
       - name: Install dependencies
         run: npm ci
 
@@ -63,15 +64,17 @@ jobs:
         run: npm ci
 
       - name: Bump patch version
+        id: bump
         run: |
-          npm version patch --no-git-tag-version
+          VERSION=$(npm version patch --no-git-tag-version | sed 's/v//')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Create git tag
+        run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add package.json package-lock.json
-          git commit -m "ci: bump patch version [skip ci]" || echo "No changes to commit"
-
-      - name: Push version bump
-        run: git push origin main
+          git tag v${{ steps.bump.outputs.version }}
+          git push origin v${{ steps.bump.outputs.version }}
 
       - name: Publish to GitHub Packages
         env:
