@@ -66,15 +66,36 @@ jobs:
       - name: Bump patch version
         id: bump
         run: |
-          VERSION=$(npm version patch --no-git-tag-version | sed 's/v//')
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          set -e
+          MAX_ATTEMPTS=10
+          attempt=0
+
+          while [ $attempt -lt $MAX_ATTEMPTS ]; do
+            VERSION=$(npm version patch --no-git-tag-version | sed 's/^v//')
+            TAG="v$VERSION"
+
+            if git rev-parse "$TAG" >/dev/null 2>&1; then
+              echo "Tag $TAG already exists — bumping again (attempt $((attempt + 1)))..."
+              attempt=$((attempt + 1))
+              continue
+            fi
+
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            break
+          done
+
+          if [ $attempt -ge $MAX_ATTEMPTS ]; then
+            echo "Reached max attempts ($MAX_ATTEMPTS) while trying to find a free tag." >&2
+            exit 1
+          fi
 
       - name: Create git tag
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git tag v${{ steps.bump.outputs.version }}
-          git push origin v${{ steps.bump.outputs.version }}
+          TAG="v${{ steps.bump.outputs.version }}"
+          git tag "$TAG"
+          git push origin "$TAG"
 
       - name: Publish to GitHub Packages
         env:

@@ -3,6 +3,21 @@ import { Meta, StoryObj } from "@storybook/react";
 import { InputManager } from "../components/InputManager";
 import type { InputProps } from "../components/InputManager";
 
+/**
+ * Meta configuration for the `InputManager` component story.
+ *
+ * This configuration is used by Storybook's autodocs feature to generate
+ * documentation for the `InputManager` component. It includes the following:
+ *
+ * - **title**: Specifies the category and name of the story (`Components/Input/InputManager`).
+ * - **component**: The component being documented (`InputManager`).
+ * - **args**: Default arguments (props) for the `InputManager` component:
+ *   - `table`: An example table name (default: `'exampleTable'`).
+ * - **tags**: Tags used for Storybook features (e.g., `autodocs`).
+ *
+ * This meta object satisfies the `Meta<typeof InputManager>` type, ensuring type safety.
+ */
+
 const meta: Meta<typeof InputManager> = {
   title: "Components/Input/InputManager",
   component: InputManager,
