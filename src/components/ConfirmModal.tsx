@@ -1,10 +1,15 @@
 import React from "react";
 
 export interface ConfirmModalProps {
+  /** Title of the confirmation modal */
   title: string;
+  /** Message content of the confirmation modal */
   message: string;
+  /** Callback function when the cancel button is clicked */
   onCancel: () => void;
+  /** Callback function when the confirm button is clicked */
   onConfirm: () => void;
+  /** Whether the modal is open or not */
   isOpen: boolean;
 }
 
