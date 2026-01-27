@@ -1,4 +1,5 @@
 export { Alert } from './components/Alert';
+export { Badge } from './components/Badge';
 export { Button } from './components/Button';
 export { ConfirmModal } from './components/ConfirmModal';
 export { Header } from './components/Header';
