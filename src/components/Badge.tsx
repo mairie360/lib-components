@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger';
+export type BadgeVariant = 'default' | 'green' | 'blue' | 'red' | 'dark';
 
 export interface BadgeProps {
   /** Text content of the badge */
@@ -18,10 +18,10 @@ export const Badge = ({
 }: BadgeProps) => {
   const variantClasses = {
     default: 'bg-gray-200 text-gray-800',
-    primary: 'bg-blue-500 text-white',
-    success: 'bg-green-500 text-white',
-    warning: 'bg-yellow-500 text-white',
-    danger: 'bg-red-500 text-white',
+    green: 'bg-[#4b908d] text-white',
+    blue: 'bg-[#1256a6] text-white',
+    red: 'bg-[#c63c31] text-white',
+    dark: 'bg-[#2d2d2d] text-white',
   };
 
   return (
