@@ -1,8 +1,13 @@
-import * as React from "react";
+import React from "react";
 
-interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface AvatarProps {
+  /** Additional CSS classes to apply to the avatar container */
+  className?: string;
+  /** Source URL of the avatar image */
   src?: string;
+  /** Alt text for the avatar image */
   alt?: string;
+  /** Fallback content to display when the image fails to load */
   fallback?: React.ReactNode;
 }
 
