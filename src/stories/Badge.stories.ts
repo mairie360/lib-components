@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/nextjs';
 import { Badge } from '../components/Badge';
 
 const meta: Meta<typeof Badge> = {
@@ -59,5 +59,13 @@ export const Dark: Story = {
     text: 'Dark Badge',
     variant: 'dark',
     rounded: false,
+  },
+};
+
+export const Rounded: Story = {
+  args: {
+    text: 'Rounded Badge',
+    variant: 'green',
+    rounded: true,
   },
 };
