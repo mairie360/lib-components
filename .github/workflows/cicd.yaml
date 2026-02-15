@@ -1,0 +1,14 @@
+name: Orchestrator Pipeline
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  call-pipeline:
+    uses: ./.github/workflows/front-libs-cicd.yml@feat/MAIR-3-add-lib-component-cicd
+    secrets: inherit
