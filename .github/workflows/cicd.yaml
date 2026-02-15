@@ -12,6 +12,6 @@ permissions:
   id-token: write
 
 jobs:
-  call-pipeline:
+  CICD:
     uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@feat/MAIR-3-add-lib-component-cicd
     secrets: inherit
