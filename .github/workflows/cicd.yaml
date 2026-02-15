@@ -10,5 +10,5 @@ permissions:
 
 jobs:
   call-pipeline:
-    uses: ./.github/workflows/front-libs-cicd.yml@feat/MAIR-3-add-lib-component-cicd
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@feat/MAIR-3-add-lib-component-cicd
     secrets: inherit

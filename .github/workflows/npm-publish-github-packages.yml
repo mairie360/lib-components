@@ -1,103 +1,103 @@
-name: Node.js Package
+# name: Node.js Package
 
-on:
-  push:
-    branches:
-      - main
-  release:
-    types: [created]
+# on:
+#   push:
+#     branches:
+#       - main
+#   release:
+#     types: [created]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      src_changed: ${{ steps.check_src.outputs.changed }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     outputs:
+#       src_changed: ${{ steps.check_src.outputs.changed }}
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
 
-      - name: Check if src/ has changed
-        id: check_src
-        run: |
-          git fetch origin main
-          if git rev-parse HEAD^ >/dev/null 2>&1; then
-            CHANGED=$(git diff --name-only HEAD^ HEAD | grep '^src/' || true)
-          else
-            CHANGED=$(git diff --name-only 4b825dc642cb6eb9a060e54bf8d69288fbee4904 HEAD | grep '^src/' || true)
-          fi
-          echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
+#       - name: Check if src/ has changed
+#         id: check_src
+#         run: |
+#           git fetch origin main
+#           if git rev-parse HEAD^ >/dev/null 2>&1; then
+#             CHANGED=$(git diff --name-only HEAD^ HEAD | grep '^src/' || true)
+#           else
+#             CHANGED=$(git diff --name-only 4b825dc642cb6eb9a060e54bf8d69288fbee4904 HEAD | grep '^src/' || true)
+#           fi
+#           echo "changed=$([[ -n \"$CHANGED\" ]] && echo true || echo false)" >> $GITHUB_OUTPUT
 
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
 
-      - name: Build package
-        run: npm run build
+#       - name: Build package
+#         run: npm run build
 
-  publish-gpr:
-    needs: build
-    if: needs.build.outputs.src_changed == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PACKAGES_TOKEN }}
+#   publish-gpr:
+#     needs: build
+#     if: needs.build.outputs.src_changed == 'true'
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#       packages: write
+#     steps:
+#       - uses: actions/checkout@v4
+#         with:
+#           fetch-depth: 0
+#           token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://npm.pkg.github.com/
-          scope: '@mairie360'
+#       - uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           registry-url: https://npm.pkg.github.com/
+#           scope: '@mairie360'
 
-      - name: Configure npm auth
-        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" > ~/.npmrc
+#       - name: Configure npm auth
+#         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.GH_PACKAGES_TOKEN }}" > ~/.npmrc
 
-      - name: Install dependencies
-        run: npm ci
+#       - name: Install dependencies
+#         run: npm ci
 
-      - name: Bump patch version
-        id: bump
-        run: |
-          set -e
-          MAX_ATTEMPTS=10
-          attempt=0
+#       - name: Bump patch version
+#         id: bump
+#         run: |
+#           set -e
+#           MAX_ATTEMPTS=10
+#           attempt=0
 
-          while [ $attempt -lt $MAX_ATTEMPTS ]; do
-            VERSION=$(npm version patch --no-git-tag-version | sed 's/^v//')
-            TAG="v$VERSION"
+#           while [ $attempt -lt $MAX_ATTEMPTS ]; do
+#             VERSION=$(npm version patch --no-git-tag-version | sed 's/^v//')
+#             TAG="v$VERSION"
 
-            if git rev-parse "$TAG" >/dev/null 2>&1; then
-              echo "Tag $TAG already exists — bumping again (attempt $((attempt + 1)))..."
-              attempt=$((attempt + 1))
-              continue
-            fi
+#             if git rev-parse "$TAG" >/dev/null 2>&1; then
+#               echo "Tag $TAG already exists — bumping again (attempt $((attempt + 1)))..."
+#               attempt=$((attempt + 1))
+#               continue
+#             fi
 
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
-            break
-          done
+#             echo "version=$VERSION" >> $GITHUB_OUTPUT
+#             break
+#           done
 
-          if [ $attempt -ge $MAX_ATTEMPTS ]; then
-            echo "Reached max attempts ($MAX_ATTEMPTS) while trying to find a free tag." >&2
-            exit 1
-          fi
+#           if [ $attempt -ge $MAX_ATTEMPTS ]; then
+#             echo "Reached max attempts ($MAX_ATTEMPTS) while trying to find a free tag." >&2
+#             exit 1
+#           fi
 
-      - name: Create git tag
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          TAG="v${{ steps.bump.outputs.version }}"
-          git tag "$TAG"
-          git push origin "$TAG"
+#       - name: Create git tag
+#         run: |
+#           git config user.name "github-actions"
+#           git config user.email "github-actions@github.com"
+#           TAG="v${{ steps.bump.outputs.version }}"
+#           git tag "$TAG"
+#           git push origin "$TAG"
 
-      - name: Publish to GitHub Packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
-        run: npm publish --access public
+#       - name: Publish to GitHub Packages
+#         env:
+#           NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+#         run: npm publish --access public
