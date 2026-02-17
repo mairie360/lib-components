@@ -17,7 +17,8 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/generate-exports.js",
-    "build": "tsup",
+    "build": "tsup && npm run build:css",
+    "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",
     "lint": "next lint",
     "storybook": "storybook dev -p 6006",
@@ -77,6 +78,7 @@
     "jest": "^30.0.4",
     "jest-environment-jsdom": "^30.0.4",
     "playwright": "^1.52.0",
+    "postcss-cli": "^11.0.1",
     "start-server-and-test": "^2.0.12",
     "storybook": "^10.2.8",
     "tailwindcss": "^4.1.5",
