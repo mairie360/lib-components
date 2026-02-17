@@ -25,6 +25,45 @@ npm install
 yarn install
 ```
 
+---
+
+## Utilisation comme Package
+
+Pour utiliser cette bibliothèque dans un autre projet :
+
+### Installation
+
+```bash
+npm install @mairie360/lib-components
+# ou
+yarn add @mairie360/lib-components
+```
+
+### Import des styles
+
+**Important:** Pour que les composants s'affichent correctement, vous devez importer le fichier CSS dans votre application :
+
+```typescript
+import '@mairie360/lib-components/dist/styles.css';
+```
+
+### Utilisation des composants
+
+```typescript
+import { Button, Alert, Header } from '@mairie360/lib-components';
+
+function MyApp() {
+  return (
+    <div>
+      <Button>Click me</Button>
+      <Alert type="success">Success message</Alert>
+    </div>
+  );
+}
+```
+
+---
+
 ## Storybook
 Storybook permet de développer, visualiser et tester vos composants UI de manière isolée.
 
