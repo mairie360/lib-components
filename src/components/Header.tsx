@@ -14,12 +14,19 @@ type User = {
 };
 
 export interface HeaderProps {
+  /** Current user information, if logged in */
   user?: User;
+  /** Navigation links to display in the header */
   links?: Module[];
+  /** Callback function to handle user login */
   onLogin?: () => void;
+  /** Callback function to handle user logout */
   onLogout?: () => void;
+  /** Callback function to handle module selection */
   onCreateAccount?: () => void;
+  /** Callback function to handle module selection */
   onSelectModule?: (module: Module) => void;
+  /** Current pathname to determine active link styling */
   pathname?: string;
 }
 
