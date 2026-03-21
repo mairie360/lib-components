@@ -1,0 +1,17 @@
+name: Lib Components CICD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+  pages: write
+  id-token: write
+
+jobs:
+  CICD:
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@main
+    secrets: inherit
