@@ -13,5 +13,5 @@ permissions:
 
 jobs:
   CICD:
-    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v1.2.1
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v1.3.0
     secrets: inherit
