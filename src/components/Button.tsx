@@ -1,30 +1,33 @@
 import React from 'react';
 
-export interface ButtonProps {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /** What background color to use */
   backgroundColor?: string;
   /** How large should the button be? */
   size?: 'btn-sm' | 'btn-md' | 'btn-lg';
+  /** Whether to use the primary or secondary DaisyUI variant */
+  primary?: boolean;
   /** Button contents */
   label: string;
-  /** Optional click handler */
-  onClick?: () => void;
 }
 
 export const Button = ({
   size = 'btn-md',
   backgroundColor,
   label,
-  onClick,
+  primary,
+  className = '',
+  style,
+  type = 'button',
   ...props
 }: ButtonProps) => {
+  const variantClass = primary === undefined ? '' : primary ? 'btn-primary' : 'btn-secondary';
 
   return (
     <button
-      type="button"
-      className={`btn ${size}`}
-      style={backgroundColor ? { backgroundColor } : undefined}
-      onClick={onClick}
+      type={type}
+      className={`btn ${size} ${variantClass} ${className}`.trim()}
+      style={backgroundColor ? { ...style, backgroundColor } : style}
       {...props}
     >
       {label}

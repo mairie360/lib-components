@@ -12,6 +12,7 @@ export { MiniCard } from './components/MiniCard';
 export { Paragraph } from './components/Paragraph';
 export { ProgressBar } from './components/ProgressBar';
 export { Select } from './components/Select';
+export { Sidebar } from './components/Sidebar';
 export { SortableItem } from './components/SortableItem';
 export { Spinner } from './components/Spinner';
 export { Title } from './components/Title';

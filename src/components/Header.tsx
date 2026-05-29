@@ -63,7 +63,7 @@ export const Header = ({
   const avatarSrc = user?.avatar || user?.avatarUrl;
   const role = user?.role;
   const roleLabel = (() => {
-    if (isAdmin || role === 'admin' || isDefaultUser) return 'Administrateur';
+    if (isAdmin || role === 'admin' || isDefaultUser) return '👑 Administrateur';
     if (role === 'manager') return 'Manager';
     if (role === 'user') return 'Utilisateur';
     return role;
