@@ -71,7 +71,7 @@ export const Header = ({
   const canAdministrate = isAdmin || role === 'admin' || isDefaultUser;
 
   return (
-    <header className="flex h-16 items-center justify-between border-t border-t-[#2f2a28] border-b border-b-[#b9d6d5] bg-white px-4 text-[#172033] shadow-[0_2px_8px_rgba(0,0,0,0.16)] sm:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-b-[#b9d6d5] bg-white px-4 text-[#172033] shadow-[0_2px_8px_rgba(0,0,0,0.16)] sm:px-6">
       <div className="flex flex-1 items-center gap-3 sm:gap-4">
         <button
           type="button"

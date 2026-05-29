@@ -4,6 +4,7 @@ export { Badge } from './components/Badge';
 export { Button } from './components/Button';
 export { ConfirmModal } from './components/ConfirmModal';
 export { DropdownMenu } from './components/DropdownMenu';
+export { Footer } from './components/Footer';
 export { Header } from './components/Header';
 export { InputManager } from './components/InputManager';
 export { Item } from './components/Item';
