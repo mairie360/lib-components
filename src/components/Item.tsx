@@ -88,7 +88,7 @@ export const Item: React.FC<ItemProps> = ({
       >
         {/* Toggle Actions */}
         <div
-          className="absolute top-2 right-2 z-50 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition"
+          className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition"
           onClick={(e) => {
             e.stopPropagation();
             setShowActions((prev) => !prev);
@@ -107,7 +107,7 @@ export const Item: React.FC<ItemProps> = ({
 
         {/* Action Buttons */}
         {showActions && (
-          <div className="absolute top-2 right-12 z-50 flex gap-2 items-center">
+          <div className="absolute top-2 right-12 z-10 flex gap-2 items-center">
             <button
               onClick={handleEdit}
               onPointerDown={(e) => e.stopPropagation()}
@@ -115,7 +115,7 @@ export const Item: React.FC<ItemProps> = ({
               aria-label="Modifier"
             >
               <Pencil size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-50">
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-10">
                 Modifier
               </span>
             </button>
@@ -127,7 +127,7 @@ export const Item: React.FC<ItemProps> = ({
               aria-label="Supprimer"
             >
               <Trash2 size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-50">
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-10">
                 Supprimer
               </span>
             </button>

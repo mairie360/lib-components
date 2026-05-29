@@ -1,106 +1,185 @@
 import React from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
+import {
+  Menu,
+  Search,
+  Bell,
+  ChevronDown,
+  User as UserIcon,
+  Settings,
+  Shield,
+  LogOut
+} from 'lucide-react';
 
-type Module = {
-  id: string;
-  name: string;
-  url: string;
-};
+import { Avatar } from './Avatar';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from './DropdownMenu';
 
 type User = {
   name: string;
+  avatar?: string;
   avatarUrl?: string;
+  email?: string;
+  role?: string;
 };
 
 export interface HeaderProps {
   /** Current user information, if logged in */
   user?: User;
-  /** Navigation links to display in the header */
-  links?: Module[];
-  /** Callback function to handle user login */
-  onLogin?: () => void;
+  /** Callback to toggle the sidebar */
+  setSidebarOpen?: (open: boolean) => void;
+  /** Function to handle page navigation from header */
+  onPageChange?: (page: string) => void;
   /** Callback function to handle user logout */
   onLogout?: () => void;
-  /** Callback function to handle module selection */
-  onCreateAccount?: () => void;
-  /** Callback function to handle module selection */
-  onSelectModule?: (module: Module) => void;
-  /** Current pathname to determine active link styling */
-  pathname?: string;
+  /** Indicates if the logged-in user is an administrator */
+  isAdmin?: boolean;
 }
 
 export const Header = ({
   user,
-  links = [],
-  onLogin,
+  setSidebarOpen,
+  onPageChange = () => {},
   onLogout,
-  onSelectModule,
-  pathname = '/',
+  isAdmin = false,
 }: HeaderProps) => {
-  const isActive = (path: string) => (pathname === path ? 'bg-primary text-white' : '');
+  const isDefaultUser = !user;
+  const displayName = user?.name || 'Admin Système';
+  const displayEmail = user?.email || (isDefaultUser ? 'admin@mairie360.fr' : '');
+
+  const getUserInitials = () => {
+    return displayName
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  };
+
+  const avatarSrc = user?.avatar || user?.avatarUrl;
+  const role = user?.role;
+  const roleLabel = (() => {
+    if (isAdmin || role === 'admin' || isDefaultUser) return '👑 Administrateur';
+    if (role === 'manager') return 'Manager';
+    if (role === 'user') return 'Utilisateur';
+    return role;
+  })();
+  const canAdministrate = isAdmin || role === 'admin' || isDefaultUser;
 
   return (
-    <div className="navbar h-16 bg-base-100 shadow-sm pl-6">
-      <div className="navbar-start">
-        <Image src="/logo.png" alt="Mairie360" width={50} height={50} className="rounded" />
-        <Link className="ml-4 text-xl font-bold hidden lg:block" href="/">Mairie360</Link>
-      </div>
-
-      <div className="navbar-center hidden lg:flex">
-        <ul className="menu menu-horizontal px-1">
-          {links.map((link) => (
-            <li key={link.id}>
-              <button
-                className={`btn btn-ghost ${isActive(link.url)}`}
-                onClick={() => onSelectModule?.(link)}
-              >
-                {link.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="navbar-end gap-2">
-        <button className="btn btn-ghost btn-circle">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+    <header className="flex h-16 items-center justify-between border-b border-b-[#b9d6d5] bg-white px-4 text-[#172033] shadow-[0_2px_8px_rgba(0,0,0,0.16)] sm:px-6">
+      <div className="flex flex-1 items-center gap-3 sm:gap-4">
+        <button
+          type="button"
+          aria-label="Ouvrir la navigation"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10 lg:hidden"
+          onClick={() => setSidebarOpen?.(true)}
+        >
+          <Menu className="h-4 w-4" />
         </button>
 
-        <button className="btn btn-ghost btn-circle">
-          <div className="indicator">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 00-4-5.7V5a2 2 0 10-4 0v.3C7.7 6.2 6 8.4 6 11v3.2a2 2 0 01-.6 1.4L4 17h5m6 0v1a3 3 0 11-6 0v-1h6z" />
-            </svg>
-            <span className="badge badge-xs badge-primary indicator-item"></span>
-          </div>
+        <div className="relative hidden sm:block">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#535d67]" />
+          <input
+            type="text"
+            placeholder="Rechercher..."
+            className="h-9 w-64 rounded-md border border-[#b9d6d5] bg-[#fbfaf9] pl-10 pr-3 text-sm text-[#172033] shadow-none outline-none transition-colors placeholder:text-[#67717c] focus:border-[#4b908d] focus:ring-2 focus:ring-[#4b908d]/15 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          aria-label="Rechercher"
+          className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10 sm:hidden"
+        >
+          <Search className="h-4 w-4" />
         </button>
 
-        {user ? (
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <Image
-                  src={user.avatarUrl || "/logo.png"}
-                  alt="avatar"
-                  width={50}
-                  height={50}
-                  className="rounded-full"
-                />
-              </div>
+        <button
+          type="button"
+          aria-label="Notifications"
+          className="relative inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10"
+        >
+          <Bell className="h-[17px] w-[17px]" strokeWidth={1.8} />
+          <span className="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-md border border-white/70 bg-[#d8292f] text-[11px] font-semibold leading-none text-white shadow-md">
+            3
+          </span>
+        </button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center gap-3 rounded-md border border-transparent px-1 text-sm font-medium text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10"
+            >
+              <Avatar
+                src={avatarSrc}
+                alt={displayName}
+                fallback={<span className="text-[11px] font-semibold leading-none text-white">{getUserInitials()}</span>}
+                className="!h-6 !w-6 border-2 border-[#4b908d]"
+              />
+              <span className="hidden whitespace-nowrap sm:inline">{displayName}</span>
+              <ChevronDown className="hidden h-4 w-4 sm:inline" strokeWidth={1.8} />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            sideOffset={7}
+            className="!w-[150px] !min-w-[150px] !rounded-md !border-[#bfdad8] bg-white !p-0 shadow-[0_6px_18px_rgba(0,0,0,0.14)]"
+          >
+            <div className="px-3 py-2 text-sm">
+              <div className="font-medium leading-5 text-[#2a2f35]">{displayName}</div>
+              {displayEmail && (
+                <div className="truncate text-xs leading-5 text-[#7a8087]">{displayEmail}</div>
+              )}
+              {roleLabel && (
+                <div className="truncate text-xs leading-5 text-[#7a8087]">{roleLabel}</div>
+              )}
             </div>
-            <ul tabIndex={0} className="menu menu-sm dropdown-content bg-base-100 rounded-box z-1 mt-3 w-52 p-2 shadow">
-              <li><a className="justify-between">Profile <span className="badge">New</span></a></li>
-              <li><a>Settings</a></li>
-              <li><button onClick={onLogout}>Logout</button></li>
-            </ul>
-          </div>
-        ) : (
-          <button className="btn btn-sm" onClick={onLogin}>Log in</button>
-        )}
+            <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
+            <DropdownMenuItem
+              onClick={() => onPageChange('profile')}
+              className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
+            >
+              <UserIcon className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+              Profil
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onPageChange('settings')}
+              className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
+            >
+              <Settings className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+              Paramètres
+            </DropdownMenuItem>
+            {canAdministrate && (
+              <>
+                <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
+                <DropdownMenuItem
+                  onClick={() => onPageChange('admin')}
+                  className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
+                >
+                  <Shield className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+                  Administration
+                </DropdownMenuItem>
+              </>
+            )}
+            <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
+            <DropdownMenuItem
+              onClick={onLogout}
+              className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#e60012] hover:!bg-[#fff2f2]"
+            >
+              <LogOut className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+              Déconnexion
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-    </div>
+    </header>
   );
 };

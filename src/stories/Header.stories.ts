@@ -9,41 +9,29 @@ const meta: Meta<typeof Header> = {
 
 export default meta;
 
-const mockLinks = [
-  { id: '1', name: 'Accueil', url: '/' },
-  { id: '2', name: 'Services', url: '/services' },
-  { id: '3', name: 'Contact', url: '/contact' },
-];
-
-const LoggedInLinks = [
-  { id: '1', name: 'Accueil', url: '/' },
-  { id: '2', name: 'Calendriers', url: '/calendars' },
-  { id: '3', name: 'Projets', url: '/projects' },
-  { id: '4', name: 'Emails', url: '/emails'},
-  { id: '5', name: 'Messages', url: '/messages'},
-  { id: '6', name: 'Fichiers', url: '/files'},
-  { id: '7', name: 'Formation', url: '/e-learning'}
-];
-
-export const LoggedOut: StoryObj<HeaderProps> = {
+export const Admin: StoryObj<HeaderProps> = {
   args: {
-    user: undefined,
-    links: mockLinks,
-    pathname: '/',
-    onLogin: () => alert('Connexion'),
-    onSelectModule: (module) => alert(`Module sélectionné : ${module.name}`),
+    user: {
+      name: 'Admin Système',
+      avatarUrl: '',
+      email: 'admin@mairie360.fr',
+      role: 'admin',
+    },
+    isAdmin: true,
+    onPageChange: (page) => alert(`Page sélectionnée : ${page}`),
+    onLogout: () => alert('Déconnexion'),
   },
 };
 
-export const LoggedIn: StoryObj<HeaderProps> = {
+export const StandardUser: StoryObj<HeaderProps> = {
   args: {
     user: {
       name: 'Alice Dupont',
       avatarUrl: '/logo.png',
+      email: 'alice@mairie360.fr',
+      role: 'user',
     },
-    links: LoggedInLinks,
-    pathname: '/services',
+    onPageChange: (page) => alert(`Page sélectionnée : ${page}`),
     onLogout: () => alert('Déconnexion'),
-    onSelectModule: (module) => alert(`Module sélectionné : ${module.name}`),
   },
 };

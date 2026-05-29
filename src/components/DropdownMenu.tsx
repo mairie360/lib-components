@@ -115,7 +115,7 @@ function DropdownMenuContent({
     <div
       ref={contentRef}
       data-slot="dropdown-menu-content"
-      className="absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-[#e3e0dc] bg-white p-1 shadow-md text-black"
+      className={`absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-[#e3e0dc] bg-white p-1 shadow-md text-black ${className}`}
       style={{
         top: side === "bottom" ? `calc(100% + ${sideOffset}px)` : undefined,
         bottom: side === "top" ? `calc(100% + ${sideOffset}px)` : undefined,
@@ -172,7 +172,7 @@ function DropdownMenuItem({
               : "hover:bg-gray-100"
         } ${variant === "destructive" ? "text-red-600" : ""} ${
           inset ? "pl-8" : ""
-        } ${isDeleteItem ? "text-red-600" : ""}`}
+        } ${isDeleteItem ? "text-red-600" : ""} ${className}`}
         onClick={handleClick}
         {...props}
       >

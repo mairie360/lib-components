@@ -3,97 +3,94 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { Header } from '../components/Header';
 import '@testing-library/jest-dom';
 
-const user = {
-  name: 'John Doe',
+const adminUser = {
+  name: 'Admin Système',
   avatarUrl: '/avatar.jpg',
+  email: 'admin@mairie360.fr',
+  role: 'admin',
 };
 
-const links = [
-  { id: '1', name: 'Dashboard', url: '/' },
-  { id: '2', name: 'Settings', url: '/settings' },
-];
-
 describe('Header component', () => {
-  it('renders the logo and site title', () => {
-    render(<Header />);
-    expect(screen.getByAltText('Mairie360')).toBeInTheDocument();
-    expect(screen.getByText('Mairie360')).toBeInTheDocument();
+  it('renders the search field and admin profile controls', () => {
+    render(<Header user={adminUser} isAdmin />);
+
+    expect(screen.getByPlaceholderText('Rechercher...')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Notifications' })).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByText('Admin Système')).toBeInTheDocument();
   });
 
-  it('renders login button when no user is provided', () => {
-    const onLogin = jest.fn();
-    render(<Header onLogin={onLogin} />);
-    const loginButton = screen.getByText('Log in');
-    expect(loginButton).toBeInTheDocument();
-    fireEvent.click(loginButton);
-    expect(onLogin).toHaveBeenCalled();
+  it('opens the sidebar from the navigation button', () => {
+    const setSidebarOpen = jest.fn();
+    render(<Header user={adminUser} setSidebarOpen={setSidebarOpen} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+
+    expect(setSidebarOpen).toHaveBeenCalledWith(true);
   });
 
-  it('renders avatar and dropdown when user is logged in', () => {
+  it('renders the profile dropdown content', () => {
+    render(<Header user={adminUser} isAdmin />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+
+    expect(screen.getAllByText('Admin Système')).toHaveLength(2);
+    expect(screen.getByText('admin@mairie360.fr')).toBeInTheDocument();
+    expect(screen.getByText('👑 Administrateur')).toBeInTheDocument();
+    expect(screen.getByText('Profil')).toBeInTheDocument();
+    expect(screen.getByText('Paramètres')).toBeInTheDocument();
+    expect(screen.getByText('Administration')).toBeInTheDocument();
+    expect(screen.getByText('Déconnexion')).toBeInTheDocument();
+  });
+
+  it('calls onPageChange from dropdown actions', () => {
+    const onPageChange = jest.fn();
+    render(<Header user={adminUser} isAdmin onPageChange={onPageChange} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+    fireEvent.click(screen.getByText('Profil'));
+    expect(onPageChange).toHaveBeenCalledWith('profile');
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+    fireEvent.click(screen.getByText('Paramètres'));
+    expect(onPageChange).toHaveBeenCalledWith('settings');
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+    fireEvent.click(screen.getByText('Administration'));
+    expect(onPageChange).toHaveBeenCalledWith('admin');
+  });
+
+  it('calls onLogout from the dropdown', () => {
     const onLogout = jest.fn();
-    render(<Header user={user} onLogout={onLogout} />);
-    
-    const avatarImg = screen.getByAltText('avatar');
-    expect(avatarImg).toBeInTheDocument();
-    
-    const avatarButton = avatarImg.closest('div[role="button"]');
-    expect(avatarButton).toBeInTheDocument();
-    
-    fireEvent.click(avatarButton!);
-    expect(screen.getByText('Profile')).toBeInTheDocument();
-    
-    const logoutButton = screen.getByText('Logout');
-    fireEvent.click(logoutButton);
+    render(<Header user={adminUser} onLogout={onLogout} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+    fireEvent.click(screen.getByText('Déconnexion'));
+
     expect(onLogout).toHaveBeenCalled();
   });
 
+  it('renders the provided avatar image', () => {
+    render(<Header user={adminUser} />);
 
-  it('renders module links and calls onSelectModule when clicked', () => {
-    const handleSelect = jest.fn();
-    render(<Header user={user} links={links} onSelectModule={handleSelect} pathname="/" />);
+    const avatarImg = screen.getByAltText('Admin Système') as HTMLImageElement;
 
-    const dashboardBtn = screen.getByRole('button', { name: 'Dashboard' });
-    const settingsBtn = screen.getByRole('button', { name: 'Settings' });
-
-    expect(dashboardBtn).toBeInTheDocument();
-    expect(settingsBtn).toBeInTheDocument();
-
-    expect(dashboardBtn.className).toMatch(/bg-primary/);
-    expect(settingsBtn.className).not.toMatch(/bg-primary/);
-
-    fireEvent.click(settingsBtn);
-    expect(handleSelect).toHaveBeenCalledWith(links[1]);
+    expect(avatarImg).toBeInTheDocument();
+    expect(avatarImg).toHaveAttribute('src', adminUser.avatarUrl);
   });
 
-  it('does not crash if onSelectModule is not provided', () => {
-    render(<Header user={user} links={links} pathname="/" />);
-    const settingsBtn = screen.getByRole('button', { name: 'Settings' });
-    fireEvent.click(settingsBtn);
+  it('renders initials when no avatar is provided', () => {
+    render(<Header user={{ name: 'John Doe' }} />);
+
+    expect(screen.getByText('JD')).toBeInTheDocument();
   });
 
-  it('handles clicks on module links even if onSelectModule is not provided', () => {
-    render(<Header links={links} pathname="/" />);
-    const dashboardBtn = screen.getByRole('button', { name: 'Dashboard' });
-    expect(dashboardBtn).toBeInTheDocument();
+  it('hides administration for non-admin users', () => {
+    render(<Header user={{ name: 'Jean User', role: 'user' }} />);
 
-    fireEvent.click(dashboardBtn);
+    fireEvent.click(screen.getByRole('button', { name: /Jean User/ }));
+
+    expect(screen.getByText('Utilisateur')).toBeInTheDocument();
+    expect(screen.queryByText('Administration')).not.toBeInTheDocument();
   });
-
-    it('renders user avatar when avatarUrl is provided', () => {
-        const userWithAvatar = { name: 'Jane', avatarUrl: 'https://example.com/avatar.jpg' };
-        render(<Header user={userWithAvatar} links={[]} pathname="/" />);
-        
-        const avatarImg = screen.getByAltText('avatar') as HTMLImageElement;
-        expect(avatarImg).toBeInTheDocument();
-        expect(avatarImg.src).toEqual(expect.stringContaining(encodeURIComponent(userWithAvatar.avatarUrl)));
-    });
-
-    it('renders default avatar when avatarUrl is not provided', () => {
-        const userWithoutAvatar = { name: 'John' };
-        render(<Header user={userWithoutAvatar} links={[]} pathname="/" />);
-        
-        const avatarImg = screen.getByAltText('avatar') as HTMLImageElement;
-        expect(avatarImg).toBeInTheDocument();
-        expect(avatarImg.src).toEqual(expect.stringContaining(encodeURIComponent('/logo.png')));
-    });
 });
