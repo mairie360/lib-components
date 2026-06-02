@@ -8,7 +8,7 @@ describe('Sidebar component', () => {
     render(<Sidebar isAdmin />);
 
     expect(screen.getByText('Mairie360')).toBeInTheDocument();
-    expect(screen.getByAltText('Logo Mairie360')).toHaveAttribute('src', '/logo.png');
+    expect(screen.getByAltText('Logo Mairie360')).toHaveAttribute('src', 'logo.png');
     expect(screen.getByRole('button', { name: /Tableau de bord/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Projets/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Messagerie/ })).toBeInTheDocument();
