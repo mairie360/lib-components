@@ -36,7 +36,7 @@ describe('Header component', () => {
 
     expect(screen.getAllByText('Admin Système')).toHaveLength(2);
     expect(screen.getByText('admin@mairie360.fr')).toBeInTheDocument();
-    expect(screen.getByText('👑 Administrateur')).toBeInTheDocument();
+    expect(screen.getByText('Administrateur')).toBeInTheDocument();
     expect(screen.getByText('Profil')).toBeInTheDocument();
     expect(screen.getByText('Paramètres')).toBeInTheDocument();
     expect(screen.getByText('Administration')).toBeInTheDocument();
