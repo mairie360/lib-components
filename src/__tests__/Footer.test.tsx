@@ -8,7 +8,7 @@ describe('Footer component', () => {
     render(<Footer year={2026} />);
 
     expect(screen.getByText('© 2026 Mairie360')).toBeInTheDocument();
-    expect(screen.getByText('Version 2.1.0')).toBeInTheDocument();
+    expect(screen.getByText('Version 1.0')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Support technique' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Documentation' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: "Conditions d'utilisation" })).toBeInTheDocument();
