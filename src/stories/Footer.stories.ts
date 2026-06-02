@@ -15,7 +15,7 @@ export default meta;
 export const Default: StoryObj<FooterProps> = {
   args: {
     year: 2026,
-    version: '2.1.0',
+    version: '1.0',
     links: [
       { label: 'Support technique' },
       { label: 'Documentation' },
@@ -27,7 +27,7 @@ export const Default: StoryObj<FooterProps> = {
 export const WithLinks: StoryObj<FooterProps> = {
   args: {
     year: 2026,
-    version: '2.1.0',
+    version: '1.0',
     links: [
       { label: 'Support technique', href: '/support' },
       { label: 'Documentation', href: '/documentation' },

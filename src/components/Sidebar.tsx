@@ -31,6 +31,10 @@ export interface SidebarProps {
   onItemSelect?: (item: SidebarItem) => void;
   /** Sidebar brand label */
   brandLabel?: string;
+  /** Sidebar logo source. Set to null to use the brand initial fallback. */
+  brandLogoSrc?: string | null;
+  /** Sidebar logo alternative text */
+  brandLogoAlt?: string;
   /** Sidebar brand initial */
   brandInitial?: string;
   /** Additional CSS classes for the sidebar container */
@@ -55,10 +59,18 @@ export const Sidebar = ({
   items = defaultSidebarItems,
   onItemSelect,
   brandLabel = 'Mairie360',
+  brandLogoSrc = '/logo.png',
+  brandLogoAlt = 'Logo Mairie360',
   brandInitial = 'M',
   className = '',
 }: SidebarProps) => {
+  const [logoError, setLogoError] = React.useState(false);
   const visibleItems = items.filter((item) => !item.adminOnly || isAdmin);
+  const shouldShowLogo = Boolean(brandLogoSrc && !logoError);
+
+  React.useEffect(() => {
+    setLogoError(false);
+  }, [brandLogoSrc]);
 
   return (
     <aside
@@ -66,9 +78,18 @@ export const Sidebar = ({
       className={`flex min-h-screen w-[260px] flex-col border-r border-[#3b514f] bg-[#2b2b2b] text-[#dff9ff] ${className}`}
     >
       <div className="flex h-16 items-center gap-2.5 border-b border-[#4b908d]/45 px-7">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1256a6] text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
-          {brandInitial}
-        </div>
+        {shouldShowLogo ? (
+          <img
+            src={brandLogoSrc as string}
+            alt={brandLogoAlt}
+            className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+            onError={() => setLogoError(true)}
+          />
+        ) : (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1256a6] text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
+            {brandInitial}
+          </div>
+        )}
         <div className="text-lg font-semibold tracking-normal text-white">{brandLabel}</div>
       </div>
 

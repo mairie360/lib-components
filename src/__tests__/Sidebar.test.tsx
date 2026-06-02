@@ -8,7 +8,7 @@ describe('Sidebar component', () => {
     render(<Sidebar isAdmin />);
 
     expect(screen.getByText('Mairie360')).toBeInTheDocument();
-    expect(screen.getByText('M')).toBeInTheDocument();
+    expect(screen.getByAltText('Logo Mairie360')).toHaveAttribute('src', '/logo.png');
     expect(screen.getByRole('button', { name: /Tableau de bord/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Projets/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Messagerie/ })).toBeInTheDocument();
@@ -48,9 +48,15 @@ describe('Sidebar component', () => {
   });
 
   it('supports custom branding', () => {
-    render(<Sidebar brandLabel="Ville Connectée" brandInitial="V" />);
+    render(<Sidebar brandLabel="Ville Connectée" brandLogoSrc="/ville.png" brandLogoAlt="Logo Ville Connectée" />);
 
     expect(screen.getByText('Ville Connectée')).toBeInTheDocument();
+    expect(screen.getByAltText('Logo Ville Connectée')).toHaveAttribute('src', '/ville.png');
+  });
+
+  it('renders the brand initial when no logo is provided', () => {
+    render(<Sidebar brandLabel="Ville Connectée" brandLogoSrc={null} brandInitial="V" />);
+
     expect(screen.getByText('V')).toBeInTheDocument();
   });
 });
