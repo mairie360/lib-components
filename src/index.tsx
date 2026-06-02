@@ -18,3 +18,4 @@ export { SortableItem } from './components/SortableItem';
 export { Spinner } from './components/Spinner';
 export { Title } from './components/Title';
 export { ToolTip } from './components/ToolTip';
+export { mairie360LogoSrc } from './assets/logo';
