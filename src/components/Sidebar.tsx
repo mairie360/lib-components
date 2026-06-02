@@ -59,7 +59,7 @@ export const Sidebar = ({
   items = defaultSidebarItems,
   onItemSelect,
   brandLabel = 'Mairie360',
-  brandLogoSrc = '/logo.png',
+  brandLogoSrc = 'logo.png',
   brandLogoAlt = 'Logo Mairie360',
   brandInitial = 'M',
   className = '',
