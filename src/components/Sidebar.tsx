@@ -12,6 +12,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import { mairie360LogoSrc } from '../assets/logo';
+
 export type SidebarItem = {
   id: string;
   label: string;
@@ -31,7 +33,7 @@ export interface SidebarProps {
   onItemSelect?: (item: SidebarItem) => void;
   /** Sidebar brand label */
   brandLabel?: string;
-  /** Sidebar logo source. Set to null to use the brand initial fallback. */
+  /** Sidebar logo source. Defaults to the bundled Mairie360 logo. Set to null to use the brand initial fallback. */
   brandLogoSrc?: string | null;
   /** Sidebar logo alternative text */
   brandLogoAlt?: string;
@@ -59,7 +61,7 @@ export const Sidebar = ({
   items = defaultSidebarItems,
   onItemSelect,
   brandLabel = 'Mairie360',
-  brandLogoSrc = 'logo.png',
+  brandLogoSrc = mairie360LogoSrc,
   brandLogoAlt = 'Logo Mairie360',
   brandInitial = 'M',
   className = '',

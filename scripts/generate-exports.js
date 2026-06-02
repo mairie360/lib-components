@@ -20,6 +20,8 @@ const exports = files.map((file) => {
   return `export { ${name} } from './components/${baseName}';`;
 });
 
+exports.push("export { mairie360LogoSrc } from './assets/logo';");
+
 fs.writeFileSync(outputFile, exports.join('\n') + '\n', 'utf8');
 
 console.log(`✅ Fichier index.tsx généré avec ${files.length} composants (sans fichiers "stories").`);

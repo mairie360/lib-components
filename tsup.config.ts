@@ -9,6 +9,9 @@ export default defineConfig({
   target: "es2018",
   splitting: false,
   minify: false,
+  loader: {
+    ".png": "dataurl"
+  },
   external: [
     "react",
     "react-dom",
