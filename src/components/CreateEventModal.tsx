@@ -36,9 +36,9 @@ const getDefaultValues = (
 });
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#c9c3bb] bg-white px-3 text-sm text-[#172033] outline-none transition-colors placeholder:text-[#7a8087] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/25';
+  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition-colors placeholder:text-[#64748b] focus:border-[#94a3b8] focus:ring-2 focus:ring-[#3b82f6]/20';
 
-const labelClassName = 'mb-1 block text-sm font-medium text-[#2a2f35]';
+const labelClassName = 'mb-1 block text-sm font-semibold text-[#334155]';
 
 export const CreateEventModal = ({
   isOpen,
@@ -104,31 +104,32 @@ export const CreateEventModal = ({
       aria-describedby={subtitleId}
     >
       <form
-        className="w-full max-w-[510px] rounded-lg border border-[#d8d2ca] bg-[#f5f3f0] p-6 text-[#172033] shadow-xl"
+        className="w-full max-w-[510px] overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
         onSubmit={handleSubmit}
       >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h2 id={titleId} className="text-xl font-semibold leading-7 text-[#2a2f35]">
+        <div className="flex min-h-14 items-center justify-between gap-4 bg-[#2b2b2b] px-5 py-3 text-white">
+          <div className="min-w-0">
+            <h2 id={titleId} className="truncate text-base font-semibold leading-6">
               {title}
             </h2>
-            {subtitle && (
-              <p id={subtitleId} className="mt-1 text-sm leading-5 text-[#6c7278]">
-                {subtitle}
-              </p>
-            )}
           </div>
           <button
             type="button"
             aria-label="Fermer"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#6c7278] transition-colors hover:bg-[#e4e0dc] hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#cbd5e1] transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
             onClick={onCancel}
           >
             <X className="h-5 w-5" strokeWidth={1.8} />
           </button>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="space-y-3 px-6 py-5">
+          {subtitle && (
+            <p id={subtitleId} className="text-sm leading-5 text-[#64748b]">
+              {subtitle}
+            </p>
+          )}
+
           <div>
             <label htmlFor="event-title" className={labelClassName}>
               Titre
@@ -154,7 +155,7 @@ export const CreateEventModal = ({
               name="description"
               value={values.description}
               placeholder="Description de l'événement"
-              className={joinClasses(fieldClassName, 'h-16 resize-none py-2')}
+              className={joinClasses(fieldClassName, 'h-20 resize-none py-2')}
               onChange={(event) => updateValue('description', event.target.value)}
             />
           </div>
@@ -247,17 +248,17 @@ export const CreateEventModal = ({
           />
         </div>
 
-        <div className="mt-4 flex justify-end gap-2">
+        <div className="flex justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-medium text-[#2a2f35] transition-colors hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+            className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25"
             onClick={onCancel}
           >
             {cancelLabel}
           </button>
           <button
             type="submit"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[#1256a6] px-4 text-sm font-medium text-white transition-colors hover:bg-[#0f4a8d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[#2faa55] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#27984b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa55]/35"
           >
             {submitLabel}
           </button>
