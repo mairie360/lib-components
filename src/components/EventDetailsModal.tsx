@@ -58,16 +58,20 @@ const DetailRow = ({
   icon,
   label,
   value,
+  className = '',
 }: {
   icon: React.ReactNode;
   label: React.ReactNode;
   value?: React.ReactNode;
+  className?: string;
 }) => (
-  <div className="flex gap-3 rounded-md bg-[#f8fafc] px-3 py-2 text-sm">
+  <div className={joinClasses('flex gap-3 rounded-md bg-[#f8fafc] px-3 py-2 text-sm', className)}>
     <span className="mt-0.5 shrink-0 text-[#64748b]">{icon}</span>
     <div className="min-w-0">
       <div className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">{label}</div>
-      <div className="mt-0.5 truncate font-medium text-[#172033]">{value || 'Non renseigné'}</div>
+      <div className="mt-0.5 whitespace-normal break-words font-medium text-[#172033]">
+        {value || 'Non renseigné'}
+      </div>
     </div>
   </div>
 );
@@ -150,6 +154,7 @@ export const EventDetailsModal = ({
 
     onSave?.({
       ...event,
+      id: event.id,
       title: values.title,
       description: values.description,
       date: values.date,
@@ -199,11 +204,11 @@ export const EventDetailsModal = ({
       aria-labelledby={titleId}
     >
       <form
-        className="w-full max-w-[510px] overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
         onSubmit={handleSave}
       >
         <div className="flex min-h-14 items-center justify-between gap-4 bg-[#2b2b2b] px-5 py-3 text-white">
-          <h2 id={titleId} className="min-w-0 truncate text-base font-semibold leading-6">
+          <h2 id={titleId} className="min-w-0 text-base font-semibold leading-6">
             {editing ? 'Modifier l’événement' : title}
           </h2>
           <button
@@ -217,11 +222,15 @@ export const EventDetailsModal = ({
         </div>
 
         {!editing ? (
-          <div className="space-y-4 px-6 py-5">
+          <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
             <div>
-              <div className="text-xl font-semibold leading-7 text-[#172033]">{event.title}</div>
+              <div className="whitespace-normal break-words text-xl font-semibold leading-7 text-[#172033]">
+                {event.title}
+              </div>
               {event.description && (
-                <p className="mt-2 text-sm leading-6 text-[#475569]">{event.description}</p>
+                <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-[#475569]">
+                  {event.description}
+                </p>
               )}
             </div>
 
@@ -250,6 +259,7 @@ export const EventDetailsModal = ({
                 icon={<Repeat className="h-4 w-4" strokeWidth={1.8} />}
                 label="Récurrence"
                 value={getRecurrenceLabel(event.recurrence)}
+                className="sm:col-span-2"
               />
             </div>
 
@@ -275,7 +285,7 @@ export const EventDetailsModal = ({
             </div>
           </div>
         ) : (
-          <div className="space-y-3 px-6 py-5">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-5">
             <div>
               <label htmlFor="edit-event-title" className={labelClassName}>
                 Titre
@@ -333,18 +343,18 @@ export const EventDetailsModal = ({
               <label htmlFor="edit-event-category" className={labelClassName}>
                 Catégorie
               </label>
-                <select
-                  id="edit-event-category"
-                  value={values.category}
-                  className={fieldClassName}
-                  onChange={(inputEvent) => updateValue('category', inputEvent.target.value)}
-                >
-                  {categories.map((category) => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
+              <select
+                id="edit-event-category"
+                value={values.category}
+                className={fieldClassName}
+                onChange={(inputEvent) => updateValue('category', inputEvent.target.value)}
+              >
+                {categories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
@@ -507,7 +517,10 @@ export const EventDetailsModal = ({
                 <button
                   type="button"
                   className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35"
-                  onClick={() => setEditing(true)}
+                  onClick={() => {
+                    setValues(getEventValues(event));
+                    setEditing(true);
+                  }}
                 >
                   <Pencil className="h-4 w-4" strokeWidth={1.8} />
                   {editLabel}
