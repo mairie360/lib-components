@@ -11,11 +11,12 @@ export const CalendarSidebar = ({
   upcomingEvents = [],
   stats = [],
   showEmptyState = false,
+  onEventClick,
   className = '',
   ...props
 }: CalendarSidebarProps) => (
   <aside className={joinClasses('flex flex-col gap-6', className)} {...props}>
-    <UpcomingEventsPanel events={upcomingEvents} showEmptyState={showEmptyState} />
+    <UpcomingEventsPanel events={upcomingEvents} showEmptyState={showEmptyState} onEventClick={onEventClick} />
     <StatsPanel stats={stats} />
   </aside>
 );

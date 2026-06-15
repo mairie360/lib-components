@@ -18,8 +18,10 @@ export interface CalendarEvent {
   id: string | number;
   title: React.ReactNode;
   date: CalendarDateInput;
+  category?: string;
   startTime?: string;
   endTime?: string;
+  location?: string;
   description?: React.ReactNode;
   assigneeIds?: CalendarAssigneeId[];
   assignees?: CalendarAssignee[];
@@ -83,6 +85,7 @@ export interface MonthGridProps extends React.HTMLAttributes<HTMLDivElement> {
   weekStartsOn?: 0 | 1;
   dayLabels?: string[];
   onSelectDate?: (date: Date) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export interface WeekGridProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -94,6 +97,7 @@ export interface WeekGridProps extends React.HTMLAttributes<HTMLDivElement> {
   dayLabels?: string[];
   onSelectDate?: (date: Date) => void;
   onSelectSlot?: (date: Date, time: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export interface DayScheduleProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -101,6 +105,7 @@ export interface DayScheduleProps extends React.HTMLAttributes<HTMLDivElement> {
   events?: CalendarEvent[];
   hours?: string[];
   onSelectSlot?: (date: Date, time: string) => void;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export interface UpcomingEventsPanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
@@ -108,6 +113,7 @@ export interface UpcomingEventsPanelProps extends Omit<React.HTMLAttributes<HTML
   title?: React.ReactNode;
   emptyLabel?: React.ReactNode;
   showEmptyState?: boolean;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export interface StatsPanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
@@ -119,6 +125,7 @@ export interface CalendarSidebarProps extends React.HTMLAttributes<HTMLElement> 
   upcomingEvents?: CalendarEvent[];
   stats?: CalendarStat[];
   showEmptyState?: boolean;
+  onEventClick?: (event: CalendarEvent) => void;
 }
 
 export interface EventAssigneeSelectProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
@@ -143,6 +150,10 @@ export interface CreateCalendarEventValues {
   assigneeIds: CalendarAssigneeId[];
 }
 
+export interface EditCalendarEventValues extends CreateCalendarEventValues {
+  id: string | number;
+}
+
 export interface CalendarEventCategoryOption {
   label: string;
   value: string;
@@ -159,4 +170,18 @@ export interface CreateEventModalProps {
   submitLabel?: string;
   onCancel: () => void;
   onCreate: (event: CreateCalendarEventValues) => void;
+}
+
+export interface EventDetailsModalProps {
+  isOpen: boolean;
+  event?: CalendarEvent | null;
+  people?: CalendarAssignee[];
+  categories?: CalendarEventCategoryOption[];
+  title?: React.ReactNode;
+  closeLabel?: string;
+  editLabel?: string;
+  cancelLabel?: string;
+  saveLabel?: string;
+  onClose: () => void;
+  onSave?: (event: CalendarEvent) => void;
 }

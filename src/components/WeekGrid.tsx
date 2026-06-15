@@ -25,6 +25,7 @@ export const WeekGrid = ({
   dayLabels = defaultDayLabels,
   onSelectDate,
   onSelectSlot,
+  onEventClick,
   className = '',
   ...props
 }: WeekGridProps) => {
@@ -66,7 +67,7 @@ export const WeekGrid = ({
                 >
                   <div className="space-y-1">
                     {slotEvents.slice(0, 1).map((event) => (
-                      <EventPill key={event.id} event={event} />
+                      <EventPill key={event.id} event={event} onClick={onEventClick} />
                     ))}
                   </div>
                 </CalendarCell>

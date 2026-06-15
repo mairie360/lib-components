@@ -11,6 +11,7 @@ export { CreateEventModal } from './components/CreateEventModal';
 export { DaySchedule } from './components/DaySchedule';
 export { DropdownMenu } from './components/DropdownMenu';
 export { EventAssigneeSelect } from './components/EventAssigneeSelect';
+export { EventDetailsModal } from './components/EventDetailsModal';
 export { Footer } from './components/Footer';
 export { Header } from './components/Header';
 export { InputManager } from './components/InputManager';

@@ -68,6 +68,37 @@ describe('Calendar components', () => {
     expect(handleSelectDate).toHaveBeenCalledWith(new Date(2026, 5, 16));
   });
 
+  it('calls event click without selecting the day cell', () => {
+    const handleSelectDate = jest.fn();
+    const handleEventClick = jest.fn();
+
+    render(
+      <MonthGrid
+        currentDate="2026-06-15"
+        selectedDate="2026-06-15"
+        events={[
+          {
+            id: 'event-1',
+            title: 'Conseil municipal',
+            date: '2026-06-15',
+          },
+        ]}
+        onSelectDate={handleSelectDate}
+        onEventClick={handleEventClick}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Conseil municipal'));
+
+    expect(handleEventClick).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'event-1',
+        title: 'Conseil municipal',
+      })
+    );
+    expect(handleSelectDate).not.toHaveBeenCalled();
+  });
+
   it('renders day schedule events', () => {
     render(
       <DaySchedule

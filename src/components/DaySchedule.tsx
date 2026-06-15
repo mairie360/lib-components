@@ -14,6 +14,7 @@ export const DaySchedule = ({
   events = [],
   hours = defaultHours,
   onSelectSlot,
+  onEventClick,
   className = '',
   ...props
 }: DayScheduleProps) => {
@@ -42,7 +43,7 @@ export const DaySchedule = ({
               >
                 <div className="space-y-1">
                   {slotEvents.map((event) => (
-                    <EventPill key={event.id} event={event} />
+                    <EventPill key={event.id} event={event} onClick={onEventClick} />
                   ))}
                 </div>
               </CalendarCell>

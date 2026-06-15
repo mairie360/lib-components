@@ -7,6 +7,7 @@ import { CalendarToolbar } from '../components/CalendarToolbar';
 import { Card } from '../components/Card';
 import { CreateEventModal } from '../components/CreateEventModal';
 import { DaySchedule } from '../components/DaySchedule';
+import { EventDetailsModal } from '../components/EventDetailsModal';
 import { MonthGrid } from '../components/MonthGrid';
 import { PageTitleBar } from '../components/PageTitleBar';
 import { WeekGrid } from '../components/WeekGrid';
@@ -47,23 +48,32 @@ const sampleEvents: CalendarEvent[] = [
     id: 'council',
     title: 'Conseil municipal',
     date: '2026-06-15',
+    category: 'meeting',
     startTime: '09:00',
     endTime: '10:30',
+    location: 'Salle du conseil',
     description: 'Salle du conseil',
+    assigneeIds: ['alice', 'karim'],
   },
   {
     id: 'culture',
     title: 'Réunion culture',
     date: '2026-06-17',
+    category: 'meeting',
     startTime: '14:00',
     endTime: '15:00',
+    location: 'Médiathèque',
+    assigneeIds: ['lea'],
   },
   {
     id: 'market',
     title: 'Marché local',
     date: '2026-06-20',
+    category: 'activity',
     startTime: '08:00',
     endTime: '12:00',
+    location: 'Place centrale',
+    assigneeIds: ['karim', 'thomas'],
     colorClassName: 'bg-[#eaf6ef] text-[#24734c]',
   },
 ];
@@ -96,7 +106,9 @@ const CalendarComposition = ({
 }: CalendarCompositionProps) => {
   const [activeDate, setActiveDate] = useState(() => parseDateInput(initialDate));
   const [activeView, setActiveView] = useState(defaultView);
+  const [calendarEvents, setCalendarEvents] = useState(events);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const toolbarTitle = activeView === 'day' ? formatFullDate(activeDate) : formatMonthYear(activeDate);
 
   const handleDateChange = (date: Date) => {
@@ -154,29 +166,37 @@ const CalendarComposition = ({
                 <MonthGrid
                   currentDate={activeDate}
                   selectedDate={activeDate}
-                  events={events}
+                  events={calendarEvents}
                   onSelectDate={handleSelectDate}
+                  onEventClick={setSelectedEvent}
                 />
               )}
               {activeView === 'week' && (
                 <WeekGrid
                   currentDate={activeDate}
                   selectedDate={activeDate}
-                  events={events}
+                  events={calendarEvents}
                   onSelectDate={handleSelectDate}
                   onSelectSlot={onSelectSlot}
+                  onEventClick={setSelectedEvent}
                 />
               )}
               {activeView === 'day' && (
-                <DaySchedule currentDate={activeDate} events={events} onSelectSlot={onSelectSlot} />
+                <DaySchedule
+                  currentDate={activeDate}
+                  events={calendarEvents}
+                  onSelectSlot={onSelectSlot}
+                  onEventClick={setSelectedEvent}
+                />
               )}
             </div>
           </div>
         </Card>
 
         <CalendarSidebar
-          upcomingEvents={upcomingEvents ?? getUpcomingEvents(events, activeDate)}
-          stats={stats ?? getDefaultStats(events, activeDate)}
+          upcomingEvents={upcomingEvents ?? getUpcomingEvents(calendarEvents, activeDate)}
+          stats={stats ?? getDefaultStats(calendarEvents, activeDate)}
+          onEventClick={setSelectedEvent}
         />
       </div>
 
@@ -185,7 +205,34 @@ const CalendarComposition = ({
         people={people}
         initialValues={{ date: '2026-06-15' }}
         onCancel={() => setCreateModalOpen(false)}
-        onCreate={() => setCreateModalOpen(false)}
+        onCreate={(eventValues) => {
+          setCalendarEvents((currentEvents) => [
+            ...currentEvents,
+            {
+              ...eventValues,
+              id: `event-${currentEvents.length + 1}`,
+              assignees: people.filter((person) =>
+                eventValues.assigneeIds.some((assigneeId) => String(assigneeId) === String(person.id))
+              ),
+            },
+          ]);
+          setCreateModalOpen(false);
+        }}
+      />
+
+      <EventDetailsModal
+        isOpen={Boolean(selectedEvent)}
+        event={selectedEvent}
+        people={people}
+        onClose={() => setSelectedEvent(null)}
+        onSave={(updatedEvent) => {
+          setCalendarEvents((currentEvents) =>
+            currentEvents.map((calendarEvent) =>
+              String(calendarEvent.id) === String(updatedEvent.id) ? updatedEvent : calendarEvent
+            )
+          );
+          setSelectedEvent(updatedEvent);
+        }}
       />
     </div>
   );

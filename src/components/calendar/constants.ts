@@ -23,3 +23,10 @@ export const defaultHours = [
   '17:00',
   '18:00',
 ];
+
+export const defaultEventCategories = [
+  { label: 'Réunion', value: 'meeting' },
+  { label: 'Animation', value: 'activity' },
+  { label: 'Cérémonie', value: 'ceremony' },
+  { label: 'Autre', value: 'other' },
+];

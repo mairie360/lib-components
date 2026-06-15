@@ -16,6 +16,7 @@ export const MonthGrid = ({
   weekStartsOn = 1,
   dayLabels = defaultDayLabels,
   onSelectDate,
+  onEventClick,
   className = '',
   ...props
 }: MonthGridProps) => {
@@ -47,7 +48,7 @@ export const MonthGrid = ({
               <span className="font-medium">{date.getDate()}</span>
               <div className="mt-2 space-y-1">
                 {(groupedEvents[dateKey(date)] || []).slice(0, 2).map((event) => (
-                  <EventPill key={event.id} event={event} />
+                  <EventPill key={event.id} event={event} onClick={onEventClick} />
                 ))}
               </div>
             </CalendarCell>

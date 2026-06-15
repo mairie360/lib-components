@@ -13,6 +13,7 @@ export const UpcomingEventsPanel = ({
   title = 'Événements à venir',
   emptyLabel = 'Aucun événement à venir',
   showEmptyState = false,
+  onEventClick,
   className = '',
   ...props
 }: UpcomingEventsPanelProps) => (
@@ -21,7 +22,24 @@ export const UpcomingEventsPanel = ({
       {events.length > 0 ? (
         <div className="space-y-3">
           {events.map((event) => (
-            <div key={event.id} className="rounded-md border border-[#ece7e0] bg-[#fbfaf9] p-3">
+            <div
+              key={event.id}
+              role={onEventClick ? 'button' : undefined}
+              tabIndex={onEventClick ? 0 : undefined}
+              className={joinClasses(
+                'rounded-md border border-[#ece7e0] bg-[#fbfaf9] p-3',
+                onEventClick &&
+                  'cursor-pointer transition-colors hover:border-[#cbd5e1] hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25'
+              )}
+              onClick={() => onEventClick?.(event)}
+              onKeyDown={(keyEvent) => {
+                if (!onEventClick) return;
+                if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+                  keyEvent.preventDefault();
+                  onEventClick(event);
+                }
+              }}
+            >
               <div className="text-sm font-semibold leading-5 text-[#172033]">{event.title}</div>
               <div className="mt-1 text-xs leading-5 text-[#6c7278]">
                 {formatFullDate(event.date)}
