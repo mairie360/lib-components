@@ -166,7 +166,109 @@ describe('Calendar components', () => {
       />
     );
 
-    expect(screen.getByText('Atelier').parentElement).toHaveStyle({ minHeight: '90px' });
+    expect(screen.getByText('Atelier').parentElement).toHaveStyle({ height: '92px' });
+  });
+
+  it('renders the visible part of multi-day events in day schedule', () => {
+    render(
+      <DaySchedule
+        currentDate="2026-06-16"
+        events={[
+          {
+            id: 'event-1',
+            title: 'Formation',
+            date: '2026-06-15',
+            endDate: '2026-06-16',
+            startTime: '09:00',
+            endTime: '10:30',
+          },
+          {
+            id: 'event-2',
+            title: 'Nocturne',
+            date: '2026-06-15',
+            endDate: '2026-06-16',
+            startTime: '20:00',
+            endTime: '05:00',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Formation').parentElement).toHaveStyle({ top: '0px', height: '284px' });
+    expect(screen.queryByText('Nocturne')).not.toBeInTheDocument();
+  });
+
+  it('only compresses events when their times overlap', () => {
+    render(
+      <DaySchedule
+        currentDate="2026-06-15"
+        events={[
+          {
+            id: 'event-1',
+            title: 'Début',
+            date: '2026-06-15',
+            startTime: '09:00',
+            endTime: '10:00',
+          },
+          {
+            id: 'event-2',
+            title: 'Chevauchement',
+            date: '2026-06-15',
+            startTime: '09:30',
+            endTime: '10:30',
+          },
+          {
+            id: 'event-3',
+            title: 'Libre',
+            date: '2026-06-15',
+            startTime: '12:00',
+            endTime: '13:00',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Début').parentElement).toHaveAttribute(
+      'style',
+      expect.stringContaining('width: calc(50% - 4px);')
+    );
+    expect(screen.getByText('Libre').parentElement).toHaveAttribute(
+      'style',
+      expect.stringContaining('width: calc(100% - 4px);')
+    );
+  });
+
+  it('renders all events in a month cell', () => {
+    render(
+      <MonthGrid
+        currentDate="2026-06-15"
+        selectedDate="2026-06-15"
+        events={[
+          {
+            id: 'event-1',
+            title: 'Matin',
+            date: '2026-06-15',
+            startTime: '08:00',
+          },
+          {
+            id: 'event-2',
+            title: 'Midi',
+            date: '2026-06-15',
+            startTime: '12:00',
+          },
+          {
+            id: 'event-3',
+            title: 'Soir',
+            date: '2026-06-15',
+            startTime: '17:00',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Matin')).toBeInTheDocument();
+    expect(screen.getByText('Midi')).toBeInTheDocument();
+    expect(screen.getByText('Soir')).toBeInTheDocument();
   });
 
   it('renders sidebar panels', () => {

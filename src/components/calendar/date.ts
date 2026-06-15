@@ -182,16 +182,61 @@ const isRecurringOccurrenceStart = (event: CalendarEvent, date: CalendarDateInpu
 };
 
 export const eventOccursOnDate = (event: CalendarEvent, date: CalendarDateInput) => {
-  const spanInDays = getEventSpanInDays(event);
+  return Boolean(getEventOccurrenceStartDate(event, date));
+};
 
+export const getEventOccurrenceStartDate = (event: CalendarEvent, date: CalendarDateInput) => {
+  const spanInDays = getEventSpanInDays(event);
   for (let offset = 0; offset <= spanInDays; offset += 1) {
     const possibleStartDate = addDays(parseDateInput(date), -offset);
     if (isBaseOccurrenceStart(event, possibleStartDate) || isRecurringOccurrenceStart(event, possibleStartDate)) {
-      return true;
+      return possibleStartDate;
     }
   }
 
-  return false;
+  return null;
+};
+
+export const getEventTimeRangeForDate = (
+  event: CalendarEvent,
+  date: CalendarDateInput,
+  visibleStartMinutes = 0,
+  visibleEndMinutes = 1440,
+  fallbackMinutes = 60
+) => {
+  const occurrenceStartDate = getEventOccurrenceStartDate(event, date);
+  if (!occurrenceStartDate) return null;
+
+  const spanInDays = getEventSpanInDays(event);
+  const occurrenceEndDate = addDays(occurrenceStartDate, spanInDays);
+  const isStart = isSameDay(date, occurrenceStartDate);
+  const isEnd = isSameDay(date, occurrenceEndDate);
+  let startMinutes = isStart && event.startTime ? timeToMinutes(event.startTime) : visibleStartMinutes;
+  let endMinutes = isEnd && event.endTime ? timeToMinutes(event.endTime) : visibleEndMinutes;
+
+  if (isStart && isEnd && !event.endTime) {
+    endMinutes = startMinutes + fallbackMinutes;
+  }
+
+  if (isStart && isEnd && endMinutes <= startMinutes) {
+    endMinutes = startMinutes + fallbackMinutes;
+  }
+
+  const clippedStartMinutes = Math.max(visibleStartMinutes, startMinutes);
+  const clippedEndMinutes = Math.min(visibleEndMinutes, endMinutes);
+
+  if (clippedEndMinutes <= visibleStartMinutes || clippedStartMinutes >= visibleEndMinutes) {
+    return null;
+  }
+
+  return {
+    startMinutes: clippedStartMinutes,
+    endMinutes: clippedEndMinutes,
+    durationMinutes: Math.max(1, clippedEndMinutes - clippedStartMinutes),
+    offsetMinutes: clippedStartMinutes - visibleStartMinutes,
+    isStart,
+    isEnd,
+  };
 };
 
 export const eventStartsInSlot = (event: CalendarEvent, date: CalendarDateInput, slotTime: string) => {

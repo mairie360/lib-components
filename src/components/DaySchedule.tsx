@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { CalendarCell } from './CalendarCell';
 import { defaultDayLabels, defaultHours } from './calendar/constants';
 import {
+  dateKey,
   formatFullDate,
   formatMonthYear,
-  getEventDurationMinutes,
-  getEventOffsetMinutes,
-  getEventsForSlot,
   parseDateInput,
+  timeToMinutes,
 } from './calendar/date';
 import { EventPill } from './calendar/EventPill';
+import { calendarHourHeight, getPositionedEventsForDate } from './calendar/layout';
 import { joinClasses } from './calendar/style';
 import type { DayScheduleProps } from './calendar/types';
 
@@ -27,6 +26,10 @@ export const DaySchedule = ({
 }: DayScheduleProps) => {
   const parsedDate = parseDateInput(currentDate);
   const weekDayLabel = defaultDayLabels[(parsedDate.getDay() + 6) % 7];
+  const visibleStartMinutes = timeToMinutes(hours[0] || '00:00');
+  const visibleEndMinutes = timeToMinutes(hours[hours.length - 1] || '23:00') + 60;
+  const timelineHeight = hours.length * calendarHourHeight;
+  const positionedEvents = getPositionedEventsForDate(events, parsedDate, visibleStartMinutes, visibleEndMinutes);
 
   return (
     <div className={joinClasses('space-y-4', className)} {...props}>
@@ -36,36 +39,56 @@ export const DaySchedule = ({
         <div className="text-sm leading-5 text-[#6c7278]">{formatMonthYear(parsedDate)}</div>
       </div>
 
-      <div className="space-y-1">
-        {hours.map((hour) => {
-          const slotEvents = getEventsForSlot(events, parsedDate, hour);
-
-          return (
-            <div key={hour} className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
-              <div className="pt-2 text-right text-sm leading-5 text-[#6c7278]">{hour}</div>
-              <CalendarCell
-                aria-label={`${formatFullDate(parsedDate)} à ${hour}`}
-                className="h-16 min-h-0"
-                onClick={() => onSelectSlot?.(parsedDate, hour)}
-              >
-                <div className="space-y-1">
-                  {slotEvents.map((event) => (
-                    <EventPill
-                      key={event.id}
-                      event={event}
-                      onClick={onEventClick}
-                      className="relative z-10 shadow-sm"
-                      style={{
-                        minHeight: `${Math.max(40, getEventDurationMinutes(event))}px`,
-                        marginTop: `${getEventOffsetMinutes(event, hour)}px`,
-                      }}
-                    />
-                  ))}
-                </div>
-              </CalendarCell>
+      <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
+        <div className="relative" style={{ height: timelineHeight }}>
+          {hours.map((hour, index) => (
+            <div
+              key={hour}
+              className="absolute right-0 text-right text-sm leading-5 text-[#6c7278]"
+              style={{ top: index * calendarHourHeight + 6 }}
+            >
+              {hour}
             </div>
-          );
-        })}
+          ))}
+        </div>
+
+        <div className="relative" style={{ height: timelineHeight }}>
+          {hours.map((hour, index) => (
+            <button
+              key={`${dateKey(parsedDate)}-${hour}`}
+              type="button"
+              aria-label={`${formatFullDate(parsedDate)} à ${hour}`}
+              className="absolute left-0 right-0 rounded-md border border-[#d8d2ca] bg-white transition-colors hover:border-[#b9d6d5] hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+              style={{ top: index * calendarHourHeight, height: calendarHourHeight - 4 }}
+              onClick={() => onSelectSlot?.(parsedDate, hour)}
+            />
+          ))}
+
+          {positionedEvents.map(({ event, range, lane, laneCount }) => {
+            const width = 100 / laneCount;
+            const top = (range.offsetMinutes / 60) * calendarHourHeight;
+            const height = Math.max(36, (range.durationMinutes / 60) * calendarHourHeight - 4);
+
+            return (
+              <EventPill
+                key={`${event.id}-${dateKey(parsedDate)}-${range.startMinutes}-${lane}`}
+                event={event}
+                onClick={onEventClick}
+                className={joinClasses(
+                  'absolute z-10 shadow-sm',
+                  !range.isStart && 'rounded-l-sm border-l-4 border-l-[#2563eb]',
+                  !range.isEnd && 'rounded-r-sm border-r-4 border-r-[#2563eb]'
+                )}
+                style={{
+                  top,
+                  height,
+                  left: `calc(${lane * width}% + 2px)`,
+                  width: `calc(${width}% - 4px)`,
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
