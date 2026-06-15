@@ -3,7 +3,14 @@ import { CalendarDays, Clock, MapPin, Pencil, Repeat, Tag, Users, X } from 'luci
 
 import { EventAssigneeSelect } from './EventAssigneeSelect';
 import { defaultEventCategories, weekDayOptions } from './calendar/constants';
-import { dateKey, getEventDateLabel, getEventTimeLabel, getRecurrenceLabel } from './calendar/date';
+import {
+  getEventDateLabel,
+  getEventTimeLabel,
+  getRecurrenceLabel,
+  normalizeDateForServer,
+  serverDatePattern,
+  serverDatePlaceholder,
+} from './calendar/date';
 import { joinClasses } from './calendar/style';
 import type {
   CalendarAssignee,
@@ -34,8 +41,8 @@ const getEventAssigneeIds = (event: CalendarEvent) =>
 const getEventValues = (event: CalendarEvent): CreateCalendarEventValues => ({
   title: stringifyNode(event.title),
   description: stringifyNode(event.description),
-  date: dateKey(event.date),
-  endDate: event.endDate ? dateKey(event.endDate) : dateKey(event.date),
+  date: normalizeDateForServer(event.date),
+  endDate: event.endDate ? normalizeDateForServer(event.endDate) : normalizeDateForServer(event.date),
   category: event.category || '',
   startTime: event.startTime || '',
   endTime: event.endTime || '',
@@ -45,7 +52,7 @@ const getEventValues = (event: CalendarEvent): CreateCalendarEventValues => ({
     frequency: event.recurrence?.frequency || 'none',
     interval: event.recurrence?.interval || 1,
     daysOfWeek: event.recurrence?.daysOfWeek || [],
-    endsOn: event.recurrence?.endsOn ? dateKey(event.recurrence.endsOn) : '',
+    endsOn: normalizeDateForServer(event.recurrence?.endsOn),
   },
 });
 
@@ -151,14 +158,16 @@ export const EventDetailsModal = ({
 
   const handleSave = (submitEvent: React.FormEvent<HTMLFormElement>) => {
     submitEvent.preventDefault();
+    const date = normalizeDateForServer(values.date);
+    const endDate = normalizeDateForServer(values.endDate || values.date);
 
     onSave?.({
       ...event,
       id: event.id,
       title: values.title,
       description: values.description,
-      date: values.date,
-      endDate: values.endDate || values.date,
+      date,
+      endDate,
       category: values.category,
       startTime: values.startTime,
       endTime: values.endTime,
@@ -168,7 +177,10 @@ export const EventDetailsModal = ({
       recurrence:
         values.recurrence.frequency === 'none'
           ? { frequency: 'none', interval: 1, daysOfWeek: [], endsOn: '' }
-          : values.recurrence,
+          : {
+              ...values.recurrence,
+              endsOn: normalizeDateForServer(values.recurrence.endsOn),
+            },
     });
     setEditing(false);
   };
@@ -318,9 +330,13 @@ export const EventDetailsModal = ({
                 </label>
                 <input
                   id="edit-event-date"
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  pattern={serverDatePattern}
                   required
                   value={values.date}
+                  placeholder={serverDatePlaceholder}
+                  title="Format attendu : JJ-MM-AAAA"
                   className={fieldClassName}
                   onChange={(inputEvent) => updateValue('date', inputEvent.target.value)}
                 />
@@ -331,8 +347,12 @@ export const EventDetailsModal = ({
                 </label>
                 <input
                   id="edit-event-end-date"
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  pattern={serverDatePattern}
                   value={values.endDate}
+                  placeholder={serverDatePlaceholder}
+                  title="Format attendu : JJ-MM-AAAA"
                   className={fieldClassName}
                   onChange={(inputEvent) => updateValue('endDate', inputEvent.target.value)}
                 />
@@ -428,8 +448,12 @@ export const EventDetailsModal = ({
                   </label>
                   <input
                     id="edit-event-recurrence-end"
-                    type="date"
+                    type="text"
+                    inputMode="numeric"
+                    pattern={serverDatePattern}
                     value={String(values.recurrence.endsOn || '')}
+                    placeholder={serverDatePlaceholder}
+                    title="Format attendu : JJ-MM-AAAA"
                     className={fieldClassName}
                     onChange={(inputEvent) => updateRecurrence('endsOn', inputEvent.target.value)}
                   />

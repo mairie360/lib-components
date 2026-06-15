@@ -59,7 +59,7 @@ describe('EventDetailsModal component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
 
     expect(screen.getByLabelText('Titre')).toHaveValue('Conseil municipal');
-    expect(screen.getByLabelText('Date de début')).toHaveValue('2026-06-15');
+    expect(screen.getByLabelText('Date de début')).toHaveValue('15-06-2026');
 
     fireEvent.change(screen.getByLabelText('Titre'), {
       target: { value: 'Conseil municipal modifié' },
@@ -74,6 +74,8 @@ describe('EventDetailsModal component', () => {
       expect.objectContaining({
         id: 'event-1',
         title: 'Conseil municipal modifié',
+        date: '15-06-2026',
+        endDate: '15-06-2026',
         location: 'Grande salle',
         assigneeIds: ['alice'],
       })

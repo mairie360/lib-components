@@ -39,7 +39,7 @@ const sampleEvents: CalendarEvent[] = [
   {
     id: 'council',
     title: 'Conseil municipal',
-    date: '2026-06-15',
+    date: '15-06-2026',
     category: 'meeting',
     startTime: '09:00',
     endTime: '10:30',
@@ -50,7 +50,7 @@ const sampleEvents: CalendarEvent[] = [
   {
     id: 'culture',
     title: 'Réunion culture',
-    date: '2026-06-17',
+    date: '17-06-2026',
     category: 'meeting',
     startTime: '14:00',
     endTime: '15:00',
@@ -60,8 +60,8 @@ const sampleEvents: CalendarEvent[] = [
   {
     id: 'market',
     title: 'Marché local',
-    date: '2026-06-20',
-    endDate: '2026-06-21',
+    date: '20-06-2026',
+    endDate: '21-06-2026',
     category: 'activity',
     startTime: '08:00',
     endTime: '12:00',
@@ -72,7 +72,7 @@ const sampleEvents: CalendarEvent[] = [
   {
     id: 'weekly-duty',
     title: 'Permanence accueil',
-    date: '2026-06-15',
+    date: '15-06-2026',
     category: 'meeting',
     startTime: '10:00',
     endTime: '11:00',
@@ -82,7 +82,7 @@ const sampleEvents: CalendarEvent[] = [
       frequency: 'weekly',
       interval: 1,
       daysOfWeek: [1, 3],
-      endsOn: '2026-06-30',
+      endsOn: '30-06-2026',
     },
     colorClassName: 'bg-[#e9f2ff] text-[#2563eb]',
   },
@@ -96,7 +96,7 @@ const people: CalendarAssignee[] = [
 ];
 
 const CalendarComposition = ({
-  initialDate = '2026-06-15',
+  initialDate = '15-06-2026',
   defaultView = 'month',
   events = [],
   upcomingEvents,
@@ -207,7 +207,7 @@ const CalendarComposition = ({
       <CreateEventModal
         isOpen={createModalOpen}
         people={people}
-        initialValues={{ date: '2026-06-15' }}
+        initialValues={{ date: '15-06-2026' }}
         onCancel={() => setCreateModalOpen(false)}
         onCreate={(eventValues) => {
           setCalendarEvents((currentEvents) => [
@@ -250,7 +250,7 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
-    initialDate: '2026-06-15',
+    initialDate: '15-06-2026',
     events: sampleEvents,
     people,
     onCreateEvent: fn(),

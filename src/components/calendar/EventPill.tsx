@@ -9,9 +9,11 @@ interface EventPillProps {
   onClick?: (event: CalendarEvent) => void;
   className?: string;
   style?: React.CSSProperties;
+  showTime?: boolean;
 }
 
-export const EventPill = ({ event, onClick, className, style }: EventPillProps) => {
+export const EventPill = ({ event, onClick, className, style, showTime = true }: EventPillProps) => {
+  const timeLabel = showTime ? getEventTimeLabel(event) : null;
   const clickableProps = onClick
     ? {
         role: 'button',
@@ -43,8 +45,8 @@ export const EventPill = ({ event, onClick, className, style }: EventPillProps) 
       {...clickableProps}
     >
       <div className="break-words">{event.title}</div>
-      {getEventTimeLabel(event) && (
-        <div className="break-words text-[11px] font-normal opacity-75">{getEventTimeLabel(event)}</div>
+      {timeLabel && (
+        <div className="break-words text-[11px] font-normal opacity-75">{timeLabel}</div>
       )}
     </div>
   );

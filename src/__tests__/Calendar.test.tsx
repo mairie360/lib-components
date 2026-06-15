@@ -126,7 +126,8 @@ describe('Calendar components', () => {
       />
     );
 
-    expect(screen.getAllByText('Festival')).toHaveLength(2);
+    expect(screen.getAllByText('Festival')).toHaveLength(1);
+    expect(screen.getByText('Festival').parentElement).toHaveStyle({ gridColumn: '1 / span 2' });
     expect(screen.getAllByText('Permanence')).toHaveLength(5);
   });
 

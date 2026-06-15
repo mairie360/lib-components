@@ -1,19 +1,49 @@
 import { weekDayOptions } from './constants';
 import type { CalendarDateInput, CalendarEvent, CalendarRecurrence, CalendarStat } from './types';
 
+const serverDateRegex = /^(\d{2})[-/](\d{2})[-/](\d{4})$/;
+const isoDateRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+export const serverDatePattern = '\\d{2}-\\d{2}-\\d{4}';
+export const serverDatePlaceholder = 'JJ-MM-AAAA';
+
+const toLocalDate = (year: number, month: number, day: number) => new Date(year, month - 1, day);
+const padDatePart = (value: number) => `${value}`.padStart(2, '0');
+
 export const parseDateInput = (date: CalendarDateInput = new Date()) => {
   if (date instanceof Date) {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   }
 
-  const dateOnlyMatch = date.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (dateOnlyMatch) {
-    const [, year, month, day] = dateOnlyMatch;
-    return new Date(Number(year), Number(month) - 1, Number(day));
+  const normalizedDate = date.trim();
+  const serverDateMatch = normalizedDate.match(serverDateRegex);
+  if (serverDateMatch) {
+    const [, day, month, year] = serverDateMatch;
+    return toLocalDate(Number(year), Number(month), Number(day));
   }
 
-  const parsedDate = new Date(date);
+  const dateOnlyMatch = normalizedDate.match(isoDateRegex);
+  if (dateOnlyMatch) {
+    const [, year, month, day] = dateOnlyMatch;
+    return toLocalDate(Number(year), Number(month), Number(day));
+  }
+
+  const parsedDate = new Date(normalizedDate);
   return new Date(parsedDate.getFullYear(), parsedDate.getMonth(), parsedDate.getDate());
+};
+
+export const formatDateForServer = (date: CalendarDateInput) => {
+  const parsedDate = parseDateInput(date);
+  const day = padDatePart(parsedDate.getDate());
+  const month = padDatePart(parsedDate.getMonth() + 1);
+  const year = parsedDate.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+export const normalizeDateForServer = (date?: CalendarDateInput | null) => {
+  if (!date) return '';
+  return formatDateForServer(date);
 };
 
 export const addDays = (date: Date, amount: number) => {
@@ -46,12 +76,7 @@ export const getDayDiff = (dateA: CalendarDateInput, dateB: CalendarDateInput) =
 };
 
 export const dateKey = (date: CalendarDateInput) => {
-  const parsedDate = parseDateInput(date);
-  const year = parsedDate.getFullYear();
-  const month = `${parsedDate.getMonth() + 1}`.padStart(2, '0');
-  const day = `${parsedDate.getDate()}`.padStart(2, '0');
-
-  return `${year}-${month}-${day}`;
+  return formatDateForServer(date);
 };
 
 export const startOfWeek = (date: Date, weekStartsOn: 0 | 1 = 1) => {

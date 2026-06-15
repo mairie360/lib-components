@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 
 import { EventAssigneeSelect } from './EventAssigneeSelect';
 import { defaultEventCategories, weekDayOptions } from './calendar/constants';
+import { normalizeDateForServer, serverDatePattern, serverDatePlaceholder } from './calendar/date';
 import { joinClasses } from './calendar/style';
 import type { CalendarRecurrenceFrequency, CreateCalendarEventValues, CreateEventModalProps } from './calendar/types';
 
@@ -28,17 +29,18 @@ const getDefaultValues = (
   return {
     title: '',
     description: '',
-    date: '',
-    endDate: '',
     category: defaultCategory,
     startTime: '',
     endTime: '',
     location: '',
     ...initialValues,
+    date: normalizeDateForServer(initialValues?.date),
+    endDate: normalizeDateForServer(initialValues?.endDate),
     assigneeIds: initialValues?.assigneeIds || [],
     recurrence: {
       ...defaultRecurrence,
       ...initialValues?.recurrence,
+      endsOn: normalizeDateForServer(initialValues?.recurrence?.endsOn),
     },
   };
 };
@@ -100,13 +102,20 @@ export const CreateEventModal = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const date = normalizeDateForServer(values.date);
+    const endDate = normalizeDateForServer(values.endDate || values.date);
+
     onCreate({
       ...values,
-      endDate: values.endDate || values.date,
+      date,
+      endDate,
       recurrence:
         values.recurrence.frequency === 'none'
           ? { frequency: 'none', interval: 1, daysOfWeek: [], endsOn: '' }
-          : values.recurrence,
+          : {
+              ...values.recurrence,
+              endsOn: normalizeDateForServer(values.recurrence.endsOn),
+            },
     });
   };
 
@@ -206,9 +215,13 @@ export const CreateEventModal = ({
               <input
                 id="event-date"
                 name="date"
-                type="date"
+                type="text"
+                inputMode="numeric"
+                pattern={serverDatePattern}
                 required
                 value={values.date}
+                placeholder={serverDatePlaceholder}
+                title="Format attendu : JJ-MM-AAAA"
                 className={fieldClassName}
                 onChange={(event) => updateValue('date', event.target.value)}
               />
@@ -221,8 +234,12 @@ export const CreateEventModal = ({
               <input
                 id="event-end-date"
                 name="endDate"
-                type="date"
+                type="text"
+                inputMode="numeric"
+                pattern={serverDatePattern}
                 value={values.endDate}
+                placeholder={serverDatePlaceholder}
+                title="Format attendu : JJ-MM-AAAA"
                 className={fieldClassName}
                 onChange={(event) => updateValue('endDate', event.target.value)}
               />
@@ -317,8 +334,12 @@ export const CreateEventModal = ({
                 </label>
                 <input
                   id="event-recurrence-end"
-                  type="date"
+                  type="text"
+                  inputMode="numeric"
+                  pattern={serverDatePattern}
                   value={String(values.recurrence.endsOn || '')}
+                  placeholder={serverDatePlaceholder}
+                  title="Format attendu : JJ-MM-AAAA"
                   className={fieldClassName}
                   onChange={(event) => updateRecurrence('endsOn', event.target.value)}
                 />

@@ -24,7 +24,7 @@ describe('CreateEventModal component', () => {
       target: { value: 'Conseil municipal' },
     });
     fireEvent.change(screen.getByLabelText('Date de début'), {
-      target: { value: '2026-06-15' },
+      target: { value: '15-06-2026' },
     });
     fireEvent.change(screen.getByLabelText('Lieu'), {
       target: { value: 'Salle du conseil' },
@@ -38,7 +38,8 @@ describe('CreateEventModal component', () => {
     expect(handleCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Conseil municipal',
-        date: '2026-06-15',
+        date: '15-06-2026',
+        endDate: '15-06-2026',
         location: 'Salle du conseil',
         assigneeIds: ['alice'],
       })
