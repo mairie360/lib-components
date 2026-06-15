@@ -58,6 +58,7 @@ describe('EventDetailsModal component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
 
+    expect(screen.getByRole('heading', { name: 'Modifier l’événement' })).toBeInTheDocument();
     expect(screen.getByLabelText('Titre')).toHaveValue('Conseil municipal');
     expect(screen.getByLabelText('Date de début')).toHaveValue('15-06-2026');
 
@@ -80,6 +81,23 @@ describe('EventDetailsModal component', () => {
         assigneeIds: ['alice'],
       })
     );
+  });
+
+  it('keeps the edit form open when the selected event object is recreated', () => {
+    const handleSave = jest.fn();
+    const { rerender } = render(
+      <EventDetailsModal isOpen event={event} people={people} onClose={jest.fn()} onSave={handleSave} />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+    expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeInTheDocument();
+
+    rerender(
+      <EventDetailsModal isOpen event={{ ...event }} people={people} onClose={jest.fn()} onSave={handleSave} />
+    );
+
+    expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Titre')).toHaveValue('Conseil municipal');
   });
 
   it('edits event assignees from the details modal', () => {
