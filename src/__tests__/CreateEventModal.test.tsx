@@ -23,7 +23,7 @@ describe('CreateEventModal component', () => {
     fireEvent.change(screen.getByLabelText('Titre'), {
       target: { value: 'Conseil municipal' },
     });
-    fireEvent.change(screen.getByLabelText('Date'), {
+    fireEvent.change(screen.getByLabelText('Date de début'), {
       target: { value: '2026-06-15' },
     });
     fireEvent.change(screen.getByLabelText('Lieu'), {

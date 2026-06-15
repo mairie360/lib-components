@@ -2,7 +2,14 @@ import React from 'react';
 
 import { CalendarCell } from './CalendarCell';
 import { defaultDayLabels, defaultHours } from './calendar/constants';
-import { formatFullDate, formatMonthYear, getEventsForSlot, parseDateInput } from './calendar/date';
+import {
+  formatFullDate,
+  formatMonthYear,
+  getEventDurationMinutes,
+  getEventOffsetMinutes,
+  getEventsForSlot,
+  parseDateInput,
+} from './calendar/date';
 import { EventPill } from './calendar/EventPill';
 import { joinClasses } from './calendar/style';
 import type { DayScheduleProps } from './calendar/types';
@@ -43,7 +50,16 @@ export const DaySchedule = ({
               >
                 <div className="space-y-1">
                   {slotEvents.map((event) => (
-                    <EventPill key={event.id} event={event} onClick={onEventClick} />
+                    <EventPill
+                      key={event.id}
+                      event={event}
+                      onClick={onEventClick}
+                      className="relative z-10 shadow-sm"
+                      style={{
+                        minHeight: `${Math.max(40, getEventDurationMinutes(event))}px`,
+                        marginTop: `${getEventOffsetMinutes(event, hour)}px`,
+                      }}
+                    />
                   ))}
                 </div>
               </CalendarCell>

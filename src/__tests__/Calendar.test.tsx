@@ -99,6 +99,37 @@ describe('Calendar components', () => {
     expect(handleSelectDate).not.toHaveBeenCalled();
   });
 
+  it('renders multi-day and recurring events on matching days', () => {
+    render(
+      <MonthGrid
+        currentDate="2026-06-15"
+        selectedDate="2026-06-15"
+        events={[
+          {
+            id: 'multi-day',
+            title: 'Festival',
+            date: '2026-06-15',
+            endDate: '2026-06-16',
+          },
+          {
+            id: 'weekly',
+            title: 'Permanence',
+            date: '2026-06-15',
+            recurrence: {
+              frequency: 'weekly',
+              interval: 1,
+              daysOfWeek: [1, 3],
+              endsOn: '2026-06-30',
+            },
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getAllByText('Festival')).toHaveLength(2);
+    expect(screen.getAllByText('Permanence')).toHaveLength(5);
+  });
+
   it('renders day schedule events', () => {
     render(
       <DaySchedule
@@ -117,6 +148,25 @@ describe('Calendar components', () => {
     expect(screen.getByText('15')).toBeInTheDocument();
     expect(screen.getByText('Juin 2026')).toBeInTheDocument();
     expect(screen.getByText('Conseil municipal')).toBeInTheDocument();
+  });
+
+  it('renders event duration visually in day schedule', () => {
+    render(
+      <DaySchedule
+        currentDate="2026-06-15"
+        events={[
+          {
+            id: 'event-1',
+            title: 'Atelier',
+            date: '2026-06-15',
+            startTime: '09:00',
+            endTime: '10:30',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Atelier').parentElement).toHaveStyle({ minHeight: '90px' });
   });
 
   it('renders sidebar panels', () => {

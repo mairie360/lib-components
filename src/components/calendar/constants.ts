@@ -8,6 +8,16 @@ export const defaultViewOptions: ViewSwitcherOption<CalendarViewMode>[] = [
 
 export const defaultDayLabels = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
 
+export const weekDayOptions = [
+  { label: 'Dim', value: 0 },
+  { label: 'Lun', value: 1 },
+  { label: 'Mar', value: 2 },
+  { label: 'Mer', value: 3 },
+  { label: 'Jeu', value: 4 },
+  { label: 'Ven', value: 5 },
+  { label: 'Sam', value: 6 },
+];
+
 export const defaultHours = [
   '06:00',
   '07:00',

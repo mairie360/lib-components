@@ -1,9 +1,9 @@
 import React from 'react';
-import { CalendarDays, Clock, MapPin, Tag, Users, X } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, Pencil, Repeat, Tag, Users, X } from 'lucide-react';
 
 import { EventAssigneeSelect } from './EventAssigneeSelect';
-import { defaultEventCategories } from './calendar/constants';
-import { dateKey, formatFullDate, getEventTimeLabel } from './calendar/date';
+import { defaultEventCategories, weekDayOptions } from './calendar/constants';
+import { dateKey, getEventDateLabel, getEventTimeLabel, getRecurrenceLabel } from './calendar/date';
 import { joinClasses } from './calendar/style';
 import type {
   CalendarAssignee,
@@ -35,11 +35,18 @@ const getEventValues = (event: CalendarEvent): CreateCalendarEventValues => ({
   title: stringifyNode(event.title),
   description: stringifyNode(event.description),
   date: dateKey(event.date),
+  endDate: event.endDate ? dateKey(event.endDate) : dateKey(event.date),
   category: event.category || '',
   startTime: event.startTime || '',
   endTime: event.endTime || '',
   location: event.location || '',
   assigneeIds: getEventAssigneeIds(event),
+  recurrence: {
+    frequency: event.recurrence?.frequency || 'none',
+    interval: event.recurrence?.interval || 1,
+    daysOfWeek: event.recurrence?.daysOfWeek || [],
+    endsOn: event.recurrence?.endsOn ? dateKey(event.recurrence.endsOn) : '',
+  },
 });
 
 const getSelectedAssignees = (people: CalendarAssignee[], value: CalendarAssigneeId[]) =>
@@ -91,6 +98,13 @@ export const EventDetailsModal = ({
           endTime: '',
           location: '',
           assigneeIds: [],
+          endDate: '',
+          recurrence: {
+            frequency: 'none',
+            interval: 1,
+            daysOfWeek: [],
+            endsOn: '',
+          },
         }
   );
   const titleId = React.useId();
@@ -139,14 +153,42 @@ export const EventDetailsModal = ({
       title: values.title,
       description: values.description,
       date: values.date,
+      endDate: values.endDate || values.date,
       category: values.category,
       startTime: values.startTime,
       endTime: values.endTime,
       location: values.location,
       assigneeIds: values.assigneeIds,
       assignees: selectedAssignees,
+      recurrence:
+        values.recurrence.frequency === 'none'
+          ? { frequency: 'none', interval: 1, daysOfWeek: [], endsOn: '' }
+          : values.recurrence,
     });
     setEditing(false);
+  };
+
+  const updateRecurrence = <Key extends keyof CreateCalendarEventValues['recurrence']>(
+    key: Key,
+    value: CreateCalendarEventValues['recurrence'][Key]
+  ) => {
+    setValues((currentValues) => ({
+      ...currentValues,
+      recurrence: {
+        ...currentValues.recurrence,
+        [key]: value,
+      },
+    }));
+  };
+
+  const toggleRecurrenceDay = (day: number) => {
+    const selectedDays = values.recurrence.daysOfWeek || [];
+    updateRecurrence(
+      'daysOfWeek',
+      selectedDays.includes(day)
+        ? selectedDays.filter((selectedDay) => selectedDay !== day)
+        : [...selectedDays, day].sort((firstDay, secondDay) => firstDay - secondDay)
+    );
   };
 
   return (
@@ -187,7 +229,7 @@ export const EventDetailsModal = ({
               <DetailRow
                 icon={<CalendarDays className="h-4 w-4" strokeWidth={1.8} />}
                 label="Date"
-                value={formatFullDate(event.date)}
+                value={getEventDateLabel(event)}
               />
               <DetailRow
                 icon={<Clock className="h-4 w-4" strokeWidth={1.8} />}
@@ -203,6 +245,11 @@ export const EventDetailsModal = ({
                 icon={<MapPin className="h-4 w-4" strokeWidth={1.8} />}
                 label="Lieu"
                 value={event.location}
+              />
+              <DetailRow
+                icon={<Repeat className="h-4 w-4" strokeWidth={1.8} />}
+                label="Récurrence"
+                value={getRecurrenceLabel(event.recurrence)}
               />
             </div>
 
@@ -257,7 +304,7 @@ export const EventDetailsModal = ({
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="edit-event-date" className={labelClassName}>
-                  Date
+                  Date de début
                 </label>
                 <input
                   id="edit-event-date"
@@ -269,9 +316,23 @@ export const EventDetailsModal = ({
                 />
               </div>
               <div>
-                <label htmlFor="edit-event-category" className={labelClassName}>
-                  Catégorie
+                <label htmlFor="edit-event-end-date" className={labelClassName}>
+                  Date de fin
                 </label>
+                <input
+                  id="edit-event-end-date"
+                  type="date"
+                  value={values.endDate}
+                  className={fieldClassName}
+                  onChange={(inputEvent) => updateValue('endDate', inputEvent.target.value)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="edit-event-category" className={labelClassName}>
+                Catégorie
+              </label>
                 <select
                   id="edit-event-category"
                   value={values.category}
@@ -284,7 +345,86 @@ export const EventDetailsModal = ({
                     </option>
                   ))}
                 </select>
+            </div>
+
+            <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="edit-event-recurrence" className={labelClassName}>
+                    Récurrence
+                  </label>
+                  <select
+                    id="edit-event-recurrence"
+                    value={values.recurrence.frequency}
+                    className={fieldClassName}
+                    onChange={(inputEvent) =>
+                      updateRecurrence('frequency', inputEvent.target.value as CreateCalendarEventValues['recurrence']['frequency'])
+                    }
+                  >
+                    <option value="none">Ne se répète pas</option>
+                    <option value="daily">Tous les jours</option>
+                    <option value="weekly">Chaque semaine</option>
+                    <option value="monthly">Chaque mois</option>
+                  </select>
+                </div>
+                {values.recurrence.frequency !== 'none' && (
+                  <div>
+                    <label htmlFor="edit-event-recurrence-interval" className={labelClassName}>
+                      Intervalle
+                    </label>
+                    <input
+                      id="edit-event-recurrence-interval"
+                      type="number"
+                      min={1}
+                      value={values.recurrence.interval || 1}
+                      className={fieldClassName}
+                      onChange={(inputEvent) => updateRecurrence('interval', Number(inputEvent.target.value) || 1)}
+                    />
+                  </div>
+                )}
               </div>
+
+              {values.recurrence.frequency === 'weekly' && (
+                <div className="mt-3">
+                  <div className={labelClassName}>Jours</div>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {weekDayOptions.map((day) => {
+                      const selected = values.recurrence.daysOfWeek?.includes(day.value);
+
+                      return (
+                        <button
+                          key={day.value}
+                          type="button"
+                          className={joinClasses(
+                            'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25',
+                            selected
+                              ? 'border-[#2563eb] bg-[#e9f2ff] text-[#2563eb]'
+                              : 'border-[#cbd5e1] bg-[#f8fafc] text-[#334155] hover:bg-white'
+                          )}
+                          onClick={() => toggleRecurrenceDay(day.value)}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {values.recurrence.frequency !== 'none' && (
+                <div className="mt-3">
+                  <label htmlFor="edit-event-recurrence-end" className={labelClassName}>
+                    Fin de récurrence
+                  </label>
+                  <input
+                    id="edit-event-recurrence-end"
+                    type="date"
+                    value={String(values.recurrence.endsOn || '')}
+                    className={fieldClassName}
+                    onChange={(inputEvent) => updateRecurrence('endsOn', inputEvent.target.value)}
+                  />
+                </div>
+              )}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -366,9 +506,10 @@ export const EventDetailsModal = ({
               {onSave && (
                 <button
                   type="button"
-                  className="inline-flex h-9 items-center justify-center rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35"
+                  className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35"
                   onClick={() => setEditing(true)}
                 >
+                  <Pencil className="h-4 w-4" strokeWidth={1.8} />
                   {editLabel}
                 </button>
               )}

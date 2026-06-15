@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { CalendarCell } from './CalendarCell';
 import { defaultDayLabels } from './calendar/constants';
-import { dateKey, eventsByDate, formatFullDate, getMonthCells, isSameDay, parseDateInput } from './calendar/date';
+import { dateKey, eventOccursOnDate, formatFullDate, getMonthCells, isSameDay, parseDateInput } from './calendar/date';
 import { EventPill } from './calendar/EventPill';
 import { joinClasses } from './calendar/style';
 import type { MonthGridProps } from './calendar/types';
@@ -23,7 +23,6 @@ export const MonthGrid = ({
   const parsedDate = parseDateInput(currentDate);
   const selected = selectedDate ? parseDateInput(selectedDate) : parsedDate;
   const cells = useMemo(() => getMonthCells(parsedDate, weekStartsOn), [parsedDate, weekStartsOn]);
-  const groupedEvents = useMemo(() => eventsByDate(events), [events]);
 
   return (
     <div className={joinClasses('space-y-3', className)} {...props}>
@@ -47,7 +46,7 @@ export const MonthGrid = ({
             >
               <span className="font-medium">{date.getDate()}</span>
               <div className="mt-2 space-y-1">
-                {(groupedEvents[dateKey(date)] || []).slice(0, 2).map((event) => (
+                {events.filter((event) => eventOccursOnDate(event, date)).slice(0, 2).map((event) => (
                   <EventPill key={event.id} event={event} onClick={onEventClick} />
                 ))}
               </div>

@@ -7,9 +7,11 @@ import type { CalendarEvent } from './types';
 interface EventPillProps {
   event: CalendarEvent;
   onClick?: (event: CalendarEvent) => void;
+  className?: string;
+  style?: React.CSSProperties;
 }
 
-export const EventPill = ({ event, onClick }: EventPillProps) => {
+export const EventPill = ({ event, onClick, className, style }: EventPillProps) => {
   const clickableProps = onClick
     ? {
         role: 'button',
@@ -34,8 +36,10 @@ export const EventPill = ({ event, onClick }: EventPillProps) => {
       'min-w-0 rounded-md px-2 py-1 text-xs font-medium leading-4',
       onClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/35',
       event.colorClassName || 'bg-[#e9f2ff] text-[#1256a6]',
-      event.className
+      event.className,
+      className
     )}
+    style={style}
     {...clickableProps}
   >
     <div className="truncate">{event.title}</div>

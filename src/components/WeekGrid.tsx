@@ -5,6 +5,8 @@ import { defaultDayLabels, defaultHours } from './calendar/constants';
 import {
   dateKey,
   formatFullDate,
+  getEventDurationMinutes,
+  getEventOffsetMinutes,
   getEventsForSlot,
   getWeekDates,
   isSameDay,
@@ -67,7 +69,16 @@ export const WeekGrid = ({
                 >
                   <div className="space-y-1">
                     {slotEvents.slice(0, 1).map((event) => (
-                      <EventPill key={event.id} event={event} onClick={onEventClick} />
+                      <EventPill
+                        key={event.id}
+                        event={event}
+                        onClick={onEventClick}
+                        className="relative z-10 shadow-sm"
+                        style={{
+                          minHeight: `${Math.max(36, getEventDurationMinutes(event))}px`,
+                          marginTop: `${getEventOffsetMinutes(event, hour)}px`,
+                        }}
+                      />
                     ))}
                   </div>
                 </CalendarCell>

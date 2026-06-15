@@ -6,6 +6,15 @@ export type CalendarDateInput = Date | string;
 
 export type CalendarAssigneeId = string | number;
 
+export type CalendarRecurrenceFrequency = 'none' | 'daily' | 'weekly' | 'monthly';
+
+export interface CalendarRecurrence {
+  frequency: CalendarRecurrenceFrequency;
+  interval?: number;
+  daysOfWeek?: number[];
+  endsOn?: CalendarDateInput;
+}
+
 export interface CalendarAssignee {
   id: CalendarAssigneeId;
   name: string;
@@ -18,6 +27,7 @@ export interface CalendarEvent {
   id: string | number;
   title: React.ReactNode;
   date: CalendarDateInput;
+  endDate?: CalendarDateInput;
   category?: string;
   startTime?: string;
   endTime?: string;
@@ -25,6 +35,7 @@ export interface CalendarEvent {
   description?: React.ReactNode;
   assigneeIds?: CalendarAssigneeId[];
   assignees?: CalendarAssignee[];
+  recurrence?: CalendarRecurrence;
   colorClassName?: string;
   className?: string;
 }
@@ -143,11 +154,13 @@ export interface CreateCalendarEventValues {
   title: string;
   description: string;
   date: string;
+  endDate: string;
   category: string;
   startTime: string;
   endTime: string;
   location: string;
   assigneeIds: CalendarAssigneeId[];
+  recurrence: CalendarRecurrence;
 }
 
 export interface EditCalendarEventValues extends CreateCalendarEventValues {

@@ -2,8 +2,9 @@ import React from 'react';
 import { X } from 'lucide-react';
 
 import { EventAssigneeSelect } from './EventAssigneeSelect';
+import { defaultEventCategories, weekDayOptions } from './calendar/constants';
 import { joinClasses } from './calendar/style';
-import type { CreateCalendarEventValues, CreateEventModalProps } from './calendar/types';
+import type { CalendarRecurrenceFrequency, CreateCalendarEventValues, CreateEventModalProps } from './calendar/types';
 
 export type {
   CalendarAssignee,
@@ -13,27 +14,34 @@ export type {
   CreateEventModalProps,
 } from './calendar/types';
 
-const defaultCategories = [
-  { label: 'Réunion', value: 'meeting' },
-  { label: 'Animation', value: 'activity' },
-  { label: 'Cérémonie', value: 'ceremony' },
-  { label: 'Autre', value: 'other' },
-];
-
 const getDefaultValues = (
   initialValues: Partial<CreateCalendarEventValues> | undefined,
   defaultCategory: string
-): CreateCalendarEventValues => ({
-  title: '',
-  description: '',
-  date: '',
-  category: defaultCategory,
-  startTime: '',
-  endTime: '',
-  location: '',
-  ...initialValues,
-  assigneeIds: initialValues?.assigneeIds || [],
-});
+): CreateCalendarEventValues => {
+  const defaultRecurrence: CreateCalendarEventValues['recurrence'] = {
+    frequency: 'none',
+    interval: 1,
+    daysOfWeek: [],
+    endsOn: '',
+  };
+
+  return {
+    title: '',
+    description: '',
+    date: '',
+    endDate: '',
+    category: defaultCategory,
+    startTime: '',
+    endTime: '',
+    location: '',
+    ...initialValues,
+    assigneeIds: initialValues?.assigneeIds || [],
+    recurrence: {
+      ...defaultRecurrence,
+      ...initialValues?.recurrence,
+    },
+  };
+};
 
 const fieldClassName =
   'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition-colors placeholder:text-[#64748b] focus:border-[#94a3b8] focus:ring-2 focus:ring-[#3b82f6]/20';
@@ -43,7 +51,7 @@ const labelClassName = 'mb-1 block text-sm font-semibold text-[#334155]';
 export const CreateEventModal = ({
   isOpen,
   people = [],
-  categories = defaultCategories,
+  categories = defaultEventCategories,
   initialValues,
   title = 'Créer un événement',
   subtitle = 'Ajouter un nouvel événement au calendrier',
@@ -92,7 +100,37 @@ export const CreateEventModal = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onCreate(values);
+    onCreate({
+      ...values,
+      endDate: values.endDate || values.date,
+      recurrence:
+        values.recurrence.frequency === 'none'
+          ? { frequency: 'none', interval: 1, daysOfWeek: [], endsOn: '' }
+          : values.recurrence,
+    });
+  };
+
+  const updateRecurrence = <Key extends keyof CreateCalendarEventValues['recurrence']>(
+    key: Key,
+    value: CreateCalendarEventValues['recurrence'][Key]
+  ) => {
+    setValues((currentValues) => ({
+      ...currentValues,
+      recurrence: {
+        ...currentValues.recurrence,
+        [key]: value,
+      },
+    }));
+  };
+
+  const toggleRecurrenceDay = (day: number) => {
+    const selectedDays = values.recurrence.daysOfWeek || [];
+    updateRecurrence(
+      'daysOfWeek',
+      selectedDays.includes(day)
+        ? selectedDays.filter((selectedDay) => selectedDay !== day)
+        : [...selectedDays, day].sort((firstDay, secondDay) => firstDay - secondDay)
+    );
   };
 
   return (
@@ -163,7 +201,7 @@ export const CreateEventModal = ({
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label htmlFor="event-date" className={labelClassName}>
-                Date
+                Date de début
               </label>
               <input
                 id="event-date"
@@ -177,23 +215,115 @@ export const CreateEventModal = ({
             </div>
 
             <div>
-              <label htmlFor="event-category" className={labelClassName}>
-                Catégorie
+              <label htmlFor="event-end-date" className={labelClassName}>
+                Date de fin
+              </label>
+              <input
+                id="event-end-date"
+                name="endDate"
+                type="date"
+                value={values.endDate}
+                className={fieldClassName}
+                onChange={(event) => updateValue('endDate', event.target.value)}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="event-category" className={labelClassName}>
+              Catégorie
+            </label>
+            <select
+              id="event-category"
+              name="category"
+              value={values.category}
+              className={fieldClassName}
+              onChange={(event) => updateValue('category', event.target.value)}
+            >
+              {categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
+            <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="event-recurrence" className={labelClassName}>
+                Récurrence
               </label>
               <select
-                id="event-category"
-                name="category"
-                value={values.category}
+                id="event-recurrence"
+                value={values.recurrence.frequency}
                 className={fieldClassName}
-                onChange={(event) => updateValue('category', event.target.value)}
+                onChange={(event) => updateRecurrence('frequency', event.target.value as CalendarRecurrenceFrequency)}
               >
-                {categories.map((category) => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
+                <option value="none">Ne se répète pas</option>
+                <option value="daily">Tous les jours</option>
+                <option value="weekly">Chaque semaine</option>
+                <option value="monthly">Chaque mois</option>
               </select>
             </div>
+              {values.recurrence.frequency !== 'none' && (
+                <div>
+                  <label htmlFor="event-recurrence-interval" className={labelClassName}>
+                    Intervalle
+                  </label>
+                  <input
+                    id="event-recurrence-interval"
+                    type="number"
+                    min={1}
+                    value={values.recurrence.interval || 1}
+                    className={fieldClassName}
+                    onChange={(event) => updateRecurrence('interval', Number(event.target.value) || 1)}
+                  />
+                </div>
+              )}
+            </div>
+
+            {values.recurrence.frequency === 'weekly' && (
+              <div className="mt-3">
+                <div className={labelClassName}>Jours</div>
+                <div className="grid grid-cols-7 gap-1.5">
+                  {weekDayOptions.map((day) => {
+                    const selected = values.recurrence.daysOfWeek?.includes(day.value);
+
+                    return (
+                      <button
+                        key={day.value}
+                        type="button"
+                        className={joinClasses(
+                          'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25',
+                          selected
+                            ? 'border-[#2563eb] bg-[#e9f2ff] text-[#2563eb]'
+                            : 'border-[#cbd5e1] bg-[#f8fafc] text-[#334155] hover:bg-white'
+                        )}
+                        onClick={() => toggleRecurrenceDay(day.value)}
+                      >
+                        {day.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {values.recurrence.frequency !== 'none' && (
+              <div className="mt-3">
+                <label htmlFor="event-recurrence-end" className={labelClassName}>
+                  Fin de récurrence
+                </label>
+                <input
+                  id="event-recurrence-end"
+                  type="date"
+                  value={String(values.recurrence.endsOn || '')}
+                  className={fieldClassName}
+                  onChange={(event) => updateRecurrence('endsOn', event.target.value)}
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

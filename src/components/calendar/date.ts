@@ -1,4 +1,5 @@
-import type { CalendarDateInput, CalendarEvent, CalendarStat } from './types';
+import { weekDayOptions } from './constants';
+import type { CalendarDateInput, CalendarEvent, CalendarRecurrence, CalendarStat } from './types';
 
 export const parseDateInput = (date: CalendarDateInput = new Date()) => {
   if (date instanceof Date) {
@@ -36,6 +37,12 @@ export const isSameDay = (dateA: CalendarDateInput, dateB: CalendarDateInput) =>
     firstDate.getMonth() === secondDate.getMonth() &&
     firstDate.getDate() === secondDate.getDate()
   );
+};
+
+export const getDayDiff = (dateA: CalendarDateInput, dateB: CalendarDateInput) => {
+  const firstDate = parseDateInput(dateA).getTime();
+  const secondDate = parseDateInput(dateB).getTime();
+  return Math.round((firstDate - secondDate) / 86400000);
 };
 
 export const dateKey = (date: CalendarDateInput) => {
@@ -102,16 +109,140 @@ export const getEventTimeLabel = (event: CalendarEvent) => {
   return event.startTime || event.endTime || null;
 };
 
+export const getEventDateLabel = (event: CalendarEvent) => {
+  if (event.endDate && !isSameDay(event.date, event.endDate)) {
+    return `${formatFullDate(event.date)} - ${formatFullDate(event.endDate)}`;
+  }
+
+  return formatFullDate(event.date);
+};
+
+export const timeToMinutes = (time?: string) => {
+  if (!time) return 0;
+  const [hours = '0', minutes = '0'] = time.split(':');
+  return Number(hours) * 60 + Number(minutes);
+};
+
+export const getEventDurationMinutes = (event: CalendarEvent, fallbackMinutes = 60) => {
+  if (!event.startTime || !event.endTime) return fallbackMinutes;
+
+  const startMinutes = timeToMinutes(event.startTime);
+  const endMinutes = timeToMinutes(event.endTime);
+  const duration = endMinutes - startMinutes;
+
+  return duration > 0 ? duration : fallbackMinutes;
+};
+
+export const getEventOffsetMinutes = (event: CalendarEvent, slotTime: string) => {
+  if (!event.startTime) return 0;
+
+  return Math.max(0, timeToMinutes(event.startTime) - timeToMinutes(slotTime));
+};
+
+const getEventSpanInDays = (event: CalendarEvent) =>
+  Math.max(0, getDayDiff(event.endDate || event.date, event.date));
+
+const monthDiff = (dateA: Date, dateB: Date) =>
+  (dateA.getFullYear() - dateB.getFullYear()) * 12 + dateA.getMonth() - dateB.getMonth();
+
+const isBaseOccurrenceStart = (event: CalendarEvent, date: CalendarDateInput) =>
+  isSameDay(event.date, date);
+
+const isRecurringOccurrenceStart = (event: CalendarEvent, date: CalendarDateInput) => {
+  const recurrence = event.recurrence;
+  if (!recurrence || recurrence.frequency === 'none') return false;
+
+  const candidateDate = parseDateInput(date);
+  const eventDate = parseDateInput(event.date);
+  if (candidateDate.getTime() < eventDate.getTime()) return false;
+
+  if (recurrence.endsOn && candidateDate.getTime() > parseDateInput(recurrence.endsOn).getTime()) {
+    return false;
+  }
+
+  const interval = Math.max(1, recurrence.interval || 1);
+
+  if (recurrence.frequency === 'daily') {
+    return getDayDiff(candidateDate, eventDate) % interval === 0;
+  }
+
+  if (recurrence.frequency === 'weekly') {
+    const weekDiff = Math.floor(getDayDiff(startOfWeek(candidateDate), startOfWeek(eventDate)) / 7);
+    const matchingWeek = weekDiff >= 0 && weekDiff % interval === 0;
+    const selectedDays = recurrence.daysOfWeek?.length ? recurrence.daysOfWeek : [eventDate.getDay()];
+    return matchingWeek && selectedDays.includes(candidateDate.getDay());
+  }
+
+  if (recurrence.frequency === 'monthly') {
+    const diff = monthDiff(candidateDate, eventDate);
+    return diff >= 0 && diff % interval === 0 && candidateDate.getDate() === eventDate.getDate();
+  }
+
+  return false;
+};
+
+export const eventOccursOnDate = (event: CalendarEvent, date: CalendarDateInput) => {
+  const spanInDays = getEventSpanInDays(event);
+
+  for (let offset = 0; offset <= spanInDays; offset += 1) {
+    const possibleStartDate = addDays(parseDateInput(date), -offset);
+    if (isBaseOccurrenceStart(event, possibleStartDate) || isRecurringOccurrenceStart(event, possibleStartDate)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+export const eventStartsInSlot = (event: CalendarEvent, date: CalendarDateInput, slotTime: string) => {
+  if (!eventOccursOnDate(event, date)) return false;
+  if (!event.startTime) return true;
+
+  const slotStartMinutes = timeToMinutes(slotTime);
+  const slotEndMinutes = slotStartMinutes + 60;
+  const eventStartMinutes = timeToMinutes(event.startTime);
+
+  return eventStartMinutes >= slotStartMinutes && eventStartMinutes < slotEndMinutes;
+};
+
+export const getRecurrenceLabel = (recurrence?: CalendarRecurrence) => {
+  if (!recurrence || recurrence.frequency === 'none') return 'Ne se répète pas';
+
+  const interval = Math.max(1, recurrence.interval || 1);
+  const suffix = recurrence.endsOn ? ` jusqu'au ${formatFullDate(recurrence.endsOn)}` : '';
+
+  if (recurrence.frequency === 'daily') {
+    return `${interval === 1 ? 'Tous les jours' : `Tous les ${interval} jours`}${suffix}`;
+  }
+
+  if (recurrence.frequency === 'weekly') {
+    const selectedDays = recurrence.daysOfWeek?.length
+      ? recurrence.daysOfWeek
+          .map((day) => weekDayOptions.find((option) => option.value === day)?.label)
+          .filter(Boolean)
+          .join(', ')
+      : 'chaque semaine';
+
+    return `${interval === 1 ? 'Chaque semaine' : `Toutes les ${interval} semaines`} (${selectedDays})${suffix}`;
+  }
+
+  return `${interval === 1 ? 'Chaque mois' : `Tous les ${interval} mois`}${suffix}`;
+};
+
 export const getEventsForSlot = (events: CalendarEvent[], date: Date, time?: string) =>
   events.filter((event) => {
-    if (!isSameDay(event.date, date)) return false;
+    if (!eventOccursOnDate(event, date)) return false;
     if (!time) return true;
-    return event.startTime === time;
+    return eventStartsInSlot(event, date, time);
   });
 
 export const getUpcomingEvents = (events: CalendarEvent[] = [], fromDate = new Date()) =>
   [...events]
-    .filter((event) => parseDateInput(event.date).getTime() >= parseDateInput(fromDate).getTime())
+    .filter((event) => {
+      const from = parseDateInput(fromDate);
+      const eventEnd = parseDateInput(event.endDate || event.recurrence?.endsOn || event.date);
+      return eventEnd.getTime() >= from.getTime();
+    })
     .sort((eventA, eventB) => {
       const dateDiff = parseDateInput(eventA.date).getTime() - parseDateInput(eventB.date).getTime();
       if (dateDiff !== 0) return dateDiff;
@@ -119,22 +250,25 @@ export const getUpcomingEvents = (events: CalendarEvent[] = [], fromDate = new D
     });
 
 export const getDefaultStats = (events: CalendarEvent[] = [], selectedDate: Date): CalendarStat[] => {
+  const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+  const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
   const monthEvents = events.filter((event) => {
-    const eventDate = parseDateInput(event.date);
-    return (
-      eventDate.getFullYear() === selectedDate.getFullYear() &&
-      eventDate.getMonth() === selectedDate.getMonth()
-    );
+    for (let day = monthStart; day.getTime() <= monthEnd.getTime(); day = addDays(day, 1)) {
+      if (eventOccursOnDate(event, day)) return true;
+    }
+    return false;
   });
 
   const weekStart = startOfWeek(selectedDate);
   const weekEnd = addDays(weekStart, 6);
   const weekEvents = events.filter((event) => {
-    const eventDateTime = parseDateInput(event.date).getTime();
-    return eventDateTime >= weekStart.getTime() && eventDateTime <= weekEnd.getTime();
+    for (let day = weekStart; day.getTime() <= weekEnd.getTime(); day = addDays(day, 1)) {
+      if (eventOccursOnDate(event, day)) return true;
+    }
+    return false;
   });
 
-  const dayEvents = events.filter((event) => isSameDay(event.date, selectedDate));
+  const dayEvents = events.filter((event) => eventOccursOnDate(event, selectedDate));
 
   return [
     { label: 'Ce mois', value: `${monthEvents.length} événement${monthEvents.length > 1 ? 's' : ''}` },
