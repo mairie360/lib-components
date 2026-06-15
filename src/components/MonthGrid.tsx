@@ -3,12 +3,9 @@ import React, { useMemo } from 'react';
 import { CalendarCell } from './CalendarCell';
 import { defaultDayLabels } from './calendar/constants';
 import {
-  addDays,
   dateKey,
   eventOccursOnDate,
   formatFullDate,
-  getDayDiff,
-  getEventOccurrenceStartDate,
   getMonthCells,
   isSameDay,
   parseDateInput,
@@ -27,8 +24,6 @@ interface MonthEventSegment {
   event: CalendarEvent;
   startColumn: number;
   endColumn: number;
-  startsInView: boolean;
-  endsInView: boolean;
 }
 
 interface PositionedMonthEventSegment extends MonthEventSegment {
@@ -49,12 +44,6 @@ const sortMonthSegments = (segments: MonthEventSegment[]) =>
     const startDiff = firstSegment.startColumn - secondSegment.startColumn;
     if (startDiff !== 0) return startDiff;
 
-    const firstSpan = firstSegment.endColumn - firstSegment.startColumn;
-    const secondSpan = secondSegment.endColumn - secondSegment.startColumn;
-    const spanDiff = secondSpan - firstSpan;
-
-    if (spanDiff !== 0) return spanDiff;
-
     return String(firstSegment.event.id).localeCompare(String(secondSegment.event.id));
   });
 
@@ -73,52 +62,18 @@ const positionMonthSegments = (segments: MonthEventSegment[]): PositionedMonthEv
   });
 };
 
-const getMonthEventSegment = (
-  event: CalendarEvent,
-  weekCells: Array<Date | null>,
-  startColumn: number,
-  endColumn: number
-) => {
-  const segmentStartDate = weekCells[startColumn];
-  const segmentEndDate = weekCells[endColumn - 1];
-  if (!segmentStartDate || !segmentEndDate) return null;
-
-  const occurrenceStartDate = getEventOccurrenceStartDate(event, segmentStartDate);
-  if (!occurrenceStartDate) return null;
-
-  const spanInDays = Math.max(0, getDayDiff(event.endDate || event.date, event.date));
-  const occurrenceEndDate = addDays(occurrenceStartDate, spanInDays);
-
-  return {
-    event,
-    startColumn,
-    endColumn,
-    startsInView: isSameDay(segmentStartDate, occurrenceStartDate),
-    endsInView: isSameDay(segmentEndDate, occurrenceEndDate),
-  };
-};
-
 const getWeekEventSegments = (events: CalendarEvent[], weekCells: Array<Date | null>) => {
   const segments: MonthEventSegment[] = [];
 
   events.forEach((event) => {
-    let startColumn: number | null = null;
-
-    for (let column = 0; column <= weekCells.length; column += 1) {
+    for (let column = 0; column < weekCells.length; column += 1) {
       const date = weekCells[column];
-      const occursOnDate = Boolean(date && eventOccursOnDate(event, date));
-
-      if (occursOnDate && startColumn === null) {
-        startColumn = column;
-      }
-
-      if ((!occursOnDate || column === weekCells.length) && startColumn !== null) {
-        const segment = getMonthEventSegment(event, weekCells, startColumn, column);
-        if (segment) {
-          segments.push(segment);
-        }
-
-        startColumn = null;
+      if (date && eventOccursOnDate(event, date)) {
+        segments.push({
+          event,
+          startColumn: column,
+          endColumn: column + 1,
+        });
       }
     }
   });
@@ -126,12 +81,7 @@ const getWeekEventSegments = (events: CalendarEvent[], weekCells: Array<Date | n
   return positionMonthSegments(segments);
 };
 
-const getSegmentClassName = (segment: PositionedMonthEventSegment) =>
-  joinClasses(
-    'pointer-events-auto mx-1 flex h-6 items-center py-0 shadow-sm',
-    !segment.startsInView && 'rounded-l-sm border-l-4 border-l-[#2563eb]',
-    !segment.endsInView && 'rounded-r-sm border-r-4 border-r-[#2563eb]'
-  );
+const monthEventClassName = joinClasses('pointer-events-auto mx-1 flex h-6 items-center py-0 shadow-sm');
 
 export const MonthGrid = ({
   currentDate,
@@ -209,7 +159,7 @@ export const MonthGrid = ({
                     event={segment.event}
                     onClick={onEventClick}
                     showTime={false}
-                    className={getSegmentClassName(segment)}
+                    className={monthEventClassName}
                     style={{
                       gridColumn: `${segment.startColumn + 1} / span ${segment.endColumn - segment.startColumn}`,
                       gridRow: segment.lane + 1,
