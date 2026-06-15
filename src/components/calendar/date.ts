@@ -249,30 +249,31 @@ export const getUpcomingEvents = (events: CalendarEvent[] = [], fromDate = new D
       return (eventA.startTime || '').localeCompare(eventB.startTime || '');
     });
 
+const countEventOccurrencesBetween = (events: CalendarEvent[], startDate: Date, endDate: Date) =>
+  events.reduce((total, event) => {
+    let occurrences = 0;
+
+    for (let day = startDate; day.getTime() <= endDate.getTime(); day = addDays(day, 1)) {
+      if (eventOccursOnDate(event, day)) {
+        occurrences += 1;
+      }
+    }
+
+    return total + occurrences;
+  }, 0);
+
 export const getDefaultStats = (events: CalendarEvent[] = [], selectedDate: Date): CalendarStat[] => {
   const monthStart = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
   const monthEnd = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0);
-  const monthEvents = events.filter((event) => {
-    for (let day = monthStart; day.getTime() <= monthEnd.getTime(); day = addDays(day, 1)) {
-      if (eventOccursOnDate(event, day)) return true;
-    }
-    return false;
-  });
-
   const weekStart = startOfWeek(selectedDate);
   const weekEnd = addDays(weekStart, 6);
-  const weekEvents = events.filter((event) => {
-    for (let day = weekStart; day.getTime() <= weekEnd.getTime(); day = addDays(day, 1)) {
-      if (eventOccursOnDate(event, day)) return true;
-    }
-    return false;
-  });
-
-  const dayEvents = events.filter((event) => eventOccursOnDate(event, selectedDate));
+  const monthEventsCount = countEventOccurrencesBetween(events, monthStart, monthEnd);
+  const weekEventsCount = countEventOccurrencesBetween(events, weekStart, weekEnd);
+  const dayEventsCount = countEventOccurrencesBetween(events, selectedDate, selectedDate);
 
   return [
-    { label: 'Ce mois', value: `${monthEvents.length} événement${monthEvents.length > 1 ? 's' : ''}` },
-    { label: 'Cette semaine', value: `${weekEvents.length} événement${weekEvents.length > 1 ? 's' : ''}` },
-    { label: "Aujourd'hui", value: `${dayEvents.length} événement${dayEvents.length > 1 ? 's' : ''}` },
+    { label: 'Ce mois', value: `${monthEventsCount} événement${monthEventsCount > 1 ? 's' : ''}` },
+    { label: 'Cette semaine', value: `${weekEventsCount} événement${weekEventsCount > 1 ? 's' : ''}` },
+    { label: "Aujourd'hui", value: `${dayEventsCount} événement${dayEventsCount > 1 ? 's' : ''}` },
   ];
 };

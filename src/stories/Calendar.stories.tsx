@@ -16,25 +16,17 @@ import {
   addMonths,
   formatFullDate,
   formatMonthYear,
-  getDefaultStats,
   getUpcomingEvents,
   parseDateInput,
 } from '../components/calendar/date';
 import { joinClasses } from '../components/calendar/style';
-import type {
-  CalendarAssignee,
-  CalendarDateInput,
-  CalendarEvent,
-  CalendarStat,
-  CalendarViewMode,
-} from '../components/calendar/types';
+import type { CalendarAssignee, CalendarDateInput, CalendarEvent, CalendarViewMode } from '../components/calendar/types';
 
 interface CalendarCompositionProps {
   initialDate?: CalendarDateInput;
   defaultView?: CalendarViewMode;
   events?: CalendarEvent[];
   upcomingEvents?: CalendarEvent[];
-  stats?: CalendarStat[];
   people?: CalendarAssignee[];
   onCreateEvent?: () => void;
   onDateChange?: (date: Date) => void;
@@ -96,12 +88,6 @@ const sampleEvents: CalendarEvent[] = [
   },
 ];
 
-const stats: CalendarStat[] = [
-  { label: 'Ce mois', value: '12 événements' },
-  { label: 'Cette semaine', value: '3 événements' },
-  { label: "Aujourd'hui", value: '1 événement' },
-];
-
 const people: CalendarAssignee[] = [
   { id: 'alice', name: 'Alice Dupont', role: 'Communication' },
   { id: 'karim', name: 'Karim Payet', role: 'Logistique' },
@@ -114,7 +100,6 @@ const CalendarComposition = ({
   defaultView = 'month',
   events = [],
   upcomingEvents,
-  stats,
   people = [],
   onCreateEvent,
   onDateChange,
@@ -212,8 +197,9 @@ const CalendarComposition = ({
         </Card>
 
         <CalendarSidebar
+          events={calendarEvents}
+          currentDate={activeDate}
           upcomingEvents={upcomingEvents ?? getUpcomingEvents(calendarEvents, activeDate)}
-          stats={stats ?? getDefaultStats(calendarEvents, activeDate)}
           onEventClick={setSelectedEvent}
         />
       </div>
@@ -266,8 +252,6 @@ const meta = {
   args: {
     initialDate: '2026-06-15',
     events: sampleEvents,
-    upcomingEvents: [],
-    stats,
     people,
     onCreateEvent: fn(),
     onDateChange: fn(),

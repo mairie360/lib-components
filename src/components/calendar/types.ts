@@ -133,6 +133,8 @@ export interface StatsPanelProps extends Omit<React.HTMLAttributes<HTMLElement>,
 }
 
 export interface CalendarSidebarProps extends React.HTMLAttributes<HTMLElement> {
+  events?: CalendarEvent[];
+  currentDate?: CalendarDateInput;
   upcomingEvents?: CalendarEvent[];
   stats?: CalendarStat[];
   showEmptyState?: boolean;

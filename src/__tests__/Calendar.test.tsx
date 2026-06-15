@@ -184,4 +184,40 @@ describe('Calendar components', () => {
     expect(screen.getByText('Aucun événement à venir')).toBeInTheDocument();
     expect(screen.getByText('12 événements')).toBeInTheDocument();
   });
+
+  it('calculates sidebar stats from calendar events', () => {
+    render(
+      <CalendarSidebar
+        currentDate="2026-06-15"
+        events={[
+          {
+            id: 'single',
+            title: 'Conseil municipal',
+            date: '2026-06-15',
+          },
+          {
+            id: 'multi-day',
+            title: 'Festival',
+            date: '2026-06-15',
+            endDate: '2026-06-16',
+          },
+          {
+            id: 'weekly',
+            title: 'Permanence',
+            date: '2026-06-15',
+            recurrence: {
+              frequency: 'weekly',
+              interval: 1,
+              daysOfWeek: [1, 3],
+              endsOn: '2026-06-30',
+            },
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('8 événements')).toBeInTheDocument();
+    expect(screen.getByText('5 événements')).toBeInTheDocument();
+    expect(screen.getByText('3 événements')).toBeInTheDocument();
+  });
 });
