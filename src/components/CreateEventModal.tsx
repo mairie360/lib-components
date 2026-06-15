@@ -151,7 +151,7 @@ export const CreateEventModal = ({
       aria-describedby={subtitleId}
     >
       <form
-        className="w-full max-w-[510px] overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
         onSubmit={handleSubmit}
       >
         <div className="flex min-h-14 items-center justify-between gap-4 bg-[#2b2b2b] px-5 py-3 text-white">
@@ -170,7 +170,7 @@ export const CreateEventModal = ({
           </button>
         </div>
 
-        <div className="space-y-3 px-6 py-5">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-5">
           {subtitle && (
             <p id={subtitleId} className="text-sm leading-5 text-[#64748b]">
               {subtitle}
@@ -399,7 +399,7 @@ export const CreateEventModal = ({
           />
         </div>
 
-        <div className="flex justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
+        <div className="shrink-0 flex justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
           <button
             type="button"
             className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25"
