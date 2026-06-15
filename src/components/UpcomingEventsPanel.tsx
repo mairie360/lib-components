@@ -1,4 +1,5 @@
 import React from 'react';
+import { Users } from 'lucide-react';
 
 import { Card } from './Card';
 import { formatFullDate, getEventTimeLabel } from './calendar/date';
@@ -28,6 +29,12 @@ export const UpcomingEventsPanel = ({
               </div>
               {event.description && (
                 <div className="mt-2 text-sm leading-5 text-[#5f6770]">{event.description}</div>
+              )}
+              {event.assignees && event.assignees.length > 0 && (
+                <div className="mt-2 flex items-center gap-1.5 text-xs leading-5 text-[#6c7278]">
+                  <Users className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
+                  <span className="truncate">{event.assignees.map((assignee) => assignee.name).join(', ')}</span>
+                </div>
               )}
             </div>
           ))}

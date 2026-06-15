@@ -5,6 +5,7 @@ import { fn } from 'storybook/test';
 import { CalendarSidebar } from '../components/CalendarSidebar';
 import { CalendarToolbar } from '../components/CalendarToolbar';
 import { Card } from '../components/Card';
+import { CreateEventModal } from '../components/CreateEventModal';
 import { DaySchedule } from '../components/DaySchedule';
 import { MonthGrid } from '../components/MonthGrid';
 import { PageTitleBar } from '../components/PageTitleBar';
@@ -19,7 +20,13 @@ import {
   parseDateInput,
 } from '../components/calendar/date';
 import { joinClasses } from '../components/calendar/style';
-import type { CalendarDateInput, CalendarEvent, CalendarStat, CalendarViewMode } from '../components/calendar/types';
+import type {
+  CalendarAssignee,
+  CalendarDateInput,
+  CalendarEvent,
+  CalendarStat,
+  CalendarViewMode,
+} from '../components/calendar/types';
 
 interface CalendarCompositionProps {
   initialDate?: CalendarDateInput;
@@ -27,6 +34,7 @@ interface CalendarCompositionProps {
   events?: CalendarEvent[];
   upcomingEvents?: CalendarEvent[];
   stats?: CalendarStat[];
+  people?: CalendarAssignee[];
   onCreateEvent?: () => void;
   onDateChange?: (date: Date) => void;
   onSelectDate?: (date: Date) => void;
@@ -66,12 +74,20 @@ const stats: CalendarStat[] = [
   { label: "Aujourd'hui", value: '1 événement' },
 ];
 
+const people: CalendarAssignee[] = [
+  { id: 'alice', name: 'Alice Dupont', role: 'Communication' },
+  { id: 'karim', name: 'Karim Payet', role: 'Logistique' },
+  { id: 'lea', name: 'Léa Martin', role: 'Culture' },
+  { id: 'thomas', name: 'Thomas Robert', role: 'Sécurité' },
+];
+
 const CalendarComposition = ({
   initialDate = '2026-06-15',
   defaultView = 'month',
   events = [],
   upcomingEvents,
   stats,
+  people = [],
   onCreateEvent,
   onDateChange,
   onSelectDate,
@@ -80,6 +96,7 @@ const CalendarComposition = ({
 }: CalendarCompositionProps) => {
   const [activeDate, setActiveDate] = useState(() => parseDateInput(initialDate));
   const [activeView, setActiveView] = useState(defaultView);
+  const [createModalOpen, setCreateModalOpen] = useState(false);
   const toolbarTitle = activeView === 'day' ? formatFullDate(activeDate) : formatMonthYear(activeDate);
 
   const handleDateChange = (date: Date) => {
@@ -115,7 +132,10 @@ const CalendarComposition = ({
         title="Calendrier & Événements"
         subtitle="Planifiez et organisez vos activités"
         actionLabel="Nouvel événement"
-        onAction={onCreateEvent}
+        onAction={() => {
+          setCreateModalOpen(true);
+          onCreateEvent?.();
+        }}
       />
 
       <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_350px]">
@@ -159,6 +179,14 @@ const CalendarComposition = ({
           stats={stats ?? getDefaultStats(events, activeDate)}
         />
       </div>
+
+      <CreateEventModal
+        isOpen={createModalOpen}
+        people={people}
+        initialValues={{ date: '2026-06-15' }}
+        onCancel={() => setCreateModalOpen(false)}
+        onCreate={() => setCreateModalOpen(false)}
+      />
     </div>
   );
 };
@@ -175,6 +203,7 @@ const meta = {
     events: sampleEvents,
     upcomingEvents: [],
     stats,
+    people,
     onCreateEvent: fn(),
     onDateChange: fn(),
     onSelectDate: fn(),

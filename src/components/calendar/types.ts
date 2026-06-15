@@ -4,6 +4,16 @@ export type CalendarViewMode = 'month' | 'week' | 'day';
 
 export type CalendarDateInput = Date | string;
 
+export type CalendarAssigneeId = string | number;
+
+export interface CalendarAssignee {
+  id: CalendarAssigneeId;
+  name: string;
+  email?: string;
+  role?: string;
+  avatarUrl?: string;
+}
+
 export interface CalendarEvent {
   id: string | number;
   title: React.ReactNode;
@@ -11,6 +21,8 @@ export interface CalendarEvent {
   startTime?: string;
   endTime?: string;
   description?: React.ReactNode;
+  assigneeIds?: CalendarAssigneeId[];
+  assignees?: CalendarAssignee[];
   colorClassName?: string;
   className?: string;
 }
@@ -107,4 +119,44 @@ export interface CalendarSidebarProps extends React.HTMLAttributes<HTMLElement> 
   upcomingEvents?: CalendarEvent[];
   stats?: CalendarStat[];
   showEmptyState?: boolean;
+}
+
+export interface EventAssigneeSelectProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
+  people?: CalendarAssignee[];
+  value?: CalendarAssigneeId[];
+  onChange?: (assigneeIds: CalendarAssigneeId[]) => void;
+  label?: React.ReactNode;
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyLabel?: React.ReactNode;
+  disabled?: boolean;
+}
+
+export interface CreateCalendarEventValues {
+  title: string;
+  description: string;
+  date: string;
+  category: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  assigneeIds: CalendarAssigneeId[];
+}
+
+export interface CalendarEventCategoryOption {
+  label: string;
+  value: string;
+}
+
+export interface CreateEventModalProps {
+  isOpen: boolean;
+  people?: CalendarAssignee[];
+  categories?: CalendarEventCategoryOption[];
+  initialValues?: Partial<CreateCalendarEventValues>;
+  title?: React.ReactNode;
+  subtitle?: React.ReactNode;
+  cancelLabel?: string;
+  submitLabel?: string;
+  onCancel: () => void;
+  onCreate: (event: CreateCalendarEventValues) => void;
 }
