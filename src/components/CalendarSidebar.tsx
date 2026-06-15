@@ -10,6 +10,7 @@ export type { CalendarEvent, CalendarSidebarProps, CalendarStat } from './calend
 
 export const CalendarSidebar = ({
   events = [],
+  /** The current date to use for filtering events and calculating stats */
   currentDate = new Date(),
   upcomingEvents,
   stats,
