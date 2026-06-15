@@ -81,4 +81,22 @@ describe('EventDetailsModal component', () => {
       })
     );
   });
+
+  it('edits event assignees from the details modal', () => {
+    const handleSave = jest.fn();
+
+    render(<EventDetailsModal isOpen event={event} people={people} onClose={jest.fn()} onSave={handleSave} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+    fireEvent.click(screen.getByRole('button', { name: /1 personne sélectionnée/i }));
+    fireEvent.click(screen.getByRole('option', { name: /Karim Payet/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(handleSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        assigneeIds: ['alice', 'karim'],
+        assignees: [people[0], people[1]],
+      })
+    );
+  });
 });
