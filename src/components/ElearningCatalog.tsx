@@ -3,6 +3,7 @@ import { Award, BookOpen, CircleCheck, Filter, Play } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { ElearningCourseCard, type ElearningCourseCardProps } from './ElearningCourseCard';
+import { ElearningCourseDetailsModal, type ElearningCourseDetails } from './ElearningCourseDetailsModal';
 import { ElearningFilterSelect, type ElearningFilterOption } from './ElearningFilterSelect';
 import { ElearningSearchInput } from './ElearningSearchInput';
 import { ElearningStatCard, type ElearningStatCardProps } from './ElearningStatCard';
@@ -11,6 +12,7 @@ export interface ElearningCourse extends ElearningCourseCardProps {
   id: string;
   category?: string;
   statusValue?: string;
+  details?: ElearningCourseDetails;
 }
 
 export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement> {
@@ -89,6 +91,44 @@ const buildDefaultStats = (courses: ElearningCourse[], certificationCount = 0): 
   },
 ];
 
+const parseChapterCount = (chapters?: number | string) => {
+  if (typeof chapters === 'number') return chapters;
+  if (typeof chapters === 'string') {
+    const parsed = Number.parseInt(chapters, 10);
+    return Number.isNaN(parsed) ? 1 : parsed;
+  }
+
+  return 1;
+};
+
+const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails => {
+  const chapterCount = Math.max(1, parseChapterCount(course.chapters));
+
+  return {
+    title: course.title,
+    description: course.description,
+    instructor: course.instructor,
+    duration: course.duration,
+    rating: course.rating,
+    ratingLabel: course.learners !== undefined ? `(${course.learners} apprenants)` : undefined,
+    progress: course.progress,
+    actionLabel: course.actionLabel,
+    onAction: course.onAction,
+    chapters: Array.from({ length: chapterCount }, (_, index) => ({
+      id: `${course.id}-chapter-${index + 1}`,
+      title: `Chapitre ${index + 1}`,
+      duration: 'Durée estimée',
+      completed: typeof course.progress === 'number' && ((index + 1) / chapterCount) * 100 <= course.progress,
+      active:
+        typeof course.progress === 'number' &&
+        ((index + 1) / chapterCount) * 100 > course.progress &&
+        (index / chapterCount) * 100 <= course.progress,
+    })),
+  };
+};
+
+const getCourseDetails = (course: ElearningCourse) => course.details ?? buildFallbackDetails(course);
+
 export const ElearningCatalog = ({
   title = 'Centre de Formation',
   subtitle = 'Développez vos compétences professionnelles',
@@ -108,6 +148,7 @@ export const ElearningCatalog = ({
   const [search, setSearch] = React.useState(defaultSearch);
   const [category, setCategory] = React.useState(defaultCategory);
   const [status, setStatus] = React.useState(defaultStatus);
+  const [selectedCourse, setSelectedCourse] = React.useState<ElearningCourse | null>(null);
 
   const categoryOptions = React.useMemo(() => categories ?? buildCategories(courses), [categories, courses]);
   const displayedStats = stats ?? buildDefaultStats(courses, certificationCount);
@@ -168,7 +209,7 @@ export const ElearningCatalog = ({
 
         <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredCourses.map((course) => {
-            const { id, category: _category, statusValue: _statusValue, onAction, ...cardProps } = course;
+            const { id, category: _category, statusValue: _statusValue, details: _details, onAction, ...cardProps } = course;
 
             return (
               <ElearningCourseCard
@@ -176,6 +217,7 @@ export const ElearningCatalog = ({
                 {...cardProps}
                 onAction={() => {
                   onAction?.();
+                  setSelectedCourse(course);
                   onCourseAction?.(course);
                 }}
               />
@@ -189,6 +231,14 @@ export const ElearningCatalog = ({
           </div>
         )}
       </div>
+
+      {selectedCourse && (
+        <ElearningCourseDetailsModal
+          {...getCourseDetails(selectedCourse)}
+          open
+          onClose={() => setSelectedCourse(null)}
+        />
+      )}
     </section>
   );
 };

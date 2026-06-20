@@ -3,6 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseCard } from '../components/ElearningCourseCard';
+import { ElearningCourseDetailsModal } from '../components/ElearningCourseDetailsModal';
 import { ElearningFilterSelect } from '../components/ElearningFilterSelect';
 
 const courses: ElearningCourse[] = [
@@ -74,6 +75,72 @@ describe('Elearning components', () => {
     expect(screen.getByRole('heading', { name: 'Comptabilité publique' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
     expect(handleAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders readable course details with long chapter titles', () => {
+    render(
+      <ElearningCourseDetailsModal
+        open
+        title="Comptabilité publique - Niveau avancé"
+        description="Perfectionnement en comptabilité publique et gestion budgétaire"
+        instructor="Pierre Bertrand"
+        duration="4h 20min"
+        rating={4.6}
+        ratingLabel="(45 étudiants)"
+        progress={25}
+        chapters={[
+          {
+            id: 'intro',
+            title: 'Introduction à la comptabilité publique et aux grands principes budgétaires',
+            duration: '15min',
+            completed: true,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByText('Introduction à la comptabilité publique et aux grands principes budgétaires')).toBeInTheDocument();
+    expect(screen.getByText('Progression totale')).toBeInTheDocument();
+  });
+
+  it('opens course details from catalog when a course provides details', () => {
+    render(
+      <ElearningCatalog
+        courses={[
+          {
+            ...courses[0],
+            details: {
+              title: 'Sécurité au travail',
+              description: 'Formation sur les règles de sécurité.',
+              instructor: 'Catherine Moreau',
+              duration: '2h 30min',
+              progress: 72,
+              chapters: [
+                {
+                  id: 'safety',
+                  title: 'Règles de sécurité à respecter dans les bâtiments municipaux',
+                  duration: '15min',
+                  completed: true,
+                },
+              ],
+            },
+          },
+        ]}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('Règles de sécurité à respecter dans les bâtiments municipaux');
+  });
+
+  it('opens fallback course details from catalog when details are not provided', () => {
+    render(<ElearningCatalog courses={[courses[1]]} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Chapitre 1');
   });
 
   it('filters catalog courses by category and search', () => {

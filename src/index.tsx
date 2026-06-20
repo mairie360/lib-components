@@ -13,6 +13,7 @@ export { DropdownMenu } from './components/DropdownMenu';
 export { ElearningBadge } from './components/ElearningBadge';
 export { ElearningCatalog } from './components/ElearningCatalog';
 export { ElearningCourseCard } from './components/ElearningCourseCard';
+export { ElearningCourseDetailsModal } from './components/ElearningCourseDetailsModal';
 export { ElearningFilterSelect } from './components/ElearningFilterSelect';
 export { ElearningSearchInput } from './components/ElearningSearchInput';
 export { ElearningStatCard } from './components/ElearningStatCard';
