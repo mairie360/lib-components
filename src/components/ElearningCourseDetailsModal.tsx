@@ -256,8 +256,8 @@ export const ElearningCourseDetailsModal = ({
   completed,
   completionRating,
   chapters,
-  actionLabel = 'Continuer',
-  onAction,
+  actionLabel: _actionLabel,
+  onAction: _onAction,
   onContentComplete,
   className = '',
   ...props
@@ -640,14 +640,6 @@ export const ElearningCourseDetailsModal = ({
                 onSubmit={handleRatingSubmit}
               />
             )}
-
-            <button
-              type="button"
-              onClick={onAction}
-              className="mt-4 h-10 w-full rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
-            >
-              {actionLabel}
-            </button>
           </aside>
         </div>
       </div>

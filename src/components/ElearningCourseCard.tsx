@@ -28,6 +28,14 @@ export interface ElearningCourseCardProps extends React.HTMLAttributes<HTMLEleme
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
 
+const getProgressActionLabel = (progress: number | undefined, fallbackLabel: string) => {
+  if (progress === undefined) return fallbackLabel;
+  if (progress >= 100) return 'Revoir';
+  if (progress > 0) return 'Continuer';
+
+  return 'Commencer';
+};
+
 export const ElearningCourseCard = ({
   title,
   description,
@@ -47,6 +55,7 @@ export const ElearningCourseCard = ({
   ...props
 }: ElearningCourseCardProps) => {
   const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
+  const displayedActionLabel = getProgressActionLabel(normalizedProgress, actionLabel);
 
   return (
     <article
@@ -135,7 +144,7 @@ export const ElearningCourseCard = ({
         onClick={onAction}
         className="mt-4 h-9 w-full rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
       >
-        {actionLabel}
+        {displayedActionLabel}
       </button>
     </article>
   );

@@ -78,6 +78,20 @@ describe('Elearning components', () => {
     expect(handleAction).toHaveBeenCalledTimes(1);
   });
 
+  it('updates the course card action label from progress', () => {
+    const { rerender } = render(
+      <ElearningCourseCard title="Formation progressive" description="Suivi de progression." progress={0} />
+    );
+
+    expect(screen.getByRole('button', { name: 'Commencer' })).toBeInTheDocument();
+
+    rerender(<ElearningCourseCard title="Formation progressive" description="Suivi de progression." progress={50} />);
+    expect(screen.getByRole('button', { name: 'Continuer' })).toBeInTheDocument();
+
+    rerender(<ElearningCourseCard title="Formation progressive" description="Suivi de progression." progress={100} />);
+    expect(screen.getByRole('button', { name: 'Revoir' })).toBeInTheDocument();
+  });
+
   it('renders readable course details with long chapter titles', () => {
     render(
       <ElearningCourseDetailsModal
@@ -383,7 +397,7 @@ describe('Elearning components', () => {
 
     expect(within(screen.getByRole('article')).getByText('0%')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }));
     fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo du chapitre 1 comme terminé' }));
     fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
 
@@ -392,6 +406,7 @@ describe('Elearning components', () => {
       expect.objectContaining({ progress: 50 })
     );
     expect(within(screen.getByRole('article')).getByText('50%')).toBeInTheDocument();
+    expect(within(screen.getByRole('article')).getByRole('button', { name: 'Continuer' })).toBeInTheDocument();
   });
 
   it('opens course details from catalog when a course provides details', () => {
