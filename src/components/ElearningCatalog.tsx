@@ -223,18 +223,14 @@ export const ElearningCatalog = ({
       {...props}
     >
       <div className="mx-auto max-w-[1130px]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-2xl font-bold leading-8 text-[#2f3747]">{title}</h2>
             <p className="text-base leading-6 text-[#5f6470]">{subtitle}</p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-[#2f3747]">
-            <Award aria-hidden="true" className="size-5 text-[#f4b000]" />
-            <span>{certificationCount} certifications obtenues</span>
-          </div>
         </div>
 
-        <div className="mt-7 grid gap-4 md:grid-cols-[256px_192px_192px]">
+        <div className="mt-7 grid gap-4 md:grid-cols-[minmax(300px,1fr)_minmax(240px,0.8fr)_minmax(220px,0.7fr)] xl:grid-cols-[320px_260px_240px]">
           <ElearningSearchInput value={search} onValueChange={setSearch} />
           <ElearningFilterSelect
             value={category}
