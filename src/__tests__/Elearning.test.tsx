@@ -4,6 +4,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseCard } from '../components/ElearningCourseCard';
 import { ElearningCourseDetailsModal } from '../components/ElearningCourseDetailsModal';
+import { ElearningCourseRating } from '../components/ElearningCourseRating';
 import { ElearningFilterSelect } from '../components/ElearningFilterSelect';
 
 const courses: ElearningCourse[] = [
@@ -156,6 +157,58 @@ describe('Elearning components', () => {
     expect(screen.queryByText('Support PDF du chapitre vidéo')).not.toBeInTheDocument();
   });
 
+  it('lets users rate a completed course', () => {
+    const handleSubmit = jest.fn();
+
+    render(<ElearningCourseRating onSubmit={handleSubmit} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Donner la note 5 sur 5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer la note' }));
+
+    expect(handleSubmit).toHaveBeenCalledWith(5);
+    expect(screen.getByText('Merci, votre note a bien été enregistrée.')).toBeInTheDocument();
+  });
+
+  it('shows course rating only when course details are completed', () => {
+    const { rerender } = render(
+      <ElearningCourseDetailsModal
+        open
+        title="Cours en cours"
+        description="Formation pas encore terminée."
+        progress={75}
+        chapters={[
+          {
+            id: 'chapter-active',
+            title: 'Chapitre actif',
+            duration: '15min',
+            active: true,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.queryByText('Noter cette formation')).not.toBeInTheDocument();
+
+    rerender(
+      <ElearningCourseDetailsModal
+        open
+        title="Cours terminé"
+        description="Formation terminée."
+        progress={100}
+        chapters={[
+          {
+            id: 'chapter-completed',
+            title: 'Chapitre terminé',
+            duration: '15min',
+            completed: true,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Noter cette formation')).toBeInTheDocument();
+  });
+
   it('opens course details from catalog when a course provides details', () => {
     render(
       <ElearningCatalog
@@ -194,6 +247,7 @@ describe('Elearning components', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
     expect(screen.getByRole('dialog')).toHaveTextContent('Chapitre 1');
     expect(screen.getByRole('dialog')).toHaveTextContent('Support du chapitre 1');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Noter cette formation');
   });
 
   it('filters catalog courses by category and search', () => {

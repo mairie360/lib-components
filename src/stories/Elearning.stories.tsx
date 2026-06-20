@@ -6,6 +6,7 @@ import { fn } from 'storybook/test';
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseCard } from '../components/ElearningCourseCard';
 import { ElearningCourseDetailsModal, type ElearningCourseDetails } from '../components/ElearningCourseDetailsModal';
+import { ElearningCourseRating } from '../components/ElearningCourseRating';
 import { ElearningFilterSelect } from '../components/ElearningFilterSelect';
 import { ElearningStatCard } from '../components/ElearningStatCard';
 
@@ -143,6 +144,11 @@ const archivesCourseDetails: ElearningCourseDetails = {
   rating: 4.5,
   ratingLabel: '(89 apprenants)',
   progress: 100,
+  completed: true,
+  completionRating: {
+    helperText: 'Formation terminée: donnez une note à cette session.',
+    onSubmit: fn(),
+  },
   actionLabel: 'Revoir',
   chapters: [
     {
@@ -500,7 +506,7 @@ export const CourseDetailsModal: StoryObj<typeof ElearningCourseDetailsModal> = 
           Ouvrir le détail du cours
         </button>
         <ElearningCourseDetailsModal
-          {...accountingCourseDetails}
+          {...archivesCourseDetails}
           open={open}
           onClose={() => setOpen(false)}
           onAction={fn()}
@@ -508,6 +514,19 @@ export const CourseDetailsModal: StoryObj<typeof ElearningCourseDetailsModal> = 
       </div>
     );
   },
+  parameters: {
+    layout: 'fullscreen',
+  },
+};
+
+export const CourseRating: StoryObj<typeof ElearningCourseRating> = {
+  render: () => (
+    <div className="min-h-screen bg-[#f4f2ef] p-8">
+      <div className="max-w-sm">
+        <ElearningCourseRating onSubmit={fn()} />
+      </div>
+    </div>
+  ),
   parameters: {
     layout: 'fullscreen',
   },

@@ -103,6 +103,7 @@ const parseChapterCount = (chapters?: number | string) => {
 
 const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails => {
   const chapterCount = Math.max(1, parseChapterCount(course.chapters));
+  const completed = inferStatusValue(course) === 'completed' || course.progress === 100;
 
   return {
     title: course.title,
@@ -112,6 +113,7 @@ const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails =
     rating: course.rating,
     ratingLabel: course.learners !== undefined ? `(${course.learners} apprenants)` : undefined,
     progress: course.progress,
+    completed,
     actionLabel: course.actionLabel,
     onAction: course.onAction,
     chapters: Array.from({ length: chapterCount }, (_, index) => {
@@ -121,8 +123,10 @@ const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails =
         id: chapterId,
         title: `Chapitre ${index + 1}`,
         duration: 'Durée estimée',
-        completed: typeof course.progress === 'number' && ((index + 1) / chapterCount) * 100 <= course.progress,
+        completed:
+          completed || (typeof course.progress === 'number' && ((index + 1) / chapterCount) * 100 <= course.progress),
         active:
+          !completed &&
           typeof course.progress === 'number' &&
           ((index + 1) / chapterCount) * 100 > course.progress &&
           (index / chapterCount) * 100 <= course.progress,

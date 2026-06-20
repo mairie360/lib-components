@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
+import { ElearningCourseRating, type ElearningCourseRatingProps } from './ElearningCourseRating';
 
 export type ElearningCourseContentType = 'video' | 'pdf' | 'document' | 'link' | 'quiz' | 'audio' | 'other';
 
@@ -46,6 +47,8 @@ export interface ElearningCourseDetails {
   rating?: number | string;
   ratingLabel?: string;
   progress?: number;
+  completed?: boolean;
+  completionRating?: ElearningCourseRatingProps;
   chapters: ElearningCourseChapter[];
   actionLabel?: string;
   onAction?: () => void;
@@ -97,6 +100,16 @@ const getChapterContents = (chapter: ElearningCourseChapter): ElearningCourseCon
         },
       ];
 
+const isCourseCompleted = (
+  completed: boolean | undefined,
+  normalizedProgress: number | undefined,
+  chapters: ElearningCourseChapter[]
+) => {
+  if (completed !== undefined) return completed;
+
+  return normalizedProgress === 100 || (chapters.length > 0 && chapters.every((chapter) => chapter.completed));
+};
+
 export const ElearningCourseDetailsModal = ({
   open,
   onClose,
@@ -109,6 +122,8 @@ export const ElearningCourseDetailsModal = ({
   rating,
   ratingLabel,
   progress,
+  completed,
+  completionRating,
   chapters,
   actionLabel = 'Continuer',
   onAction,
@@ -116,6 +131,7 @@ export const ElearningCourseDetailsModal = ({
   ...props
 }: ElearningCourseDetailsModalProps) => {
   const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
+  const canRateCourse = isCourseCompleted(completed, normalizedProgress, chapters);
   const initialChapter = getInitialChapter(chapters);
   const [selectedChapterId, setSelectedChapterId] = React.useState(initialChapter?.id ?? '');
   const titleId = React.useId();
@@ -356,6 +372,8 @@ export const ElearningCourseDetailsModal = ({
                 </div>
               </div>
             )}
+
+            {canRateCourse && <ElearningCourseRating className="mt-4" {...completionRating} />}
 
             <button
               type="button"
