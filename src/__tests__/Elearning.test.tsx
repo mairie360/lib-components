@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseCard } from '../components/ElearningCourseCard';
@@ -207,6 +207,70 @@ describe('Elearning components', () => {
     );
 
     expect(screen.getByText('Noter cette formation')).toBeInTheDocument();
+  });
+
+  it('updates the displayed course rating after submitting a rating', () => {
+    render(
+      <ElearningCourseDetailsModal
+        open
+        title="Cours terminé"
+        description="Formation terminée."
+        rating={3}
+        ratingLabel="(12 apprenants)"
+        ratingDistribution={{ 1: 0, 2: 0, 3: 12, 4: 0, 5: 0 }}
+        progress={100}
+        chapters={[
+          {
+            id: 'chapter-completed',
+            title: 'Chapitre terminé',
+            duration: '15min',
+            completed: true,
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('3 (12 notes)')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Donner la note 5 sur 5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer la note' }));
+
+    expect(screen.getByText('3.2 (13 notes)')).toBeInTheDocument();
+    expect(screen.queryByText('3 (12 notes)')).not.toBeInTheDocument();
+  });
+
+  it('updates the catalog card rating after submitting a course rating', () => {
+    const handleCourseRatingSubmit = jest.fn();
+
+    render(
+      <ElearningCatalog
+        courses={[
+          {
+            ...courses[1],
+            rating: 2.5,
+            ratingDistribution: { 1: 0, 2: 1, 3: 1, 4: 0, 5: 0 },
+            progress: 100,
+            actionLabel: 'Revoir',
+          },
+        ]}
+        onCourseRatingSubmit={handleCourseRatingSubmit}
+      />
+    );
+
+    expect(within(screen.getByRole('article')).getByText('2.5')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Revoir' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Donner la note 4 sur 5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer la note' }));
+    fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
+
+    expect(handleCourseRatingSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'archives' }),
+      4,
+      expect.objectContaining({ rating: 3, ratingCount: 3 })
+    );
+    expect(within(screen.getByRole('article')).getByText('3')).toBeInTheDocument();
+    expect(within(screen.getByRole('article')).queryByText('2.5')).not.toBeInTheDocument();
   });
 
   it('opens course details from catalog when a course provides details', () => {

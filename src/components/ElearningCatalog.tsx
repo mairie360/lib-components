@@ -3,7 +3,14 @@ import { Award, BookOpen, CircleCheck, Filter, Play } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { ElearningCourseCard, type ElearningCourseCardProps } from './ElearningCourseCard';
-import { ElearningCourseDetailsModal, type ElearningCourseDetails } from './ElearningCourseDetailsModal';
+import {
+  ElearningCourseDetailsModal,
+  getElearningRatingAverage,
+  incrementElearningRatingDistribution,
+  type ElearningCourseDetails,
+  type ElearningCourseRatingDistribution,
+  type ElearningCourseRatingSummary,
+} from './ElearningCourseDetailsModal';
 import { ElearningFilterSelect, type ElearningFilterOption } from './ElearningFilterSelect';
 import { ElearningSearchInput } from './ElearningSearchInput';
 import { ElearningStatCard, type ElearningStatCardProps } from './ElearningStatCard';
@@ -12,6 +19,7 @@ export interface ElearningCourse extends ElearningCourseCardProps {
   id: string;
   category?: string;
   statusValue?: string;
+  ratingDistribution?: ElearningCourseRatingDistribution;
   details?: ElearningCourseDetails;
 }
 
@@ -28,6 +36,7 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   defaultStatus?: string;
   emptyLabel?: string;
   onCourseAction?: (course: ElearningCourse) => void;
+  onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => void;
 }
 
 const defaultStatuses: ElearningFilterOption[] = [
@@ -112,6 +121,7 @@ const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails =
     duration: course.duration,
     rating: course.rating,
     ratingLabel: course.learners !== undefined ? `(${course.learners} apprenants)` : undefined,
+    ratingDistribution: course.ratingDistribution,
     progress: course.progress,
     completed,
     actionLabel: course.actionLabel,
@@ -166,6 +176,7 @@ export const ElearningCatalog = ({
   defaultStatus = 'all',
   emptyLabel = 'Aucune formation ne correspond aux filtres.',
   onCourseAction,
+  onCourseRatingSubmit,
   className = '',
   ...props
 }: ElearningCatalogProps) => {
@@ -173,9 +184,13 @@ export const ElearningCatalog = ({
   const [category, setCategory] = React.useState(defaultCategory);
   const [status, setStatus] = React.useState(defaultStatus);
   const [selectedCourse, setSelectedCourse] = React.useState<ElearningCourse | null>(null);
+  const [submittedRatingDistributions, setSubmittedRatingDistributions] = React.useState<
+    Record<string, ElearningCourseRatingDistribution>
+  >({});
 
   const categoryOptions = React.useMemo(() => categories ?? buildCategories(courses), [categories, courses]);
   const displayedStats = stats ?? buildDefaultStats(courses, certificationCount);
+  const selectedCourseDetails = selectedCourse ? getCourseDetails(selectedCourse) : undefined;
 
   const filteredCourses = React.useMemo(() => {
     const normalizedSearch = normalize(search.trim());
@@ -233,12 +248,24 @@ export const ElearningCatalog = ({
 
         <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredCourses.map((course) => {
-            const { id, category: _category, statusValue: _statusValue, details: _details, onAction, ...cardProps } = course;
+            const {
+              id,
+              category: _category,
+              statusValue: _statusValue,
+              details,
+              onAction,
+              ratingDistribution,
+              ...cardProps
+            } = course;
+            const displayedRatingDistribution =
+              submittedRatingDistributions[id] ?? details?.ratingDistribution ?? ratingDistribution;
+            const displayedRating = getElearningRatingAverage(displayedRatingDistribution) ?? cardProps.rating;
 
             return (
               <ElearningCourseCard
                 key={id}
                 {...cardProps}
+                rating={displayedRating}
                 onAction={() => {
                   onAction?.();
                   setSelectedCourse(course);
@@ -256,9 +283,39 @@ export const ElearningCatalog = ({
         )}
       </div>
 
-      {selectedCourse && (
+      {selectedCourse && selectedCourseDetails && (
         <ElearningCourseDetailsModal
-          {...getCourseDetails(selectedCourse)}
+          {...selectedCourseDetails}
+          rating={
+            getElearningRatingAverage(
+              submittedRatingDistributions[selectedCourse.id] ??
+                selectedCourseDetails.ratingDistribution ??
+                selectedCourse.ratingDistribution
+            ) ?? selectedCourseDetails.rating
+          }
+          ratingDistribution={
+            submittedRatingDistributions[selectedCourse.id] ??
+            selectedCourseDetails.ratingDistribution ??
+            selectedCourse.ratingDistribution
+          }
+          completionRating={{
+            ...selectedCourseDetails.completionRating,
+            onSubmit: (rating) => {
+              const ratingSummary = incrementElearningRatingDistribution(
+                submittedRatingDistributions[selectedCourse.id] ??
+                  selectedCourseDetails.ratingDistribution ??
+                  selectedCourse.ratingDistribution,
+                rating
+              );
+
+              setSubmittedRatingDistributions((currentRatingDistributions) => ({
+                ...currentRatingDistributions,
+                [selectedCourse.id]: ratingSummary.ratingDistribution,
+              }));
+              selectedCourseDetails.completionRating?.onSubmit?.(rating);
+              onCourseRatingSubmit?.(selectedCourse, rating, ratingSummary);
+            },
+          }}
           open
           onClose={() => setSelectedCourse(null)}
         />

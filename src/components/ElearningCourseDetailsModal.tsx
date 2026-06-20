@@ -38,6 +38,16 @@ export interface ElearningCourseChapter {
   contents?: ElearningCourseContentItem[];
 }
 
+export type ElearningCourseRatingValue = 1 | 2 | 3 | 4 | 5;
+
+export type ElearningCourseRatingDistribution = Partial<Record<ElearningCourseRatingValue, number>>;
+
+export interface ElearningCourseRatingSummary {
+  rating: number;
+  ratingCount: number;
+  ratingDistribution: ElearningCourseRatingDistribution;
+}
+
 export interface ElearningCourseDetails {
   title: string;
   subtitle?: string;
@@ -46,6 +56,7 @@ export interface ElearningCourseDetails {
   duration?: string;
   rating?: number | string;
   ratingLabel?: string;
+  ratingDistribution?: ElearningCourseRatingDistribution;
   progress?: number;
   completed?: boolean;
   completionRating?: ElearningCourseRatingProps;
@@ -63,6 +74,57 @@ export interface ElearningCourseDetailsModalProps
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
+
+const ratingValues = [1, 2, 3, 4, 5] as const;
+
+export const getElearningRatingCount = (ratingDistribution?: ElearningCourseRatingDistribution) =>
+  ratingValues.reduce((total, ratingValue) => total + Math.max(0, ratingDistribution?.[ratingValue] ?? 0), 0);
+
+export const getElearningRatingAverage = (ratingDistribution?: ElearningCourseRatingDistribution) => {
+  const ratingCount = getElearningRatingCount(ratingDistribution);
+  if (ratingCount === 0) return undefined;
+
+  const weightedTotal = ratingValues.reduce(
+    (total, ratingValue) => total + ratingValue * Math.max(0, ratingDistribution?.[ratingValue] ?? 0),
+    0
+  );
+
+  return Math.round((weightedTotal / ratingCount) * 10) / 10;
+};
+
+const formatElearningRating = (rating: number | string) => {
+  if (typeof rating === 'string') return rating;
+
+  return Number.isInteger(rating) ? String(rating) : rating.toFixed(1);
+};
+
+const getRatingLabel = (ratingCount: number, fallbackLabel?: string) => {
+  if (ratingCount === 0) return fallbackLabel;
+
+  return `(${ratingCount} note${ratingCount > 1 ? 's' : ''})`;
+};
+
+export const incrementElearningRatingDistribution = (
+  ratingDistribution: ElearningCourseRatingDistribution | undefined,
+  rating: number
+): ElearningCourseRatingSummary => {
+  const safeRating = Math.min(5, Math.max(1, Math.round(rating))) as ElearningCourseRatingValue;
+  const nextRatingDistribution = ratingValues.reduce<Required<ElearningCourseRatingDistribution>>(
+    (distribution, ratingValue) => ({
+      ...distribution,
+      [ratingValue]: Math.max(0, ratingDistribution?.[ratingValue] ?? 0),
+    }),
+    { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  );
+
+  nextRatingDistribution[safeRating] += 1;
+
+  return {
+    rating: getElearningRatingAverage(nextRatingDistribution) ?? safeRating,
+    ratingCount: getElearningRatingCount(nextRatingDistribution),
+    ratingDistribution: nextRatingDistribution,
+  };
+};
 
 const contentTypeLabels: Record<ElearningCourseContentType, string> = {
   video: 'Vidéo',
@@ -121,6 +183,7 @@ export const ElearningCourseDetailsModal = ({
   duration,
   rating,
   ratingLabel,
+  ratingDistribution,
   progress,
   completed,
   completionRating,
@@ -134,8 +197,13 @@ export const ElearningCourseDetailsModal = ({
   const canRateCourse = isCourseCompleted(completed, normalizedProgress, chapters);
   const initialChapter = getInitialChapter(chapters);
   const [selectedChapterId, setSelectedChapterId] = React.useState(initialChapter?.id ?? '');
+  const [localRatingDistribution, setLocalRatingDistribution] = React.useState(ratingDistribution);
   const titleId = React.useId();
   const subtitleId = React.useId();
+  const averageRating = getElearningRatingAverage(localRatingDistribution);
+  const ratingCount = getElearningRatingCount(localRatingDistribution);
+  const displayedRating = averageRating ?? rating;
+  const displayedRatingLabel = getRatingLabel(ratingCount, ratingLabel);
 
   React.useEffect(() => {
     if (!open) return;
@@ -148,6 +216,10 @@ export const ElearningCourseDetailsModal = ({
       return getInitialChapter(chapters)?.id ?? '';
     });
   }, [chapters, open]);
+
+  React.useEffect(() => {
+    setLocalRatingDistribution(ratingDistribution);
+  }, [ratingDistribution, title]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -164,6 +236,13 @@ export const ElearningCourseDetailsModal = ({
   }, [onClose, open]);
 
   if (!open) return null;
+
+  const handleRatingSubmit = (newRating: number) => {
+    const nextRatingSummary = incrementElearningRatingDistribution(localRatingDistribution, newRating);
+
+    setLocalRatingDistribution(nextRatingSummary.ratingDistribution);
+    completionRating?.onSubmit?.(newRating);
+  };
 
   const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) ?? initialChapter;
   const selectedContents = selectedChapter ? getChapterContents(selectedChapter) : [];
@@ -299,14 +378,14 @@ export const ElearningCourseDetailsModal = ({
                   <dd className="mt-1 break-words text-[#5f6470]">{duration}</dd>
                 </div>
               )}
-              {rating !== undefined && (
+              {displayedRating !== undefined && (
                 <div className="min-w-0">
                   <dt className="font-semibold">Note</dt>
                   <dd className="mt-1 flex items-start gap-1.5 text-[#5f6470]">
                     <Star aria-hidden="true" className="mt-0.5 size-4 shrink-0 fill-[#f4b000] text-[#f4b000]" />
                     <span className="break-words">
-                      {rating}
-                      {ratingLabel ? ` ${ratingLabel}` : ''}
+                      {formatElearningRating(displayedRating)}
+                      {displayedRatingLabel ? ` ${displayedRatingLabel}` : ''}
                     </span>
                   </dd>
                 </div>
@@ -373,7 +452,13 @@ export const ElearningCourseDetailsModal = ({
               </div>
             )}
 
-            {canRateCourse && <ElearningCourseRating className="mt-4" {...completionRating} />}
+            {canRateCourse && (
+              <ElearningCourseRating
+                {...completionRating}
+                className={joinClasses('mt-4', completionRating?.className ?? '')}
+                onSubmit={handleRatingSubmit}
+              />
+            )}
 
             <button
               type="button"

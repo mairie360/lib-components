@@ -44,6 +44,14 @@ const chapterContents = (
     : []),
 ];
 
+const archivesRatingDistribution = {
+  5: 55,
+  4: 25,
+  3: 7,
+  2: 2,
+  1: 0,
+};
+
 const securityCourseDetails: ElearningCourseDetails = {
   title: 'Sécurité au travail - Formation obligatoire',
   description: 'Formation sur les règles de sécurité à respecter dans les bâtiments municipaux',
@@ -142,7 +150,8 @@ const archivesCourseDetails: ElearningCourseDetails = {
   instructor: 'Marc Dubois',
   duration: '1h 45min',
   rating: 4.5,
-  ratingLabel: '(89 apprenants)',
+  ratingLabel: '(89 notes)',
+  ratingDistribution: archivesRatingDistribution,
   progress: 100,
   completed: true,
   completionRating: {
@@ -396,6 +405,7 @@ const courses: ElearningCourse[] = [
     description: 'Apprenez les bonnes pratiques pour organiser et conserver les documents numériques',
     instructor: 'Marc Dubois',
     rating: 4.5,
+    ratingDistribution: archivesRatingDistribution,
     duration: '1h 45min',
     chapters: 6,
     learners: 89,
