@@ -107,6 +107,35 @@ describe('Elearning components', () => {
     expect(screen.getByText('Progression totale')).toBeInTheDocument();
   });
 
+  it('closes course details when clicking outside the dialog', () => {
+    const handleClose = jest.fn();
+
+    render(
+      <ElearningCourseDetailsModal
+        open
+        onClose={handleClose}
+        title="Cours consultable"
+        description="Détail de formation."
+        chapters={[
+          {
+            id: 'intro',
+            title: 'Introduction',
+            duration: '15min',
+          },
+        ]}
+      />
+    );
+
+    const dialog = screen.getByRole('dialog');
+    const backdrop = dialog.parentElement as HTMLElement;
+
+    fireEvent.mouseDown(dialog);
+    expect(handleClose).not.toHaveBeenCalled();
+
+    fireEvent.mouseDown(backdrop);
+    expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
   it('switches chapters and renders the selected chapter contents', () => {
     render(
       <ElearningCourseDetailsModal

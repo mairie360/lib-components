@@ -71,6 +71,7 @@ export interface ElearningCourseDetailsModalProps
   open: boolean;
   onClose?: () => void;
   closeLabel?: string;
+  closeOnOutsideClick?: boolean;
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
@@ -176,6 +177,7 @@ export const ElearningCourseDetailsModal = ({
   open,
   onClose,
   closeLabel = 'Fermer le détail du cours',
+  closeOnOutsideClick = true,
   title,
   subtitle = 'Détails et contenu du cours',
   description,
@@ -244,13 +246,22 @@ export const ElearningCourseDetailsModal = ({
     completionRating?.onSubmit?.(newRating);
   };
 
+  const handleBackdropMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!closeOnOutsideClick || event.target !== event.currentTarget) return;
+
+    onClose?.();
+  };
+
   const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) ?? initialChapter;
   const selectedContents = selectedChapter ? getChapterContents(selectedChapter) : [];
   const primaryContent = selectedContents.find((content) => content.type === 'video') ?? selectedContents[0];
   const PrimaryContentIcon = primaryContent ? contentTypeIcons[primaryContent.type] : Play;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
+      onMouseDown={handleBackdropMouseDown}
+    >
       <div
         role="dialog"
         aria-modal="true"
