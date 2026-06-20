@@ -13,9 +13,9 @@ import { SortableItem } from '../components/SortableItem';
  * Cette configuration est utilisée par Storybook pour générer
  * automatiquement la documentation de `SortableItem`.
  * Elle précise :
- * - title : L'organisation du composant dans l'arborescence Storybook.
+ * - title : L’organisation du composant dans l’arborescence Storybook.
  * - component : Le composant concerné.
- * - tags : Pour activer l'autodocumentation.
+ * - tags : Pour activer l’autodocumentation.
  * - parameters : Config visuelle (ex: layout).
  * - args : Props par défaut passées au composant.
  */
@@ -28,8 +28,8 @@ const meta = {
   },
   args: {
     id: 'item-1',
-    title: 'Item Title',
-    description: 'Item Description',
+    title: 'Titre de l’élément',
+    description: 'Description de l’élément',
     onDelete: fn(),
     onEdit: fn(),
   },
@@ -72,7 +72,7 @@ export const MultipleItems: Story = {
               <SortableItem
                 key={id}
                 id={id}
-                title={`Item ${id}`}
+                title={`Élément ${id}`}
                 description="Déplace-moi !"
                 onDelete={fn()}
                 onEdit={fn()}

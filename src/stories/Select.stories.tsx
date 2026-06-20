@@ -62,7 +62,7 @@ export const SmallSize: StoryObj<typeof Select> = {
   render: () => (
     <Select>
       <SelectTrigger size="sm" className="w-[180px]">
-        <SelectValue placeholder="Petit select" />
+        <SelectValue placeholder="Sélection compacte" />
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="xs">Très petit</SelectItem>

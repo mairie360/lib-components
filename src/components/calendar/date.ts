@@ -279,7 +279,7 @@ export const getRecurrenceLabel = (recurrence?: CalendarRecurrence) => {
   if (!recurrence || recurrence.frequency === 'none') return 'Ne se répète pas';
 
   const interval = Math.max(1, recurrence.interval || 1);
-  const suffix = recurrence.endsOn ? ` jusqu'au ${formatFullDate(recurrence.endsOn)}` : '';
+  const suffix = recurrence.endsOn ? ` jusqu’au ${formatFullDate(recurrence.endsOn)}` : '';
 
   if (recurrence.frequency === 'daily') {
     return `${interval === 1 ? 'Tous les jours' : `Tous les ${interval} jours`}${suffix}`;
@@ -344,6 +344,6 @@ export const getDefaultStats = (events: CalendarEvent[] = [], selectedDate: Date
   return [
     { label: 'Ce mois', value: `${monthEventsCount} événement${monthEventsCount > 1 ? 's' : ''}` },
     { label: 'Cette semaine', value: `${weekEventsCount} événement${weekEventsCount > 1 ? 's' : ''}` },
-    { label: "Aujourd'hui", value: `${dayEventsCount} événement${dayEventsCount > 1 ? 's' : ''}` },
+    { label: 'Aujourd’hui', value: `${dayEventsCount} événement${dayEventsCount > 1 ? 's' : ''}` },
   ];
 };

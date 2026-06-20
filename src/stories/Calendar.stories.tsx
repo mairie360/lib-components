@@ -71,12 +71,12 @@ const sampleEvents: CalendarEvent[] = [
   },
   {
     id: 'weekly-duty',
-    title: 'Permanence accueil',
+    title: 'Permanence d’accueil',
     date: '15-06-2026',
     category: 'meeting',
     startTime: '10:00',
     endTime: '11:00',
-    location: 'Accueil mairie',
+    location: 'Accueil de la mairie',
     assigneeIds: ['alice'],
     recurrence: {
       frequency: 'weekly',
@@ -144,7 +144,7 @@ const CalendarComposition = ({
   return (
     <div className={joinClasses('bg-[#f5f3f0] p-6 text-[#172033] sm:p-8 lg:p-14')}>
       <PageTitleBar
-        title="Calendrier & Événements"
+        title="Calendrier et événements"
         subtitle="Planifiez et organisez vos activités"
         actionLabel="Nouvel événement"
         onAction={() => {

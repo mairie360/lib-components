@@ -3,30 +3,30 @@ import { fn } from 'storybook/test';
 
 import { Button } from '../components/Button';
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+// Configuration de la story : https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: 'Components/Buttons/Button',
   component: Button,
   parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
+    // Paramètre facultatif pour centrer le composant dans le Canvas.
     layout: 'centered',
   },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
+  // Génère automatiquement une page Autodocs pour ce composant.
   tags: ['autodocs'],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
+  // Configuration des contrôles Storybook.
   argTypes: {
     backgroundColor: { control: 'color' },
   },
-  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#action-args
+  // Utilise `fn` pour afficher les clics dans le panneau Actions.
   args: { onClick: fn() },
 } satisfies Meta<typeof Button>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
+// Exemple avec arguments.
 export const Default: Story = {
   args: {
-    label: 'Button',
+    label: 'Bouton',
   },
 };

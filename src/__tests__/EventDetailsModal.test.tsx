@@ -48,7 +48,7 @@ describe('EventDetailsModal component', () => {
       />
     );
 
-    expect(screen.getByText("Chaque semaine (Lun, Mar, Mer, Jeu, Ven) jusqu'au 15 Juillet 2026")).toBeInTheDocument();
+    expect(screen.getByText('Chaque semaine (Lun, Mar, Mer, Jeu, Ven) jusqu’au 15 Juillet 2026')).toBeInTheDocument();
   });
 
   it('edits and saves event details', () => {

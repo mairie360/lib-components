@@ -19,7 +19,7 @@ export const Default: StoryObj<FooterProps> = {
     links: [
       { label: 'Support technique' },
       { label: 'Documentation' },
-      { label: "Conditions d'utilisation" },
+      { label: 'Conditions d’utilisation' },
     ],
   },
 };
@@ -31,7 +31,7 @@ export const WithLinks: StoryObj<FooterProps> = {
     links: [
       { label: 'Support technique', href: '/support' },
       { label: 'Documentation', href: '/documentation' },
-      { label: "Conditions d'utilisation", href: '/conditions' },
+      { label: 'Conditions d’utilisation', href: '/conditions' },
     ],
   },
 };

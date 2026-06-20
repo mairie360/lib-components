@@ -25,7 +25,7 @@ export const Default: Story = {
   },
   render: (args) => (
     <ToolTip {...args}>
-      <button className="px-4 py-2 bg-blue-500 text-white rounded">Survoler moi</button>
+      <button className="px-4 py-2 bg-blue-500 text-white rounded">Survolez-moi</button>
     </ToolTip>
   ),
 };

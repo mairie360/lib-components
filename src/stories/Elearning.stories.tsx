@@ -73,7 +73,7 @@ const securityCourseDetails: ElearningCourseDetails = {
         '20min',
         'Fiche réflexe des règles générales',
         {
-          title: 'Checklist de vérification du poste de travail',
+          title: 'Liste de vérification du poste de travail',
           type: 'document',
           description: 'Liste synthétique à garder sous la main pendant la prise de poste.',
         }
@@ -93,7 +93,7 @@ const securityCourseDetails: ElearningCourseDetails = {
     },
     {
       id: 'security-fire',
-      title: "Prévention incendie, évacuation et conduite à tenir en cas d'urgence",
+      title: 'Prévention incendie, évacuation et conduite à tenir en cas d’urgence',
       duration: '30min',
       completed: true,
       contents: chapterContents(
@@ -155,7 +155,7 @@ const archivesCourseDetails: ElearningCourseDetails = {
   progress: 100,
   completed: true,
   completionRating: {
-    helperText: 'Formation terminée: donnez une note à cette session.',
+    helperText: 'Formation terminée : donnez une note à cette session.',
     onSubmit: fn(),
   },
   onContentComplete: fn(),
@@ -251,7 +251,7 @@ const communicationCourseDetails: ElearningCourseDetails = {
     },
     {
       id: 'communication-listening',
-      title: "Écoute active, reformulation et clarification d'une demande administrative",
+      title: 'Écoute active, reformulation et clarification d’une demande administrative',
       duration: '30min',
       contents: chapterContents(
         'communication-listening',
@@ -278,7 +278,7 @@ const communicationCourseDetails: ElearningCourseDetails = {
     },
     {
       id: 'communication-quality',
-      title: "Garantir une qualité d'accueil constante entre les différents services",
+      title: 'Garantir une qualité d’accueil constante entre les différents services',
       duration: '28min',
       contents: chapterContents(
         'communication-quality',
@@ -344,7 +344,7 @@ const accountingCourseDetails: ElearningCourseDetails = {
     },
     {
       id: 'evaluation',
-      title: "Évacuation d'urgence des anomalies et préparation d'un rapport clair",
+      title: 'Évacuation d’urgence des anomalies et préparation d’un rapport clair',
       duration: '18min',
       completed: true,
       contents: chapterContents(

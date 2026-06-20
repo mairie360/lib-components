@@ -4,18 +4,17 @@ import { InputManager } from "../components/InputManager";
 import type { InputProps } from "../components/InputManager";
 
 /**
- * Meta configuration for the `InputManager` component story.
+ * Configuration de la story du composant `InputManager`.
  *
- * This configuration is used by Storybook's autodocs feature to generate
- * documentation for the `InputManager` component. It includes the following:
+ * Cette configuration est utilisée par Storybook Autodocs pour générer
+ * la documentation du composant. Elle inclut :
  *
- * - **title**: Specifies the category and name of the story (`Components/Input/InputManager`).
- * - **component**: The component being documented (`InputManager`).
- * - **args**: Default arguments (props) for the `InputManager` component:
- *   - `table`: An example table name (default: `'exampleTable'`).
- * - **tags**: Tags used for Storybook features (e.g., `autodocs`).
+ * - **title** : la catégorie et le nom de la story.
+ * - **component** : le composant documenté.
+ * - **args** : les props par défaut du composant.
+ * - **tags** : les fonctionnalités Storybook activées.
  *
- * This meta object satisfies the `Meta<typeof InputManager>` type, ensuring type safety.
+ * Cet objet respecte le type `Meta<typeof InputManager>`.
  */
 
 const meta: Meta<typeof InputManager> = {
@@ -51,7 +50,7 @@ export const Textarea: Story = {
     label: "Description",
     type: "text",
     name: "description",
-    value: "Texte d'exemple",
+    value: "Texte d’exemple",
   },
 };
 
@@ -62,13 +61,13 @@ export const SelectInput: Story = {
     type: "select",
     name: "searchSelect",
     options: [
-      { value: "apple", label: "Apple" },
-      { value: "banana", label: "Banana" },
-      { value: "cherry", label: "Cherry" },
-      { value: "date", label: "Date" },
-      { value: "elderberry", label: "Elderberry" },
-      { value: "fig", label: "Fig" },
-      { value: "grape", label: "Grape" },
+      { value: "apple", label: "Pomme" },
+      { value: "banana", label: "Banane" },
+      { value: "cherry", label: "Cerise" },
+      { value: "date", label: "Datte" },
+      { value: "elderberry", label: "Sureau" },
+      { value: "fig", label: "Figue" },
+      { value: "grape", label: "Raisin" },
     ],
     value: "",
   },
@@ -145,7 +144,7 @@ export const PasswordInput: Story = {
 export const EmailInput: Story = {
   render: (args) => <Template {...args} />,
   args: {
-    label: "Email",
+    label: "E-mail",
     type: "email",
     name: "email",
     value: "",

@@ -281,7 +281,7 @@ export const InputManager = ({
               onChange={(e) => {
                 onChange(e);
                 const isValid = validateEmail(e.target.value);
-                setEmailError(isValid ? null : "Adresse email invalide.");
+                setEmailError(isValid ? null : "Adresse e-mail invalide.");
               }}
               placeholder="exemple@domaine.com"
               required

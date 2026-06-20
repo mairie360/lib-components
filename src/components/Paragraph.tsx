@@ -1,15 +1,15 @@
 import React from "react";
 
 export interface ParagraphProps {
-    /** Paragraph text */
+    /** Texte du paragraphe */
     text: string;
-    /** Optional click handler */
+    /** Gestionnaire de clic facultatif */
     onClick?: () => void;
-    /** Choose a color for Paragraph */
+    /** Couleur du paragraphe */
     textColor?: string;
-    /** Choose a font size for Paragraph */
+    /** Taille de police du paragraphe */
     fontSize?: string;
-    /** Choose a font weight for Paragraph */
+    /** Graisse de police du paragraphe */
     fontWeight?: string;
 }
 

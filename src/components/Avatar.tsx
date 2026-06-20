@@ -1,13 +1,13 @@
 import React from "react";
 
 export interface AvatarProps {
-  /** Additional CSS classes to apply to the avatar container */
+  /** Classes CSS supplémentaires à appliquer au conteneur de l’avatar */
   className?: string;
-  /** Source URL of the avatar image */
+  /** URL source de l’image d’avatar */
   src?: string;
-  /** Alt text for the avatar image */
+  /** Texte alternatif de l’image d’avatar */
   alt?: string;
-  /** Fallback content to display when the image fails to load */
+  /** Contenu de remplacement lorsque l’image ne charge pas */
   fallback?: React.ReactNode;
 }
 

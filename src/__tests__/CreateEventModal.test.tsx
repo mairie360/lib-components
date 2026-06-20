@@ -33,7 +33,7 @@ describe('CreateEventModal component', () => {
     fireEvent.click(screen.getByRole('button', { name: /sélectionner des personnes/i }));
     fireEvent.click(screen.getByRole('option', { name: /Alice Dupont/ }));
 
-    fireEvent.click(screen.getByRole('button', { name: "Créer l'événement" }));
+    fireEvent.click(screen.getByRole('button', { name: 'Créer l’événement' }));
 
     expect(handleCreate).toHaveBeenCalledWith(
       expect.objectContaining({

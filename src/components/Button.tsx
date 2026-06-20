@@ -1,13 +1,13 @@
 import React from 'react';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  /** What background color to use */
+  /** Couleur d’arrière-plan à utiliser */
   backgroundColor?: string;
-  /** How large should the button be? */
+  /** Taille du bouton */
   size?: 'btn-sm' | 'btn-md' | 'btn-lg';
-  /** Whether to use the primary or secondary DaisyUI variant */
+  /** Utilise la variante principale ou secondaire de DaisyUI */
   primary?: boolean;
-  /** Button contents */
+  /** Contenu du bouton */
   label: string;
 }
 

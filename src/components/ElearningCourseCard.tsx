@@ -137,7 +137,7 @@ export const ElearningCourseCard = ({
         </div>
       )}
 
-      {deadline && <p className="mt-4 text-sm text-[#ff3b1f]">Échéance: {deadline}</p>}
+      {deadline && <p className="mt-4 text-sm text-[#ff3b1f]">Échéance : {deadline}</p>}
 
       <button
         type="button"

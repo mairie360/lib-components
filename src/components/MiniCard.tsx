@@ -20,7 +20,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
   description,
   width = "320px",
   height = "auto",
-  label = "Open Mini Card",
+  label = "Ouvrir la carte",
   onOpen,
   onClick,
   onDelete,
@@ -74,7 +74,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
           ref={cardRef}
           role="button"
           tabIndex={0}
-          aria-label={`Project card: ${title}`}
+          aria-label={`Carte projet : ${title}`}
           className="relative flex flex-col items-center text-center rounded-2xl border border-gray-700 bg-[#0f1117] p-6 shadow-md hover:shadow-lg hover:border-white/30 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
           style={{ width, height }}
           onClick={handleCardClick}
@@ -82,7 +82,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
         >
           {/* Options button */}
           <button
-            aria-label="Show more options"
+            aria-label="Afficher plus d’options"
             className="absolute top-3 right-3 rounded-full p-1 hover:bg-white/10 transition"
             onClick={(e) => {
               e.stopPropagation();
@@ -101,14 +101,14 @@ export const MiniCard: React.FC<MiniCardProps> = ({
             <div className="absolute top-12 right-3 z-50 flex flex-col gap-2">
               <button
                 onClick={handleAction(onEdit)}
-                aria-label="Edit"
+                aria-label="Modifier"
                 className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition"
               >
                 <Pencil size={16} />
               </button>
               <button
                 onClick={handleDeleteClick}
-                aria-label="Delete"
+                aria-label="Supprimer"
                 className="p-2 rounded-md bg-red-600 hover:bg-red-700 transition"
               >
                 <Trash2 size={16} />

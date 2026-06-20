@@ -167,7 +167,7 @@ const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails =
 const getCourseDetails = (course: ElearningCourse) => course.details ?? buildFallbackDetails(course);
 
 export const ElearningCatalog = ({
-  title = 'Centre de Formation',
+  title = 'Centre de formation',
   subtitle = 'Développez vos compétences professionnelles',
   certificationCount = 0,
   courses,

@@ -1,23 +1,23 @@
 import React from "react";
 
 export interface TitleProps {
-    /** Title text */
+    /** Texte du titre */
     title: string;
-    /** Subtitle text */
+    /** Texte du sous-titre */
     subtitle?: string;
-    /** Optional click handler */
+    /** Gestionnaire de clic facultatif */
     onClick?: () => void;
-    /** Choose a color for Title */
+    /** Couleur du titre */
     titleColor?: string;
-    /** Choose a color for Subtitle */
+    /** Couleur du sous-titre */
     subtitleColor?: string;
-    /** Choose a font size for Title */
+    /** Taille de police du titre */
     titleFontSize?: string;
-    /** Choose a font size for Subtitle */
+    /** Taille de police du sous-titre */
     subtitleFontSize?: string;
-    /** Choose a font weight for Title */
+    /** Graisse de police du titre */
     titleFontWeight?: string;
-    /** Choose a font weight for Subtitle */
+    /** Graisse de police du sous-titre */
     subtitleFontWeight?: string;
     }
 
