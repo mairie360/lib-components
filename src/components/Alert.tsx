@@ -10,17 +10,17 @@ import {
 export type AlertType = 'success' | 'error' | 'warning' | 'info';
 
 export interface AlertProps {
-    /** Type of alert */
+    /** Type d’alerte */
   type?: AlertType;
-    /** Optional title for the alert */
+    /** Titre facultatif de l’alerte */
   title?: string;
-    /** Message content of the alert */
+    /** Contenu du message de l’alerte */
   message: string;
-    /** Whether the alert can be closed by the user */
+    /** Indique si l’alerte peut être fermée par l’utilisateur */
   closable?: boolean;
-    /** Callback function when the alert is closed */
+    /** Fonction appelée lorsque l’alerte est fermée */
   onClose?: () => void;
-    /** Time in milliseconds before the alert automatically dismisses */
+    /** Délai en millisecondes avant la fermeture automatique */
   autoDismiss?: number;
 }
 
@@ -69,7 +69,7 @@ export const Alert = ({
         <button
           onClick={onClose}
           className="text-xl text-gray-500 hover:text-black"
-          aria-label="Fermer l'alerte"
+          aria-label="Fermer l’alerte"
         >
           <X className="w-4 h-4" />
         </button>

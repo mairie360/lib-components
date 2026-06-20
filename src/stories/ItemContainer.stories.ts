@@ -4,21 +4,18 @@ import { fn } from 'storybook/test';
 import { ItemContainer } from '../components/ItemContainer';
 
 /**
- * Meta configuration for the `ItemContainer` component story.
+ * Configuration de la story du composant `ItemContainer`.
  *
- * This configuration is used by Storybook's autodocs feature to generate
- * documentation for the `ItemContainer` component. It includes the following:
+ * Cette configuration est utilisée par Storybook Autodocs pour générer
+ * la documentation du composant. Elle inclut :
  *
- * - **title**: Specifies the category and name of the story (`Example/ItemContainer`).
- * - **component**: The component being documented (`ItemContainer`).
- * - **tags**: Tags used for Storybook features (e.g., `autodocs`).
- * - **parameters**: Additional Storybook parameters, such as layout settings.
- * - **args**: Default arguments (props) for the `ItemContainer` component:
- *   - `title`: The title of the container (default: `'My Container'`).
- *   - `statusColor`: The status color of the container (default: `'bg-green-500'`).
- *   - `items`: An array of items to display in the container.
+ * - **title** : la catégorie et le nom de la story.
+ * - **component** : le composant documenté.
+ * - **tags** : les fonctionnalités Storybook activées.
+ * - **parameters** : les paramètres d’affichage.
+ * - **args** : les props par défaut du composant.
  *
- * This meta object satisfies the `Meta<typeof ItemContainer>` type, ensuring type safety.
+ * Cet objet respecte le type `Meta<typeof ItemContainer>`.
  */
 
 const meta = {
@@ -29,12 +26,12 @@ const meta = {
         layout: 'fullscreen',
     },
     args: {
-        title: 'My Container',
+        title: 'Mon conteneur',
         statusColor: 'bg-green-500',
         items: [
-            { id: '1', title: 'Item 1', description: 'Description for Item 1' },
-            { id: '2', title: 'Item 2', description: 'Description for Item 2' },
-            { id: '3', title: 'Item 3', description: 'Description for Item 3' },
+            { id: '1', title: 'Élément 1', description: 'Description de l’élément 1' },
+            { id: '2', title: 'Élément 2', description: 'Description de l’élément 2' },
+            { id: '3', title: 'Élément 3', description: 'Description de l’élément 3' },
         ],
     },
     argTypes: {
@@ -47,12 +44,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        title: 'My Container',
+        title: 'Mon conteneur',
         statusColor: 'bg-green-500',
         items: [
-            { id: '1', title: 'Item 1', description: 'Description for Item 1' },
-            { id: '2', title: 'Item 2', description: 'Description for Item 2' },
-            { id: '3', title: 'Item 3', description: 'Description for Item 3' },
+            { id: '1', title: 'Élément 1', description: 'Description de l’élément 1' },
+            { id: '2', title: 'Élément 2', description: 'Description de l’élément 2' },
+            { id: '3', title: 'Élément 3', description: 'Description de l’élément 3' },
         ],
     },
 };

@@ -22,7 +22,7 @@ export interface FooterProps {
 const defaultFooterLinks: FooterLink[] = [
   { label: 'Support technique' },
   { label: 'Documentation' },
-  { label: "Conditions d'utilisation" },
+  { label: 'Conditions d’utilisation' },
 ];
 
 export const Footer = ({

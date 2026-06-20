@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
 export interface TooltipProps {
-  /** Text to display in the tooltip */
+  /** Texte à afficher dans l’infobulle */
   text: string;
-  /** Child element that triggers the tooltip */
+  /** Élément enfant qui déclenche l’infobulle */
   children: React.ReactNode;
 }
 

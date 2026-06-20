@@ -4,22 +4,18 @@ import { fn } from 'storybook/test';
 import { MiniCard } from '../components/MiniCard';
 
 /**
- * Meta configuration for the `MiniCard` component story.
+ * Configuration de la story du composant `MiniCard`.
  *
- * This configuration is used by Storybook's autodocs feature to generate
- * documentation for the `MiniCard` component. It includes the following:
+ * Cette configuration est utilisée par Storybook Autodocs pour générer
+ * la documentation du composant. Elle inclut :
  *
- * - **title**: Specifies the category and name of the story (`Example/MiniCard`).
- * - **component**: The component being documented (`MiniCard`).
- * - **tags**: Tags used for Storybook features (e.g., `autodocs`).
- * - **parameters**: Additional Storybook parameters, such as layout settings.
- * - **args**: Default arguments (props) for the `MiniCard` component:
- *   - `title`: The title of the mini card (default: `'Mini Card Title'`).
- *   - `description`: A description of the mini card (default: `'Mini Card Description'`).
- *   - `width`: The width of the mini card (default: `'320px'`).
- *   - `height`: The height of the mini card (default: `'80px'`).
+ * - **title** : la catégorie et le nom de la story.
+ * - **component** : le composant documenté.
+ * - **tags** : les fonctionnalités Storybook activées.
+ * - **parameters** : les paramètres d’affichage.
+ * - **args** : les props par défaut du composant.
  *
- * This meta object satisfies the `Meta<typeof MiniCard>` type, ensuring type safety.
+ * Cet objet respecte le type `Meta<typeof MiniCard>`.
  */
 
 const meta = {
@@ -30,11 +26,11 @@ const meta = {
         layout: 'fullscreen',
     },
     args: {
-        title: 'Mini Card Title',
-        description: 'Mini Card Description',
+        title: 'Titre de la mini-carte',
+        description: 'Description de la mini-carte',
         width: "320px",
         height: "80px",
-        label: 'Open Mini Card',
+        label: 'Ouvrir la mini-carte',
     },
 } satisfies Meta<typeof MiniCard>;
 
@@ -43,10 +39,10 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-        title: 'Mini Card Title',
-        description: 'Mini Card Description',
+        title: 'Titre de la mini-carte',
+        description: 'Description de la mini-carte',
         width: "320px",
         height: "180px",
-        label: 'Open Mini Card',
+        label: 'Ouvrir la mini-carte',
     },
 };

@@ -76,7 +76,7 @@ export const EventDetailsModal = ({
   event,
   people = [],
   categories = defaultEventCategories,
-  title = "Détail de l'événement",
+  title = 'Détail de l’événement',
   closeLabel = 'Fermer',
   editLabel = 'Modifier',
   cancelLabel = 'Annuler',

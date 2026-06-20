@@ -3,17 +3,17 @@ import { fn } from 'storybook/test';
 
 import { Title } from '../components/Title';
 
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories#default-export
+// Configuration de la story : https://storybook.js.org/docs/writing-stories#default-export
 const meta = {
   title: 'Components/Text/Title',
   component: Title,
   parameters: {
-    // Optional parameter to center the component in the Canvas. More info: https://storybook.js.org/docs/configure/story-layout
+    // Paramètre facultatif pour centrer le composant dans le Canvas.
     layout: 'centered',
   },
-  // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
+  // Génère automatiquement une page Autodocs pour ce composant.
   tags: ['autodocs'],
-  // More on argTypes: https://storybook.js.org/docs/api/argtypes
+  // Configuration des contrôles Storybook.
   argTypes: {
     onClick: { action: 'clicked' },
   },
@@ -24,14 +24,13 @@ type Story = StoryObj<typeof meta>;
 
 export const TitleWithoutSubtitle: Story = {
   args: {
-    title: 'Title',
+    title: 'Titre',
   },
 };
 
 export const TitleWithSubtitle: Story = {
   args: {
-    title: 'Title',
-    subtitle: 'Subtitle',
+    title: 'Titre',
+    subtitle: 'Sous-titre',
   },
 };
-

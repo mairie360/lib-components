@@ -24,7 +24,7 @@ type Story = StoryObj<typeof Badge>;
 
 export const Default: Story = {
   args: {
-    text: 'Default Badge',
+    text: 'Badge par défaut',
     variant: 'default',
     rounded: false,
   },
@@ -32,7 +32,7 @@ export const Default: Story = {
 
 export const Green: Story = {
   args: {
-    text: 'Green Badge',
+    text: 'Badge vert',
     variant: 'green',
     rounded: false,
   },
@@ -40,7 +40,7 @@ export const Green: Story = {
 
 export const Blue: Story = {
   args: {
-    text: 'Blue Badge',
+    text: 'Badge bleu',
     variant: 'blue',
     rounded: false,
   },
@@ -48,7 +48,7 @@ export const Blue: Story = {
 
 export const Red: Story = {
   args: {
-    text: 'Red Badge',
+    text: 'Badge rouge',
     variant: 'red',
     rounded: false,
   },
@@ -56,7 +56,7 @@ export const Red: Story = {
 
 export const Dark: Story = {
   args: {
-    text: 'Dark Badge',
+    text: 'Badge sombre',
     variant: 'dark',
     rounded: false,
   },
@@ -64,7 +64,7 @@ export const Dark: Story = {
 
 export const Rounded: Story = {
   args: {
-    text: 'Rounded Badge',
+    text: 'Badge arrondi',
     variant: 'green',
     rounded: true,
   },

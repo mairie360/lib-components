@@ -137,7 +137,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
   };
 
   const handleDeleteAll = () => {
-    if (window.confirm("Are you sure you want to delete all items?")) {
+    if (window.confirm("Voulez-vous vraiment supprimer tous les éléments ?")) {
       sortedItems.forEach((item) => onItemDelete?.(item.id));
     }
     setShowMenu(false);
@@ -167,7 +167,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
           <span
             className={`${selectedStatusColor} w-3 h-3 rounded-full cursor-pointer`}
             aria-hidden="true"
-            title="Change status color"
+            title="Changer la couleur du statut"
             onClick={() => {
               const currentIndex = statusColors.indexOf(selectedStatusColor);
               const nextIndex = (currentIndex + 1) % statusColors.length;
@@ -194,7 +194,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
               setShowAddMenu(false);
             }}
             className="p-1 rounded hover:bg-white/10 transition"
-            aria-label="Open container menu"
+            aria-label="Ouvrir le menu du conteneur"
           >
             <MoreHorizontal size={20} className="text-white" />
           </button>
@@ -209,19 +209,19 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 }}
                 className="w-full text-left px-3 py-2 hover:bg-gray-700 text-gray-300 rounded-t-md"
               >
-                Edit
+                Modifier
               </button>
               <button
                 onClick={handleDeleteAll}
                 className="w-full text-left px-3 py-2 hover:bg-red-700 text-red-600"
               >
-                Delete All Items
+                Supprimer tous les éléments
               </button>
               <button
                 onClick={handleExportJSON}
                 className="w-full text-left px-3 py-2 hover:bg-blue-700 text-blue-500 rounded-b-md"
               >
-                Export JSON
+                Exporter JSON
               </button>
             </div>
           )}
@@ -235,7 +235,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 className="text-white text-sm font-semibold"
                 htmlFor="edit-title-input"
               >
-                Title
+                Titre
               </label>
               <input
                 id="edit-title-input"
@@ -260,13 +260,13 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
               />
 
               <label className="text-white text-sm font-semibold">
-                Status Color
+                Couleur du statut
               </label>
               <div className="flex gap-2">
                 {statusColors.map((color) => (
                   <button
                     key={color}
-                    aria-label={`Select ${color} color`}
+                    aria-label={`Sélectionner la couleur ${color}`}
                     onClick={() => setSelectedStatusColor(color)}
                     className={`${color} w-6 h-6 rounded-full border-2 ${
                       selectedStatusColor === color
@@ -286,14 +286,14 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                   }}
                   className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white"
                 >
-                  Cancel
+                  Annuler
                 </button>
                 <button
                   onClick={saveEdits}
                   className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
                   disabled={!editedTitle.trim()}
                 >
-                  Save
+                  Enregistrer
                 </button>
               </div>
             </div>
@@ -309,11 +309,11 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
       {/* Barre de recherche */}
       <input
         type="text"
-        placeholder="Search..."
+        placeholder="Rechercher..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="mb-2 bg-[#1a1d24] text-sm text-white px-2 py-1 rounded focus:outline-none"
-        aria-label="Search items"
+        aria-label="Rechercher des éléments"
       />
 
       {/* Liste des items avec DnD */}
@@ -329,7 +329,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
           <div
             className="flex flex-col gap-3 overflow-y-auto flex-1 pr-1"
             role="list"
-            aria-label="Item list"
+            aria-label="Liste des éléments"
           >
             {filteredItems.map((item) => (
               <SortableItem
@@ -358,7 +358,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
           aria-haspopup="dialog"
           aria-expanded={showAddMenu}
         >
-          Add Item
+          Ajouter un élément
         </button>
 
         {showAddMenu && (
@@ -367,11 +367,11 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
             className="absolute bottom-full mb-2 right-0 w-full bg-[#1c1f26] rounded-md shadow-lg p-4 flex flex-col gap-3 z-50 border border-gray-700"
             role="dialog"
             aria-modal="true"
-            aria-label="Add new item"
+            aria-label="Ajouter un nouvel élément"
           >
             <input
               type="text"
-              placeholder="Title"
+              placeholder="Titre"
               value={addTitle}
               onChange={(e) => setAddTitle(e.target.value)}
               className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
@@ -379,7 +379,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
             />
             <input
               type="text"
-              placeholder="Description (optional)"
+              placeholder="Description (facultative)"
               value={addDescription}
               onChange={(e) => setAddDescription(e.target.value)}
               className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
@@ -390,14 +390,14 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 onClick={() => setShowAddMenu(false)}
                 className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white"
               >
-                Cancel
+                Annuler
               </button>
               <button
                 onClick={handleAddNewItem}
                 className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
                 disabled={!addTitle.trim()}
               >
-                Add
+                Ajouter
               </button>
             </div>
           </div>

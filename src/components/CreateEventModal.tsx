@@ -58,7 +58,7 @@ export const CreateEventModal = ({
   title = 'Créer un événement',
   subtitle = 'Ajouter un nouvel événement au calendrier',
   cancelLabel = 'Annuler',
-  submitLabel = "Créer l'événement",
+  submitLabel = 'Créer l’événement',
   onCancel,
   onCreate,
 }: CreateEventModalProps) => {
@@ -187,7 +187,7 @@ export const CreateEventModal = ({
               type="text"
               required
               value={values.title}
-              placeholder="Titre de l'événement"
+              placeholder="Titre de l’événement"
               className={fieldClassName}
               onChange={(event) => updateValue('title', event.target.value)}
             />
@@ -201,7 +201,7 @@ export const CreateEventModal = ({
               id="event-description"
               name="description"
               value={values.description}
-              placeholder="Description de l'événement"
+              placeholder="Description de l’événement"
               className={joinClasses(fieldClassName, 'h-20 resize-none py-2')}
               onChange={(event) => updateValue('description', event.target.value)}
             />
@@ -386,7 +386,7 @@ export const CreateEventModal = ({
               name="location"
               type="text"
               value={values.location}
-              placeholder="Lieu de l'événement"
+              placeholder="Lieu de l’événement"
               className={fieldClassName}
               onChange={(event) => updateValue('location', event.target.value)}
             />

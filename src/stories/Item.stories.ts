@@ -5,24 +5,20 @@ import { Item } from '../components/Item';
 
 
 /**
- * Meta configuration for the `Item` component story.
+ * Configuration de la story du composant `Item`.
  *
- * This configuration is used by Storybook's autodocs feature to generate
- * documentation for the `Item` component. It includes the following:
+ * Cette configuration est utilisée par Storybook Autodocs pour générer
+ * la documentation du composant. Elle inclut :
  *
- * - **title**: Specifies the category and name of the story (`Example/Item`).
- * - **component**: The component being documented (`Item`).
- * - **tags**: Tags used for Storybook features (e.g., `autodocs`).
- * - **parameters**: Additional Storybook parameters, such as layout settings.
- * - **args**: Default arguments (props) for the `Item` component:
- *   - `title`: The title of the item (default: `'Item Title'`).
- *   - `description`: A description of the item (default: `'Item Description'`).
- *   - `width`: The width of the item (default: `'320px'`).
- *   - `height`: The height of the item (default: `'80px'`).
+ * - **title** : la catégorie et le nom de la story.
+ * - **component** : le composant documenté.
+ * - **tags** : les fonctionnalités Storybook activées.
+ * - **parameters** : les paramètres d’affichage.
+ * - **args** : les props par défaut du composant.
  *
- * This meta object satisfies the `Meta<typeof Item>` type, ensuring type safety.
+ * Cet objet respecte le type `Meta<typeof Item>`.
  * 
- * The item contains two buttons: delete and modify. The modify button should navigate to the modification page.
+ * L’élément contient deux boutons : supprimer et modifier.
  */
 const meta = {
     title: 'Components/Items/Item',
@@ -32,8 +28,8 @@ const meta = {
         layout: 'fullscreen',
     },
     args: {
-        title: 'Item Title',
-        description: 'Item Description',
+        title: 'Titre de l’élément',
+        description: 'Description de l’élément',
         width: "320px", 
         height: "80px",
     },
@@ -44,8 +40,8 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
-            title: 'Item Title',
-            description: 'Item Description',
+            title: 'Titre de l’élément',
+            description: 'Description de l’élément',
             width: "320px", 
             height: "80px",
     },

@@ -453,6 +453,7 @@ describe('Elearning components', () => {
   it('filters catalog courses by category and search', () => {
     render(<ElearningCatalog courses={courses} certificationCount={3} />);
 
+    expect(screen.queryByText('3 certifications obtenues')).not.toBeInTheDocument();
     expect(screen.getByText('Sécurité au travail')).toBeInTheDocument();
     expect(screen.getByText('Gestion des archives numériques')).toBeInTheDocument();
 

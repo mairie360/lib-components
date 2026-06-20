@@ -11,7 +11,7 @@ describe('Footer component', () => {
     expect(screen.getByText('Version 1.0')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Support technique' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Documentation' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: "Conditions d'utilisation" })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Conditions d’utilisation' })).toBeInTheDocument();
   });
 
   it('supports custom product information', () => {

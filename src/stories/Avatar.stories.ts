@@ -23,7 +23,7 @@ type Story = StoryObj<typeof Avatar>;
 export const Default: Story = {
   args: {
     src: 'https://via.placeholder.com/150',
-    alt: 'User Avatar',
+    alt: 'Avatar utilisateur',
     fallback: 'UA',
     className: '',
   },
@@ -32,7 +32,7 @@ export const Default: Story = {
 export const WithFallback: Story = {
   args: {
     src: 'https://invalid-url.com/avatar.jpg',
-    alt: 'User Avatar',
+    alt: 'Avatar utilisateur',
     fallback: 'UA',
     className: '',
   },
@@ -41,7 +41,7 @@ export const WithFallback: Story = {
 export const CustomClass: Story = {
   args: {
     src: 'https://via.placeholder.com/150',
-    alt: 'User Avatar',
+    alt: 'Avatar utilisateur',
     fallback: 'UA',
     className: 'border-4 border-red-500',
   },
