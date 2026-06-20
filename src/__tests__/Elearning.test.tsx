@@ -186,6 +186,68 @@ describe('Elearning components', () => {
     expect(screen.queryByText('Support PDF du chapitre vidéo')).not.toBeInTheDocument();
   });
 
+  it('updates progress and emits onContentComplete when completing course contents', () => {
+    const handleContentComplete = jest.fn();
+
+    render(
+      <ElearningCourseDetailsModal
+        open
+        title="Cours avec progression"
+        description="Un cours dont la progression se met à jour."
+        progress={0}
+        onContentComplete={handleContentComplete}
+        chapters={[
+          {
+            id: 'progress-chapter',
+            title: 'Chapitre à compléter',
+            duration: '30min',
+            active: true,
+            contents: [
+              {
+                id: 'progress-video',
+                title: 'Vidéo de progression',
+                type: 'video',
+              },
+              {
+                id: 'progress-document',
+                title: 'Document de progression',
+                type: 'pdf',
+              },
+            ],
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('0%')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo de progression comme terminé' }));
+
+    expect(screen.getByText('50%')).toBeInTheDocument();
+    expect(handleContentComplete).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        progress: 50,
+        completed: false,
+        completedRequiredContents: 1,
+        totalRequiredContents: 2,
+        content: expect.objectContaining({ id: 'progress-video', completed: true }),
+      })
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Marquer Document de progression comme terminé' }));
+
+    expect(screen.getByText('100%')).toBeInTheDocument();
+    expect(handleContentComplete).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        progress: 100,
+        completed: true,
+        completedRequiredContents: 2,
+        totalRequiredContents: 2,
+        chapter: expect.objectContaining({ id: 'progress-chapter', completed: true }),
+      })
+    );
+  });
+
   it('lets users rate a completed course', () => {
     const handleSubmit = jest.fn();
 
@@ -300,6 +362,36 @@ describe('Elearning components', () => {
     );
     expect(within(screen.getByRole('article')).getByText('3')).toBeInTheDocument();
     expect(within(screen.getByRole('article')).queryByText('2.5')).not.toBeInTheDocument();
+  });
+
+  it('updates the catalog card progress after completing a course content', () => {
+    const handleCourseContentComplete = jest.fn();
+
+    render(
+      <ElearningCatalog
+        courses={[
+          {
+            ...courses[0],
+            progress: 0,
+            chapters: 1,
+            actionLabel: 'Continuer',
+          },
+        ]}
+        onCourseContentComplete={handleCourseContentComplete}
+      />
+    );
+
+    expect(within(screen.getByRole('article')).getByText('0%')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo du chapitre 1 comme terminé' }));
+    fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
+
+    expect(handleCourseContentComplete).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'security' }),
+      expect.objectContaining({ progress: 50 })
+    );
+    expect(within(screen.getByRole('article')).getByText('50%')).toBeInTheDocument();
   });
 
   it('opens course details from catalog when a course provides details', () => {

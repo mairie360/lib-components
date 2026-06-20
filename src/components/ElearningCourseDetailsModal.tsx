@@ -27,6 +27,8 @@ export interface ElearningCourseContentItem {
   duration?: string;
   fileName?: string;
   href?: string;
+  completed?: boolean;
+  required?: boolean;
 }
 
 export interface ElearningCourseChapter {
@@ -48,6 +50,21 @@ export interface ElearningCourseRatingSummary {
   ratingDistribution: ElearningCourseRatingDistribution;
 }
 
+export interface ElearningCourseProgressSummary {
+  progress: number;
+  completedRequiredContents: number;
+  totalRequiredContents: number;
+  completedChapters: number;
+  totalChapters: number;
+  completed: boolean;
+  chapters: ElearningCourseChapter[];
+}
+
+export interface ElearningCourseContentCompletePayload extends ElearningCourseProgressSummary {
+  chapter: ElearningCourseChapter;
+  content: ElearningCourseContentItem;
+}
+
 export interface ElearningCourseDetails {
   title: string;
   subtitle?: string;
@@ -63,6 +80,7 @@ export interface ElearningCourseDetails {
   chapters: ElearningCourseChapter[];
   actionLabel?: string;
   onAction?: () => void;
+  onContentComplete?: (payload: ElearningCourseContentCompletePayload) => void;
 }
 
 export interface ElearningCourseDetailsModalProps
@@ -163,6 +181,54 @@ const getChapterContents = (chapter: ElearningCourseChapter): ElearningCourseCon
         },
       ];
 
+const isRequiredContent = (content: ElearningCourseContentItem) => content.required !== false;
+
+const getChapterCompleted = (chapter: ElearningCourseChapter, contents: ElearningCourseContentItem[]) => {
+  const requiredContents = contents.filter(isRequiredContent);
+
+  if (requiredContents.length === 0) return Boolean(chapter.completed);
+
+  return requiredContents.every((content) => content.completed);
+};
+
+const normalizeChaptersForProgress = (chapters: ElearningCourseChapter[]) =>
+  chapters.map((chapter) => {
+    const contents = getChapterContents(chapter).map((content) => ({
+      ...content,
+      completed: content.completed ?? chapter.completed ?? false,
+      required: content.required ?? true,
+    }));
+    const completed = getChapterCompleted(chapter, contents);
+
+    return {
+      ...chapter,
+      completed,
+      active: completed ? false : chapter.active,
+      contents,
+    };
+  });
+
+export const getElearningCourseProgressSummary = (
+  chapters: ElearningCourseChapter[]
+): ElearningCourseProgressSummary => {
+  const requiredContents = chapters.flatMap((chapter) => getChapterContents(chapter).filter(isRequiredContent));
+  const completedRequiredContents = requiredContents.filter((content) => content.completed).length;
+  const totalRequiredContents = requiredContents.length;
+  const progress =
+    totalRequiredContents === 0 ? 0 : Math.round((completedRequiredContents / totalRequiredContents) * 100);
+  const completedChapters = chapters.filter((chapter) => getChapterCompleted(chapter, getChapterContents(chapter))).length;
+
+  return {
+    progress,
+    completedRequiredContents,
+    totalRequiredContents,
+    completedChapters,
+    totalChapters: chapters.length,
+    completed: totalRequiredContents > 0 && completedRequiredContents === totalRequiredContents,
+    chapters,
+  };
+};
+
 const isCourseCompleted = (
   completed: boolean | undefined,
   normalizedProgress: number | undefined,
@@ -192,13 +258,17 @@ export const ElearningCourseDetailsModal = ({
   chapters,
   actionLabel = 'Continuer',
   onAction,
+  onContentComplete,
   className = '',
   ...props
 }: ElearningCourseDetailsModalProps) => {
-  const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
-  const canRateCourse = isCourseCompleted(completed, normalizedProgress, chapters);
-  const initialChapter = getInitialChapter(chapters);
-  const [selectedChapterId, setSelectedChapterId] = React.useState(initialChapter?.id ?? '');
+  const initialChapters = React.useMemo(() => normalizeChaptersForProgress(chapters), [chapters]);
+  const initialProgress = typeof progress === 'number' ? clampProgress(progress) : getElearningCourseProgressSummary(initialChapters).progress;
+  const [localChapters, setLocalChapters] = React.useState<ElearningCourseChapter[]>(initialChapters);
+  const [localProgress, setLocalProgress] = React.useState(initialProgress);
+  const initialChapter = getInitialChapter(localChapters);
+  const canRateCourse = isCourseCompleted(completed, localProgress, localChapters);
+  const [selectedChapterId, setSelectedChapterId] = React.useState(() => getInitialChapter(initialChapters)?.id ?? '');
   const [localRatingDistribution, setLocalRatingDistribution] = React.useState(ratingDistribution);
   const titleId = React.useId();
   const subtitleId = React.useId();
@@ -207,17 +277,35 @@ export const ElearningCourseDetailsModal = ({
   const displayedRating = averageRating ?? rating;
   const displayedRatingLabel = getRatingLabel(ratingCount, ratingLabel);
 
+  const chaptersStateKey = chapters
+    .map((chapter) =>
+      [
+        chapter.id,
+        chapter.completed ? 'completed' : 'pending',
+        getChapterContents(chapter)
+          .map((content) => `${content.id}:${content.completed ? 'completed' : 'pending'}:${content.required === false ? 'optional' : 'required'}`)
+          .join(','),
+      ].join(':')
+    )
+    .join('|');
+
   React.useEffect(() => {
     if (!open) return;
 
+    const nextChapters = normalizeChaptersForProgress(chapters);
+    const nextProgress =
+      typeof progress === 'number' ? clampProgress(progress) : getElearningCourseProgressSummary(nextChapters).progress;
+
+    setLocalChapters(nextChapters);
+    setLocalProgress(nextProgress);
     setSelectedChapterId((currentId) => {
-      if (chapters.some((chapter) => chapter.id === currentId)) {
+      if (nextChapters.some((chapter) => chapter.id === currentId)) {
         return currentId;
       }
 
-      return getInitialChapter(chapters)?.id ?? '';
+      return getInitialChapter(nextChapters)?.id ?? '';
     });
-  }, [chapters, open]);
+  }, [chaptersStateKey, open, progress]);
 
   React.useEffect(() => {
     setLocalRatingDistribution(ratingDistribution);
@@ -246,13 +334,63 @@ export const ElearningCourseDetailsModal = ({
     completionRating?.onSubmit?.(newRating);
   };
 
+  const handleContentComplete = (chapterId: string, contentId: string) => {
+    let completedChapter: ElearningCourseChapter | undefined;
+    let completedContent: ElearningCourseContentItem | undefined;
+    let wasAlreadyCompleted = false;
+
+    const nextChapters = localChapters.map((chapter) => {
+      if (chapter.id !== chapterId) return chapter;
+
+      const contents = getChapterContents(chapter).map((content) => {
+        if (content.id !== contentId) return content;
+
+        wasAlreadyCompleted = Boolean(content.completed);
+        completedContent = {
+          ...content,
+          completed: true,
+        };
+
+        return completedContent;
+      });
+      const chapterCompleted = getChapterCompleted(chapter, contents);
+
+      completedChapter = {
+        ...chapter,
+        active: chapterCompleted ? false : chapter.active,
+        completed: chapterCompleted,
+        contents,
+      };
+
+      return completedChapter;
+    });
+
+    if (!completedChapter || !completedContent || wasAlreadyCompleted) {
+      const progressSummary = getElearningCourseProgressSummary(nextChapters);
+
+      setLocalChapters(nextChapters);
+      setLocalProgress(progressSummary.progress);
+      return;
+    }
+
+    const progressSummary = getElearningCourseProgressSummary(nextChapters);
+
+    setLocalChapters(nextChapters);
+    setLocalProgress(progressSummary.progress);
+    onContentComplete?.({
+      ...progressSummary,
+      chapter: completedChapter,
+      content: completedContent,
+    });
+  };
+
   const handleBackdropMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!closeOnOutsideClick || event.target !== event.currentTarget) return;
 
     onClose?.();
   };
 
-  const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) ?? initialChapter;
+  const selectedChapter = localChapters.find((chapter) => chapter.id === selectedChapterId) ?? initialChapter;
   const selectedContents = selectedChapter ? getChapterContents(selectedChapter) : [];
   const primaryContent = selectedContents.find((content) => content.type === 'video') ?? selectedContents[0];
   const PrimaryContentIcon = primaryContent ? contentTypeIcons[primaryContent.type] : Play;
@@ -327,35 +465,67 @@ export const ElearningCourseDetailsModal = ({
                 <div className="mt-3 space-y-2">
                   {selectedContents.map((content) => {
                     const ContentIcon = contentTypeIcons[content.type];
+                    const contentCompleted = Boolean(content.completed);
+                    const requiredContent = isRequiredContent(content);
 
                     return (
                       <div
                         key={content.id}
-                        className="flex items-start gap-3 rounded-md border border-[#d8d2ca] bg-white p-3"
+                        className={joinClasses(
+                          'flex items-start gap-3 rounded-md border bg-white p-3',
+                          contentCompleted ? 'border-[#b9dfc8]' : 'border-[#d8d2ca]'
+                        )}
                       >
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e9f1fb] text-[#1256a6]">
-                          <ContentIcon aria-hidden="true" className="size-5" />
+                        <div
+                          className={joinClasses(
+                            'flex size-10 shrink-0 items-center justify-center rounded-md',
+                            contentCompleted ? 'bg-[#eefaf3] text-[#00a651]' : 'bg-[#e9f1fb] text-[#1256a6]'
+                          )}
+                        >
+                          {contentCompleted ? (
+                            <CircleCheck aria-hidden="true" className="size-5" />
+                          ) : (
+                            <ContentIcon aria-hidden="true" className="size-5" />
+                          )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
                               <p className="break-words text-sm font-semibold leading-5 text-[#2f3747]">
                                 {content.title}
                               </p>
-                              <p className="mt-0.5 text-xs font-semibold uppercase leading-4 text-[#4b908d]">
-                                {contentTypeLabels[content.type]}
-                                {content.duration ? ` - ${content.duration}` : ''}
-                              </p>
+                              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase leading-4 text-[#4b908d]">
+                                <span>
+                                  {contentTypeLabels[content.type]}
+                                  {content.duration ? ` - ${content.duration}` : ''}
+                                </span>
+                                {!requiredContent && <span className="text-[#8a7b6d]">Optionnel</span>}
+                              </div>
                             </div>
-                            {content.href && (
-                              <a
-                                href={content.href}
-                                className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+                            <div className="flex shrink-0 flex-wrap items-center gap-2">
+                              {content.href && (
+                                <a
+                                  href={content.href}
+                                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+                                >
+                                  Ouvrir
+                                  <ExternalLink aria-hidden="true" className="size-3.5" />
+                                </a>
+                              )}
+                              <button
+                                type="button"
+                                aria-label={
+                                  contentCompleted
+                                    ? `${content.title} terminé`
+                                    : `Marquer ${content.title} comme terminé`
+                                }
+                                disabled={contentCompleted}
+                                onClick={() => handleContentComplete(selectedChapter.id, content.id)}
+                                className="inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]"
                               >
-                                Ouvrir
-                                <ExternalLink aria-hidden="true" className="size-3.5" />
-                              </a>
-                            )}
+                                {contentCompleted ? 'Terminé' : 'Marquer comme terminé'}
+                              </button>
+                            </div>
                           </div>
                           {content.description && (
                             <p className="mt-2 break-words text-sm leading-5 text-[#6f6f6f]">{content.description}</p>
@@ -407,7 +577,7 @@ export const ElearningCourseDetailsModal = ({
           <aside className="min-w-0">
             <h3 className="text-base font-bold leading-6 text-[#2f3747]">Chapitres</h3>
             <div className="mt-3 max-h-[420px] space-y-2 overflow-y-auto pr-1">
-              {chapters.map((chapter) => {
+              {localChapters.map((chapter) => {
                 const Icon = chapter.completed ? CircleCheck : Circle;
                 const selected = chapter.id === selectedChapter?.id;
 
@@ -448,16 +618,16 @@ export const ElearningCourseDetailsModal = ({
               })}
             </div>
 
-            {normalizedProgress !== undefined && (
+            {localProgress !== undefined && (
               <div className="mt-4">
                 <div className="mb-2 flex items-start justify-between gap-4 text-sm leading-5 text-[#2f3747]">
                   <span>Progression totale</span>
-                  <span className="shrink-0">{normalizedProgress}%</span>
+                  <span className="shrink-0">{localProgress}%</span>
                 </div>
                 <div className="h-2 w-full overflow-hidden rounded-full bg-[#cfdbed]">
                   <div
                     className="h-full rounded-full bg-[#1256a6] transition-[width]"
-                    style={{ width: `${normalizedProgress}%` }}
+                    style={{ width: `${localProgress}%` }}
                   />
                 </div>
               </div>

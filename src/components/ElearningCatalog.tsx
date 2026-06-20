@@ -5,9 +5,11 @@ import { joinClasses } from './calendar/style';
 import { ElearningCourseCard, type ElearningCourseCardProps } from './ElearningCourseCard';
 import {
   ElearningCourseDetailsModal,
+  type ElearningCourseContentCompletePayload,
   getElearningRatingAverage,
   incrementElearningRatingDistribution,
   type ElearningCourseDetails,
+  type ElearningCourseProgressSummary,
   type ElearningCourseRatingDistribution,
   type ElearningCourseRatingSummary,
 } from './ElearningCourseDetailsModal';
@@ -37,6 +39,7 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   emptyLabel?: string;
   onCourseAction?: (course: ElearningCourse) => void;
   onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => void;
+  onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => void;
 }
 
 const defaultStatuses: ElearningFilterOption[] = [
@@ -177,6 +180,7 @@ export const ElearningCatalog = ({
   emptyLabel = 'Aucune formation ne correspond aux filtres.',
   onCourseAction,
   onCourseRatingSubmit,
+  onCourseContentComplete,
   className = '',
   ...props
 }: ElearningCatalogProps) => {
@@ -187,10 +191,17 @@ export const ElearningCatalog = ({
   const [submittedRatingDistributions, setSubmittedRatingDistributions] = React.useState<
     Record<string, ElearningCourseRatingDistribution>
   >({});
+  const [contentProgressByCourse, setContentProgressByCourse] = React.useState<
+    Record<string, ElearningCourseProgressSummary>
+  >({});
 
   const categoryOptions = React.useMemo(() => categories ?? buildCategories(courses), [categories, courses]);
   const displayedStats = stats ?? buildDefaultStats(courses, certificationCount);
-  const selectedCourseDetails = selectedCourse ? getCourseDetails(selectedCourse) : undefined;
+  const selectedCourseDetails = React.useMemo(
+    () => (selectedCourse ? getCourseDetails(selectedCourse) : undefined),
+    [selectedCourse]
+  );
+  const selectedCourseProgress = selectedCourse ? contentProgressByCourse[selectedCourse.id] : undefined;
 
   const filteredCourses = React.useMemo(() => {
     const normalizedSearch = normalize(search.trim());
@@ -255,17 +266,20 @@ export const ElearningCatalog = ({
               details,
               onAction,
               ratingDistribution,
+              progress,
               ...cardProps
             } = course;
             const displayedRatingDistribution =
               submittedRatingDistributions[id] ?? details?.ratingDistribution ?? ratingDistribution;
             const displayedRating = getElearningRatingAverage(displayedRatingDistribution) ?? cardProps.rating;
+            const displayedProgress = contentProgressByCourse[id]?.progress ?? progress;
 
             return (
               <ElearningCourseCard
                 key={id}
                 {...cardProps}
                 rating={displayedRating}
+                progress={displayedProgress}
                 onAction={() => {
                   onAction?.();
                   setSelectedCourse(course);
@@ -298,6 +312,8 @@ export const ElearningCatalog = ({
             selectedCourseDetails.ratingDistribution ??
             selectedCourse.ratingDistribution
           }
+          chapters={selectedCourseProgress?.chapters ?? selectedCourseDetails.chapters}
+          progress={selectedCourseProgress?.progress ?? selectedCourseDetails.progress}
           completionRating={{
             ...selectedCourseDetails.completionRating,
             onSubmit: (rating) => {
@@ -315,6 +331,14 @@ export const ElearningCatalog = ({
               selectedCourseDetails.completionRating?.onSubmit?.(rating);
               onCourseRatingSubmit?.(selectedCourse, rating, ratingSummary);
             },
+          }}
+          onContentComplete={(payload) => {
+            setContentProgressByCourse((currentProgress) => ({
+              ...currentProgress,
+              [selectedCourse.id]: payload,
+            }));
+            selectedCourseDetails.onContentComplete?.(payload);
+            onCourseContentComplete?.(selectedCourse, payload);
           }}
           open
           onClose={() => setSelectedCourse(null)}

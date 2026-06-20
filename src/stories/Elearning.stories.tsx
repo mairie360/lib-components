@@ -158,6 +158,7 @@ const archivesCourseDetails: ElearningCourseDetails = {
     helperText: 'Formation terminée: donnez une note à cette session.',
     onSubmit: fn(),
   },
+  onContentComplete: fn(),
   actionLabel: 'Revoir',
   chapters: [
     {
@@ -297,6 +298,7 @@ const accountingCourseDetails: ElearningCourseDetails = {
   rating: 4.6,
   ratingLabel: '(45 étudiants)',
   progress: 25,
+  onContentComplete: fn(),
   actionLabel: 'Continuer',
   chapters: [
     {
@@ -499,6 +501,7 @@ export const Catalog: Story = {
     certificationCount: 3,
     className: 'min-h-screen border-t-4 border-[#8ccfd0]',
     onCourseAction: fn(),
+    onCourseContentComplete: fn(),
   },
 };
 
