@@ -1,7 +1,32 @@
 import React from 'react';
-import { Circle, CircleCheck, Play, Star, X } from 'lucide-react';
+import {
+  Circle,
+  CircleCheck,
+  ClipboardCheck,
+  ExternalLink,
+  FileDown,
+  FileText,
+  Link as LinkIcon,
+  Play,
+  Star,
+  Volume2,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
+
+export type ElearningCourseContentType = 'video' | 'pdf' | 'document' | 'link' | 'quiz' | 'audio' | 'other';
+
+export interface ElearningCourseContentItem {
+  id: string;
+  title: string;
+  type: ElearningCourseContentType;
+  description?: string;
+  duration?: string;
+  fileName?: string;
+  href?: string;
+}
 
 export interface ElearningCourseChapter {
   id: string;
@@ -9,6 +34,7 @@ export interface ElearningCourseChapter {
   duration: string;
   completed?: boolean;
   active?: boolean;
+  contents?: ElearningCourseContentItem[];
 }
 
 export interface ElearningCourseDetails {
@@ -35,6 +61,42 @@ export interface ElearningCourseDetailsModalProps
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
 
+const contentTypeLabels: Record<ElearningCourseContentType, string> = {
+  video: 'Vidéo',
+  pdf: 'PDF',
+  document: 'Document',
+  link: 'Lien',
+  quiz: 'Quiz',
+  audio: 'Audio',
+  other: 'Ressource',
+};
+
+const contentTypeIcons: Record<ElearningCourseContentType, LucideIcon> = {
+  video: Play,
+  pdf: FileDown,
+  document: FileText,
+  link: LinkIcon,
+  quiz: ClipboardCheck,
+  audio: Volume2,
+  other: FileText,
+};
+
+const getInitialChapter = (chapters: ElearningCourseChapter[]) =>
+  chapters.find((chapter) => chapter.active) ?? chapters.find((chapter) => !chapter.completed) ?? chapters[0];
+
+const getChapterContents = (chapter: ElearningCourseChapter): ElearningCourseContentItem[] =>
+  chapter.contents && chapter.contents.length > 0
+    ? chapter.contents
+    : [
+        {
+          id: `${chapter.id}-video`,
+          title: chapter.title,
+          type: 'video',
+          duration: chapter.duration,
+          description: 'Séquence principale du chapitre',
+        },
+      ];
+
 export const ElearningCourseDetailsModal = ({
   open,
   onClose,
@@ -54,8 +116,22 @@ export const ElearningCourseDetailsModal = ({
   ...props
 }: ElearningCourseDetailsModalProps) => {
   const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
+  const initialChapter = getInitialChapter(chapters);
+  const [selectedChapterId, setSelectedChapterId] = React.useState(initialChapter?.id ?? '');
   const titleId = React.useId();
   const subtitleId = React.useId();
+
+  React.useEffect(() => {
+    if (!open) return;
+
+    setSelectedChapterId((currentId) => {
+      if (chapters.some((chapter) => chapter.id === currentId)) {
+        return currentId;
+      }
+
+      return getInitialChapter(chapters)?.id ?? '';
+    });
+  }, [chapters, open]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -72,6 +148,11 @@ export const ElearningCourseDetailsModal = ({
   }, [onClose, open]);
 
   if (!open) return null;
+
+  const selectedChapter = chapters.find((chapter) => chapter.id === selectedChapterId) ?? initialChapter;
+  const selectedContents = selectedChapter ? getChapterContents(selectedChapter) : [];
+  const primaryContent = selectedContents.find((content) => content.type === 'video') ?? selectedContents[0];
+  const PrimaryContentIcon = primaryContent ? contentTypeIcons[primaryContent.type] : Play;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4">
@@ -109,13 +190,84 @@ export const ElearningCourseDetailsModal = ({
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,360px)]">
           <div className="min-w-0">
-            <div className="flex aspect-video w-full items-center justify-center rounded-md bg-black">
-              <Play aria-hidden="true" className="size-16 text-white" strokeWidth={2.4} />
+            <div className="rounded-md bg-black p-5 text-white">
+              <div className="flex aspect-video w-full items-center justify-center rounded">
+                <div className="text-center">
+                  <PrimaryContentIcon aria-hidden="true" className="mx-auto size-16" strokeWidth={2.4} />
+                  {primaryContent && (
+                    <div className="mt-4 max-w-md">
+                      <p className="text-sm font-semibold leading-5">{contentTypeLabels[primaryContent.type]}</p>
+                      <p className="mt-1 break-words text-base font-semibold leading-6">{primaryContent.title}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
+
+            {selectedChapter && (
+              <section className="mt-5">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
+                    <h3 className="break-words text-base font-bold leading-6 text-[#2f3747]">
+                      {selectedChapter.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-5 text-[#6f6f6f]">{selectedChapter.duration}</p>
+                  </div>
+                  <span className="shrink-0 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#5f6470]">
+                    {selectedContents.length} contenu{selectedContents.length > 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {selectedContents.map((content) => {
+                    const ContentIcon = contentTypeIcons[content.type];
+
+                    return (
+                      <div
+                        key={content.id}
+                        className="flex items-start gap-3 rounded-md border border-[#d8d2ca] bg-white p-3"
+                      >
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-md bg-[#e9f1fb] text-[#1256a6]">
+                          <ContentIcon aria-hidden="true" className="size-5" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                            <div className="min-w-0">
+                              <p className="break-words text-sm font-semibold leading-5 text-[#2f3747]">
+                                {content.title}
+                              </p>
+                              <p className="mt-0.5 text-xs font-semibold uppercase leading-4 text-[#4b908d]">
+                                {contentTypeLabels[content.type]}
+                                {content.duration ? ` - ${content.duration}` : ''}
+                              </p>
+                            </div>
+                            {content.href && (
+                              <a
+                                href={content.href}
+                                className="inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+                              >
+                                Ouvrir
+                                <ExternalLink aria-hidden="true" className="size-3.5" />
+                              </a>
+                            )}
+                          </div>
+                          {content.description && (
+                            <p className="mt-2 break-words text-sm leading-5 text-[#6f6f6f]">{content.description}</p>
+                          )}
+                          {content.fileName && (
+                            <p className="mt-2 break-words text-xs leading-4 text-[#6f6f6f]">{content.fileName}</p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             <section className="mt-5">
               <h3 className="text-base font-bold leading-6 text-[#2f3747]">Description</h3>
-              <p className="mt-4 text-sm leading-6 text-[#6f6f6f]">{description}</p>
+              <p className="mt-3 text-sm leading-6 text-[#6f6f6f]">{description}</p>
             </section>
 
             <dl className="mt-5 grid gap-4 text-sm leading-5 text-[#2f3747] sm:grid-cols-3">
@@ -148,32 +300,44 @@ export const ElearningCourseDetailsModal = ({
 
           <aside className="min-w-0">
             <h3 className="text-base font-bold leading-6 text-[#2f3747]">Chapitres</h3>
-            <div className="mt-3 max-h-[360px] space-y-2 overflow-y-auto pr-1">
+            <div className="mt-3 max-h-[420px] space-y-2 overflow-y-auto pr-1">
               {chapters.map((chapter) => {
                 const Icon = chapter.completed ? CircleCheck : Circle;
+                const selected = chapter.id === selectedChapter?.id;
 
                 return (
-                  <div
+                  <button
                     key={chapter.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setSelectedChapterId(chapter.id)}
                     className={joinClasses(
-                      'flex min-h-[58px] items-start gap-3 rounded-md border px-3 py-3',
-                      chapter.active
-                        ? 'border-[#1256a6]/25 bg-[#e9f1fb]'
-                        : 'border-[#e2f1e8] bg-[#eefaf3]'
+                      'flex min-h-[58px] w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30',
+                      selected
+                        ? 'border-[#1256a6] bg-[#e9f1fb] shadow-sm'
+                        : chapter.active
+                          ? 'border-[#1256a6]/25 bg-[#e9f1fb] hover:border-[#1256a6]/50'
+                          : 'border-[#e2f1e8] bg-[#eefaf3] hover:border-[#b9dfc8]'
                     )}
                   >
                     <Icon
                       aria-hidden="true"
                       className={joinClasses(
                         'mt-0.5 size-5 shrink-0',
-                        chapter.completed ? 'text-[#00a651]' : 'text-[#7a8797]'
+                        chapter.completed ? 'text-[#00a651]' : selected ? 'text-[#1256a6]' : 'text-[#7a8797]'
                       )}
                     />
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="break-words text-sm font-semibold leading-5 text-[#2f3747]">{chapter.title}</p>
-                      <p className="mt-0.5 text-xs leading-4 text-[#6f6f6f]">{chapter.duration}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-4 text-[#6f6f6f]">
+                        <span>{chapter.duration}</span>
+                        <span>
+                          {getChapterContents(chapter).length} contenu
+                          {getChapterContents(chapter).length > 1 ? 's' : ''}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

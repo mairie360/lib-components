@@ -100,8 +100,60 @@ describe('Elearning components', () => {
     );
 
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('Introduction à la comptabilité publique et aux grands principes budgétaires')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('Introduction à la comptabilité publique et aux grands principes budgétaires').length
+    ).toBeGreaterThan(0);
     expect(screen.getByText('Progression totale')).toBeInTheDocument();
+  });
+
+  it('switches chapters and renders the selected chapter contents', () => {
+    render(
+      <ElearningCourseDetailsModal
+        open
+        title="Cours multi-contenus"
+        description="Un cours avec plusieurs chapitres et ressources."
+        chapters={[
+          {
+            id: 'chapter-video',
+            title: 'Chapitre vidéo',
+            duration: '15min',
+            active: true,
+            contents: [
+              {
+                id: 'chapter-video-main',
+                title: 'Vidéo principale du chapitre',
+                type: 'video',
+                duration: '15min',
+              },
+              {
+                id: 'chapter-video-support',
+                title: 'Support PDF du chapitre vidéo',
+                type: 'pdf',
+              },
+            ],
+          },
+          {
+            id: 'chapter-documents',
+            title: 'Chapitre documents',
+            duration: '20min',
+            contents: [
+              {
+                id: 'chapter-documents-guide',
+                title: 'Guide documentaire à lire',
+                type: 'document',
+              },
+            ],
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getAllByText('Vidéo principale du chapitre').length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole('button', { name: /Chapitre documents/ }));
+
+    expect(screen.getAllByText('Guide documentaire à lire').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Support PDF du chapitre vidéo')).not.toBeInTheDocument();
   });
 
   it('opens course details from catalog when a course provides details', () => {
@@ -141,6 +193,7 @@ describe('Elearning components', () => {
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
     expect(screen.getByRole('dialog')).toHaveTextContent('Chapitre 1');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Support du chapitre 1');
   });
 
   it('filters catalog courses by category and search', () => {

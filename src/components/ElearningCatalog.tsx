@@ -114,16 +114,36 @@ const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails =
     progress: course.progress,
     actionLabel: course.actionLabel,
     onAction: course.onAction,
-    chapters: Array.from({ length: chapterCount }, (_, index) => ({
-      id: `${course.id}-chapter-${index + 1}`,
-      title: `Chapitre ${index + 1}`,
-      duration: 'Durée estimée',
-      completed: typeof course.progress === 'number' && ((index + 1) / chapterCount) * 100 <= course.progress,
-      active:
-        typeof course.progress === 'number' &&
-        ((index + 1) / chapterCount) * 100 > course.progress &&
-        (index / chapterCount) * 100 <= course.progress,
-    })),
+    chapters: Array.from({ length: chapterCount }, (_, index) => {
+      const chapterId = `${course.id}-chapter-${index + 1}`;
+
+      return {
+        id: chapterId,
+        title: `Chapitre ${index + 1}`,
+        duration: 'Durée estimée',
+        completed: typeof course.progress === 'number' && ((index + 1) / chapterCount) * 100 <= course.progress,
+        active:
+          typeof course.progress === 'number' &&
+          ((index + 1) / chapterCount) * 100 > course.progress &&
+          (index / chapterCount) * 100 <= course.progress,
+        contents: [
+          {
+            id: `${chapterId}-video`,
+            title: `Vidéo du chapitre ${index + 1}`,
+            type: 'video' as const,
+            description: 'Séquence principale à suivre pour ce chapitre.',
+            duration: 'Durée estimée',
+          },
+          {
+            id: `${chapterId}-support`,
+            title: `Support du chapitre ${index + 1}`,
+            type: 'pdf' as const,
+            description: 'Document de référence associé au chapitre.',
+            fileName: `support-chapitre-${index + 1}.pdf`,
+          },
+        ],
+      };
+    }),
   };
 };
 
