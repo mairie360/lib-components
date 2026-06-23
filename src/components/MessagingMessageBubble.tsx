@@ -36,6 +36,9 @@ export const MessagingMessageBubble = ({
               <a
                 key={attachment.id}
                 href={attachment.url}
+                download={attachment.name}
+                target={attachment.url ? '_blank' : undefined}
+                rel={attachment.url ? 'noreferrer' : undefined}
                 className={joinClasses(
                   'flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold transition',
                   outgoing

@@ -75,6 +75,10 @@ describe('Messaging components', () => {
 
   it('adds files to a message payload', () => {
     const handleSendMessage = jest.fn();
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: jest.fn(() => 'blob:planning.pdf'),
+    });
     const { container } = render(<Messaging onSendMessage={handleSendMessage} />);
     const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['planning'], 'planning.pdf', { type: 'application/pdf' });
@@ -84,12 +88,20 @@ describe('Messaging components', () => {
     });
     fireEvent.click(screen.getByLabelText('Envoyer'));
 
-    expect(screen.getByText('planning.pdf')).toBeInTheDocument();
+    const fileLink = screen.getByRole('link', { name: /planning\.pdf/ });
+    expect(fileLink).toHaveAttribute('href', 'blob:planning.pdf');
+    expect(fileLink).toHaveAttribute('download', 'planning.pdf');
     expect(handleSendMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         conversationId: 'marie-dubois',
         content: 'Pièce jointe',
-        attachments: [expect.objectContaining({ name: 'planning.pdf', type: 'application/pdf' })],
+        attachments: [
+          expect.objectContaining({
+            name: 'planning.pdf',
+            type: 'application/pdf',
+            url: 'blob:planning.pdf',
+          }),
+        ],
       })
     );
   });

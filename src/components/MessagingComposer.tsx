@@ -85,6 +85,10 @@ export const MessagingComposer = ({
       name: file.name,
       size: file.size,
       type: file.type,
+      url:
+        typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function'
+          ? URL.createObjectURL(file)
+          : undefined,
     }));
 
     setAttachments((currentAttachments) => [...currentAttachments, ...nextAttachments]);
@@ -93,9 +97,15 @@ export const MessagingComposer = ({
   };
 
   const removeAttachment = (attachmentId: MessagingAttachment['id']) => {
-    setAttachments((currentAttachments) =>
-      currentAttachments.filter((attachment) => attachment.id !== attachmentId)
-    );
+    setAttachments((currentAttachments) => {
+      const removedAttachment = currentAttachments.find((attachment) => attachment.id === attachmentId);
+
+      if (removedAttachment?.url?.startsWith('blob:') && typeof URL !== 'undefined') {
+        URL.revokeObjectURL?.(removedAttachment.url);
+      }
+
+      return currentAttachments.filter((attachment) => attachment.id !== attachmentId);
+    });
   };
 
   const appendEmoji = (emoji: string) => {
@@ -182,13 +192,24 @@ export const MessagingComposer = ({
             <Smile className="size-4" strokeWidth={1.8} />
           </button>
           {emojiOpen && (
-            <div className="absolute bottom-[calc(100%+8px)] left-0 z-20 grid grid-cols-4 gap-1 rounded-md border border-[#d8d2ca] bg-white p-2 shadow-lg">
+            <div
+              className="absolute bottom-[calc(100%+8px)] left-0 z-20 grid gap-1 rounded-md border border-[#d8d2ca] bg-white p-2 shadow-lg"
+              style={{
+                gridTemplateColumns: 'repeat(4, 2rem)',
+                width: '9.25rem',
+              }}
+            >
               {systemEmojiOptions.map((emoji) => (
                 <button
                   key={emoji}
                   type="button"
                   aria-label={`Ajouter ${emoji}`}
-                  className="flex size-8 items-center justify-center rounded-md text-lg transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                  className="flex size-8 items-center justify-center rounded-md transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                  style={{
+                    fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
+                    fontSize: '1.25rem',
+                    lineHeight: 1,
+                  }}
                   onClick={() => appendEmoji(emoji)}
                 >
                   {emoji}
