@@ -1,5 +1,5 @@
 import React from 'react';
-import { MoreVertical, Phone, Video } from 'lucide-react';
+import { MoreVertical, Phone, Trash2, Video } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { MessagingContactAvatar } from './MessagingContactAvatar';
@@ -10,9 +10,11 @@ export interface MessagingChatHeaderProps extends React.HTMLAttributes<HTMLDivEl
   callLabel?: string;
   videoCallLabel?: string;
   moreActionsLabel?: string;
+  deleteConversationLabel?: string;
   onCall?: (conversation: MessagingConversation) => void;
   onVideoCall?: (conversation: MessagingConversation) => void;
   onMoreActions?: (conversation: MessagingConversation) => void;
+  onDeleteConversation?: (conversation: MessagingConversation) => void;
 }
 
 const presenceLabel = {
@@ -26,12 +28,33 @@ export const MessagingChatHeader = ({
   callLabel = 'Appeler',
   videoCallLabel = 'Appel vidéo',
   moreActionsLabel = "Plus d'actions",
+  deleteConversationLabel = 'Supprimer la conversation',
   onCall,
   onVideoCall,
   onMoreActions,
+  onDeleteConversation,
   className = '',
   ...props
 }: MessagingChatHeaderProps) => {
+  const [actionsOpen, setActionsOpen] = React.useState(false);
+  const actionsRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!actionsOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionsRef.current && !actionsRef.current.contains(event.target as Node)) {
+        setActionsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [actionsOpen]);
+
   if (!conversation) {
     return (
       <div
@@ -88,15 +111,36 @@ export const MessagingChatHeader = ({
         >
           <Video className="size-4" strokeWidth={1.8} />
         </button>
-        <button
-          type="button"
-          aria-label={moreActionsLabel}
-          title={moreActionsLabel}
-          className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-          onClick={() => onMoreActions?.(conversation)}
-        >
-          <MoreVertical className="size-4" strokeWidth={1.8} />
-        </button>
+        <div ref={actionsRef} className="relative">
+          <button
+            type="button"
+            aria-label={moreActionsLabel}
+            title={moreActionsLabel}
+            aria-expanded={actionsOpen}
+            className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+            onClick={() => {
+              setActionsOpen((open) => !open);
+              onMoreActions?.(conversation);
+            }}
+          >
+            <MoreVertical className="size-4" strokeWidth={1.8} />
+          </button>
+          {actionsOpen && (
+            <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+              <button
+                type="button"
+                className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[#d8292f] transition hover:bg-[#fff2f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8292f]/25"
+                onClick={() => {
+                  setActionsOpen(false);
+                  onDeleteConversation?.(conversation);
+                }}
+              >
+                <Trash2 className="size-4 shrink-0" strokeWidth={1.8} />
+                <span>{deleteConversationLabel}</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,16 +1,21 @@
 import React from 'react';
 
 import { joinClasses } from './calendar/style';
+import { CreateGroupModal } from './CreateGroupModal';
 import { MessagingChatHeader } from './MessagingChatHeader';
 import { MessagingComposer } from './MessagingComposer';
 import { MessagingMessageBubble } from './MessagingMessageBubble';
 import { MessagingSidebar } from './MessagingSidebar';
+import { NewMessageModal } from './NewMessageModal';
 import { defaultMessagingConversations, defaultMessagingMessages } from './messaging/defaultData';
 import type {
+  CreateGroupPayload,
+  MessagingAttachment,
   MessagingContactId,
   MessagingConversation,
   MessagingMessage,
   MessagingSendMessagePayload,
+  NewMessagePayload,
 } from './messaging/types';
 
 export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
@@ -24,8 +29,11 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onNewMessageClick?: () => void;
   onCreateGroupClick?: () => void;
   onSendMessage?: (payload: MessagingSendMessagePayload) => void;
-  onAttach?: () => void;
-  onEmoji?: () => void;
+  onNewMessageSend?: (payload: NewMessagePayload) => void;
+  onCreateGroup?: (payload: CreateGroupPayload) => void;
+  onConversationDelete?: (conversation: MessagingConversation) => void;
+  onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
+  onEmoji?: (emoji: string) => void;
   onCall?: (conversation: MessagingConversation) => void;
   onVideoCall?: (conversation: MessagingConversation) => void;
   onMoreActions?: (conversation: MessagingConversation) => void;
@@ -38,8 +46,23 @@ const getMessageDirection = (message: MessagingMessage, currentUserId?: Messagin
   return 'incoming';
 };
 
+const formatMessageTime = () =>
+  new Intl.DateTimeFormat('fr-FR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date());
+
+const getConversationInitials = (name: string) =>
+  name
+    .split(' ')
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase();
+
 export const Messaging = ({
-  conversations = defaultMessagingConversations,
+  conversations,
   messages,
   activeConversationId,
   defaultActiveConversationId,
@@ -49,6 +72,9 @@ export const Messaging = ({
   onNewMessageClick,
   onCreateGroupClick,
   onSendMessage,
+  onNewMessageSend,
+  onCreateGroup,
+  onConversationDelete,
   onAttach,
   onEmoji,
   onCall,
@@ -57,13 +83,20 @@ export const Messaging = ({
   className = '',
   ...props
 }: MessagingProps) => {
-  const firstConversationId = conversations[0]?.id;
+  const [internalConversations, setInternalConversations] = React.useState<MessagingConversation[]>(
+    defaultMessagingConversations
+  );
+  const [newMessageOpen, setNewMessageOpen] = React.useState(false);
+  const [createGroupOpen, setCreateGroupOpen] = React.useState(false);
+  const displayedConversations = conversations ?? internalConversations;
+  const firstConversationId = displayedConversations[0]?.id;
   const [internalActiveId, setInternalActiveId] = React.useState<MessagingContactId | undefined>(
     defaultActiveConversationId ?? firstConversationId
   );
   const [internalMessages, setInternalMessages] = React.useState<MessagingMessage[]>(defaultMessagingMessages);
   const resolvedActiveId = activeConversationId ?? internalActiveId;
-  const activeConversation = conversations.find((conversation) => conversation.id === resolvedActiveId) ?? null;
+  const activeConversation =
+    displayedConversations.find((conversation) => conversation.id === resolvedActiveId) ?? null;
   const displayedMessages = messages ?? internalMessages;
   const visibleMessages = displayedMessages
     .filter((message) => message.conversationId === undefined || message.conversationId === resolvedActiveId)
@@ -78,6 +111,27 @@ export const Messaging = ({
     }
   }, [activeConversationId, firstConversationId, internalActiveId]);
 
+  const updateConversationPreview = (
+    conversationId: MessagingContactId | undefined,
+    lastMessage: React.ReactNode,
+    lastMessageAt = formatMessageTime()
+  ) => {
+    if (conversationId === undefined || conversations !== undefined) return;
+
+    setInternalConversations((currentConversations) =>
+      currentConversations.map((conversation) =>
+        conversation.id === conversationId
+          ? {
+              ...conversation,
+              lastMessage,
+              lastMessageAt,
+              unreadCount: 0,
+            }
+          : conversation
+      )
+    );
+  };
+
   const handleConversationSelect = (conversation: MessagingConversation) => {
     if (activeConversationId === undefined) {
       setInternalActiveId(conversation.id);
@@ -86,28 +140,115 @@ export const Messaging = ({
     onConversationSelect?.(conversation);
   };
 
-  const handleSendMessage = (content: string) => {
-    const payload = {
+  const handleNewMessageClick = () => {
+    setNewMessageOpen(true);
+    onNewMessageClick?.();
+  };
+
+  const handleCreateGroupClick = () => {
+    setCreateGroupOpen(true);
+    onCreateGroupClick?.();
+  };
+
+  const handleSendMessage = (content: string, attachments?: MessagingAttachment[]) => {
+    const payload: MessagingSendMessagePayload = {
       conversationId: activeConversation?.id,
       content,
     };
 
+    if (attachments?.length) {
+      payload.attachments = attachments;
+    }
+
     onSendMessage?.(payload);
 
     if (messages === undefined) {
+      const sentAt = formatMessageTime();
+
       setInternalMessages((currentMessages) => [
         ...currentMessages,
         {
           id: `local-message-${Date.now()}`,
           conversationId: activeConversation?.id,
           content,
-          sentAt: new Intl.DateTimeFormat('fr-FR', {
-            hour: '2-digit',
-            minute: '2-digit',
-          }).format(new Date()),
+          attachments,
+          sentAt,
           direction: 'outgoing',
         },
       ]);
+      updateConversationPreview(activeConversation?.id, content, sentAt);
+    }
+  };
+
+  const handleSendNewMessage = (payload: NewMessagePayload) => {
+    onNewMessageSend?.(payload);
+    setNewMessageOpen(false);
+
+    if (activeConversationId === undefined) {
+      setInternalActiveId(payload.recipientId);
+    }
+
+    if (messages === undefined) {
+      const sentAt = formatMessageTime();
+
+      setInternalMessages((currentMessages) => [
+        ...currentMessages,
+        {
+          id: `direct-message-${Date.now()}`,
+          conversationId: payload.recipientId,
+          content: payload.message,
+          sentAt,
+          direction: 'outgoing',
+        },
+      ]);
+      updateConversationPreview(payload.recipientId, payload.message, sentAt);
+    }
+  };
+
+  const handleCreateGroup = (payload: CreateGroupPayload) => {
+    onCreateGroup?.(payload);
+    setCreateGroupOpen(false);
+
+    if (conversations === undefined) {
+      const groupId = `group-${Date.now()}`;
+      const newGroup: MessagingConversation = {
+        id: groupId,
+        name: payload.name,
+        department: 'Groupe',
+        kind: 'group',
+        initials: getConversationInitials(payload.name),
+        presence: 'online',
+        lastMessage: payload.description || 'Groupe créé',
+        lastMessageAt: formatMessageTime(),
+      };
+
+      setInternalConversations((currentConversations) => [newGroup, ...currentConversations]);
+
+      if (activeConversationId === undefined) {
+        setInternalActiveId(groupId);
+      }
+    }
+  };
+
+  const handleDeleteConversation = (conversationToDelete: MessagingConversation) => {
+    onConversationDelete?.(conversationToDelete);
+
+    if (messages === undefined) {
+      setInternalMessages((currentMessages) =>
+        currentMessages.filter((message) => message.conversationId !== conversationToDelete.id)
+      );
+    }
+
+    if (conversations === undefined) {
+      const remainingConversations = internalConversations.filter(
+        (conversation) => conversation.id !== conversationToDelete.id
+      );
+
+      setInternalConversations(remainingConversations);
+
+      if (activeConversationId === undefined && resolvedActiveId === conversationToDelete.id) {
+        setInternalActiveId(remainingConversations[0]?.id);
+      }
     }
   };
 
@@ -120,11 +261,11 @@ export const Messaging = ({
       {...props}
     >
       <MessagingSidebar
-        conversations={conversations}
+        conversations={displayedConversations}
         activeConversationId={resolvedActiveId}
         onConversationSelect={handleConversationSelect}
-        onNewMessageClick={onNewMessageClick}
-        onCreateGroupClick={onCreateGroupClick}
+        onNewMessageClick={handleNewMessageClick}
+        onCreateGroupClick={handleCreateGroupClick}
       />
 
       <div className="flex min-h-0 flex-col bg-white">
@@ -133,6 +274,7 @@ export const Messaging = ({
           onCall={onCall}
           onVideoCall={onVideoCall}
           onMoreActions={onMoreActions}
+          onDeleteConversation={handleDeleteConversation}
         />
 
         <div className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5 sm:px-5">
@@ -156,6 +298,19 @@ export const Messaging = ({
           onEmoji={onEmoji}
         />
       </div>
+
+      <NewMessageModal
+        isOpen={newMessageOpen}
+        contacts={displayedConversations.filter((conversation) => conversation.kind !== 'group')}
+        onCancel={() => setNewMessageOpen(false)}
+        onSendMessage={handleSendNewMessage}
+      />
+      <CreateGroupModal
+        isOpen={createGroupOpen}
+        members={displayedConversations.filter((conversation) => conversation.kind !== 'group')}
+        onCancel={() => setCreateGroupOpen(false)}
+        onCreateGroup={handleCreateGroup}
+      />
     </section>
   );
 };

@@ -5,6 +5,14 @@ export type MessagingConversationKind = 'direct' | 'group';
 export type MessagingPresence = 'online' | 'offline' | 'away';
 export type MessagingMessageDirection = 'incoming' | 'outgoing';
 
+export interface MessagingAttachment {
+  id: MessagingContactId;
+  name: string;
+  size?: number;
+  type?: string;
+  url?: string;
+}
+
 export interface MessagingConversation {
   id: MessagingContactId;
   name: string;
@@ -22,6 +30,7 @@ export interface MessagingMessage {
   id: MessagingContactId;
   conversationId?: MessagingContactId;
   content: React.ReactNode;
+  attachments?: MessagingAttachment[];
   sentAt?: string;
   direction?: MessagingMessageDirection;
   authorId?: MessagingContactId;
@@ -31,6 +40,7 @@ export interface MessagingMessage {
 export interface MessagingSendMessagePayload {
   conversationId?: MessagingContactId;
   content: string;
+  attachments?: MessagingAttachment[];
 }
 
 export interface NewMessagePayload {

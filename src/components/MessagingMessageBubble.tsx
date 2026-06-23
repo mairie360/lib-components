@@ -1,4 +1,5 @@
 import React from 'react';
+import { FileText } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import type { MessagingMessage } from './messaging/types';
@@ -13,6 +14,7 @@ export const MessagingMessageBubble = ({
   ...props
 }: MessagingMessageBubbleProps) => {
   const outgoing = message.direction === 'outgoing';
+  const hasAttachments = !!message.attachments?.length;
 
   return (
     <div
@@ -27,7 +29,31 @@ export const MessagingMessageBubble = ({
             : 'border border-[#d8d2ca] bg-white text-[#172033]'
         )}
       >
-        {message.content}
+        <div>{message.content}</div>
+        {hasAttachments && (
+          <div className="mt-3 space-y-2">
+            {message.attachments?.map((attachment) => (
+              <a
+                key={attachment.id}
+                href={attachment.url}
+                className={joinClasses(
+                  'flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold transition',
+                  outgoing
+                    ? 'border-white/35 bg-white/10 text-white hover:bg-white/15'
+                    : 'border-[#d8d2ca] bg-[#fbfaf9] text-[#2f3747] hover:bg-[#f5f3f0]'
+                )}
+                onClick={(event) => {
+                  if (!attachment.url) {
+                    event.preventDefault();
+                  }
+                }}
+              >
+                <FileText className="size-4 shrink-0" strokeWidth={1.8} />
+                <span className="min-w-0 truncate">{attachment.name}</span>
+              </a>
+            ))}
+          </div>
+        )}
       </div>
       {message.sentAt && (
         <span className={joinClasses('mt-1 text-xs leading-5 text-[#5f6770]', outgoing ? 'mr-1' : 'ml-1')}>

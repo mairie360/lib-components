@@ -41,6 +41,59 @@ describe('Messaging components', () => {
     });
   });
 
+  it('opens the correct modal from each sidebar icon', () => {
+    render(<Messaging />);
+
+    fireEvent.click(screen.getByLabelText('Nouveau message'));
+    expect(screen.getByRole('dialog', { name: 'Nouveau message' })).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Fermer'));
+
+    fireEvent.click(screen.getByLabelText('Créer un groupe'));
+    expect(screen.getByRole('dialog', { name: 'Créer un groupe' })).toBeInTheDocument();
+  });
+
+  it('deletes the active conversation from the more actions menu', () => {
+    const handleDelete = jest.fn();
+    render(<Messaging onConversationDelete={handleDelete} />);
+
+    fireEvent.click(screen.getByLabelText("Plus d'actions"));
+    fireEvent.click(screen.getByText('Supprimer la conversation'));
+
+    expect(handleDelete).toHaveBeenCalledWith(expect.objectContaining({ id: 'marie-dubois' }));
+    expect(screen.queryByText('Bonjour Jean, j\'ai examiné le dossier du projet de rénovation.')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Pierre Martin')[0]).toBeInTheDocument();
+  });
+
+  it('adds a system emoji to the composer', () => {
+    render(<Messaging />);
+
+    fireEvent.click(screen.getByLabelText('Ajouter une réaction'));
+    fireEvent.click(screen.getByLabelText('Ajouter 👍'));
+
+    expect(screen.getByPlaceholderText('Tapez votre message...')).toHaveValue('👍');
+  });
+
+  it('adds files to a message payload', () => {
+    const handleSendMessage = jest.fn();
+    const { container } = render(<Messaging onSendMessage={handleSendMessage} />);
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['planning'], 'planning.pdf', { type: 'application/pdf' });
+
+    fireEvent.change(fileInput, {
+      target: { files: [file] },
+    });
+    fireEvent.click(screen.getByLabelText('Envoyer'));
+
+    expect(screen.getByText('planning.pdf')).toBeInTheDocument();
+    expect(handleSendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'marie-dubois',
+        content: 'Pièce jointe',
+        attachments: [expect.objectContaining({ name: 'planning.pdf', type: 'application/pdf' })],
+      })
+    );
+  });
+
   it('submits a new direct message from the modal', () => {
     const handleSendMessage = jest.fn();
 
