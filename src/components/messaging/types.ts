@@ -13,6 +13,13 @@ export interface MessagingAttachment {
   url?: string;
 }
 
+export interface MessagingMention {
+  id: MessagingContactId;
+  name: string;
+  kind?: MessagingConversationKind;
+  description?: string;
+}
+
 export interface MessagingConversation {
   id: MessagingContactId;
   name: string;
@@ -31,6 +38,7 @@ export interface MessagingMessage {
   conversationId?: MessagingContactId;
   content: React.ReactNode;
   attachments?: MessagingAttachment[];
+  mentions?: MessagingMention[];
   sentAt?: string;
   direction?: MessagingMessageDirection;
   authorId?: MessagingContactId;
@@ -41,6 +49,7 @@ export interface MessagingSendMessagePayload {
   conversationId?: MessagingContactId;
   content: string;
   attachments?: MessagingAttachment[];
+  mentions?: MessagingMention[];
 }
 
 export interface NewMessagePayload {

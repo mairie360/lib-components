@@ -13,6 +13,7 @@ import type {
   MessagingAttachment,
   MessagingContactId,
   MessagingConversation,
+  MessagingMention,
   MessagingMessage,
   MessagingSendMessagePayload,
   NewMessagePayload,
@@ -150,7 +151,11 @@ export const Messaging = ({
     onCreateGroupClick?.();
   };
 
-  const handleSendMessage = (content: string, attachments?: MessagingAttachment[]) => {
+  const handleSendMessage = (
+    content: string,
+    attachments?: MessagingAttachment[],
+    mentions?: MessagingMention[]
+  ) => {
     const payload: MessagingSendMessagePayload = {
       conversationId: activeConversation?.id,
       content,
@@ -158,6 +163,10 @@ export const Messaging = ({
 
     if (attachments?.length) {
       payload.attachments = attachments;
+    }
+
+    if (mentions?.length) {
+      payload.mentions = mentions;
     }
 
     onSendMessage?.(payload);
@@ -172,6 +181,7 @@ export const Messaging = ({
           conversationId: activeConversation?.id,
           content,
           attachments,
+          mentions,
           sentAt,
           direction: 'outgoing',
         },
@@ -293,6 +303,12 @@ export const Messaging = ({
 
         <MessagingComposer
           disabled={!activeConversation}
+          mentionOptions={displayedConversations.map((conversation) => ({
+            id: conversation.id,
+            name: conversation.name,
+            kind: conversation.kind ?? 'direct',
+            description: conversation.department,
+          }))}
           onSendMessage={handleSendMessage}
           onAttach={onAttach}
           onEmoji={onEmoji}

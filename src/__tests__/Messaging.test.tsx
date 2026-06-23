@@ -106,6 +106,33 @@ describe('Messaging components', () => {
     );
   });
 
+  it('mentions a contact or group with @ and sends mention metadata', () => {
+    const handleSendMessage = jest.fn();
+    render(<Messaging onSendMessage={handleSendMessage} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), {
+      target: { value: '@Éq' },
+    });
+    fireEvent.click(screen.getByText('@Équipe Direction'));
+    expect(screen.getByPlaceholderText('Tapez votre message...')).toHaveValue('@Équipe Direction ');
+
+    fireEvent.click(screen.getByLabelText('Envoyer'));
+
+    expect(handleSendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'marie-dubois',
+        content: '@Équipe Direction',
+        mentions: [
+          expect.objectContaining({
+            id: 'equipe-direction',
+            name: 'Équipe Direction',
+            kind: 'group',
+          }),
+        ],
+      })
+    );
+  });
+
   it('submits a new direct message from the modal', () => {
     const handleSendMessage = jest.fn();
 

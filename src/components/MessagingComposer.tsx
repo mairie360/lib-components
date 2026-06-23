@@ -1,8 +1,8 @@
 import React from 'react';
-import { FileText, Paperclip, Send, Smile, X } from 'lucide-react';
+import { AtSign, FileText, Paperclip, Send, Smile, X } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import type { MessagingAttachment } from './messaging/types';
+import type { MessagingAttachment, MessagingMention } from './messaging/types';
 
 export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormElement> {
   value?: string;
@@ -12,13 +12,31 @@ export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormEle
   attachLabel?: string;
   emojiLabel?: string;
   disabled?: boolean;
+  mentionOptions?: MessagingMention[];
   onValueChange?: (value: string) => void;
-  onSendMessage?: (message: string, attachments?: MessagingAttachment[]) => void;
+  onSendMessage?: (message: string, attachments?: MessagingAttachment[], mentions?: MessagingMention[]) => void;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
 }
 
 const systemEmojiOptions = ['👍', '👏', '😊', '🎉', '✅', '🙏', '📎', '📌'];
+
+const normalizeMentionValue = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+const getMentionMatch = (value: string) => {
+  const match = value.match(/(^|\s)@([^\s@]*)$/);
+
+  if (!match || match.index === undefined) return null;
+
+  return {
+    start: match.index + match[1].length,
+    query: match[2],
+  };
+};
 
 export const MessagingComposer = ({
   value,
@@ -28,6 +46,7 @@ export const MessagingComposer = ({
   attachLabel = 'Joindre un fichier',
   emojiLabel = 'Ajouter une réaction',
   disabled = false,
+  mentionOptions = [],
   onValueChange,
   onSendMessage,
   onAttach,
@@ -35,12 +54,21 @@ export const MessagingComposer = ({
   className = '',
   ...props
 }: MessagingComposerProps) => {
+  const textInputRef = React.useRef<HTMLInputElement>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [attachments, setAttachments] = React.useState<MessagingAttachment[]>([]);
+  const [mentions, setMentions] = React.useState<MessagingMention[]>([]);
   const [emojiOpen, setEmojiOpen] = React.useState(false);
   const currentValue = value ?? internalValue;
   const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled;
+  const mentionMatch = getMentionMatch(currentValue);
+  const mentionSuggestions = mentionMatch
+    ? mentionOptions
+        .filter((mention) => normalizeMentionValue(mention.name).includes(normalizeMentionValue(mentionMatch.query)))
+        .slice(0, 6)
+    : [];
+  const mentionSuggestionsOpen = mentionSuggestions.length > 0;
 
   const updateValue = (nextValue: string) => {
     if (value === undefined) {
@@ -60,13 +88,16 @@ export const MessagingComposer = ({
     const nextMessage = currentValue.trim() || 'Pièce jointe';
     if ((!currentValue.trim() && attachments.length === 0) || disabled) return;
 
-    onSendMessage?.(nextMessage, attachments);
+    const messageMentions = mentions.filter((mention) => currentValue.includes(`@${mention.name}`));
+
+    onSendMessage?.(nextMessage, attachments, messageMentions);
 
     if (value === undefined) {
       setInternalValue('');
     }
 
     setAttachments([]);
+    setMentions([]);
     setEmojiOpen(false);
     onValueChange?.('');
   };
@@ -114,6 +145,27 @@ export const MessagingComposer = ({
     onEmoji?.(emoji);
   };
 
+  const selectMention = (mention: MessagingMention) => {
+    if (!mentionMatch) return;
+
+    const nextValue = `${currentValue.slice(0, mentionMatch.start)}@${mention.name} `;
+    updateValue(nextValue);
+    setMentions((currentMentions) =>
+      currentMentions.some((currentMention) => currentMention.id === mention.id)
+        ? currentMentions
+        : [...currentMentions, mention]
+    );
+
+    window.setTimeout(() => textInputRef.current?.focus(), 0);
+  };
+
+  const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if ((event.key === 'Enter' || event.key === 'Tab') && mentionSuggestionsOpen) {
+      event.preventDefault();
+      selectMention(mentionSuggestions[0]);
+    }
+  };
+
   return (
     <form
       className={joinClasses(
@@ -132,14 +184,40 @@ export const MessagingComposer = ({
         onChange={handleFilesChange}
       />
       <div className="flex items-center gap-3">
-        <input
-          type="text"
-          value={currentValue}
-          placeholder={placeholder}
-          disabled={disabled}
-          className="h-10 min-w-0 flex-1 rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#5f6770] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:bg-[#f5f3f0]"
-          onChange={handleChange}
-        />
+        <div className="relative min-w-0 flex-1">
+          <input
+            ref={textInputRef}
+            type="text"
+            value={currentValue}
+            placeholder={placeholder}
+            disabled={disabled}
+            className="h-10 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#5f6770] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:bg-[#f5f3f0]"
+            onChange={handleChange}
+            onKeyDown={handleInputKeyDown}
+          />
+          {mentionSuggestionsOpen && (
+            <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 w-full max-w-[320px] overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+              {mentionSuggestions.map((mention) => (
+                <button
+                  key={mention.id}
+                  type="button"
+                  className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                  onClick={() => selectMention(mention)}
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1256a6] text-white">
+                    <AtSign className="size-4" strokeWidth={1.8} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold">@{mention.name}</span>
+                    <span className="block truncate text-xs text-[#5f6770]">
+                      {mention.kind === 'group' ? 'Groupe' : mention.description || 'Contact'}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <button
           type="submit"
           aria-label={sendLabel}
