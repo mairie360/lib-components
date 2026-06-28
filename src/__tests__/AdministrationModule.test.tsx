@@ -76,28 +76,62 @@ describe('AdministrationModule', () => {
 
   it('handles user row menu actions locally', () => {
     const handleUserAction = jest.fn();
-    render(<AdministrationModule onUserAction={handleUserAction} />);
+    const handleUpdateUser = jest.fn();
+    render(<AdministrationModule onUserAction={handleUserAction} onUpdateUser={handleUpdateUser} />);
 
     let jeanRow = screen.getByText('Jean Dupont').closest('tr') as HTMLElement;
     fireEvent.click(within(jeanRow).getByRole('button', { name: 'Actions pour Jean Dupont' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Modifier' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Modifier utilisateur' });
+    fireEvent.change(within(dialog).getByLabelText('Nom complet'), {
+      target: { value: 'Jean Morel' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Email'), {
+      target: { value: 'jean.morel@mairie360.fr' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Service'), {
+      target: { value: 'Urbanisme durable' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Téléphone'), {
+      target: { value: '+33 1 23 45 67 94' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Rôle' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Manager' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    expect(screen.queryByRole('dialog', { name: 'Modifier utilisateur' })).not.toBeInTheDocument();
+    expect(handleUserAction).toHaveBeenCalledWith(expect.objectContaining({ name: 'Jean Dupont' }), 'edit');
+    expect(handleUpdateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'jean-dupont',
+        name: 'Jean Morel',
+        email: 'jean.morel@mairie360.fr',
+        service: 'Urbanisme durable',
+        phone: '+33 1 23 45 67 94',
+        role: 'manager',
+      })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Jean Morel a été mis à jour.');
+
+    jeanRow = screen.getByText('Jean Morel').closest('tr') as HTMLElement;
+    expect(within(jeanRow).getByText('jean.morel@mairie360.fr')).toBeInTheDocument();
+    expect(within(jeanRow).getByText('Urbanisme durable')).toBeInTheDocument();
+    expect(within(jeanRow).getByText('+33 1 23 45 67 94')).toBeInTheDocument();
+    expect(within(jeanRow).getByText('Manager')).toBeInTheDocument();
+
+    fireEvent.click(within(jeanRow).getByRole('button', { name: 'Actions pour Jean Morel' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Désactiver' }));
 
-    jeanRow = screen.getByText('Jean Dupont').closest('tr') as HTMLElement;
+    jeanRow = screen.getByText('Jean Morel').closest('tr') as HTMLElement;
     expect(within(jeanRow).getByText('Inactif')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Jean Dupont est maintenant inactif.');
+    expect(screen.getByRole('status')).toHaveTextContent('Jean Morel est maintenant inactif.');
 
-    fireEvent.click(within(jeanRow).getByRole('button', { name: 'Actions pour Jean Dupont' }));
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Changer le rôle' }));
-
-    jeanRow = screen.getByText('Jean Dupont').closest('tr') as HTMLElement;
-    expect(within(jeanRow).getByText('Manager')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Jean Dupont est maintenant Manager.');
-
-    fireEvent.click(within(jeanRow).getByRole('button', { name: 'Actions pour Jean Dupont' }));
+    fireEvent.click(within(jeanRow).getByRole('button', { name: 'Actions pour Jean Morel' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Supprimer' }));
 
-    expect(screen.queryByText('Jean Dupont')).not.toBeInTheDocument();
-    expect(handleUserAction).toHaveBeenCalledWith(expect.objectContaining({ name: 'Jean Dupont' }), 'delete');
+    expect(screen.queryByText('Jean Morel')).not.toBeInTheDocument();
+    expect(handleUserAction).toHaveBeenCalledWith(expect.objectContaining({ name: 'Jean Morel' }), 'delete');
   });
 
   it('refreshes, exports and clears logs', () => {

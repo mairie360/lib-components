@@ -54,6 +54,7 @@ export interface AdministrationModuleProps extends Omit<React.HTMLAttributes<HTM
   dangerActions?: AdministrationDangerAction[];
   onTabChange?: (tab: AdministrationTabId) => void;
   onCreateUser?: (values: AdministrationUserFormValues) => void;
+  onUpdateUser?: (user: AdministrationUser) => void;
   onUserAction?: (user: AdministrationUser, action?: AdministrationUserAction) => void;
   onRefreshLogs?: () => void;
   onExportLogsCsv?: () => void;
@@ -80,19 +81,19 @@ const createLocalUser = (values: AdministrationUserFormValues): AdministrationUs
   lastConnection: 'Jamais',
 });
 
-const roleOrder: AdministrationRole[] = ['user', 'manager', 'admin'];
-
-const roleLabels: Record<AdministrationRole, string> = {
-  admin: 'Administrateur',
-  manager: 'Manager',
-  user: 'Utilisateur',
-};
-
 const statusLabels: Record<AdministrationStatus, string> = {
   active: 'actif',
   inactive: 'inactif',
   suspended: 'suspendu',
 };
+
+const getUserFormValues = (user: AdministrationUser): AdministrationUserFormValues => ({
+  name: user.name,
+  email: user.email,
+  service: user.service,
+  phone: user.phone,
+  role: user.role,
+});
 
 const buildStatsFromUsers = (stats: AdministrationStat[], users: AdministrationUser[]) =>
   stats.map((stat) => {
@@ -179,6 +180,7 @@ export const AdministrationModule = ({
   dangerActions = defaultAdministrationDangerActions,
   onTabChange,
   onCreateUser,
+  onUpdateUser,
   onUserAction,
   onRefreshLogs,
   onExportLogsCsv,
@@ -199,6 +201,7 @@ export const AdministrationModule = ({
   const [statusValue, setStatusValue] = React.useState<AdministrationStatus | 'all'>('all');
   const [logLevelValue, setLogLevelValue] = React.useState<AdministrationLogEntry['level'] | 'all'>('all');
   const [userModalOpen, setUserModalOpen] = React.useState(false);
+  const [editingUser, setEditingUser] = React.useState<AdministrationUser | null>(null);
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const resolvedActiveTab = activeTab ?? internalActiveTab;
   const resolvedUsers = users ?? internalUsers;
@@ -224,23 +227,53 @@ export const AdministrationModule = ({
     onTabChange?.(tab);
   };
 
-  const handleCreateUser = (values: AdministrationUserFormValues) => {
-    onCreateUser?.(values);
-
-    if (users === undefined) {
-      setInternalUsers((currentUsers) => [...currentUsers, createLocalUser(values)]);
-    }
-
-    setStatusMessage(`Utilisateur ${values.name} créé.`);
-    setUserModalOpen(false);
-  };
-
   const updateInternalUser = (userId: string, updater: (user: AdministrationUser) => AdministrationUser) => {
     if (users !== undefined) return;
 
     setInternalUsers((currentUsers) =>
       currentUsers.map((currentUser) => (currentUser.id === userId ? updater(currentUser) : currentUser))
     );
+  };
+
+  const handleNewUserClick = () => {
+    setEditingUser(null);
+    setUserModalOpen(true);
+  };
+
+  const handleEditUser = (user: AdministrationUser) => {
+    setEditingUser(user);
+    setUserModalOpen(true);
+  };
+
+  const handleCancelUserModal = () => {
+    setUserModalOpen(false);
+    setEditingUser(null);
+  };
+
+  const handleSubmitUserModal = (values: AdministrationUserFormValues) => {
+    if (!editingUser) {
+      onCreateUser?.(values);
+
+      if (users === undefined) {
+        setInternalUsers((currentUsers) => [...currentUsers, createLocalUser(values)]);
+      }
+
+      setStatusMessage(`Utilisateur ${values.name} créé.`);
+      setUserModalOpen(false);
+      return;
+    }
+
+    const updatedUser: AdministrationUser = {
+      ...editingUser,
+      ...values,
+      phone: values.phone || '-',
+    };
+
+    onUpdateUser?.(updatedUser);
+    updateInternalUser(editingUser.id, () => updatedUser);
+    setStatusMessage(`${updatedUser.name} a été mis à jour.`);
+    setEditingUser(null);
+    setUserModalOpen(false);
   };
 
   const handleUserStatusToggle = (user: AdministrationUser) => {
@@ -250,17 +283,6 @@ export const AdministrationModule = ({
       status: nextStatus,
     }));
     setStatusMessage(`${user.name} est maintenant ${statusLabels[nextStatus]}.`);
-  };
-
-  const handleUserRoleCycle = (user: AdministrationUser) => {
-    const currentIndex = roleOrder.indexOf(user.role);
-    const nextRole = roleOrder[(currentIndex + 1) % roleOrder.length];
-
-    updateInternalUser(user.id, (currentUser) => ({
-      ...currentUser,
-      role: nextRole,
-    }));
-    setStatusMessage(`${user.name} est maintenant ${roleLabels[nextRole]}.`);
   };
 
   const handleUserDelete = (user: AdministrationUser) => {
@@ -398,13 +420,13 @@ export const AdministrationModule = ({
             onSearchChange={setSearchValue}
             onRoleChange={setRoleValue}
             onStatusChange={setStatusValue}
-            onNewUserClick={() => setUserModalOpen(true)}
+            onNewUserClick={handleNewUserClick}
           />
           <AdministrationUsersTable
             users={visibleUsers}
             onUserAction={onUserAction}
+            onEditUser={handleEditUser}
             onToggleUserStatus={handleUserStatusToggle}
-            onCycleUserRole={handleUserRoleCycle}
             onDeleteUser={handleUserDelete}
           />
         </div>
@@ -443,8 +465,12 @@ export const AdministrationModule = ({
 
       <AdministrationUserModal
         isOpen={userModalOpen}
-        onCancel={() => setUserModalOpen(false)}
-        onCreateUser={handleCreateUser}
+        title={editingUser ? 'Modifier utilisateur' : 'Nouvel utilisateur'}
+        subtitle={editingUser ? 'Mettez à jour les informations du compte utilisateur' : 'Créez un nouveau compte utilisateur'}
+        submitLabel={editingUser ? 'Enregistrer' : 'Créer'}
+        initialValues={editingUser ? getUserFormValues(editingUser) : undefined}
+        onCancel={handleCancelUserModal}
+        onCreateUser={handleSubmitUserModal}
       />
     </section>
   );

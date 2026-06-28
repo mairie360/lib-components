@@ -9,7 +9,7 @@ export type AdministrationStatus = 'active' | 'inactive' | 'suspended';
 
 export type AdministrationTone = 'blue' | 'green' | 'yellow' | 'red' | 'gray';
 
-export type AdministrationUserAction = 'open' | 'toggle-status' | 'cycle-role' | 'delete';
+export type AdministrationUserAction = 'open' | 'edit' | 'toggle-status' | 'delete';
 
 export interface AdministrationStat {
   id: string;

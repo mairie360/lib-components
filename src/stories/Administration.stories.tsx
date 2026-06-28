@@ -19,6 +19,7 @@ const meta: Meta<typeof AdministrationModule> = {
   args: {
     onTabChange: fn(),
     onCreateUser: fn(),
+    onUpdateUser: fn(),
     onUserAction: fn(),
     onRefreshLogs: fn(),
     onExportLogsCsv: fn(),

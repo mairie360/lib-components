@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarDays, Mail, MoreVertical, Phone, RotateCcw, ShieldCheck, Trash2 } from 'lucide-react';
+import { CalendarDays, Mail, MoreVertical, Pencil, Phone, RotateCcw, Trash2 } from 'lucide-react';
 
 import { defaultAdministrationUsers } from './administration/defaultData';
 import type {
@@ -13,8 +13,8 @@ import { joinClasses } from './calendar/style';
 export interface AdministrationUsersTableProps extends React.HTMLAttributes<HTMLDivElement> {
   users?: AdministrationUser[];
   onUserAction?: (user: AdministrationUser, action?: AdministrationUserAction) => void;
+  onEditUser?: (user: AdministrationUser) => void;
   onToggleUserStatus?: (user: AdministrationUser) => void;
-  onCycleUserRole?: (user: AdministrationUser) => void;
   onDeleteUser?: (user: AdministrationUser) => void;
 }
 
@@ -54,8 +54,8 @@ const getInitials = (name: string) =>
 export const AdministrationUsersTable = ({
   users = defaultAdministrationUsers,
   onUserAction,
+  onEditUser,
   onToggleUserStatus,
-  onCycleUserRole,
   onDeleteUser,
   className = '',
   ...props
@@ -99,8 +99,8 @@ export const AdministrationUsersTable = ({
       onToggleUserStatus?.(user);
     }
 
-    if (action === 'cycle-role') {
-      onCycleUserRole?.(user);
+    if (action === 'edit') {
+      onEditUser?.(user);
     }
 
     if (action === 'delete') {
@@ -226,10 +226,10 @@ export const AdministrationUsersTable = ({
                             type="button"
                             role="menuitem"
                             className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#172033] hover:bg-[#f1f5f9]"
-                            onClick={() => handleMenuAction(user, 'cycle-role')}
+                            onClick={() => handleMenuAction(user, 'edit')}
                           >
-                            <ShieldCheck className="size-4" strokeWidth={1.8} />
-                            <span>Changer le rôle</span>
+                            <Pencil className="size-4" strokeWidth={1.8} />
+                            <span>Modifier</span>
                           </button>
                           <button
                             type="button"
