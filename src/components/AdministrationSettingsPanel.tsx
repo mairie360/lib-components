@@ -38,6 +38,7 @@ const ToggleField = ({ checked, label, description, onChange }: ToggleFieldProps
     <button
       type="button"
       role="switch"
+      aria-label={label}
       aria-checked={checked}
       className={joinClasses(
         'mt-1 inline-flex h-[18px] w-8 shrink-0 items-center rounded-full p-[2px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35',

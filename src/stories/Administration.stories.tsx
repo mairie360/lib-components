@@ -48,7 +48,7 @@ const Shell = ({
 }) => (
   <div className="h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]">
     <div className="flex h-screen">
-      <Sidebar activeItem="admin" isAdmin className="shrink-0" />
+      <Sidebar activeItem="admin" isAdmin brandLogoSrc={null} className="shrink-0" />
       <div className="flex min-w-0 flex-1 flex-col">
         <Header user={adminUser} isAdmin />
         <main className={`min-h-0 flex-1 overflow-auto px-8 py-8 ${contentClassName}`}>{children}</main>

@@ -24,6 +24,7 @@ import type {
   AdministrationStatus,
   AdministrationTabId,
   AdministrationUser,
+  AdministrationUserAction,
   AdministrationUserFormValues,
 } from './administration/types';
 import { AdministrationAuditPanel } from './AdministrationAuditPanel';
@@ -53,7 +54,7 @@ export interface AdministrationModuleProps extends Omit<React.HTMLAttributes<HTM
   dangerActions?: AdministrationDangerAction[];
   onTabChange?: (tab: AdministrationTabId) => void;
   onCreateUser?: (values: AdministrationUserFormValues) => void;
-  onUserAction?: (user: AdministrationUser) => void;
+  onUserAction?: (user: AdministrationUser, action?: AdministrationUserAction) => void;
   onRefreshLogs?: () => void;
   onExportLogsCsv?: () => void;
   onClearLogs?: () => void;
@@ -79,6 +80,20 @@ const createLocalUser = (values: AdministrationUserFormValues): AdministrationUs
   lastConnection: 'Jamais',
 });
 
+const roleOrder: AdministrationRole[] = ['user', 'manager', 'admin'];
+
+const roleLabels: Record<AdministrationRole, string> = {
+  admin: 'Administrateur',
+  manager: 'Manager',
+  user: 'Utilisateur',
+};
+
+const statusLabels: Record<AdministrationStatus, string> = {
+  active: 'actif',
+  inactive: 'inactif',
+  suspended: 'suspendu',
+};
+
 const buildStatsFromUsers = (stats: AdministrationStat[], users: AdministrationUser[]) =>
   stats.map((stat) => {
     if (stat.id === 'users') {
@@ -96,6 +111,58 @@ const buildStatsFromUsers = (stats: AdministrationStat[], users: AdministrationU
     return stat;
   });
 
+const formatDateTime = (date: Date) =>
+  new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(date);
+
+const escapeCsvValue = (value: React.ReactNode) =>
+  `"${String(value ?? '').replace(/"/g, '""')}"`;
+
+const buildLogsCsv = (logs: AdministrationLogEntry[]) => {
+  const rows = [
+    ['Niveau', 'Source', 'Titre', 'Description', 'Acteur', 'Horodatage', 'Adresse IP'],
+    ...logs.map((log) => [
+      log.level,
+      log.source,
+      log.title,
+      log.description,
+      log.actor ?? '',
+      log.timestamp,
+      log.ipAddress ?? '',
+    ]),
+  ];
+
+  return rows.map((row) => row.map(escapeCsvValue).join(',')).join('\n');
+};
+
+const downloadCsv = (filename: string, csv: string) => {
+  if (typeof window === 'undefined' || typeof document === 'undefined' || typeof Blob === 'undefined') {
+    return csv;
+  }
+
+  const url = window.URL?.createObjectURL?.(
+    new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' })
+  );
+
+  if (!url) return csv;
+
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL?.revokeObjectURL?.(url);
+
+  return csv;
+};
+
 export const AdministrationModule = ({
   title = 'Administration',
   subtitle = "Gérez les utilisateurs, surveillez le système et configurez l'application",
@@ -103,11 +170,11 @@ export const AdministrationModule = ({
   defaultActiveTab = 'users',
   stats,
   users,
-  logs = defaultAdministrationLogs,
+  logs,
   resources = defaultAdministrationResources,
-  databaseMetrics = defaultAdministrationDatabaseMetrics,
+  databaseMetrics,
   serverStatuses = defaultAdministrationServerStatuses,
-  auditEntries = defaultAdministrationAuditEntries,
+  auditEntries,
   settings = defaultAdministrationSettings,
   dangerActions = defaultAdministrationDangerActions,
   onTabChange,
@@ -124,13 +191,20 @@ export const AdministrationModule = ({
 }: AdministrationModuleProps) => {
   const [internalActiveTab, setInternalActiveTab] = React.useState(defaultActiveTab);
   const [internalUsers, setInternalUsers] = React.useState(defaultAdministrationUsers);
+  const [internalLogs, setInternalLogs] = React.useState(defaultAdministrationLogs);
+  const [internalDatabaseMetrics, setInternalDatabaseMetrics] = React.useState(defaultAdministrationDatabaseMetrics);
+  const [internalAuditEntries, setInternalAuditEntries] = React.useState(defaultAdministrationAuditEntries);
   const [searchValue, setSearchValue] = React.useState('');
   const [roleValue, setRoleValue] = React.useState<AdministrationRole | 'all'>('all');
   const [statusValue, setStatusValue] = React.useState<AdministrationStatus | 'all'>('all');
   const [logLevelValue, setLogLevelValue] = React.useState<AdministrationLogEntry['level'] | 'all'>('all');
   const [userModalOpen, setUserModalOpen] = React.useState(false);
+  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const resolvedActiveTab = activeTab ?? internalActiveTab;
   const resolvedUsers = users ?? internalUsers;
+  const resolvedLogs = logs ?? internalLogs;
+  const resolvedDatabaseMetrics = databaseMetrics ?? internalDatabaseMetrics;
+  const resolvedAuditEntries = auditEntries ?? internalAuditEntries;
   const resolvedStats = stats ?? buildStatsFromUsers(defaultAdministrationStats, resolvedUsers);
   const normalizedQuery = normalizeSearch(searchValue);
   const visibleUsers = resolvedUsers.filter((user) => {
@@ -157,7 +231,139 @@ export const AdministrationModule = ({
       setInternalUsers((currentUsers) => [...currentUsers, createLocalUser(values)]);
     }
 
+    setStatusMessage(`Utilisateur ${values.name} créé.`);
     setUserModalOpen(false);
+  };
+
+  const updateInternalUser = (userId: string, updater: (user: AdministrationUser) => AdministrationUser) => {
+    if (users !== undefined) return;
+
+    setInternalUsers((currentUsers) =>
+      currentUsers.map((currentUser) => (currentUser.id === userId ? updater(currentUser) : currentUser))
+    );
+  };
+
+  const handleUserStatusToggle = (user: AdministrationUser) => {
+    const nextStatus: AdministrationStatus = user.status === 'active' ? 'inactive' : 'active';
+    updateInternalUser(user.id, (currentUser) => ({
+      ...currentUser,
+      status: nextStatus,
+    }));
+    setStatusMessage(`${user.name} est maintenant ${statusLabels[nextStatus]}.`);
+  };
+
+  const handleUserRoleCycle = (user: AdministrationUser) => {
+    const currentIndex = roleOrder.indexOf(user.role);
+    const nextRole = roleOrder[(currentIndex + 1) % roleOrder.length];
+
+    updateInternalUser(user.id, (currentUser) => ({
+      ...currentUser,
+      role: nextRole,
+    }));
+    setStatusMessage(`${user.name} est maintenant ${roleLabels[nextRole]}.`);
+  };
+
+  const handleUserDelete = (user: AdministrationUser) => {
+    if (users === undefined) {
+      setInternalUsers((currentUsers) => currentUsers.filter((currentUser) => currentUser.id !== user.id));
+    }
+
+    setStatusMessage(`${user.name} a été supprimé.`);
+  };
+
+  const prependLog = (log: AdministrationLogEntry) => {
+    if (logs === undefined) {
+      setInternalLogs((currentLogs) => [log, ...currentLogs]);
+    }
+  };
+
+  const prependAuditEntry = (entry: AdministrationAuditEntry) => {
+    if (auditEntries === undefined) {
+      setInternalAuditEntries((currentEntries) => [entry, ...currentEntries]);
+    }
+  };
+
+  const handleRefreshLogs = () => {
+    onRefreshLogs?.();
+    prependLog({
+      id: `refresh-${Date.now()}`,
+      level: 'info',
+      source: 'SYSTEM',
+      title: 'Actualisation effectuée',
+      description: 'Les journaux système ont été actualisés',
+      actor: 'admin@mairie360.fr',
+      timestamp: formatDateTime(new Date()),
+      ipAddress: '127.0.0.1',
+    });
+    setStatusMessage('Logs actualisés.');
+  };
+
+  const handleExportLogsCsv = () => {
+    onExportLogsCsv?.();
+    downloadCsv('mairie360-logs.csv', buildLogsCsv(resolvedLogs));
+    setStatusMessage('Export CSV préparé.');
+  };
+
+  const handleClearLogs = () => {
+    onClearLogs?.();
+
+    if (logs === undefined) {
+      setInternalLogs([]);
+    }
+
+    setStatusMessage('Tous les logs ont été effacés.');
+  };
+
+  const handleCreateBackup = () => {
+    onCreateBackup?.();
+
+    if (databaseMetrics === undefined) {
+      setInternalDatabaseMetrics((currentMetrics) =>
+        currentMetrics.map((metric) =>
+          metric.id === 'last-backup' ? { ...metric, value: "À l'instant" } : metric
+        )
+      );
+    }
+
+    prependLog({
+      id: `backup-${Date.now()}`,
+      level: 'info',
+      source: 'BACKUP',
+      title: 'Sauvegarde créée',
+      description: 'Une nouvelle sauvegarde de la base de données a été créée',
+      actor: 'admin@mairie360.fr',
+      timestamp: formatDateTime(new Date()),
+    });
+    setStatusMessage('Sauvegarde créée.');
+  };
+
+  const handleSettingsChange = (nextSettings: AdministrationSettingsState) => {
+    onSettingsChange?.(nextSettings);
+    setStatusMessage('Paramètres mis à jour.');
+  };
+
+  const handleDangerAction = (action: AdministrationDangerAction) => {
+    onDangerAction?.(action);
+
+    if (action.id === 'clear-logs') {
+      if (logs === undefined) {
+        setInternalLogs([]);
+      }
+
+      setStatusMessage('Tous les logs ont été effacés.');
+      return;
+    }
+
+    prependAuditEntry({
+      id: `${action.id}-${Date.now()}`,
+      action: 'Action dangereuse',
+      actor: 'Admin Système',
+      subject: action.title,
+      description: action.description,
+      timestamp: formatDateTime(new Date()),
+      outcome: 'success',
+    });
+    setStatusMessage(`${action.buttonLabel} effectué.`);
   };
 
   return (
@@ -174,6 +380,15 @@ export const AdministrationModule = ({
 
       <AdministrationTabs value={resolvedActiveTab} onValueChange={handleTabChange} />
 
+      {statusMessage && (
+        <div
+          role="status"
+          className="rounded-md border border-[#b9d6d5] bg-white px-4 py-3 text-sm font-medium text-[#2f5f5c]"
+        >
+          {statusMessage}
+        </div>
+      )}
+
       {resolvedActiveTab === 'users' && (
         <div className="space-y-6">
           <AdministrationUserFilters
@@ -185,38 +400,44 @@ export const AdministrationModule = ({
             onStatusChange={setStatusValue}
             onNewUserClick={() => setUserModalOpen(true)}
           />
-          <AdministrationUsersTable users={visibleUsers} onUserAction={onUserAction} />
+          <AdministrationUsersTable
+            users={visibleUsers}
+            onUserAction={onUserAction}
+            onToggleUserStatus={handleUserStatusToggle}
+            onCycleUserRole={handleUserRoleCycle}
+            onDeleteUser={handleUserDelete}
+          />
         </div>
       )}
 
       {resolvedActiveTab === 'logs' && (
         <AdministrationLogsPanel
-          logs={logs}
+          logs={resolvedLogs}
           levelValue={logLevelValue}
           onLevelChange={setLogLevelValue}
-          onRefresh={onRefreshLogs}
-          onExportCsv={onExportLogsCsv}
-          onClear={onClearLogs}
+          onRefresh={handleRefreshLogs}
+          onExportCsv={handleExportLogsCsv}
+          onClear={handleClearLogs}
         />
       )}
 
       {resolvedActiveTab === 'system' && (
         <AdministrationSystemPanel
           resources={resources}
-          databaseMetrics={databaseMetrics}
+          databaseMetrics={resolvedDatabaseMetrics}
           serverStatuses={serverStatuses}
-          onCreateBackup={onCreateBackup}
+          onCreateBackup={handleCreateBackup}
         />
       )}
 
-      {resolvedActiveTab === 'audit' && <AdministrationAuditPanel entries={auditEntries} />}
+      {resolvedActiveTab === 'audit' && <AdministrationAuditPanel entries={resolvedAuditEntries} />}
 
       {resolvedActiveTab === 'settings' && (
         <AdministrationSettingsPanel
           settings={settings}
           dangerActions={dangerActions}
-          onSettingsChange={onSettingsChange}
-          onDangerAction={onDangerAction}
+          onSettingsChange={handleSettingsChange}
+          onDangerAction={handleDangerAction}
         />
       )}
 
