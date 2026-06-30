@@ -59,6 +59,7 @@ export { Title } from './components/Title';
 export { ToolTip } from './components/ToolTip';
 export { UpcomingEventsPanel } from './components/UpcomingEventsPanel';
 export { UserProfile } from './components/UserProfile';
+export { UserProfilePage } from './components/UserProfilePage';
 export { ViewSwitcher } from './components/ViewSwitcher';
 export { WeekGrid } from './components/WeekGrid';
 export { mairie360LogoSrc } from './assets/logo';
