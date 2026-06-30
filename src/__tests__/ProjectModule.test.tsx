@@ -63,6 +63,9 @@ describe('ProjectModule', () => {
     fireEvent.change(within(dialog).getByLabelText(/Titre/), {
       target: { value: 'Réhabilitation du marché couvert' },
     });
+    fireEvent.change(within(dialog).getByLabelText(/Objectifs/), {
+      target: { value: 'Sécuriser les halles et améliorer le parcours des commerçants' },
+    });
     fireEvent.change(within(dialog).getByLabelText(/Description/), {
       target: { value: 'Remise aux normes des halles et amélioration des accès publics' },
     });
@@ -77,6 +80,7 @@ describe('ProjectModule', () => {
     expect(handleCreateProject).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Réhabilitation du marché couvert',
+        objectives: 'Sécuriser les halles et améliorer le parcours des commerçants',
         description: 'Remise aux normes des halles et amélioration des accès publics',
         status: 'todo',
         priority: 'medium',
@@ -112,6 +116,113 @@ describe('ProjectModule', () => {
     );
     expect(screen.queryByRole('dialog', { name: 'Modifier le projet' })).not.toBeInTheDocument();
     expect(screen.getByText('Aménagement du parc central actualisé')).toBeInTheDocument();
+  });
+
+  it('scopes projects by employee, responsable and mayor roles', () => {
+    const { rerender } = render(<ProjectModule currentUserRole="employee" currentUserId="sophie-leroy" />);
+
+    expect(screen.getByText('Digitalisation des archives')).toBeInTheDocument();
+    expect(screen.getByText('Rénovation de la bibliothèque municipale')).toBeInTheDocument();
+    expect(screen.queryByText('Aménagement du parc central')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nouveau projet' })).not.toBeInTheDocument();
+
+    rerender(<ProjectModule currentUserRole="responsable" currentUserId="marie-dubois" />);
+    expect(screen.getByText('Création site web municipal')).toBeInTheDocument();
+    expect(screen.queryByText('Réfection des routes du centre-ville')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Nouveau projet' })).toBeInTheDocument();
+
+    rerender(<ProjectModule currentUserRole="mayor" />);
+    expect(screen.getByText('Réfection des routes du centre-ville')).toBeInTheDocument();
+  });
+
+  it('filters projects by due date', () => {
+    render(<ProjectModule />);
+
+    fireEvent.change(screen.getByLabelText('Filtrer par échéance'), {
+      target: { value: '2024-11-30' },
+    });
+
+    expect(screen.getByText('Installation système éclairage LED')).toBeInTheDocument();
+    expect(screen.getByText('Digitalisation des archives')).toBeInTheDocument();
+    expect(screen.queryByText('Aménagement du parc central')).not.toBeInTheDocument();
+  });
+
+  it('limits employee task visibility to assigned tasks', () => {
+    render(<ProjectModule currentUserRole="employee" currentUserId="thomas-bernard" />);
+
+    expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Voir les tâches/ }).length).toBeGreaterThan(0);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Ouvrir' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Modifier le projet' });
+    expect(within(dialog).getByText('Préparer le dossier administratif')).toBeInTheDocument();
+    expect(within(dialog).queryByText('Cadrer le besoin avec les services')).not.toBeInTheDocument();
+    expect(within(dialog).getByLabelText('Statut de Préparer le dossier administratif')).toBeEnabled();
+    expect(within(dialog).getByLabelText(/Titre/)).toBeDisabled();
+  });
+
+  it('filters tasks, updates task status, comments and records history', () => {
+    const handleUpdateProject = jest.fn();
+    render(<ProjectModule onUpdateProject={handleUpdateProject} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Ouvrir' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Modifier le projet' });
+    fireEvent.change(within(dialog).getByPlaceholderText('Rechercher une tâche...'), {
+      target: { value: 'budget' },
+    });
+
+    expect(within(dialog).getByText('Valider le budget prévisionnel')).toBeInTheDocument();
+    expect(within(dialog).queryByText('Consulter les prestataires')).not.toBeInTheDocument();
+
+    fireEvent.change(within(dialog).getByLabelText('Statut de Valider le budget prévisionnel'), {
+      target: { value: 'in-progress' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Commenter Valider le budget prévisionnel'), {
+      target: { value: 'Budget revu avec les finances.' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Commenter' }));
+
+    expect(within(dialog).getByText('Budget revu avec les finances.')).toBeInTheDocument();
+    expect(within(dialog).getByText('Historique des modifications')).toBeInTheDocument();
+    expect(within(dialog).getByText('Commentaire ajouté : Valider le budget prévisionnel')).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    expect(handleUpdateProject).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'central-park',
+        tasks: expect.arrayContaining([
+          expect.objectContaining({
+            title: 'Valider le budget prévisionnel',
+            status: 'in-progress',
+            comments: expect.arrayContaining([
+              expect.objectContaining({ message: 'Budget revu avec les finances.' }),
+            ]),
+          }),
+        ]),
+      })
+    );
+  });
+
+  it('closes a project from the action menu', () => {
+    const handleUpdateProject = jest.fn();
+    render(<ProjectModule onUpdateProject={handleUpdateProject} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Clôturer' }));
+
+    expect(handleUpdateProject).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'central-park',
+        status: 'done',
+        progress: 100,
+      })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Projet "Aménagement du parc central" clôturé.');
   });
 
   it('shows project settings feedback', () => {

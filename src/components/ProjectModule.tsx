@@ -1,16 +1,19 @@
 import React from 'react';
 import {
   AlertCircle,
+  Ban,
   Calendar,
   Check,
   CheckCircle2,
   Circle,
   Clock3,
   Eye,
+  History,
   Kanban,
   LayoutGrid,
   ListChecks,
   ListTodo,
+  MessageSquare,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -37,6 +40,7 @@ import type {
   Project,
   ProjectAction,
   ProjectFormValues,
+  ProjectHistoryEntry,
   ProjectMember,
   ProjectPriority,
   ProjectPriorityMeta,
@@ -45,6 +49,7 @@ import type {
   ProjectStatusMeta,
   ProjectTag,
   ProjectTask,
+  ProjectUserRole,
   ProjectViewMode,
 } from './projects/types';
 
@@ -56,6 +61,9 @@ export interface ProjectModuleProps extends Omit<React.HTMLAttributes<HTMLElemen
   tags?: ProjectTag[];
   viewMode?: ProjectViewMode;
   defaultViewMode?: ProjectViewMode;
+  currentUserId?: string;
+  currentUserRole?: ProjectUserRole;
+  teamMemberIds?: string[];
   onViewModeChange?: (viewMode: ProjectViewMode) => void;
   onCreateProject?: (values: ProjectFormValues) => void;
   onUpdateProject?: (project: Project) => void;
@@ -70,6 +78,11 @@ interface ProjectModalProps {
   initialValues?: ProjectFormValues;
   members: ProjectMember[];
   tags: ProjectTag[];
+  currentUserId?: string;
+  canEditProjectFields: boolean;
+  canManageTasks: boolean;
+  canAssignEmployees: boolean;
+  canUpdateAssignedTasks: boolean;
   onCancel: () => void;
   onSubmit: (values: ProjectFormValues) => void;
 }
@@ -79,6 +92,7 @@ interface ProjectSelectProps<TValue extends string> {
   value: TValue;
   options: ProjectSelectOption<TValue>[];
   showLabel?: boolean;
+  disabled?: boolean;
   onValueChange: (value: TValue) => void;
 }
 
@@ -87,6 +101,7 @@ interface ProjectMultiSelectProps {
   value: string[];
   options: ProjectSelectOption[];
   placeholder: string;
+  disabled?: boolean;
   onValueChange: (value: string[]) => void;
 }
 
@@ -94,7 +109,12 @@ interface ProjectCardProps {
   project: Project;
   members: ProjectMember[];
   tags: ProjectTag[];
+  canEditProject: boolean;
+  canManageTasks: boolean;
+  canDeleteProject: boolean;
+  canCloseProject: boolean;
   onEdit: (project: Project) => void;
+  onClose: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
 }
@@ -128,6 +148,13 @@ const statusMeta: Record<ProjectStatus, ProjectStatusMeta> = {
     badgeClassName: 'border-[#86efac] bg-[#dcfce7] text-[#15803d]',
     dotClassName: 'text-[#16a34a]',
   },
+  suspended: {
+    label: 'Suspendu',
+    icon: Ban,
+    columnClassName: 'border-[#e2e8f0] bg-[#f8fafc]',
+    badgeClassName: 'border-[#cbd5e1] bg-[#f1f5f9] text-[#64748b]',
+    dotClassName: 'text-[#64748b]',
+  },
 };
 
 const priorityMeta: Record<ProjectPriority, ProjectPriorityMeta> = {
@@ -156,7 +183,7 @@ const tagClassNames: Record<ProjectTag['tone'], string> = {
   gray: 'border-[#d8dfe7] bg-[#f8fafc] text-[#475569]',
 };
 
-const statusOrder: ProjectStatus[] = ['todo', 'in-progress', 'review', 'done'];
+const statusOrder: ProjectStatus[] = ['todo', 'in-progress', 'review', 'done', 'suspended'];
 
 const viewOptions: Array<{ value: ProjectViewMode; label: string; icon: LucideIcon }> = [
   { value: 'kanban', label: 'Kanban', icon: Kanban },
@@ -165,13 +192,14 @@ const viewOptions: Array<{ value: ProjectViewMode; label: string; icon: LucideIc
 ];
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70';
 
 const textareaClassName =
-  'min-h-[210px] w-full resize-none rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'min-h-[210px] w-full resize-none rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70';
 
 const defaultProjectFormValues: ProjectFormValues = {
   title: '',
+  objectives: '',
   description: '',
   status: 'todo',
   priority: 'medium',
@@ -181,6 +209,7 @@ const defaultProjectFormValues: ProjectFormValues = {
   dueDate: '2026-07-30',
   progress: 0,
   tasks: [],
+  history: [],
 };
 
 const normalizeSearch = (value: string) =>
@@ -196,6 +225,40 @@ const getCompletedTaskCount = (tasks: ProjectTask[]) => tasks.filter((task) => t
 const getMember = (members: ProjectMember[], memberId: string) => members.find((member) => member.id === memberId);
 
 const getTag = (tags: ProjectTag[], tagId: string) => tags.find((tag) => tag.id === tagId);
+
+const getTaskComments = (task: ProjectTask) => task.comments ?? [];
+
+const createHistoryEntry = (label: string, actorId?: string, target?: string): ProjectHistoryEntry => ({
+  id: `history-${Date.now()}-${Math.round(Math.random() * 100000)}`,
+  actorId,
+  label,
+  target,
+  createdAt: new Date().toISOString(),
+});
+
+const getProjectHistory = (project: Project) => project.history ?? [];
+
+const getProjectAccessScope = (
+  project: Project,
+  currentUserRole: ProjectUserRole,
+  currentUserId?: string,
+  teamMemberIds: string[] = []
+) => {
+  if (currentUserRole === 'mayor') return true;
+  if (!currentUserId) return currentUserRole === 'responsable';
+
+  if (currentUserRole === 'employee') {
+    return project.assigneeIds.includes(currentUserId) || project.tasks.some((task) => task.assigneeIds.includes(currentUserId));
+  }
+
+  const teamScope = new Set([currentUserId, ...teamMemberIds]);
+
+  return (
+    project.ownerId === currentUserId ||
+    project.assigneeIds.some((assigneeId) => teamScope.has(assigneeId)) ||
+    project.tasks.some((task) => task.assigneeIds.some((assigneeId) => teamScope.has(assigneeId)))
+  );
+};
 
 const formatDate = (date: string) =>
   new Intl.DateTimeFormat('fr-FR', {
@@ -215,6 +278,7 @@ const truncate = (value: string, maxLength: number) =>
 
 const getProjectFormValues = (project: Project): ProjectFormValues => ({
   title: project.title,
+  objectives: project.objectives ?? project.description,
   description: project.description,
   status: project.status,
   priority: project.priority,
@@ -224,12 +288,14 @@ const getProjectFormValues = (project: Project): ProjectFormValues => ({
   dueDate: project.dueDate,
   progress: project.progress,
   tasks: project.tasks,
+  history: getProjectHistory(project),
 });
 
 const buildProjectFromValues = (values: ProjectFormValues, sequence: number, id = `project-${Date.now()}`): Project => ({
   id,
   sequence,
   title: values.title,
+  objectives: values.objectives,
   description: values.description,
   status: values.status,
   priority: values.priority,
@@ -239,6 +305,7 @@ const buildProjectFromValues = (values: ProjectFormValues, sequence: number, id 
   dueDate: values.dueDate,
   progress: clampProgress(values.progress),
   tasks: values.tasks,
+  history: values.history,
 });
 
 const statusOptionsForSelect = projectStatusOptions.map((option) => ({
@@ -275,6 +342,7 @@ const ProjectSelect = <TValue extends string>({
   value,
   options,
   showLabel = false,
+  disabled = false,
   onValueChange,
 }: ProjectSelectProps<TValue>) => (
   <div className={showLabel ? 'space-y-1' : ''}>
@@ -285,8 +353,38 @@ const ProjectSelect = <TValue extends string>({
       options={options}
       triggerClassName="h-10 min-w-[160px] text-base sm:text-sm"
       menuClassName="min-w-[190px]"
+      disabled={disabled}
       onValueChange={(nextValue) => onValueChange(nextValue as TValue)}
     />
+  </div>
+);
+
+const ProjectDueDateFilter = ({
+  value,
+  onValueChange,
+}: {
+  value: string;
+  onValueChange: (value: string) => void;
+}) => (
+  <div className="flex min-w-[180px] items-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-3 shadow-sm focus-within:border-[#1256a6] focus-within:ring-2 focus-within:ring-[#1256a6]/20">
+    <Calendar className="size-4 shrink-0 text-[#64748b]" strokeWidth={1.8} />
+    <input
+      type="date"
+      aria-label="Filtrer par échéance"
+      value={value}
+      className="h-10 w-full bg-transparent text-sm text-[#172033] outline-none"
+      onChange={(event) => onValueChange(event.target.value)}
+    />
+    {value && (
+      <button
+        type="button"
+        aria-label="Réinitialiser le filtre d'échéance"
+        className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#eef2f7] hover:text-[#0f172a]"
+        onClick={() => onValueChange('')}
+      >
+        <X className="size-3.5" strokeWidth={1.8} />
+      </button>
+    )}
   </div>
 );
 
@@ -421,12 +519,20 @@ const ProgressLine = ({ progress }: { progress: number }) => {
 
 const ProjectActionMenu = ({
   project,
+  canEditProject,
+  canDeleteProject,
+  canCloseProject,
   onEdit,
+  onClose,
   onDelete,
   onAction,
 }: {
   project: Project;
+  canEditProject: boolean;
+  canDeleteProject: boolean;
+  canCloseProject: boolean;
   onEdit: (project: Project) => void;
+  onClose: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
 }) => {
@@ -459,7 +565,8 @@ const ProjectActionMenu = ({
 
   const handleAction = (action: ProjectAction) => {
     onAction?.(project, action);
-    if (action === 'edit') onEdit(project);
+    if (action === 'open' || action === 'edit') onEdit(project);
+    if (action === 'close') onClose(project);
     if (action === 'delete') onDelete(project);
     setOpen(false);
   };
@@ -491,24 +598,39 @@ const ProjectActionMenu = ({
             <Eye className="size-4" strokeWidth={1.8} />
             Ouvrir
           </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
-            onClick={() => handleAction('edit')}
-          >
-            <Pencil className="size-4" strokeWidth={1.8} />
-            Modifier
-          </button>
-          <button
-            type="button"
-            role="menuitem"
-            className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-[#dc2626] hover:bg-[#fee2e2]"
-            onClick={() => handleAction('delete')}
-          >
-            <X className="size-4" strokeWidth={1.8} />
-            Supprimer
-          </button>
+          {canEditProject && (
+            <button
+              type="button"
+              role="menuitem"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
+              onClick={() => handleAction('edit')}
+            >
+              <Pencil className="size-4" strokeWidth={1.8} />
+              Modifier
+            </button>
+          )}
+          {canCloseProject && project.status !== 'done' && (
+            <button
+              type="button"
+              role="menuitem"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
+              onClick={() => handleAction('close')}
+            >
+              <CheckCircle2 className="size-4" strokeWidth={1.8} />
+              Clôturer
+            </button>
+          )}
+          {canDeleteProject && (
+            <button
+              type="button"
+              role="menuitem"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-[#dc2626] hover:bg-[#fee2e2]"
+              onClick={() => handleAction('delete')}
+            >
+              <X className="size-4" strokeWidth={1.8} />
+              Supprimer
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -519,7 +641,12 @@ const ProjectCard = ({
   project,
   members,
   tags,
+  canEditProject,
+  canManageTasks,
+  canDeleteProject,
+  canCloseProject,
   onEdit,
+  onClose,
   onDelete,
   onAction,
 }: ProjectCardProps) => {
@@ -535,7 +662,16 @@ const ProjectCard = ({
           <h3 className="truncate text-sm font-bold leading-5 text-[#0f172a]">{project.title}</h3>
           <p className="mt-0.5 text-xs leading-5 text-[#475569]">Mairie360 / projets #{project.sequence}</p>
         </div>
-        <ProjectActionMenu project={project} onEdit={onEdit} onDelete={onDelete} onAction={onAction} />
+        <ProjectActionMenu
+          project={project}
+          canEditProject={canEditProject}
+          canDeleteProject={canDeleteProject}
+          canCloseProject={canCloseProject}
+          onEdit={onEdit}
+          onClose={onClose}
+          onDelete={onDelete}
+          onAction={onAction}
+        />
       </div>
 
       <p className="mt-3 min-h-[48px] line-clamp-2 text-sm leading-6 text-[#475569]">
@@ -589,7 +725,7 @@ const ProjectCard = ({
           onClick={() => onEdit(project)}
         >
           <Plus className="size-4" strokeWidth={1.9} />
-          Ajouter une tâche
+          {canManageTasks ? 'Ajouter une tâche' : 'Voir les tâches'}
         </button>
       </div>
     </article>
@@ -600,19 +736,34 @@ const KanbanView = ({
   projects,
   members,
   tags,
+  canEditProject,
+  canManageTasks,
+  canDeleteProject,
+  canCloseProject,
   onEdit,
+  onClose,
   onDelete,
   onAction,
 }: {
   projects: Project[];
   members: ProjectMember[];
   tags: ProjectTag[];
+  canEditProject: boolean;
+  canManageTasks: boolean;
+  canDeleteProject: boolean;
+  canCloseProject: boolean;
   onEdit: (project: Project) => void;
+  onClose: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
-}) => (
-  <div className="grid gap-6 xl:grid-cols-4">
-    {statusOrder.map((status) => {
+}) => {
+  const visibleStatusOrder = statusOrder.filter(
+    (status) => status !== 'suspended' || projects.some((project) => project.status === 'suspended')
+  );
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-4">
+      {visibleStatusOrder.map((status) => {
       const columnProjects = projects.filter((project) => project.status === status);
       const meta = statusMeta[status];
       const Icon = meta.icon;
@@ -648,7 +799,12 @@ const KanbanView = ({
                 project={project}
                 members={members}
                 tags={tags}
+                canEditProject={canEditProject}
+                canManageTasks={canManageTasks}
+                canDeleteProject={canDeleteProject}
+                canCloseProject={canCloseProject}
                 onEdit={onEdit}
+                onClose={onClose}
                 onDelete={onDelete}
                 onAction={onAction}
               />
@@ -656,22 +812,33 @@ const KanbanView = ({
           </div>
         </section>
       );
-    })}
-  </div>
-);
+      })}
+    </div>
+  );
+};
 
 const GridView = ({
   projects,
   members,
   tags,
+  canEditProject,
+  canManageTasks,
+  canDeleteProject,
+  canCloseProject,
   onEdit,
+  onClose,
   onDelete,
   onAction,
 }: {
   projects: Project[];
   members: ProjectMember[];
   tags: ProjectTag[];
+  canEditProject: boolean;
+  canManageTasks: boolean;
+  canDeleteProject: boolean;
+  canCloseProject: boolean;
   onEdit: (project: Project) => void;
+  onClose: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
 }) => (
@@ -682,7 +849,12 @@ const GridView = ({
         project={project}
         members={members}
         tags={tags}
+        canEditProject={canEditProject}
+        canManageTasks={canManageTasks}
+        canDeleteProject={canDeleteProject}
+        canCloseProject={canCloseProject}
         onEdit={onEdit}
+        onClose={onClose}
         onDelete={onDelete}
         onAction={onAction}
       />
@@ -694,14 +866,22 @@ const TableView = ({
   projects,
   members,
   tags,
+  canEditProject,
+  canDeleteProject,
+  canCloseProject,
   onEdit,
+  onClose,
   onDelete,
   onAction,
 }: {
   projects: Project[];
   members: ProjectMember[];
   tags: ProjectTag[];
+  canEditProject: boolean;
+  canDeleteProject: boolean;
+  canCloseProject: boolean;
   onEdit: (project: Project) => void;
+  onClose: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
 }) => (
@@ -760,7 +940,16 @@ const TableView = ({
                 </td>
                 <td className="whitespace-nowrap px-5 py-4 text-[#475569]">{formatDate(project.dueDate)}</td>
                 <td className="px-5 py-4">
-                  <ProjectActionMenu project={project} onEdit={onEdit} onDelete={onDelete} onAction={onAction} />
+                  <ProjectActionMenu
+                    project={project}
+                    canEditProject={canEditProject}
+                    canDeleteProject={canDeleteProject}
+                    canCloseProject={canCloseProject}
+                    onEdit={onEdit}
+                    onClose={onClose}
+                    onDelete={onDelete}
+                    onAction={onAction}
+                  />
                 </td>
               </tr>
             );
@@ -776,6 +965,7 @@ const ProjectMultiSelect = ({
   value,
   options,
   placeholder,
+  disabled = false,
   onValueChange,
 }: ProjectMultiSelectProps) => {
   const [open, setOpen] = React.useState(false);
@@ -807,6 +997,8 @@ const ProjectMultiSelect = ({
   }, [open]);
 
   const toggleValue = (optionValue: string) => {
+    if (disabled) return;
+
     if (value.includes(optionValue)) {
       onValueChange(value.filter((currentValue) => currentValue !== optionValue));
       return;
@@ -823,7 +1015,8 @@ const ProjectMultiSelect = ({
         aria-label={label}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex min-h-9 w-full items-center justify-between gap-3 rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-2 text-left text-sm text-[#172033] outline-none transition focus-visible:border-[#1256a6] focus-visible:ring-2 focus-visible:ring-[#1256a6]/20"
+        disabled={disabled}
+        className="flex min-h-9 w-full items-center justify-between gap-3 rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-2 text-left text-sm text-[#172033] outline-none transition focus-visible:border-[#1256a6] focus-visible:ring-2 focus-visible:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
         onClick={() => setOpen((currentOpen) => !currentOpen)}
       >
         <span className={selectedOptions.length ? 'text-[#172033]' : 'text-[#67717c]'}>
@@ -868,6 +1061,7 @@ const ProjectMultiSelect = ({
               key={option.value}
               type="button"
               className="inline-flex h-6 items-center gap-1 rounded-full border border-[#d8dfe7] bg-white px-2 text-xs text-[#172033] transition hover:border-[#1256a6]/35 hover:text-[#1256a6]"
+              disabled={disabled}
               onClick={() => toggleValue(option.value)}
             >
               {option.label}
@@ -887,6 +1081,8 @@ const ProjectFieldPanel = ({
   memberOptions,
   ownerOptions,
   tagOptions,
+  canEditProjectFields,
+  canAssignEmployees,
   onValueChange,
 }: {
   values: ProjectFormValues;
@@ -895,6 +1091,8 @@ const ProjectFieldPanel = ({
   memberOptions: ProjectSelectOption[];
   ownerOptions: ProjectSelectOption[];
   tagOptions: ProjectSelectOption[];
+  canEditProjectFields: boolean;
+  canAssignEmployees: boolean;
   onValueChange: (nextValues: ProjectFormValues) => void;
 }) => {
   const completedTasks = getCompletedTaskCount(values.tasks);
@@ -912,6 +1110,7 @@ const ProjectFieldPanel = ({
           value={values.status}
           options={editableProjectStatusOptions}
           showLabel
+          disabled={!canEditProjectFields}
           onValueChange={(status) => onValueChange({ ...values, status })}
         />
         <ProjectSelect
@@ -919,6 +1118,7 @@ const ProjectFieldPanel = ({
           value={values.priority}
           options={editableProjectPriorityOptions}
           showLabel
+          disabled={!canEditProjectFields}
           onValueChange={(priority) => onValueChange({ ...values, priority })}
         />
         <ProjectSelect
@@ -926,6 +1126,7 @@ const ProjectFieldPanel = ({
           value={values.ownerId}
           options={ownerOptions}
           showLabel
+          disabled={!canAssignEmployees}
           onValueChange={(ownerId) =>
             onValueChange({
               ...values,
@@ -939,6 +1140,7 @@ const ProjectFieldPanel = ({
           value={values.assigneeIds}
           options={memberOptions}
           placeholder="Choisir un ou plusieurs assignés"
+          disabled={!canAssignEmployees}
           onValueChange={(assigneeIds) => onValueChange({ ...values, assigneeIds })}
         />
         <ProjectMultiSelect
@@ -946,6 +1148,7 @@ const ProjectFieldPanel = ({
           value={values.tagIds}
           options={tagOptions}
           placeholder="Choisir une ou plusieurs étiquettes"
+          disabled={!canEditProjectFields}
           onValueChange={(tagIds) => onValueChange({ ...values, tagIds })}
         />
         <div>
@@ -957,6 +1160,7 @@ const ProjectFieldPanel = ({
             type="date"
             value={values.dueDate}
             className={fieldClassName}
+            disabled={!canEditProjectFields}
             onChange={(event) => onValueChange({ ...values, dueDate: event.target.value })}
           />
         </div>
@@ -1009,6 +1213,8 @@ const ProjectTaskEditor = ({
   tags,
   memberOptions,
   tagOptions,
+  currentUserId,
+  canManageTasks,
   onValueChange,
 }: {
   values: ProjectFormValues;
@@ -1016,11 +1222,18 @@ const ProjectTaskEditor = ({
   tags: ProjectTag[];
   memberOptions: ProjectSelectOption[];
   tagOptions: ProjectSelectOption[];
+  currentUserId?: string;
+  canManageTasks: boolean;
   onValueChange: (nextValues: ProjectFormValues) => void;
 }) => {
   const fallbackTaskAssignee = members.find((member) => member.id === 'alex-moreau') ?? members[0];
   const fallbackTaskAssigneeId = values.ownerId || fallbackTaskAssignee?.id || '';
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
+  const [taskSearchValue, setTaskSearchValue] = React.useState('');
+  const [taskStatusValue, setTaskStatusValue] = React.useState<ProjectStatus | 'all'>('all');
+  const [taskPriorityValue, setTaskPriorityValue] = React.useState<ProjectPriority | 'all'>('all');
+  const [taskDueDateValue, setTaskDueDateValue] = React.useState('');
+  const [commentDrafts, setCommentDrafts] = React.useState<Record<string, string>>({});
   const [draftTask, setDraftTask] = React.useState<ProjectTask>({
     id: 'task-draft',
     title: '',
@@ -1029,6 +1242,24 @@ const ProjectTaskEditor = ({
     dueDate: values.dueDate,
     assigneeIds: fallbackTaskAssigneeId ? [fallbackTaskAssigneeId] : [],
     tagIds: [],
+  });
+  const normalizedTaskQuery = normalizeSearch(taskSearchValue);
+  const canUpdateTask = (task: ProjectTask) => canManageTasks || Boolean(currentUserId && task.assigneeIds.includes(currentUserId));
+  const canCommentTask = canUpdateTask;
+  const visibleTasks = values.tasks.filter((task) => {
+    const matchesRoleScope = canManageTasks || Boolean(currentUserId && task.assigneeIds.includes(currentUserId));
+    const taskTags = task.tagIds.map((tagId) => getTag(tags, tagId)?.label).filter(Boolean).join(' ');
+    const taskAssignees = task.assigneeIds.map((assigneeId) => getMember(members, assigneeId)?.name).filter(Boolean).join(' ');
+    const taskComments = getTaskComments(task)
+      .map((comment) => comment.message)
+      .join(' ');
+    const searchable = normalizeSearch(`${task.title} ${taskTags} ${taskAssignees} ${taskComments}`);
+    const matchesSearch = normalizedTaskQuery.length === 0 || searchable.includes(normalizedTaskQuery);
+    const matchesStatus = taskStatusValue === 'all' || task.status === taskStatusValue;
+    const matchesPriority = taskPriorityValue === 'all' || task.priority === taskPriorityValue;
+    const matchesDueDate = !taskDueDateValue || task.dueDate <= taskDueDateValue;
+
+    return matchesRoleScope && matchesSearch && matchesStatus && matchesPriority && matchesDueDate;
   });
 
   React.useEffect(() => {
@@ -1052,14 +1283,23 @@ const ProjectTaskEditor = ({
     });
   };
 
+  const commitTaskChange = (nextTasks: ProjectTask[], label: string, target?: string) => {
+    onValueChange({
+      ...values,
+      tasks: nextTasks,
+      history: [createHistoryEntry(label, currentUserId, target), ...values.history],
+    });
+  };
+
   const handleSubmitTask = () => {
+    if (!canManageTasks) return;
+
     const trimmedTitle = draftTask.title.trim();
     if (!trimmedTitle) return;
 
     if (editingTaskId) {
-      onValueChange({
-        ...values,
-        tasks: values.tasks.map((task) =>
+      commitTaskChange(
+        values.tasks.map((task) =>
           task.id === editingTaskId
             ? {
                 ...draftTask,
@@ -1068,14 +1308,15 @@ const ProjectTaskEditor = ({
               }
             : task
         ),
-      });
+        `Tâche modifiée : ${trimmedTitle}`,
+        trimmedTitle
+      );
       resetDraftTask();
       return;
     }
 
-    onValueChange({
-      ...values,
-      tasks: [
+    commitTaskChange(
+      [
         ...values.tasks,
         {
           ...draftTask,
@@ -1083,34 +1324,77 @@ const ProjectTaskEditor = ({
           title: trimmedTitle,
         },
       ],
-    });
+      `Tâche créée : ${trimmedTitle}`,
+      trimmedTitle
+    );
     resetDraftTask();
   };
 
   const handleEditTask = (task: ProjectTask) => {
+    if (!canManageTasks) return;
+
     setEditingTaskId(task.id);
     setDraftTask(task);
   };
 
-  const handleToggleTask = (task: ProjectTask) => {
-    onValueChange({
-      ...values,
-      tasks: values.tasks.map((currentTask) =>
+  const handleTaskStatusChange = (task: ProjectTask, status: ProjectStatus) => {
+    if (!canUpdateTask(task)) return;
+
+    commitTaskChange(
+      values.tasks.map((currentTask) =>
         currentTask.id === task.id
           ? {
               ...currentTask,
-              status: currentTask.status === 'done' ? 'todo' : 'done',
+              status,
             }
           : currentTask
       ),
-    });
+      `Statut mis à jour : ${task.title}`,
+      task.title
+    );
+  };
+
+  const handleToggleTask = (task: ProjectTask) => {
+    handleTaskStatusChange(task, task.status === 'done' ? 'todo' : 'done');
   };
 
   const handleRemoveTask = (task: ProjectTask) => {
-    onValueChange({
-      ...values,
-      tasks: values.tasks.filter((currentTask) => currentTask.id !== task.id),
-    });
+    if (!canManageTasks) return;
+
+    commitTaskChange(
+      values.tasks.filter((currentTask) => currentTask.id !== task.id),
+      `Tâche supprimée : ${task.title}`,
+      task.title
+    );
+  };
+
+  const handleCommentTask = (task: ProjectTask) => {
+    if (!canCommentTask(task)) return;
+
+    const message = (commentDrafts[task.id] ?? '').trim();
+    if (!message) return;
+
+    commitTaskChange(
+      values.tasks.map((currentTask) =>
+        currentTask.id === task.id
+          ? {
+              ...currentTask,
+              comments: [
+                ...getTaskComments(currentTask),
+                {
+                  id: `comment-${Date.now()}`,
+                  authorId: currentUserId,
+                  message,
+                  createdAt: new Date().toISOString(),
+                },
+              ],
+            }
+          : currentTask
+      ),
+      `Commentaire ajouté : ${task.title}`,
+      task.title
+    );
+    setCommentDrafts((currentDrafts) => ({ ...currentDrafts, [task.id]: '' }));
   };
 
   return (
@@ -1130,6 +1414,7 @@ const ProjectTaskEditor = ({
           value={draftTask.title}
           placeholder="Ajouter une tâche..."
           className={fieldClassName}
+          disabled={!canManageTasks}
           onChange={(event) => setDraftTask((currentTask) => ({ ...currentTask, title: event.target.value }))}
         />
 
@@ -1139,6 +1424,7 @@ const ProjectTaskEditor = ({
             value={draftTask.status}
             options={editableProjectStatusOptions}
             showLabel
+            disabled={!canManageTasks}
             onValueChange={(status) => setDraftTask((currentTask) => ({ ...currentTask, status }))}
           />
           <ProjectSelect
@@ -1146,6 +1432,7 @@ const ProjectTaskEditor = ({
             value={draftTask.priority}
             options={editableProjectPriorityOptions}
             showLabel
+            disabled={!canManageTasks}
             onValueChange={(priority) => setDraftTask((currentTask) => ({ ...currentTask, priority }))}
           />
           <div>
@@ -1157,6 +1444,7 @@ const ProjectTaskEditor = ({
               type="date"
               value={draftTask.dueDate}
               className={fieldClassName}
+              disabled={!canManageTasks}
               onChange={(event) => setDraftTask((currentTask) => ({ ...currentTask, dueDate: event.target.value }))}
             />
           </div>
@@ -1167,6 +1455,7 @@ const ProjectTaskEditor = ({
           value={draftTask.assigneeIds}
           options={memberOptions}
           placeholder="Choisir un ou plusieurs assignés"
+          disabled={!canManageTasks}
           onValueChange={(assigneeIds) => setDraftTask((currentTask) => ({ ...currentTask, assigneeIds }))}
         />
         <ProjectMultiSelect
@@ -1174,6 +1463,7 @@ const ProjectTaskEditor = ({
           value={draftTask.tagIds}
           options={tagOptions}
           placeholder="Choisir une ou plusieurs étiquettes"
+          disabled={!canManageTasks}
           onValueChange={(tagIds) => setDraftTask((currentTask) => ({ ...currentTask, tagIds }))}
         />
 
@@ -1182,6 +1472,7 @@ const ProjectTaskEditor = ({
             <button
               type="button"
               className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+              disabled={!canManageTasks}
               onClick={resetDraftTask}
             >
               Annuler
@@ -1189,12 +1480,44 @@ const ProjectTaskEditor = ({
           )}
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[#23a455] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f924d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23a455]/35"
+            disabled={!canManageTasks}
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[#23a455] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f924d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23a455]/35 disabled:cursor-not-allowed disabled:bg-[#9ecfb4]"
             onClick={handleSubmitTask}
           >
             {editingTaskId ? 'Mettre à jour la tâche' : 'Ajouter la tâche'}
           </button>
         </div>
+        {!canManageTasks && (
+          <div className="rounded-md border border-[#d8d2ca] bg-[#f8fafc] px-3 py-2 text-xs text-[#475569]">
+            Vous pouvez consulter vos tâches, mettre à jour leur statut et ajouter un commentaire.
+          </div>
+        )}
+      </div>
+
+      <div className="grid gap-3 border-t border-[#d8d2ca] bg-[#fbfaf8] p-4 md:grid-cols-[minmax(0,1fr)_160px_160px_180px]">
+        <div className="relative min-w-0">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#64748b]" />
+          <input
+            type="search"
+            value={taskSearchValue}
+            placeholder="Rechercher une tâche..."
+            className="h-10 w-full rounded-md border border-[#cbd5e1] bg-white pl-10 pr-3 text-sm text-[#172033] outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+            onChange={(event) => setTaskSearchValue(event.target.value)}
+          />
+        </div>
+        <ProjectSelect
+          label="Filtrer les tâches par statut"
+          value={taskStatusValue}
+          options={statusOptionsForSelect}
+          onValueChange={setTaskStatusValue}
+        />
+        <ProjectSelect
+          label="Filtrer les tâches par priorité"
+          value={taskPriorityValue}
+          options={priorityOptionsForSelect}
+          onValueChange={setTaskPriorityValue}
+        />
+        <ProjectDueDateFilter value={taskDueDateValue} onValueChange={setTaskDueDateValue} />
       </div>
 
       <div className="border-t border-[#d8d2ca]">
@@ -1202,17 +1525,26 @@ const ProjectTaskEditor = ({
           <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[#475569]">
             Aucune tâche pour ce projet.
           </div>
+        ) : visibleTasks.length === 0 ? (
+          <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[#475569]">
+            Aucune tâche ne correspond aux filtres.
+          </div>
         ) : (
           <ul className="divide-y divide-[#d8d2ca]">
-            {values.tasks.map((task) => {
+            {visibleTasks.map((task) => {
               const taskTags = task.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
+              const taskComments = getTaskComments(task);
+              const taskCanUpdate = canUpdateTask(task);
+              const taskCanComment = canCommentTask(task);
+              const commentDraft = commentDrafts[task.id] ?? '';
 
               return (
                 <li key={task.id} className="flex items-start gap-4 px-4 py-3">
                   <button
                     type="button"
                     aria-label={`${task.status === 'done' ? 'Marquer à faire' : 'Marquer terminé'} : ${task.title}`}
-                    className="mt-1 text-[#94a3b8] transition hover:text-[#16a34a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                    disabled={!taskCanUpdate}
+                    className="mt-1 text-[#94a3b8] transition hover:text-[#16a34a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => handleToggleTask(task)}
                   >
                     {task.status === 'done' ? (
@@ -1235,25 +1567,81 @@ const ProjectTaskEditor = ({
                         <ProjectTagPill key={tag.id} tag={tag} />
                       ))}
                     </div>
+                    <div className="mt-3 grid gap-2 md:grid-cols-[180px_minmax(0,1fr)_auto]">
+                      <select
+                        aria-label={`Statut de ${task.title}`}
+                        value={task.status}
+                        disabled={!taskCanUpdate}
+                        className="h-8 rounded-md border border-[#cbd5e1] bg-white px-2 text-xs text-[#172033] outline-none transition focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        onChange={(event) => handleTaskStatusChange(task, event.target.value as ProjectStatus)}
+                      >
+                        {editableProjectStatusOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                      <input
+                        type="text"
+                        aria-label={`Commenter ${task.title}`}
+                        value={commentDraft}
+                        placeholder="Ajouter un commentaire..."
+                        disabled={!taskCanComment}
+                        className="h-8 rounded-md border border-[#cbd5e1] bg-white px-3 text-xs text-[#172033] outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        onChange={(event) =>
+                          setCommentDrafts((currentDrafts) => ({
+                            ...currentDrafts,
+                            [task.id]: event.target.value,
+                          }))
+                        }
+                      />
+                      <button
+                        type="button"
+                        disabled={!taskCanComment || !commentDraft.trim()}
+                        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[#d8d2ca] bg-white px-3 text-xs font-semibold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => handleCommentTask(task)}
+                      >
+                        <MessageSquare className="size-3.5" strokeWidth={1.8} />
+                        Commenter
+                      </button>
+                    </div>
+                    {taskComments.length > 0 && (
+                      <div className="mt-3 space-y-2 rounded-md bg-[#f8fafc] p-3">
+                        {taskComments.slice(-2).map((comment) => {
+                          const author = comment.authorId ? getMember(members, comment.authorId) : undefined;
+
+                          return (
+                            <div key={comment.id} className="text-xs leading-5 text-[#475569]">
+                              <span className="font-semibold text-[#172033]">{author?.name ?? 'Agent'}</span>
+                              <span className="mx-1 text-[#94a3b8]">·</span>
+                              <span>{formatDate(comment.createdAt.slice(0, 10))}</span>
+                              <div>{comment.message}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex shrink-0 gap-2">
-                    <button
-                      type="button"
-                      className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#0969da] bg-[#eff6ff] px-3 text-sm font-medium text-[#0969da] transition hover:bg-[#dbeafe] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
-                      onClick={() => handleEditTask(task)}
-                    >
-                      <Pencil className="size-4" strokeWidth={1.8} />
-                      Modifier
-                    </button>
-                    <button
-                      type="button"
-                      aria-label={`Supprimer la tâche ${task.title}`}
-                      className="inline-flex size-8 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#fee2e2] hover:text-[#dc2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
-                      onClick={() => handleRemoveTask(task)}
-                    >
-                      <X className="size-4" strokeWidth={1.8} />
-                    </button>
-                  </div>
+                  {canManageTasks && (
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#0969da] bg-[#eff6ff] px-3 text-sm font-medium text-[#0969da] transition hover:bg-[#dbeafe] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                        onClick={() => handleEditTask(task)}
+                      >
+                        <Pencil className="size-4" strokeWidth={1.8} />
+                        Modifier
+                      </button>
+                      <button
+                        type="button"
+                        aria-label={`Supprimer la tâche ${task.title}`}
+                        className="inline-flex size-8 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#fee2e2] hover:text-[#dc2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                        onClick={() => handleRemoveTask(task)}
+                      >
+                        <X className="size-4" strokeWidth={1.8} />
+                      </button>
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -1264,6 +1652,39 @@ const ProjectTaskEditor = ({
   );
 };
 
+const ProjectHistoryPanel = ({
+  history,
+  members,
+}: {
+  history: ProjectHistoryEntry[];
+  members: ProjectMember[];
+}) => (
+  <section className="overflow-hidden rounded-md border border-[#d8d2ca] bg-white">
+    <div className="flex items-center gap-2 border-b border-[#d8d2ca] bg-[#f7f5f2] px-4 py-3 text-sm font-bold text-[#0f172a]">
+      <History className="size-4" strokeWidth={1.8} />
+      Historique des modifications
+    </div>
+    {history.length === 0 ? (
+      <div className="px-4 py-5 text-sm text-[#475569]">Aucune modification enregistrée.</div>
+    ) : (
+      <ul className="divide-y divide-[#e4e0dc]">
+        {history.slice(0, 8).map((entry) => {
+          const actor = entry.actorId ? getMember(members, entry.actorId) : undefined;
+
+          return (
+            <li key={entry.id} className="px-4 py-3 text-sm">
+              <div className="font-semibold leading-5 text-[#0f172a]">{entry.label}</div>
+              <div className="mt-1 text-xs leading-5 text-[#64748b]">
+                {actor?.name ?? 'Système'} · {formatDate(entry.createdAt.slice(0, 10))}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </section>
+);
+
 const ProjectModal = ({
   isOpen,
   title,
@@ -1271,6 +1692,11 @@ const ProjectModal = ({
   initialValues,
   members,
   tags,
+  currentUserId,
+  canEditProjectFields,
+  canManageTasks,
+  canAssignEmployees,
+  canUpdateAssignedTasks,
   onCancel,
   onSubmit,
 }: ProjectModalProps) => {
@@ -1280,6 +1706,7 @@ const ProjectModal = ({
   });
   const titleId = React.useId();
   const titleInputId = React.useId();
+  const objectivesInputId = React.useId();
   const descriptionInputId = React.useId();
   const memberOptions = members.map((member) => ({ value: member.id, label: member.name }));
   const ownerOptions = [{ value: '', label: 'Sélectionner un assigné' }, ...memberOptions];
@@ -1299,16 +1726,19 @@ const ProjectModal = ({
 
   if (!isOpen) return null;
 
-  const canSubmit = values.title.trim() && values.description.trim() && values.ownerId && values.dueDate;
+  const canSubmit =
+    values.title.trim() && values.objectives.trim() && values.description.trim() && values.ownerId && values.dueDate;
+  const canSave = canSubmit && (canEditProjectFields || canManageTasks || canUpdateAssignedTasks);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!canSubmit) return;
+    if (!canSave) return;
 
     onSubmit({
       ...values,
       title: values.title.trim(),
+      objectives: values.objectives.trim(),
       description: values.description.trim(),
       progress: clampProgress(values.progress),
     });
@@ -1352,7 +1782,24 @@ const ProjectModal = ({
                   placeholder="Ajouter un titre..."
                   className={fieldClassName}
                   autoFocus
+                  disabled={!canEditProjectFields}
                   onChange={(event) => setValues((currentValues) => ({ ...currentValues, title: event.target.value }))}
+                />
+              </section>
+
+              <section className="rounded-md border border-[#d8d2ca] bg-white p-4">
+                <label htmlFor={objectivesInputId} className="mb-2 block text-xs font-semibold text-[#475569]">
+                  Objectifs <span className="text-[#dc2626]">*</span>
+                </label>
+                <textarea
+                  id={objectivesInputId}
+                  value={values.objectives}
+                  placeholder="Définir les objectifs attendus du projet..."
+                  className="min-h-[96px] w-full resize-none rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                  disabled={!canEditProjectFields}
+                  onChange={(event) =>
+                    setValues((currentValues) => ({ ...currentValues, objectives: event.target.value }))
+                  }
                 />
               </section>
 
@@ -1371,6 +1818,7 @@ const ProjectModal = ({
                     value={values.description}
                     placeholder="Ajouter une description, des critères d'acceptation ou des notes..."
                     className={textareaClassName}
+                    disabled={!canEditProjectFields}
                     onChange={(event) =>
                       setValues((currentValues) => ({ ...currentValues, description: event.target.value }))
                     }
@@ -1384,8 +1832,12 @@ const ProjectModal = ({
                 tags={tags}
                 memberOptions={memberOptions}
                 tagOptions={tagOptions}
+                currentUserId={currentUserId}
+                canManageTasks={canManageTasks}
                 onValueChange={setValues}
               />
+
+              <ProjectHistoryPanel history={values.history} members={members} />
             </div>
 
             <ProjectFieldPanel
@@ -1395,6 +1847,8 @@ const ProjectModal = ({
               memberOptions={memberOptions}
               ownerOptions={ownerOptions}
               tagOptions={tagOptions}
+              canEditProjectFields={canEditProjectFields}
+              canAssignEmployees={canAssignEmployees}
               onValueChange={setValues}
             />
           </div>
@@ -1410,7 +1864,7 @@ const ProjectModal = ({
           </button>
           <button
             type="submit"
-            disabled={!canSubmit}
+            disabled={!canSave}
             className="inline-flex h-9 items-center justify-center rounded-md bg-[#23a455] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#1f924d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23a455]/35 disabled:cursor-not-allowed disabled:bg-[#9ecfb4]"
           >
             {submitLabel}
@@ -1429,6 +1883,9 @@ export const ProjectModule = ({
   tags = defaultProjectTags,
   viewMode,
   defaultViewMode = 'kanban',
+  currentUserId,
+  currentUserRole = 'mayor',
+  teamMemberIds,
   onViewModeChange,
   onCreateProject,
   onUpdateProject,
@@ -1442,21 +1899,42 @@ export const ProjectModule = ({
   const [searchValue, setSearchValue] = React.useState('');
   const [statusValue, setStatusValue] = React.useState<ProjectStatus | 'all'>('all');
   const [priorityValue, setPriorityValue] = React.useState<ProjectPriority | 'all'>('all');
+  const [dueDateValue, setDueDateValue] = React.useState('');
   const [projectModalOpen, setProjectModalOpen] = React.useState(false);
   const [editingProject, setEditingProject] = React.useState<Project | null>(null);
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const resolvedProjects = projects ?? internalProjects;
   const resolvedViewMode = viewMode ?? internalViewMode;
+  const currentMember = currentUserId ? getMember(members, currentUserId) : undefined;
+  const resolvedTeamMemberIds =
+    teamMemberIds ??
+    (currentMember?.teamIds
+      ? members
+          .filter((member) => member.id !== currentUserId && member.teamIds?.some((teamId) => currentMember.teamIds?.includes(teamId)))
+          .map((member) => member.id)
+      : []);
+  const canCreateProject = currentUserRole !== 'employee';
+  const canEditProjectFields = currentUserRole !== 'employee';
+  const canManageTasks = currentUserRole !== 'employee';
+  const canAssignEmployees = currentUserRole !== 'employee';
+  const canDeleteProject = currentUserRole !== 'employee';
+  const canCloseProject = currentUserRole !== 'employee';
   const normalizedQuery = normalizeSearch(searchValue);
-  const visibleProjects = resolvedProjects.filter((project) => {
+  const scopedProjects = resolvedProjects.filter((project) =>
+    getProjectAccessScope(project, currentUserRole, currentUserId, resolvedTeamMemberIds)
+  );
+  const visibleProjects = scopedProjects.filter((project) => {
     const owner = getMember(members, project.ownerId);
     const projectTags = project.tagIds.map((tagId) => getTag(tags, tagId)?.label).filter(Boolean).join(' ');
-    const searchable = normalizeSearch(`${project.title} ${project.description} ${owner?.name ?? ''} ${projectTags}`);
+    const searchable = normalizeSearch(
+      `${project.title} ${project.objectives ?? ''} ${project.description} ${owner?.name ?? ''} ${projectTags}`
+    );
     const matchesSearch = normalizedQuery.length === 0 || searchable.includes(normalizedQuery);
     const matchesStatus = statusValue === 'all' || project.status === statusValue;
     const matchesPriority = priorityValue === 'all' || project.priority === priorityValue;
+    const matchesDueDate = !dueDateValue || project.dueDate <= dueDateValue;
 
-    return matchesSearch && matchesStatus && matchesPriority;
+    return matchesSearch && matchesStatus && matchesPriority && matchesDueDate;
   });
 
   const handleViewModeChange = (nextViewMode: ProjectViewMode) => {
@@ -1468,6 +1946,8 @@ export const ProjectModule = ({
   };
 
   const handleNewProjectClick = () => {
+    if (!canCreateProject) return;
+
     setEditingProject(null);
     setProjectModalOpen(true);
   };
@@ -1478,11 +1958,34 @@ export const ProjectModule = ({
   };
 
   const handleDeleteProject = (project: Project) => {
+    if (!canDeleteProject) return;
+
     if (projects === undefined) {
       setInternalProjects((currentProjects) => currentProjects.filter((currentProject) => currentProject.id !== project.id));
     }
 
     setStatusMessage(`Projet "${project.title}" supprimé.`);
+  };
+
+  const handleCloseProject = (project: Project) => {
+    if (!canCloseProject) return;
+
+    const closedProject: Project = {
+      ...project,
+      status: 'done',
+      progress: 100,
+      history: [createHistoryEntry('Projet clôturé.', currentUserId), ...getProjectHistory(project)],
+    };
+
+    onUpdateProject?.(closedProject);
+
+    if (projects === undefined) {
+      setInternalProjects((currentProjects) =>
+        currentProjects.map((currentProject) => (currentProject.id === project.id ? closedProject : currentProject))
+      );
+    }
+
+    setStatusMessage(`Projet "${project.title}" clôturé.`);
   };
 
   const handleCancelProjectModal = () => {
@@ -1492,21 +1995,33 @@ export const ProjectModule = ({
 
   const handleSubmitProjectModal = (values: ProjectFormValues) => {
     if (!editingProject) {
-      onCreateProject?.(values);
+      const createdValues = {
+        ...values,
+        history: [createHistoryEntry('Projet créé.', currentUserId), ...values.history],
+      };
+
+      onCreateProject?.(createdValues);
 
       if (projects === undefined) {
         setInternalProjects((currentProjects) => [
           ...currentProjects,
-          buildProjectFromValues(values, currentProjects.length + 1),
+          buildProjectFromValues(createdValues, currentProjects.length + 1),
         ]);
       }
 
-      setStatusMessage(`Projet "${values.title}" créé.`);
+      setStatusMessage(`Projet "${createdValues.title}" créé.`);
       setProjectModalOpen(false);
       return;
     }
 
-    const updatedProject = buildProjectFromValues(values, editingProject.sequence, editingProject.id);
+    const updatedProject = buildProjectFromValues(
+      {
+        ...values,
+        history: [createHistoryEntry('Projet enregistré.', currentUserId), ...values.history],
+      },
+      editingProject.sequence,
+      editingProject.id
+    );
     onUpdateProject?.(updatedProject);
 
     if (projects === undefined) {
@@ -1553,14 +2068,16 @@ export const ProjectModule = ({
           {subtitle && <p className="mt-2 text-base leading-6 text-[#334155]">{subtitle}</p>}
         </div>
         <div className="flex shrink-0 flex-wrap gap-3">
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-bold text-white shadow-[0_2px_5px_rgba(18,86,166,0.35)] transition hover:bg-[#0f4a8d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
-            onClick={handleNewProjectClick}
-          >
-            <Plus className="size-4" strokeWidth={2} />
-            Nouveau projet
-          </button>
+          {canCreateProject && (
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-bold text-white shadow-[0_2px_5px_rgba(18,86,166,0.35)] transition hover:bg-[#0f4a8d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+              onClick={handleNewProjectClick}
+            >
+              <Plus className="size-4" strokeWidth={2} />
+              Nouveau projet
+            </button>
+          )}
           <button
             type="button"
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-bold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
@@ -1589,6 +2106,7 @@ export const ProjectModule = ({
             options={priorityOptionsForSelect}
             onValueChange={setPriorityValue}
           />
+          <ProjectDueDateFilter value={dueDateValue} onValueChange={setDueDateValue} />
         </div>
         <div className="shrink-0">
           <ProjectViewSwitcher value={resolvedViewMode} onValueChange={handleViewModeChange} />
@@ -1606,7 +2124,12 @@ export const ProjectModule = ({
           projects={visibleProjects}
           members={members}
           tags={tags}
+          canEditProject={canEditProjectFields}
+          canManageTasks={canManageTasks}
+          canDeleteProject={canDeleteProject}
+          canCloseProject={canCloseProject}
           onEdit={handleEditProject}
+          onClose={handleCloseProject}
           onDelete={handleDeleteProject}
           onAction={onProjectAction}
         />
@@ -1615,7 +2138,12 @@ export const ProjectModule = ({
           projects={visibleProjects}
           members={members}
           tags={tags}
+          canEditProject={canEditProjectFields}
+          canManageTasks={canManageTasks}
+          canDeleteProject={canDeleteProject}
+          canCloseProject={canCloseProject}
           onEdit={handleEditProject}
+          onClose={handleCloseProject}
           onDelete={handleDeleteProject}
           onAction={onProjectAction}
         />
@@ -1624,7 +2152,11 @@ export const ProjectModule = ({
           projects={visibleProjects}
           members={members}
           tags={tags}
+          canEditProject={canEditProjectFields}
+          canDeleteProject={canDeleteProject}
+          canCloseProject={canCloseProject}
           onEdit={handleEditProject}
+          onClose={handleCloseProject}
           onDelete={handleDeleteProject}
           onAction={onProjectAction}
         />
@@ -1637,6 +2169,11 @@ export const ProjectModule = ({
         initialValues={editingProject ? getProjectFormValues(editingProject) : undefined}
         members={members}
         tags={tags}
+        currentUserId={currentUserId}
+        canEditProjectFields={canEditProjectFields}
+        canManageTasks={canManageTasks}
+        canAssignEmployees={canAssignEmployees}
+        canUpdateAssignedTasks={currentUserRole === 'employee'}
         onCancel={handleCancelProjectModal}
         onSubmit={handleSubmitProjectModal}
       />

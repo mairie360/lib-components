@@ -1,12 +1,14 @@
 import type { LucideIcon } from 'lucide-react';
 
-export type ProjectStatus = 'todo' | 'in-progress' | 'review' | 'done';
+export type ProjectStatus = 'todo' | 'in-progress' | 'review' | 'done' | 'suspended';
 
 export type ProjectPriority = 'low' | 'medium' | 'high';
 
 export type ProjectViewMode = 'kanban' | 'grid' | 'table';
 
-export type ProjectAction = 'open' | 'edit' | 'delete';
+export type ProjectAction = 'open' | 'edit' | 'close' | 'delete';
+
+export type ProjectUserRole = 'employee' | 'responsable' | 'mayor';
 
 export type ProjectTagTone = 'blue' | 'green' | 'red' | 'purple' | 'gray';
 
@@ -15,6 +17,7 @@ export interface ProjectMember {
   name: string;
   initials: string;
   avatarUrl?: string;
+  teamIds?: string[];
 }
 
 export interface ProjectTag {
@@ -31,12 +34,29 @@ export interface ProjectTask {
   dueDate: string;
   assigneeIds: string[];
   tagIds: string[];
+  comments?: ProjectTaskComment[];
+}
+
+export interface ProjectTaskComment {
+  id: string;
+  authorId?: string;
+  message: string;
+  createdAt: string;
+}
+
+export interface ProjectHistoryEntry {
+  id: string;
+  actorId?: string;
+  label: string;
+  target?: string;
+  createdAt: string;
 }
 
 export interface Project {
   id: string;
   sequence: number;
   title: string;
+  objectives?: string;
   description: string;
   status: ProjectStatus;
   priority: ProjectPriority;
@@ -46,6 +66,7 @@ export interface Project {
   dueDate: string;
   progress: number;
   tasks: ProjectTask[];
+  history?: ProjectHistoryEntry[];
 }
 
 export interface ProjectSelectOption<TValue extends string = string> {
@@ -69,6 +90,7 @@ export interface ProjectPriorityMeta {
 
 export interface ProjectFormValues {
   title: string;
+  objectives: string;
   description: string;
   status: ProjectStatus;
   priority: ProjectPriority;
@@ -78,4 +100,5 @@ export interface ProjectFormValues {
   dueDate: string;
   progress: number;
   tasks: ProjectTask[];
+  history: ProjectHistoryEntry[];
 }

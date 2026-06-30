@@ -8,12 +8,12 @@ import type {
 } from './types';
 
 export const defaultProjectMembers: ProjectMember[] = [
-  { id: 'marie-dubois', name: 'Marie Dubois', initials: 'MD' },
-  { id: 'pierre-martin', name: 'Pierre Martin', initials: 'PM' },
-  { id: 'sophie-leroy', name: 'Sophie Leroy', initials: 'SL' },
-  { id: 'thomas-bernard', name: 'Thomas Bernard', initials: 'TB' },
-  { id: 'alex-moreau', name: 'Alex Moreau', initials: 'AM' },
-  { id: 'jean-dupont', name: 'Jean Dupont', initials: 'JD' },
+  { id: 'marie-dubois', name: 'Marie Dubois', initials: 'MD', teamIds: ['culture', 'numerique'] },
+  { id: 'pierre-martin', name: 'Pierre Martin', initials: 'PM', teamIds: ['espaces-publics'] },
+  { id: 'sophie-leroy', name: 'Sophie Leroy', initials: 'SL', teamIds: ['archives', 'numerique'] },
+  { id: 'thomas-bernard', name: 'Thomas Bernard', initials: 'TB', teamIds: ['espaces-publics', 'energie'] },
+  { id: 'alex-moreau', name: 'Alex Moreau', initials: 'AM', teamIds: ['numerique'] },
+  { id: 'jean-dupont', name: 'Jean Dupont', initials: 'JD', teamIds: ['voirie'] },
 ];
 
 export const defaultProjectTags: ProjectTag[] = [
@@ -36,6 +36,7 @@ export const projectStatusOptions: ProjectSelectOption<ProjectStatus | 'all'>[] 
   { value: 'in-progress', label: 'En cours' },
   { value: 'review', label: 'En révision' },
   { value: 'done', label: 'Terminé' },
+  { value: 'suspended', label: 'Suspendu' },
 ];
 
 export const projectPriorityOptions: ProjectSelectOption<ProjectPriority | 'all'>[] = [
@@ -77,6 +78,7 @@ export const defaultProjects: Project[] = [
     id: 'library-renovation',
     sequence: 1,
     title: 'Rénovation de la bibliothèque municipale',
+    objectives: 'Améliorer le confort de lecture, moderniser les usages numériques et sécuriser les espaces publics.',
     description: "Modernisation de l'espace lecture et installation de nouveaux équipements numériques",
     status: 'in-progress',
     priority: 'high',
@@ -85,6 +87,14 @@ export const defaultProjects: Project[] = [
     tagIds: ['infrastructure', 'urgent'],
     dueDate: '2024-12-15',
     progress: 65,
+    history: [
+      {
+        id: 'history-library-1',
+        actorId: 'marie-dubois',
+        label: 'Projet lancé avec les services culture et numérique.',
+        createdAt: '2024-04-05T09:00:00.000Z',
+      },
+    ],
     tasks: Array.from({ length: 12 }, (_, index) => ({
       id: `library-task-${index + 1}`,
       title: index < 8 ? `Lot bibliothèque terminé ${index + 1}` : `Lot bibliothèque à suivre ${index + 1}`,
@@ -99,6 +109,7 @@ export const defaultProjects: Project[] = [
     id: 'central-park',
     sequence: 2,
     title: 'Aménagement du parc central',
+    objectives: 'Créer un espace de loisirs familial, accessible et mieux connecté aux équipements sportifs.',
     description: "Installation de nouveaux jeux pour enfants et création d'un parcours santé",
     status: 'todo',
     priority: 'medium',
@@ -107,12 +118,21 @@ export const defaultProjects: Project[] = [
     tagIds: ['espaces-verts', 'loisirs'],
     dueDate: '2025-03-20',
     progress: 20,
+    history: [
+      {
+        id: 'history-park-1',
+        actorId: 'pierre-martin',
+        label: 'Cadrage initial validé avec les services techniques.',
+        createdAt: '2025-01-10T10:30:00.000Z',
+      },
+    ],
     tasks: parkTasks,
   },
   {
     id: 'archive-digitization',
     sequence: 3,
     title: 'Digitalisation des archives',
+    objectives: 'Préserver les documents historiques et faciliter leur consultation par les agents habilités.',
     description: 'Numérisation des documents administratifs historiques',
     status: 'done',
     priority: 'low',
@@ -121,6 +141,14 @@ export const defaultProjects: Project[] = [
     tagIds: ['numerique', 'archives'],
     dueDate: '2024-09-30',
     progress: 100,
+    history: [
+      {
+        id: 'history-archive-1',
+        actorId: 'sophie-leroy',
+        label: 'Projet clôturé après validation des livrables.',
+        createdAt: '2024-09-30T15:00:00.000Z',
+      },
+    ],
     tasks: Array.from({ length: 5 }, (_, index) => ({
       id: `archive-task-${index + 1}`,
       title: `Lot archives ${index + 1}`,
@@ -135,6 +163,7 @@ export const defaultProjects: Project[] = [
     id: 'led-lighting',
     sequence: 4,
     title: 'Installation système éclairage LED',
+    objectives: "Réduire la consommation d'énergie et fiabiliser l'éclairage public sur les secteurs prioritaires.",
     description: "Remplacement de l'éclairage public par des LED économiques",
     status: 'review',
     priority: 'high',
@@ -143,6 +172,14 @@ export const defaultProjects: Project[] = [
     tagIds: ['energie', 'environnement'],
     dueDate: '2024-11-30',
     progress: 85,
+    history: [
+      {
+        id: 'history-led-1',
+        actorId: 'thomas-bernard',
+        label: 'Contrôle qualité demandé sur les derniers secteurs.',
+        createdAt: '2024-11-18T14:15:00.000Z',
+      },
+    ],
     tasks: Array.from({ length: 15 }, (_, index) => ({
       id: `led-task-${index + 1}`,
       title: index < 13 ? `Secteur LED validé ${index + 1}` : `Secteur LED à vérifier ${index + 1}`,
@@ -151,12 +188,24 @@ export const defaultProjects: Project[] = [
       dueDate: '2024-11-30',
       assigneeIds: ['thomas-bernard'],
       tagIds: ['energie'],
+      comments:
+        index === 13
+          ? [
+              {
+                id: 'comment-led-14-1',
+                authorId: 'marie-dubois',
+                message: 'Prévoir une vérification nocturne avant validation.',
+                createdAt: '2024-11-19T08:30:00.000Z',
+              },
+            ]
+          : undefined,
     })),
   },
   {
     id: 'municipal-website',
     sequence: 5,
     title: 'Création site web municipal',
+    objectives: 'Livrer un site accessible, administrable et adapté aux démarches en ligne des habitants.',
     description: "Développement d'un nouveau site web moderne et accessible",
     status: 'in-progress',
     priority: 'medium',
@@ -165,6 +214,14 @@ export const defaultProjects: Project[] = [
     tagIds: ['numerique', 'communication'],
     dueDate: '2024-12-31',
     progress: 40,
+    history: [
+      {
+        id: 'history-website-1',
+        actorId: 'alex-moreau',
+        label: 'Sprint de conception démarré.',
+        createdAt: '2024-10-02T11:00:00.000Z',
+      },
+    ],
     tasks: Array.from({ length: 10 }, (_, index) => ({
       id: `website-task-${index + 1}`,
       title: index < 4 ? `Sprint web terminé ${index + 1}` : `Sprint web à produire ${index + 1}`,
@@ -179,6 +236,7 @@ export const defaultProjects: Project[] = [
     id: 'city-center-roads',
     sequence: 6,
     title: 'Réfection des routes du centre-ville',
+    objectives: 'Planifier les travaux de voirie, réduire les nuisances et sécuriser les axes du centre-ville.',
     description: 'Travaux de rénovation des principales artères du centre historique',
     status: 'todo',
     priority: 'high',
@@ -187,6 +245,14 @@ export const defaultProjects: Project[] = [
     tagIds: ['voirie', 'travaux'],
     dueDate: '2025-05-15',
     progress: 5,
+    history: [
+      {
+        id: 'history-roads-1',
+        actorId: 'jean-dupont',
+        label: 'Diagnostic de voirie initial enregistré.',
+        createdAt: '2025-01-22T16:20:00.000Z',
+      },
+    ],
     tasks: Array.from({ length: 20 }, (_, index) => ({
       id: `roads-task-${index + 1}`,
       title: index === 0 ? 'Diagnostic voirie réalisé' : `Tronçon à traiter ${index + 1}`,
