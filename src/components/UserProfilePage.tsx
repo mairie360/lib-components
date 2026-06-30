@@ -15,10 +15,11 @@ export interface UserProfilePageProps extends Omit<React.HTMLAttributes<HTMLDivE
   user?: UserProfileUser;
   isAdmin?: boolean;
   activeItem?: string;
+  onUpdateUser?: (user: UserProfileUser) => void;
   headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen'>;
   sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin'>;
   footerProps?: FooterProps;
-  profileProps?: Omit<UserProfileProps, 'user'>;
+  profileProps?: Omit<UserProfileProps, 'user' | 'onUpdateUser'>;
 }
 
 const defaultUser: UserProfileUser = {
@@ -44,6 +45,7 @@ export const UserProfilePage = ({
   user = defaultUser,
   isAdmin,
   activeItem = 'profile',
+  onUpdateUser,
   headerProps,
   sidebarProps,
   footerProps,
@@ -51,8 +53,9 @@ export const UserProfilePage = ({
   className = '',
   ...props
 }: UserProfilePageProps) => {
+  const [currentUser, setCurrentUser] = React.useState<UserProfileUser>(user);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const resolvedIsAdmin = isAdmin ?? user.role === 'admin';
+  const resolvedIsAdmin = isAdmin ?? currentUser.role === 'admin';
   const {
     onPageChange,
     onLogout,
@@ -66,6 +69,10 @@ export const UserProfilePage = ({
     ...restSidebarProps
   } = sidebarProps ?? {};
 
+  React.useEffect(() => {
+    setCurrentUser(user);
+  }, [user]);
+
   const handlePageChange = (page: string) => {
     onPageChange?.(page);
     setSidebarOpen(false);
@@ -74,6 +81,11 @@ export const UserProfilePage = ({
   const handleSidebarItemSelect = (item: SidebarItem) => {
     onItemSelect?.(item);
     handlePageChange(item.id);
+  };
+
+  const handleUpdateUser = (updatedUser: UserProfileUser) => {
+    setCurrentUser(updatedUser);
+    onUpdateUser?.(updatedUser);
   };
 
   const renderSidebar = () => (
@@ -110,7 +122,7 @@ export const UserProfilePage = ({
         <div className="flex min-w-0 flex-1 flex-col">
           <Header
             {...restHeaderProps}
-            user={user}
+            user={currentUser}
             isAdmin={resolvedIsAdmin}
             setSidebarOpen={setSidebarOpen}
             onPageChange={handlePageChange}
@@ -118,7 +130,7 @@ export const UserProfilePage = ({
             profileHref={profileHref}
           />
           <main className="min-h-0 flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <UserProfile user={user} {...profileProps} />
+            <UserProfile user={currentUser} onUpdateUser={handleUpdateUser} {...profileProps} />
           </main>
           <Footer version="2.1.0" {...footerProps} />
         </div>

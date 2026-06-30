@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { UserProfile } from '../components/UserProfile';
@@ -41,5 +41,51 @@ describe('UserProfile component', () => {
     expect(screen.getByText('JU')).toBeInTheDocument();
     expect(screen.getAllByText('Utilisateur')).toHaveLength(2);
     expect(screen.getAllByText('Non renseigné').length).toBeGreaterThan(0);
+  });
+
+  it('edits personal contact information', () => {
+    const onUpdateUser = jest.fn();
+    render(
+      <UserProfile
+        user={{
+          name: 'Marie Martin',
+          email: 'marie.martin@mairie360.fr',
+          phone: '+33 1 23 45 67 90',
+          service: 'Communication',
+          role: 'manager',
+          address: '12 rue de la Mairie',
+          city: 'Saint-Denis',
+        }}
+        onUpdateUser={onUpdateUser}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+    fireEvent.change(screen.getByLabelText('Adresse e-mail'), {
+      target: { value: 'marie.contact@mairie360.fr' },
+    });
+    fireEvent.change(screen.getByLabelText('Téléphone'), {
+      target: { value: '+33 1 23 45 67 99' },
+    });
+    fireEvent.change(screen.getByLabelText('Adresse'), {
+      target: { value: '24 avenue de la République' },
+    });
+    fireEvent.change(screen.getByLabelText('Ville'), {
+      target: { value: 'Saint-Pierre' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(onUpdateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'marie.contact@mairie360.fr',
+        phone: '+33 1 23 45 67 99',
+        address: '24 avenue de la République',
+        city: 'Saint-Pierre',
+      })
+    );
+    expect(screen.getAllByText('marie.contact@mairie360.fr')).toHaveLength(2);
+    expect(screen.getByText('+33 1 23 45 67 99')).toBeInTheDocument();
+    expect(screen.getByText('24 avenue de la République, Saint-Pierre')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Informations personnelles mises à jour.');
   });
 });

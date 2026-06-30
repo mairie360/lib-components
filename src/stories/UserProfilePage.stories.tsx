@@ -12,6 +12,7 @@ const meta: Meta<typeof UserProfilePage> = {
     layout: 'fullscreen',
   },
   args: {
+    onUpdateUser: fn(),
     headerProps: {
       onPageChange: fn(),
       onLogout: fn(),

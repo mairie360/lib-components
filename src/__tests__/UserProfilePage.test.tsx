@@ -45,4 +45,39 @@ describe('UserProfilePage component', () => {
 
     expect(onPageChange).toHaveBeenCalledWith('projects');
   });
+
+  it('updates editable profile information across the page layout', () => {
+    const onUpdateUser = jest.fn();
+    render(<UserProfilePage user={profileUser} onUpdateUser={onUpdateUser} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
+    fireEvent.change(screen.getByLabelText('Adresse e-mail'), {
+      target: { value: 'marie.contact@mairie360.fr' },
+    });
+    fireEvent.change(screen.getByLabelText('Téléphone'), {
+      target: { value: '+33 1 23 45 67 99' },
+    });
+    fireEvent.change(screen.getByLabelText('Adresse'), {
+      target: { value: '24 avenue de la République' },
+    });
+    fireEvent.change(screen.getByLabelText('Ville'), {
+      target: { value: 'Saint-Pierre' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(onUpdateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        email: 'marie.contact@mairie360.fr',
+        phone: '+33 1 23 45 67 99',
+        address: '24 avenue de la République',
+        city: 'Saint-Pierre',
+      })
+    );
+    expect(screen.getByText('+33 1 23 45 67 99')).toBeInTheDocument();
+    expect(screen.getByText('24 avenue de la République, Saint-Pierre')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Marie Martin/ }));
+
+    expect(screen.getAllByText('marie.contact@mairie360.fr').length).toBeGreaterThan(1);
+  });
 });
