@@ -94,7 +94,6 @@ interface ProjectCardProps {
   project: Project;
   members: ProjectMember[];
   tags: ProjectTag[];
-  compact?: boolean;
   onEdit: (project: Project) => void;
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
@@ -520,7 +519,6 @@ const ProjectCard = ({
   project,
   members,
   tags,
-  compact = false,
   onEdit,
   onDelete,
   onAction,
@@ -530,7 +528,7 @@ const ProjectCard = ({
   const projectTags = project.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
 
   return (
-    <article className="rounded-md border border-[#cbd5e1] bg-white p-3.5 text-[#172033] shadow-[0_1px_3px_rgba(15,23,42,0.16)]">
+    <article className="flex h-[320px] flex-col overflow-hidden rounded-md border border-[#cbd5e1] bg-white p-3.5 text-[#172033] shadow-[0_1px_3px_rgba(15,23,42,0.16)]">
       <div className="flex items-start gap-3">
         <Circle className="mt-1 size-4 shrink-0 text-[#16a34a]" strokeWidth={2.2} />
         <div className="min-w-0 flex-1">
@@ -540,11 +538,11 @@ const ProjectCard = ({
         <ProjectActionMenu project={project} onEdit={onEdit} onDelete={onDelete} onAction={onAction} />
       </div>
 
-      <p className={joinClasses('mt-3 text-sm leading-6 text-[#475569]', compact ? 'line-clamp-2' : 'min-h-[48px]')}>
+      <p className="mt-3 min-h-[48px] line-clamp-2 text-sm leading-6 text-[#475569]">
         {project.description}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-1.5">
+      <div className="mt-3 flex min-h-[22px] max-h-[46px] flex-wrap gap-1.5 overflow-hidden">
         {projectTags.map((tag) => (
           <ProjectTagPill key={tag.id} tag={tag} />
         ))}
@@ -586,7 +584,7 @@ const ProjectCard = ({
 
       <button
         type="button"
-        className="mt-3 inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm font-medium text-[#475569] transition hover:border-[#1256a6]/40 hover:bg-[#eff6ff] hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+        className="mt-auto inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm font-medium text-[#475569] transition hover:border-[#1256a6]/40 hover:bg-[#eff6ff] hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
         onClick={() => onEdit(project)}
       >
         <Plus className="size-4" strokeWidth={1.9} />
@@ -648,7 +646,6 @@ const KanbanView = ({
                 project={project}
                 members={members}
                 tags={tags}
-                compact
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onAction={onAction}
