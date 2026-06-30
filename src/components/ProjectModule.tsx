@@ -528,7 +528,7 @@ const ProjectCard = ({
   const projectTags = project.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
 
   return (
-    <article className="flex h-[320px] flex-col overflow-hidden rounded-md border border-[#cbd5e1] bg-white p-3.5 text-[#172033] shadow-[0_1px_3px_rgba(15,23,42,0.16)]">
+    <article className="flex h-[344px] flex-col overflow-hidden rounded-md border border-[#cbd5e1] bg-white p-3.5 text-[#172033] shadow-[0_1px_3px_rgba(15,23,42,0.16)]">
       <div className="flex items-start gap-3">
         <Circle className="mt-1 size-4 shrink-0 text-[#16a34a]" strokeWidth={2.2} />
         <div className="min-w-0 flex-1">
@@ -556,7 +556,7 @@ const ProjectCard = ({
         <div className="min-w-0">
           <StatusBadge status={project.status} />
         </div>
-        <div className="min-w-0">
+        <div className="flex min-w-0 justify-end">
           <PriorityBadge priority={project.priority} />
         </div>
         <div className="flex items-center gap-1.5">
@@ -565,7 +565,7 @@ const ProjectCard = ({
             {completedTasks}/{project.tasks.length} tâches
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-end gap-1.5">
           <Calendar className="size-3.5" strokeWidth={1.8} />
           <span>{formatShortDate(project.dueDate)}</span>
         </div>
@@ -582,14 +582,16 @@ const ProjectCard = ({
         </div>
       </div>
 
-      <button
-        type="button"
-        className="mt-auto inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm font-medium text-[#475569] transition hover:border-[#1256a6]/40 hover:bg-[#eff6ff] hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
-        onClick={() => onEdit(project)}
-      >
-        <Plus className="size-4" strokeWidth={1.9} />
-        Ajouter une tâche
-      </button>
+      <div className="mt-auto pt-2">
+        <button
+          type="button"
+          className="inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm font-medium text-[#475569] transition hover:border-[#1256a6]/40 hover:bg-[#eff6ff] hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+          onClick={() => onEdit(project)}
+        >
+          <Plus className="size-4" strokeWidth={1.9} />
+          Ajouter une tâche
+        </button>
+      </div>
     </article>
   );
 };
