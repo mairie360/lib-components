@@ -50,6 +50,7 @@ export { NewMessageModal } from './components/NewMessageModal';
 export { PageTitleBar } from './components/PageTitleBar';
 export { Paragraph } from './components/Paragraph';
 export { ProgressBar } from './components/ProgressBar';
+export { ProjectModule } from './components/ProjectModule';
 export { Select } from './components/Select';
 export { Sidebar } from './components/Sidebar';
 export { SortableItem } from './components/SortableItem';
