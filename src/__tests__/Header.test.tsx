@@ -60,6 +60,14 @@ describe('Header component', () => {
     expect(onPageChange).toHaveBeenCalledWith('admin');
   });
 
+  it('links the profile action to the profile page', () => {
+    render(<Header user={adminUser} profileHref="/profil" />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
+
+    expect(screen.getByRole('link', { name: /Profil/ })).toHaveAttribute('href', '/profil');
+  });
+
   it('calls onLogout from the dropdown', () => {
     const onLogout = jest.fn();
     render(<Header user={adminUser} onLogout={onLogout} />);

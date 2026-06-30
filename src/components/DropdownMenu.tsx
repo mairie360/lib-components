@@ -130,7 +130,8 @@ function DropdownMenuContent({
   );
 }
 
-interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLElement> {
+  asChild?: boolean;
   inset?: boolean;
   variant?: "default" | "destructive";
   disabled?: boolean;
@@ -138,6 +139,7 @@ interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLDivElement> {
 
 function DropdownMenuItem({
   className = "",
+  asChild,
   inset,
   variant = "default",
   disabled,
@@ -147,13 +149,49 @@ function DropdownMenuItem({
 }: DropdownMenuItemProps) {
   const { setOpen } = React.useContext(DropdownMenuContext);
 
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (disabled) return;
+  const handleClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (disabled) {
+      e.preventDefault();
+      return;
+    }
     onClick?.(e);
     setOpen(false);
   };
 
   const isDeleteItem = typeof children === "string" && children.includes("Supprimer");
+  const itemClassName = `relative flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none select-none text-black ${
+    disabled 
+      ? "pointer-events-none opacity-50" 
+      : isDeleteItem 
+        ? "hover:bg-red-200" 
+        : "hover:bg-gray-100"
+  } ${variant === "destructive" ? "text-red-600" : ""} ${
+    inset ? "pl-8" : ""
+  } ${isDeleteItem ? "text-red-600" : ""} ${className}`;
+
+  if (asChild && React.isValidElement(children)) {
+    const child = children as React.ReactElement<any>;
+    const childClassName = child.props.className ? ` ${child.props.className}` : "";
+
+    return (
+      <>
+        {isDeleteItem && (
+          <div className="-mx-1 my-1 h-px bg-gray-200" />
+        )}
+        {React.cloneElement(child, {
+          ...props,
+          "data-slot": "dropdown-menu-item",
+          "data-inset": inset,
+          "data-variant": variant,
+          className: `${itemClassName}${childClassName}`,
+          onClick: (e: React.MouseEvent<HTMLElement>) => {
+            child.props.onClick?.(e);
+            handleClick(e);
+          },
+        })}
+      </>
+    );
+  }
 
   return (
     <>
@@ -164,15 +202,7 @@ function DropdownMenuItem({
         data-slot="dropdown-menu-item"
         data-inset={inset}
         data-variant={variant}
-        className={`relative flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none select-none text-black ${
-          disabled 
-            ? "pointer-events-none opacity-50" 
-            : isDeleteItem 
-              ? "hover:bg-red-200" 
-              : "hover:bg-gray-100"
-        } ${variant === "destructive" ? "text-red-600" : ""} ${
-          inset ? "pl-8" : ""
-        } ${isDeleteItem ? "text-red-600" : ""} ${className}`}
+        className={itemClassName}
         onClick={handleClick}
         {...props}
       >

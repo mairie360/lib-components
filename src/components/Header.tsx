@@ -34,6 +34,8 @@ export interface HeaderProps {
   setSidebarOpen?: (open: boolean) => void;
   /** Function to handle page navigation from header */
   onPageChange?: (page: string) => void;
+  /** URL of the user profile page. Used when no client-side page handler is provided. */
+  profileHref?: string | null;
   /** Callback function to handle user logout */
   onLogout?: () => void;
   /** Indicates if the logged-in user is an administrator */
@@ -43,7 +45,8 @@ export interface HeaderProps {
 export const Header = ({
   user,
   setSidebarOpen,
-  onPageChange = () => {},
+  onPageChange,
+  profileHref = '/profile',
   onLogout,
   isAdmin = false,
 }: HeaderProps) => {
@@ -69,6 +72,12 @@ export const Header = ({
     return role;
   })();
   const canAdministrate = isAdmin || role === 'admin' || isDefaultUser;
+  const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
+    if (onPageChange) {
+      event.preventDefault();
+      onPageChange('profile');
+    }
+  };
 
   return (
     <header className="flex h-16 items-center justify-between border-b border-b-[#b9d6d5] bg-white px-4 text-[#172033] shadow-[0_2px_8px_rgba(0,0,0,0.16)] sm:px-6">
@@ -143,15 +152,28 @@ export const Header = ({
               )}
             </div>
             <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
+            {profileHref ? (
+              <DropdownMenuItem
+                asChild
+                onClick={handleProfileClick}
+                className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
+              >
+                <a href={profileHref}>
+                  <UserIcon className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+                  Profil
+                </a>
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem
+                onClick={() => onPageChange?.('profile')}
+                className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
+              >
+                <UserIcon className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
+                Profil
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem
-              onClick={() => onPageChange('profile')}
-              className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
-            >
-              <UserIcon className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
-              Profil
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => onPageChange('settings')}
+              onClick={() => onPageChange?.('settings')}
               className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
             >
               <Settings className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
@@ -161,7 +183,7 @@ export const Header = ({
               <>
                 <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
                 <DropdownMenuItem
-                  onClick={() => onPageChange('admin')}
+                  onClick={() => onPageChange?.('admin')}
                   className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
                 >
                   <Shield className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
