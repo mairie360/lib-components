@@ -1,4 +1,4 @@
-import type { MessagingConversation, MessagingMessage } from './types';
+import type { MessagingBusinessReference, MessagingConversation, MessagingMessage } from './types';
 
 export const defaultMessagingConversations: MessagingConversation[] = [
   {
@@ -50,6 +50,30 @@ export const defaultMessagingConversations: MessagingConversation[] = [
   },
 ];
 
+export const defaultMessagingBusinessReferences: MessagingBusinessReference[] = [
+  {
+    id: 'project-renovation-mairie',
+    title: 'Projet rénovation mairie',
+    kind: 'project',
+    description: 'Projet',
+    href: '#project-renovation-mairie',
+  },
+  {
+    id: 'task-budget-previsionnel',
+    title: 'Valider le budget prévisionnel',
+    kind: 'task',
+    description: 'Tâche',
+    href: '#task-budget-previsionnel',
+  },
+  {
+    id: 'event-conseil-municipal',
+    title: 'Conseil municipal',
+    kind: 'event',
+    description: 'Événement',
+    href: '#event-conseil-municipal',
+  },
+];
+
 export const defaultMessagingMessages: MessagingMessage[] = [
   {
     id: 'message-1',
@@ -69,6 +93,7 @@ export const defaultMessagingMessages: MessagingMessage[] = [
     id: 'message-3',
     conversationId: 'marie-dubois',
     content: 'Le budget a été validé pour le projet. Nous pouvons commencer la phase suivante.',
+    businessLinks: [defaultMessagingBusinessReferences[0], defaultMessagingBusinessReferences[1]],
     sentAt: '14:32',
     direction: 'incoming',
   },

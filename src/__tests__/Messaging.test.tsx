@@ -22,8 +22,15 @@ describe('Messaging components', () => {
       target: { value: 'Sophie' },
     });
 
-    expect(screen.getByText('Sophie Leroy')).toBeInTheDocument();
+    expect(screen.getAllByText('Sophie Leroy')[0]).toBeInTheDocument();
     expect(screen.queryByText('Pierre Martin')).not.toBeInTheDocument();
+  });
+
+  it('shows available users in the messaging sidebar', () => {
+    render(<Messaging />);
+
+    expect(screen.getByLabelText('Utilisateurs disponibles')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ouvrir la discussion avec Pierre Martin' })).toBeInTheDocument();
   });
 
   it('calls onSendMessage when a message is submitted', () => {
@@ -39,6 +46,34 @@ describe('Messaging components', () => {
       conversationId: 'marie-dubois',
       content: 'Message de test',
     });
+  });
+
+  it('receives incoming messages passed to the module', () => {
+    const { rerender } = render(<Messaging />);
+
+    rerender(
+      <Messaging
+        incomingMessages={[
+          {
+            id: 'incoming-delayed-message',
+            conversationId: 'marie-dubois',
+            content: 'Message reçu en différé',
+            sentAt: '15:02',
+            authorId: 'marie-dubois',
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getAllByText('Message reçu en différé')[0]).toBeInTheDocument();
+  });
+
+  it('surfaces messaging notifications from unread conversations', () => {
+    render(<Messaging />);
+
+    expect(screen.getByRole('status', { name: 'Notifications de messagerie' })).toHaveTextContent(
+      '6 notifications non lues'
+    );
   });
 
   it('opens the correct modal from each sidebar icon', () => {
@@ -129,6 +164,69 @@ describe('Messaging components', () => {
             kind: 'group',
           }),
         ],
+      })
+    );
+  });
+
+  it('mentions a business element with # and sends the linked reference metadata', () => {
+    const handleSendMessage = jest.fn();
+    render(<Messaging onSendMessage={handleSendMessage} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), {
+      target: { value: '#Projet' },
+    });
+    fireEvent.click(screen.getByText('#Projet rénovation mairie'));
+    expect(screen.getByPlaceholderText('Tapez votre message...')).toHaveValue('#Projet rénovation mairie ');
+
+    fireEvent.click(screen.getByLabelText('Envoyer'));
+
+    expect(handleSendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'marie-dubois',
+        content: '#Projet rénovation mairie',
+        businessLinks: [
+          expect.objectContaining({
+            id: 'project-renovation-mairie',
+            kind: 'project',
+            title: 'Projet rénovation mairie',
+          }),
+        ],
+      })
+    );
+  });
+
+  it('sends contextual message metadata and opens the linked business element', () => {
+    const handleSendMessage = jest.fn();
+    const handleBusinessReferenceClick = jest.fn();
+    const contextReference = {
+      id: 'event-conseil-test',
+      title: 'Conseil municipal',
+      kind: 'event' as const,
+      description: 'Événement',
+    };
+
+    render(
+      <Messaging
+        contextReference={contextReference}
+        onSendMessage={handleSendMessage}
+        onBusinessReferenceClick={handleBusinessReferenceClick}
+      />
+    );
+
+    expect(screen.getByLabelText('Message contextuel')).toHaveTextContent('Événement : Conseil municipal');
+    fireEvent.click(screen.getByText('Ouvrir'));
+    expect(handleBusinessReferenceClick).toHaveBeenCalledWith(contextReference);
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), {
+      target: { value: 'Compte rendu partagé' },
+    });
+    fireEvent.click(screen.getByLabelText('Envoyer'));
+
+    expect(handleSendMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationId: 'marie-dubois',
+        content: 'Compte rendu partagé',
+        context: contextReference,
       })
     );
   });

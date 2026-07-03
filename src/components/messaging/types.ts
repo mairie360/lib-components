@@ -4,6 +4,7 @@ export type MessagingContactId = string | number;
 export type MessagingConversationKind = 'direct' | 'group';
 export type MessagingPresence = 'online' | 'offline' | 'away';
 export type MessagingMessageDirection = 'incoming' | 'outgoing';
+export type MessagingBusinessReferenceKind = 'project' | 'task' | 'event';
 
 export interface MessagingAttachment {
   id: MessagingContactId;
@@ -20,6 +21,14 @@ export interface MessagingMention {
   description?: string;
 }
 
+export interface MessagingBusinessReference {
+  id: MessagingContactId;
+  title: string;
+  kind: MessagingBusinessReferenceKind;
+  description?: string;
+  href?: string;
+}
+
 export interface MessagingConversation {
   id: MessagingContactId;
   name: string;
@@ -31,6 +40,7 @@ export interface MessagingConversation {
   lastMessage?: React.ReactNode;
   lastMessageAt?: string;
   unreadCount?: number;
+  memberIds?: MessagingContactId[];
 }
 
 export interface MessagingMessage {
@@ -39,6 +49,8 @@ export interface MessagingMessage {
   content: React.ReactNode;
   attachments?: MessagingAttachment[];
   mentions?: MessagingMention[];
+  businessLinks?: MessagingBusinessReference[];
+  context?: MessagingBusinessReference;
   sentAt?: string;
   direction?: MessagingMessageDirection;
   authorId?: MessagingContactId;
@@ -50,6 +62,8 @@ export interface MessagingSendMessagePayload {
   content: string;
   attachments?: MessagingAttachment[];
   mentions?: MessagingMention[];
+  businessLinks?: MessagingBusinessReference[];
+  context?: MessagingBusinessReference;
 }
 
 export interface NewMessagePayload {

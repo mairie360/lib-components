@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Search, UsersRound } from 'lucide-react';
+import { MessageSquare, Search, UserRound, UsersRound } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { MessagingConversationItem } from './MessagingConversationItem';
@@ -13,6 +13,8 @@ export interface MessagingSidebarProps extends Omit<React.HTMLAttributes<HTMLEle
   searchValue?: string;
   newMessageLabel?: string;
   createGroupLabel?: string;
+  availableUsersLabel?: string;
+  showAvailableUsers?: boolean;
   emptyLabel?: React.ReactNode;
   onSearchValueChange?: (value: string) => void;
   onConversationSelect?: (conversation: MessagingConversation) => void;
@@ -34,6 +36,8 @@ export const MessagingSidebar = ({
   searchValue,
   newMessageLabel = 'Nouveau message',
   createGroupLabel = 'Créer un groupe',
+  availableUsersLabel = 'Utilisateurs disponibles',
+  showAvailableUsers = true,
   emptyLabel = 'Aucune conversation trouvée.',
   onSearchValueChange,
   onConversationSelect,
@@ -62,6 +66,7 @@ export const MessagingSidebar = ({
 
     return haystack.includes(normalize(currentSearch));
   });
+  const filteredAvailableUsers = filteredConversations.filter((conversation) => conversation.kind !== 'group');
 
   return (
     <aside
@@ -106,6 +111,40 @@ export const MessagingSidebar = ({
           onChange={handleSearchChange}
         />
       </label>
+
+      {showAvailableUsers && filteredAvailableUsers.length > 0 && (
+        <section className="mt-4" aria-label={availableUsersLabel}>
+          <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#5f6770]">
+            <UserRound className="size-3.5" strokeWidth={1.8} />
+            <span>{availableUsersLabel}</span>
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {filteredAvailableUsers.map((conversation) => (
+              <button
+                key={conversation.id}
+                type="button"
+                aria-label={`Ouvrir la discussion avec ${conversation.name}`}
+                className={joinClasses(
+                  'inline-flex max-w-[160px] shrink-0 items-center gap-2 rounded-md border bg-white px-2.5 py-2 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30',
+                  conversation.id === activeConversationId
+                    ? 'border-[#1256a6] bg-[#e4f2f1] text-[#172033]'
+                    : 'border-[#d8d2ca] text-[#2f3747] hover:border-[#b9d6d5] hover:bg-[#fbfaf9]'
+                )}
+                onClick={() => onConversationSelect?.(conversation)}
+              >
+                <span className="min-w-0">
+                  <span className="block truncate font-semibold leading-5">{conversation.name}</span>
+                  {conversation.department && (
+                    <span className="block truncate text-xs leading-4 text-[#5f6770]">
+                      {conversation.department}
+                    </span>
+                  )}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="mt-6 min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5">
         {filteredConversations.length > 0 ? (
