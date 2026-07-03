@@ -1,6 +1,7 @@
 import React from 'react';
 import { AlertCircle, X } from 'lucide-react';
 
+import { CalendarDateField } from './CalendarDateField';
 import { CalendarSidebar } from './CalendarSidebar';
 import { CalendarToolbar } from './CalendarToolbar';
 import { Card } from './Card';
@@ -434,17 +435,13 @@ export const CalendarModule = ({
 
       <div className="grid gap-3 rounded-md border border-[#d8d2ca] bg-white p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
         <div>
-          <label htmlFor="calendar-date-filter" className="mb-1 block text-sm font-semibold text-[#334155]">
-            Filtrer par date
-          </label>
-          <input
+          <CalendarDateField
             id="calendar-date-filter"
-            type="text"
-            inputMode="numeric"
+            label="Filtrer par date"
             value={dateFilter}
-            placeholder="JJ-MM-AAAA"
-            className={fieldClassName}
-            onChange={(event) => setDateFilter(event.target.value)}
+            inputClassName={fieldClassName}
+            labelClassName="mb-1 block text-sm font-semibold text-[#334155]"
+            onChange={setDateFilter}
           />
         </div>
 

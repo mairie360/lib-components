@@ -1,9 +1,10 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
+import { CalendarDateField } from './CalendarDateField';
 import { EventAssigneeSelect } from './EventAssigneeSelect';
 import { defaultEventCategories, weekDayOptions } from './calendar/constants';
-import { normalizeDateForServer, serverDatePattern, serverDatePlaceholder } from './calendar/date';
+import { normalizeDateForServer } from './calendar/date';
 import { joinClasses } from './calendar/style';
 import type { CalendarRecurrenceFrequency, CreateCalendarEventValues, CreateEventModalProps } from './calendar/types';
 
@@ -50,6 +51,17 @@ const fieldClassName =
   'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition-colors placeholder:text-[#64748b] focus:border-[#94a3b8] focus:ring-2 focus:ring-[#3b82f6]/20';
 
 const labelClassName = 'mb-1 block text-sm font-semibold text-[#334155]';
+
+const timeOptions = Array.from({ length: 96 }, (_, index) => {
+  const totalMinutes = index * 15;
+  const hours = String(Math.floor(totalMinutes / 60)).padStart(2, '0');
+  const minutes = String(totalMinutes % 60).padStart(2, '0');
+
+  return {
+    value: `${hours}:${minutes}`,
+    label: `${hours} h ${minutes}`,
+  };
+});
 
 export const CreateEventModal = ({
   isOpen,
@@ -212,42 +224,24 @@ export const CreateEventModal = ({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="event-date" className={labelClassName}>
-                Date de début
-              </label>
-              <input
-                id="event-date"
-                name="date"
-                type="text"
-                inputMode="numeric"
-                pattern={serverDatePattern}
-                required
-                value={values.date}
-                placeholder={serverDatePlaceholder}
-                title="Format attendu : JJ-MM-AAAA"
-                className={fieldClassName}
-                onChange={(event) => updateValue('date', event.target.value)}
-              />
-            </div>
+            <CalendarDateField
+              id="event-date"
+              label="Date de début"
+              required
+              value={values.date}
+              inputClassName={fieldClassName}
+              labelClassName={labelClassName}
+              onChange={(value) => updateValue('date', value)}
+            />
 
-            <div>
-              <label htmlFor="event-end-date" className={labelClassName}>
-                Date de fin
-              </label>
-              <input
-                id="event-end-date"
-                name="endDate"
-                type="text"
-                inputMode="numeric"
-                pattern={serverDatePattern}
-                value={values.endDate}
-                placeholder={serverDatePlaceholder}
-                title="Format attendu : JJ-MM-AAAA"
-                className={fieldClassName}
-                onChange={(event) => updateValue('endDate', event.target.value)}
-              />
-            </div>
+            <CalendarDateField
+              id="event-end-date"
+              label="Date de fin"
+              value={values.endDate}
+              inputClassName={fieldClassName}
+              labelClassName={labelClassName}
+              onChange={(value) => updateValue('endDate', value)}
+            />
           </div>
 
           <div>
@@ -334,19 +328,13 @@ export const CreateEventModal = ({
 
               {values.recurrence.frequency !== 'none' && (
                 <div className="mt-3">
-                  <label htmlFor="event-recurrence-end" className={labelClassName}>
-                    Fin de récurrence
-                  </label>
-                  <input
+                  <CalendarDateField
                     id="event-recurrence-end"
-                    type="text"
-                    inputMode="numeric"
-                    pattern={serverDatePattern}
+                    label="Fin de récurrence"
                     value={String(values.recurrence.endsOn || '')}
-                    placeholder={serverDatePlaceholder}
-                    title="Format attendu : JJ-MM-AAAA"
-                    className={fieldClassName}
-                    onChange={(event) => updateRecurrence('endsOn', event.target.value)}
+                    inputClassName={fieldClassName}
+                    labelClassName={labelClassName}
+                    onChange={(value) => updateRecurrence('endsOn', value)}
                   />
                 </div>
               )}
@@ -358,28 +346,40 @@ export const CreateEventModal = ({
               <label htmlFor="event-start-time" className={labelClassName}>
                 Heure de début
               </label>
-              <input
+              <select
                 id="event-start-time"
                 name="startTime"
-                type="time"
                 value={values.startTime}
                 className={fieldClassName}
                 onChange={(event) => updateValue('startTime', event.target.value)}
-              />
+              >
+                <option value="">Sélectionner une heure</option>
+                {timeOptions.map((timeOption) => (
+                  <option key={timeOption.value} value={timeOption.value}>
+                    {timeOption.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div>
               <label htmlFor="event-end-time" className={labelClassName}>
                 Heure de fin
               </label>
-              <input
+              <select
                 id="event-end-time"
                 name="endTime"
-                type="time"
                 value={values.endTime}
                 className={fieldClassName}
                 onChange={(event) => updateValue('endTime', event.target.value)}
-              />
+              >
+                <option value="">Sélectionner une heure</option>
+                {timeOptions.map((timeOption) => (
+                  <option key={timeOption.value} value={timeOption.value}>
+                    {timeOption.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

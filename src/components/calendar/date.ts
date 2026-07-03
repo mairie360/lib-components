@@ -41,6 +41,19 @@ export const formatDateForServer = (date: CalendarDateInput) => {
   return `${day}-${month}-${year}`;
 };
 
+export const formatDateForInput = (date?: CalendarDateInput | null) => {
+  if (!date) return '';
+
+  const parsedDate = parseDateInput(date);
+  if (Number.isNaN(parsedDate.getTime())) return '';
+
+  const day = padDatePart(parsedDate.getDate());
+  const month = padDatePart(parsedDate.getMonth() + 1);
+  const year = parsedDate.getFullYear();
+
+  return `${year}-${month}-${day}`;
+};
+
 export const normalizeDateForServer = (date?: CalendarDateInput | null) => {
   if (!date) return '';
   return formatDateForServer(date);
@@ -129,9 +142,21 @@ export const getMonthCells = (date: CalendarDateInput, weekStartsOn: 0 | 1 = 1) 
   });
 };
 
+export const formatTimeLabel = (time?: string) => {
+  if (!time) return null;
+
+  const [hours = '', minutes = ''] = time.split(':');
+  if (!hours || !minutes) return time;
+
+  return `${hours.padStart(2, '0')} h ${minutes.padStart(2, '0')}`;
+};
+
 export const getEventTimeLabel = (event: CalendarEvent) => {
-  if (event.startTime && event.endTime) return `${event.startTime} - ${event.endTime}`;
-  return event.startTime || event.endTime || null;
+  const startTime = formatTimeLabel(event.startTime);
+  const endTime = formatTimeLabel(event.endTime);
+
+  if (startTime && endTime) return `${startTime} - ${endTime}`;
+  return startTime || endTime || null;
 };
 
 export const getEventDateLabel = (event: CalendarEvent) => {

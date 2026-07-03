@@ -14,6 +14,7 @@ export { Avatar } from './components/Avatar';
 export { Badge } from './components/Badge';
 export { Button } from './components/Button';
 export { CalendarCell } from './components/CalendarCell';
+export { CalendarDateField } from './components/CalendarDateField';
 export { CalendarModule } from './components/CalendarModule';
 export { CalendarSidebar } from './components/CalendarSidebar';
 export { CalendarToolbar } from './components/CalendarToolbar';

@@ -27,6 +27,7 @@ describe('EventDetailsModal component', () => {
     expect(screen.getByText('Conseil municipal')).toBeInTheDocument();
     expect(screen.getByText('Préparer la séance')).toBeInTheDocument();
     expect(screen.getByText('Salle du conseil')).toBeInTheDocument();
+    expect(screen.getByText('09 h 00 - 10 h 30')).toBeInTheDocument();
     expect(screen.getByText('Alice Dupont')).toBeInTheDocument();
   });
 

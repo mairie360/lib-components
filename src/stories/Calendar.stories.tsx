@@ -228,6 +228,7 @@ const CalendarComposition = ({
         isOpen={Boolean(selectedEvent)}
         event={selectedEvent}
         people={people}
+        canDelete
         onClose={() => setSelectedEvent(null)}
         onSave={(updatedEvent) => {
           setCalendarEvents((currentEvents) =>
@@ -236,6 +237,12 @@ const CalendarComposition = ({
             )
           );
           setSelectedEvent(updatedEvent);
+        }}
+        onDelete={(eventToDelete) => {
+          setCalendarEvents((currentEvents) =>
+            currentEvents.filter((calendarEvent) => String(calendarEvent.id) !== String(eventToDelete.id))
+          );
+          setSelectedEvent(null);
         }}
       />
     </div>
