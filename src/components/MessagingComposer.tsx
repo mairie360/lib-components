@@ -1,8 +1,8 @@
 import React from 'react';
-import { AtSign, FileText, Paperclip, Send, Smile, X } from 'lucide-react';
+import { AtSign, Briefcase, CalendarDays, FileText, Hash, ListTodo, Paperclip, Send, Smile, X } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import type { MessagingAttachment, MessagingMention } from './messaging/types';
+import type { MessagingAttachment, MessagingBusinessReference, MessagingMention } from './messaging/types';
 
 export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormElement> {
   value?: string;
@@ -13,8 +13,14 @@ export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormEle
   emojiLabel?: string;
   disabled?: boolean;
   mentionOptions?: MessagingMention[];
+  businessReferenceOptions?: MessagingBusinessReference[];
   onValueChange?: (value: string) => void;
-  onSendMessage?: (message: string, attachments?: MessagingAttachment[], mentions?: MessagingMention[]) => void;
+  onSendMessage?: (
+    message: string,
+    attachments?: MessagingAttachment[],
+    mentions?: MessagingMention[],
+    businessLinks?: MessagingBusinessReference[]
+  ) => void;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
 }
@@ -27,8 +33,8 @@ const normalizeMentionValue = (value: string) =>
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase();
 
-const getMentionMatch = (value: string) => {
-  const match = value.match(/(^|\s)@([^\s@]*)$/);
+const getTriggerMatch = (value: string, trigger: '@' | '#') => {
+  const match = value.match(new RegExp(`(^|\\s)\\${trigger}([^\\s@#]*)$`));
 
   if (!match || match.index === undefined) return null;
 
@@ -37,6 +43,9 @@ const getMentionMatch = (value: string) => {
     query: match[2],
   };
 };
+
+const appendTrigger = (value: string, trigger: '@' | '#') =>
+  `${value}${value.trim() && !value.endsWith(' ') ? ` ${trigger}` : trigger}`;
 
 export const MessagingComposer = ({
   value,
@@ -47,6 +56,7 @@ export const MessagingComposer = ({
   emojiLabel = 'Ajouter une réaction',
   disabled = false,
   mentionOptions = [],
+  businessReferenceOptions = [],
   onValueChange,
   onSendMessage,
   onAttach,
@@ -59,16 +69,27 @@ export const MessagingComposer = ({
   const [internalValue, setInternalValue] = React.useState(defaultValue);
   const [attachments, setAttachments] = React.useState<MessagingAttachment[]>([]);
   const [mentions, setMentions] = React.useState<MessagingMention[]>([]);
+  const [businessLinks, setBusinessLinks] = React.useState<MessagingBusinessReference[]>([]);
   const [emojiOpen, setEmojiOpen] = React.useState(false);
   const currentValue = value ?? internalValue;
   const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled;
-  const mentionMatch = getMentionMatch(currentValue);
+  const mentionMatch = getTriggerMatch(currentValue, '@');
+  const businessReferenceMatch = getTriggerMatch(currentValue, '#');
   const mentionSuggestions = mentionMatch
     ? mentionOptions
         .filter((mention) => normalizeMentionValue(mention.name).includes(normalizeMentionValue(mentionMatch.query)))
         .slice(0, 6)
     : [];
+  const businessReferenceSuggestions =
+    !mentionMatch && businessReferenceMatch
+      ? businessReferenceOptions
+          .filter((reference) =>
+            normalizeMentionValue(reference.title).includes(normalizeMentionValue(businessReferenceMatch.query))
+          )
+          .slice(0, 6)
+      : [];
   const mentionSuggestionsOpen = mentionSuggestions.length > 0;
+  const businessReferenceSuggestionsOpen = businessReferenceSuggestions.length > 0;
 
   const updateValue = (nextValue: string) => {
     if (value === undefined) {
@@ -89,8 +110,9 @@ export const MessagingComposer = ({
     if ((!currentValue.trim() && attachments.length === 0) || disabled) return;
 
     const messageMentions = mentions.filter((mention) => currentValue.includes(`@${mention.name}`));
+    const messageBusinessLinks = businessLinks.filter((reference) => currentValue.includes(`#${reference.title}`));
 
-    onSendMessage?.(nextMessage, attachments, messageMentions);
+    onSendMessage?.(nextMessage, attachments, messageMentions, messageBusinessLinks);
 
     if (value === undefined) {
       setInternalValue('');
@@ -98,6 +120,7 @@ export const MessagingComposer = ({
 
     setAttachments([]);
     setMentions([]);
+    setBusinessLinks([]);
     setEmojiOpen(false);
     onValueChange?.('');
   };
@@ -159,11 +182,37 @@ export const MessagingComposer = ({
     window.setTimeout(() => textInputRef.current?.focus(), 0);
   };
 
+  const selectBusinessReference = (reference: MessagingBusinessReference) => {
+    if (!businessReferenceMatch) return;
+
+    const nextValue = `${currentValue.slice(0, businessReferenceMatch.start)}#${reference.title} `;
+    updateValue(nextValue);
+    setBusinessLinks((currentLinks) =>
+      currentLinks.some((currentLink) => currentLink.id === reference.id)
+        ? currentLinks
+        : [...currentLinks, reference]
+    );
+
+    window.setTimeout(() => textInputRef.current?.focus(), 0);
+  };
+
   const handleInputKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if ((event.key === 'Enter' || event.key === 'Tab') && mentionSuggestionsOpen) {
       event.preventDefault();
       selectMention(mentionSuggestions[0]);
     }
+
+    if ((event.key === 'Enter' || event.key === 'Tab') && businessReferenceSuggestionsOpen) {
+      event.preventDefault();
+      selectBusinessReference(businessReferenceSuggestions[0]);
+    }
+  };
+
+  const getBusinessReferenceIcon = (reference: MessagingBusinessReference) => {
+    if (reference.kind === 'event') return <CalendarDays className="size-4" strokeWidth={1.8} />;
+    if (reference.kind === 'task') return <ListTodo className="size-4" strokeWidth={1.8} />;
+
+    return <Briefcase className="size-4" strokeWidth={1.8} />;
   };
 
   return (
@@ -195,26 +244,45 @@ export const MessagingComposer = ({
             onChange={handleChange}
             onKeyDown={handleInputKeyDown}
           />
-          {mentionSuggestionsOpen && (
+          {(mentionSuggestionsOpen || businessReferenceSuggestionsOpen) && (
             <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 w-full max-w-[320px] overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
-              {mentionSuggestions.map((mention) => (
-                <button
-                  key={mention.id}
-                  type="button"
-                  className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-                  onClick={() => selectMention(mention)}
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1256a6] text-white">
-                    <AtSign className="size-4" strokeWidth={1.8} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">@{mention.name}</span>
-                    <span className="block truncate text-xs text-[#5f6770]">
-                      {mention.kind === 'group' ? 'Groupe' : mention.description || 'Contact'}
-                    </span>
-                  </span>
-                </button>
-              ))}
+              {mentionSuggestionsOpen
+                ? mentionSuggestions.map((mention) => (
+                    <button
+                      key={mention.id}
+                      type="button"
+                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                      onClick={() => selectMention(mention)}
+                    >
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1256a6] text-white">
+                        <AtSign className="size-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold">@{mention.name}</span>
+                        <span className="block truncate text-xs text-[#5f6770]">
+                          {mention.kind === 'group' ? 'Groupe' : mention.description || 'Contact'}
+                        </span>
+                      </span>
+                    </button>
+                  ))
+                : businessReferenceSuggestions.map((reference) => (
+                    <button
+                      key={reference.id}
+                      type="button"
+                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                      onClick={() => selectBusinessReference(reference)}
+                    >
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1d7a63] text-white">
+                        {getBusinessReferenceIcon(reference)}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold">#{reference.title}</span>
+                        <span className="block truncate text-xs text-[#5f6770]">
+                          {reference.description || 'Élément métier'}
+                        </span>
+                      </span>
+                    </button>
+                  ))}
             </div>
           )}
         </div>
@@ -258,6 +326,32 @@ export const MessagingComposer = ({
           onClick={handleAttachClick}
         >
           <Paperclip className="size-4" strokeWidth={1.8} />
+        </button>
+        <button
+          type="button"
+          aria-label="Mentionner un utilisateur"
+          title="Mentionner un utilisateur"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          onClick={() => {
+            if (disabled) return;
+            updateValue(appendTrigger(currentValue, '@'));
+            window.setTimeout(() => textInputRef.current?.focus(), 0);
+          }}
+        >
+          <AtSign className="size-4" strokeWidth={1.8} />
+        </button>
+        <button
+          type="button"
+          aria-label="Mentionner un élément métier"
+          title="Mentionner un élément métier"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          onClick={() => {
+            if (disabled) return;
+            updateValue(appendTrigger(currentValue, '#'));
+            window.setTimeout(() => textInputRef.current?.focus(), 0);
+          }}
+        >
+          <Hash className="size-4" strokeWidth={1.8} />
         </button>
         <div className="relative">
           <button

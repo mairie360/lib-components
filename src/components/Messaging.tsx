@@ -1,4 +1,5 @@
 import React from 'react';
+import { Bell, Briefcase, CalendarDays, ListTodo } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { CreateGroupModal } from './CreateGroupModal';
@@ -7,10 +8,15 @@ import { MessagingComposer } from './MessagingComposer';
 import { MessagingMessageBubble } from './MessagingMessageBubble';
 import { MessagingSidebar } from './MessagingSidebar';
 import { NewMessageModal } from './NewMessageModal';
-import { defaultMessagingConversations, defaultMessagingMessages } from './messaging/defaultData';
+import {
+  defaultMessagingBusinessReferences,
+  defaultMessagingConversations,
+  defaultMessagingMessages,
+} from './messaging/defaultData';
 import type {
   CreateGroupPayload,
   MessagingAttachment,
+  MessagingBusinessReference,
   MessagingContactId,
   MessagingConversation,
   MessagingMention,
@@ -22,6 +28,9 @@ import type {
 export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   conversations?: MessagingConversation[];
   messages?: MessagingMessage[];
+  incomingMessages?: MessagingMessage[];
+  businessReferences?: MessagingBusinessReference[];
+  contextReference?: MessagingBusinessReference;
   activeConversationId?: MessagingContactId;
   defaultActiveConversationId?: MessagingContactId;
   currentUserId?: MessagingContactId;
@@ -35,6 +44,7 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onConversationDelete?: (conversation: MessagingConversation) => void;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
+  onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
   onCall?: (conversation: MessagingConversation) => void;
   onVideoCall?: (conversation: MessagingConversation) => void;
   onMoreActions?: (conversation: MessagingConversation) => void;
@@ -62,9 +72,39 @@ const getConversationInitials = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
+const mergeMessagesById = (baseMessages: MessagingMessage[], nextMessages: MessagingMessage[] = []) => {
+  const messageIds = new Set(baseMessages.map((message) => String(message.id)));
+  const mergedMessages = [...baseMessages];
+
+  nextMessages.forEach((message) => {
+    if (messageIds.has(String(message.id))) return;
+
+    mergedMessages.push(message);
+    messageIds.add(String(message.id));
+  });
+
+  return mergedMessages;
+};
+
+const getMessagePreview = (message: MessagingMessage | React.ReactNode) => {
+  const content = typeof message === 'object' && message !== null && 'content' in message ? message.content : message;
+
+  return typeof content === 'string' ? content : 'Nouveau message';
+};
+
+const getBusinessReferenceLabel = (reference: MessagingBusinessReference) => {
+  if (reference.kind === 'event') return 'Événement';
+  if (reference.kind === 'task') return 'Tâche';
+
+  return 'Projet';
+};
+
 export const Messaging = ({
   conversations,
   messages,
+  incomingMessages = [],
+  businessReferences = defaultMessagingBusinessReferences,
+  contextReference,
   activeConversationId,
   defaultActiveConversationId,
   currentUserId,
@@ -78,6 +118,7 @@ export const Messaging = ({
   onConversationDelete,
   onAttach,
   onEmoji,
+  onBusinessReferenceClick,
   onCall,
   onVideoCall,
   onMoreActions,
@@ -95,16 +136,24 @@ export const Messaging = ({
     defaultActiveConversationId ?? firstConversationId
   );
   const [internalMessages, setInternalMessages] = React.useState<MessagingMessage[]>(defaultMessagingMessages);
+  const seenIncomingMessageIdsRef = React.useRef<Set<string>>(
+    new Set(defaultMessagingMessages.map((message) => String(message.id)))
+  );
   const resolvedActiveId = activeConversationId ?? internalActiveId;
   const activeConversation =
     displayedConversations.find((conversation) => conversation.id === resolvedActiveId) ?? null;
-  const displayedMessages = messages ?? internalMessages;
+  const displayedMessages = mergeMessagesById(messages ?? internalMessages, incomingMessages);
   const visibleMessages = displayedMessages
     .filter((message) => message.conversationId === undefined || message.conversationId === resolvedActiveId)
     .map((message) => ({
       ...message,
       direction: getMessageDirection(message, currentUserId),
     }));
+  const unreadNotificationCount = displayedConversations.reduce(
+    (total, conversation) => total + (conversation.unreadCount ?? 0),
+    0
+  );
+  const firstUnreadConversation = displayedConversations.find((conversation) => (conversation.unreadCount ?? 0) > 0);
 
   React.useEffect(() => {
     if (activeConversationId === undefined && internalActiveId === undefined && firstConversationId !== undefined) {
@@ -115,7 +164,8 @@ export const Messaging = ({
   const updateConversationPreview = (
     conversationId: MessagingContactId | undefined,
     lastMessage: React.ReactNode,
-    lastMessageAt = formatMessageTime()
+    lastMessageAt = formatMessageTime(),
+    unreadDelta = 0
   ) => {
     if (conversationId === undefined || conversations !== undefined) return;
 
@@ -126,18 +176,55 @@ export const Messaging = ({
               ...conversation,
               lastMessage,
               lastMessageAt,
-              unreadCount: 0,
+              unreadCount: unreadDelta > 0 ? (conversation.unreadCount ?? 0) + unreadDelta : 0,
             }
           : conversation
       )
     );
   };
 
+  const markConversationAsRead = (conversationId: MessagingContactId | undefined) => {
+    if (conversationId === undefined || conversations !== undefined) return;
+
+    setInternalConversations((currentConversations) =>
+      currentConversations.map((conversation) =>
+        conversation.id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
+      )
+    );
+  };
+
+  React.useEffect(() => {
+    if (messages !== undefined || incomingMessages.length === 0) return;
+
+    const nextIncomingMessages = incomingMessages.filter(
+      (message) => !seenIncomingMessageIdsRef.current.has(String(message.id))
+    );
+    if (nextIncomingMessages.length === 0) return;
+
+    nextIncomingMessages.forEach((message) => {
+      seenIncomingMessageIdsRef.current.add(String(message.id));
+    });
+    setInternalMessages((currentMessages) => mergeMessagesById(currentMessages, nextIncomingMessages));
+
+    nextIncomingMessages.forEach((message) => {
+      const conversationId = message.conversationId;
+      const unreadDelta = conversationId !== undefined && conversationId !== resolvedActiveId ? 1 : 0;
+
+      updateConversationPreview(
+        conversationId,
+        getMessagePreview(message),
+        message.sentAt ?? formatMessageTime(),
+        unreadDelta
+      );
+    });
+  }, [incomingMessages, messages, resolvedActiveId]);
+
   const handleConversationSelect = (conversation: MessagingConversation) => {
     if (activeConversationId === undefined) {
       setInternalActiveId(conversation.id);
     }
 
+    markConversationAsRead(conversation.id);
     onConversationSelect?.(conversation);
   };
 
@@ -154,7 +241,8 @@ export const Messaging = ({
   const handleSendMessage = (
     content: string,
     attachments?: MessagingAttachment[],
-    mentions?: MessagingMention[]
+    mentions?: MessagingMention[],
+    businessLinks?: MessagingBusinessReference[]
   ) => {
     const payload: MessagingSendMessagePayload = {
       conversationId: activeConversation?.id,
@@ -167,6 +255,14 @@ export const Messaging = ({
 
     if (mentions?.length) {
       payload.mentions = mentions;
+    }
+
+    if (businessLinks?.length) {
+      payload.businessLinks = businessLinks;
+    }
+
+    if (contextReference) {
+      payload.context = contextReference;
     }
 
     onSendMessage?.(payload);
@@ -182,6 +278,8 @@ export const Messaging = ({
           content,
           attachments,
           mentions,
+          businessLinks,
+          context: contextReference,
           sentAt,
           direction: 'outgoing',
         },
@@ -230,6 +328,7 @@ export const Messaging = ({
         presence: 'online',
         lastMessage: payload.description || 'Groupe créé',
         lastMessageAt: formatMessageTime(),
+        memberIds: payload.memberIds,
       };
 
       setInternalConversations((currentConversations) => [newGroup, ...currentConversations]);
@@ -262,6 +361,13 @@ export const Messaging = ({
     }
   };
 
+  const getBusinessReferenceIcon = (reference: MessagingBusinessReference) => {
+    if (reference.kind === 'event') return <CalendarDays className="size-4 shrink-0" strokeWidth={1.8} />;
+    if (reference.kind === 'task') return <ListTodo className="size-4 shrink-0" strokeWidth={1.8} />;
+
+    return <Briefcase className="size-4 shrink-0" strokeWidth={1.8} />;
+  };
+
   return (
     <section
       className={joinClasses(
@@ -287,10 +393,39 @@ export const Messaging = ({
           onDeleteConversation={handleDeleteConversation}
         />
 
+        {unreadNotificationCount > 0 && (
+          <div
+            role="status"
+            aria-label="Notifications de messagerie"
+            className="flex flex-wrap items-center gap-3 border-b border-[#d8d2ca] bg-[#fff8e8] px-4 py-2.5 text-sm text-[#5a3b00] sm:px-5"
+          >
+            <Bell className="size-4 shrink-0" strokeWidth={1.8} />
+            <span className="font-semibold">
+              {unreadNotificationCount} notification{unreadNotificationCount > 1 ? 's' : ''} non lue
+              {unreadNotificationCount > 1 ? 's' : ''}
+            </span>
+            {firstUnreadConversation && (
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 font-semibold text-[#1256a6] transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                onClick={() => handleConversationSelect(firstUnreadConversation)}
+              >
+                Voir {firstUnreadConversation.name}
+              </button>
+            )}
+          </div>
+        )}
+
         <div className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5 sm:px-5">
           {activeConversation ? (
             visibleMessages.length > 0 ? (
-              visibleMessages.map((message) => <MessagingMessageBubble key={message.id} message={message} />)
+              visibleMessages.map((message) => (
+                <MessagingMessageBubble
+                  key={message.id}
+                  message={message}
+                  onBusinessReferenceClick={onBusinessReferenceClick}
+                />
+              ))
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-[#5f6770]">
                 Aucun message dans cette conversation.
@@ -301,6 +436,30 @@ export const Messaging = ({
           )}
         </div>
 
+        {contextReference && (
+          <div
+            aria-label="Message contextuel"
+            className="flex items-center gap-3 border-t border-[#d8d2ca] bg-[#eef7f6] px-4 py-3 text-sm text-[#245651] sm:px-5"
+          >
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-[#1d7a63]">
+              {getBusinessReferenceIcon(contextReference)}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold leading-5">Message contextuel</span>
+              <span className="block truncate leading-5">
+                {getBusinessReferenceLabel(contextReference)} : {contextReference.title}
+              </span>
+            </span>
+            <button
+              type="button"
+              className="shrink-0 rounded-md px-2.5 py-1.5 font-semibold text-[#1256a6] transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+              onClick={() => onBusinessReferenceClick?.(contextReference)}
+            >
+              Ouvrir
+            </button>
+          </div>
+        )}
+
         <MessagingComposer
           disabled={!activeConversation}
           mentionOptions={displayedConversations.map((conversation) => ({
@@ -309,6 +468,7 @@ export const Messaging = ({
             kind: conversation.kind ?? 'direct',
             description: conversation.department,
           }))}
+          businessReferenceOptions={businessReferences}
           onSendMessage={handleSendMessage}
           onAttach={onAttach}
           onEmoji={onEmoji}

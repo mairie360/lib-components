@@ -1,20 +1,41 @@
 import React from 'react';
-import { FileText } from 'lucide-react';
+import { Briefcase, CalendarDays, FileText, ListTodo } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import type { MessagingMessage } from './messaging/types';
+import type { MessagingBusinessReference, MessagingMessage } from './messaging/types';
 
 export interface MessagingMessageBubbleProps extends React.HTMLAttributes<HTMLDivElement> {
   message: MessagingMessage;
+  onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
 }
 
 export const MessagingMessageBubble = ({
   message,
+  onBusinessReferenceClick,
   className = '',
   ...props
 }: MessagingMessageBubbleProps) => {
   const outgoing = message.direction === 'outgoing';
   const hasAttachments = !!message.attachments?.length;
+  const businessReferences = [message.context, ...(message.businessLinks ?? [])].filter(
+    (reference, index, references): reference is MessagingBusinessReference =>
+      !!reference && references.findIndex((currentReference) => currentReference?.id === reference.id) === index
+  );
+  const hasBusinessReferences = businessReferences.length > 0;
+
+  const getBusinessReferenceIcon = (reference: MessagingBusinessReference) => {
+    if (reference.kind === 'event') return <CalendarDays className="size-3.5 shrink-0" strokeWidth={1.8} />;
+    if (reference.kind === 'task') return <ListTodo className="size-3.5 shrink-0" strokeWidth={1.8} />;
+
+    return <Briefcase className="size-3.5 shrink-0" strokeWidth={1.8} />;
+  };
+
+  const referenceClassName = joinClasses(
+    'inline-flex max-w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition',
+    outgoing
+      ? 'border-white/35 bg-white/10 text-white hover:bg-white/15'
+      : 'border-[#b9d6d5] bg-[#eef7f6] text-[#245651] hover:bg-[#e4f2f1]'
+  );
 
   return (
     <div
@@ -30,6 +51,33 @@ export const MessagingMessageBubble = ({
         )}
       >
         <div>{message.content}</div>
+        {hasBusinessReferences && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {businessReferences.map((reference) =>
+              reference.href ? (
+                <a
+                  key={reference.id}
+                  href={reference.href}
+                  className={referenceClassName}
+                  onClick={() => onBusinessReferenceClick?.(reference)}
+                >
+                  {getBusinessReferenceIcon(reference)}
+                  <span className="min-w-0 truncate">{reference.title}</span>
+                </a>
+              ) : (
+                <button
+                  key={reference.id}
+                  type="button"
+                  className={referenceClassName}
+                  onClick={() => onBusinessReferenceClick?.(reference)}
+                >
+                  {getBusinessReferenceIcon(reference)}
+                  <span className="min-w-0 truncate">{reference.title}</span>
+                </button>
+              )
+            )}
+          </div>
+        )}
         {hasAttachments && (
           <div className="mt-3 space-y-2">
             {message.attachments?.map((attachment) => (
