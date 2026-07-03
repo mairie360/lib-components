@@ -442,7 +442,7 @@ describe('Elearning components', () => {
   it('opens fallback course details from catalog when details are not provided', () => {
     render(<ElearningCatalog courses={[courses[1]]} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Revoir' }));
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
     expect(screen.getByRole('dialog')).toHaveTextContent('Chapitre 1');
@@ -468,5 +468,124 @@ describe('Elearning components', () => {
     });
 
     expect(screen.getByText('Aucune formation ne correspond aux filtres.')).toBeInTheDocument();
+  });
+
+  it('hides formation management actions from standard users', () => {
+    render(<ElearningCatalog courses={courses} />);
+
+    expect(screen.queryByRole('button', { name: 'Nouvelle formation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Modifier Sécurité au travail/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Supprimer Sécurité au travail/ })).not.toBeInTheDocument();
+  });
+
+  it('lets administrators create, edit and delete formations', () => {
+    const handleCreateCourse = jest.fn();
+    const handleUpdateCourse = jest.fn();
+    const handleDeleteCourse = jest.fn();
+
+    render(
+      <ElearningCatalog
+        courses={courses}
+        currentUserRole="administrator"
+        onCreateCourse={handleCreateCourse}
+        onUpdateCourse={handleUpdateCourse}
+        onDeleteCourse={handleDeleteCourse}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Nouvelle formation' }));
+    let dialog = screen.getByRole('dialog', { name: 'Nouvelle formation' });
+
+    fireEvent.change(within(dialog).getByLabelText('Titre'), {
+      target: { value: 'Prévention incendie' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Description'), {
+      target: { value: 'Identifier les risques et appliquer les consignes d’évacuation.' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Catégorie'), {
+      target: { value: 'Sécurité' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Instructeur'), {
+      target: { value: 'Anne Leroy' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Durée'), {
+      target: { value: '1h 15min' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Chapitres'), {
+      target: { value: '3' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Créer' }));
+
+    expect(handleCreateCourse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Prévention incendie',
+        category: 'Sécurité',
+        instructor: 'Anne Leroy',
+      }),
+      expect.objectContaining({
+        title: 'Prévention incendie',
+      })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Formation "Prévention incendie" créée.');
+    expect(screen.getByText('Prévention incendie')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier Prévention incendie' }));
+    dialog = screen.getByRole('dialog', { name: 'Modifier la formation' });
+    fireEvent.change(within(dialog).getByLabelText('Titre'), {
+      target: { value: 'Prévention incendie actualisée' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Progression'), {
+      target: { value: '100' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
+
+    expect(handleUpdateCourse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Prévention incendie actualisée',
+        progress: 100,
+        statusValue: 'completed',
+      }),
+      expect.objectContaining({
+        progress: 100,
+      })
+    );
+    expect(screen.queryByText('Prévention incendie')).not.toBeInTheDocument();
+    expect(screen.getByText('Prévention incendie actualisée')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Supprimer Prévention incendie actualisée' }));
+
+    expect(handleDeleteCourse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Prévention incendie actualisée',
+      })
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('Formation "Prévention incendie actualisée" supprimée.');
+    expect(screen.queryByText('Prévention incendie actualisée')).not.toBeInTheDocument();
+  });
+
+  it('updates training statistics from participation and completion progress', () => {
+    render(
+      <ElearningCatalog
+        courses={[
+          {
+            ...courses[0],
+            statusValue: 'not-started',
+            statusBadge: { label: 'Non commencé', variant: 'notStarted' },
+            progress: 0,
+            chapters: 1,
+          },
+        ]}
+      />
+    );
+
+    expect(within(screen.getByText('Participation').parentElement as HTMLElement).getByText('0%')).toBeInTheDocument();
+    expect(within(screen.getByText('Complétion').parentElement as HTMLElement).getByText('0%')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo du chapitre 1 comme terminé' }));
+    fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
+
+    expect(within(screen.getByText('Participation').parentElement as HTMLElement).getByText('100%')).toBeInTheDocument();
+    expect(within(screen.getByText('Complétion').parentElement as HTMLElement).getByText('50%')).toBeInTheDocument();
   });
 });
