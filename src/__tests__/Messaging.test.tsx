@@ -26,11 +26,13 @@ describe('Messaging components', () => {
     expect(screen.queryByText('Pierre Martin')).not.toBeInTheDocument();
   });
 
-  it('shows available users in the messaging sidebar', () => {
+  it('does not show the available users strip in the messaging sidebar', () => {
     render(<Messaging />);
 
-    expect(screen.getByLabelText('Utilisateurs disponibles')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Ouvrir la discussion avec Pierre Martin' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Utilisateurs disponibles')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Ouvrir la discussion avec Pierre Martin' })
+    ).not.toBeInTheDocument();
   });
 
   it('calls onSendMessage when a message is submitted', () => {
@@ -166,6 +168,16 @@ describe('Messaging components', () => {
         ],
       })
     );
+  });
+
+  it('opens user mention suggestions from the @ toolbar button', () => {
+    render(<Messaging />);
+
+    fireEvent.click(screen.getByLabelText('Mentionner un utilisateur'));
+    expect(screen.getByPlaceholderText('Tapez votre message...')).toHaveValue('@');
+
+    fireEvent.click(screen.getByText('@Marie Dubois'));
+    expect(screen.getByPlaceholderText('Tapez votre message...')).toHaveValue('@Marie Dubois ');
   });
 
   it('mentions a business element with # and sends the linked reference metadata', () => {

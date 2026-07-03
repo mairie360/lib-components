@@ -44,6 +44,9 @@ const getTriggerMatch = (value: string, trigger: '@' | '#') => {
   };
 };
 
+const appendTrigger = (value: string, trigger: '@' | '#') =>
+  `${value}${value.trim() && !value.endsWith(' ') ? ` ${trigger}` : trigger}`;
+
 export const MessagingComposer = ({
   value,
   defaultValue = '',
@@ -326,12 +329,25 @@ export const MessagingComposer = ({
         </button>
         <button
           type="button"
+          aria-label="Mentionner un utilisateur"
+          title="Mentionner un utilisateur"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          onClick={() => {
+            if (disabled) return;
+            updateValue(appendTrigger(currentValue, '@'));
+            window.setTimeout(() => textInputRef.current?.focus(), 0);
+          }}
+        >
+          <AtSign className="size-4" strokeWidth={1.8} />
+        </button>
+        <button
+          type="button"
           aria-label="Mentionner un élément métier"
           title="Mentionner un élément métier"
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={() => {
             if (disabled) return;
-            updateValue(`${currentValue}${currentValue.trim() && !currentValue.endsWith(' ') ? ' #' : '#'}`);
+            updateValue(appendTrigger(currentValue, '#'));
             window.setTimeout(() => textInputRef.current?.focus(), 0);
           }}
         >
