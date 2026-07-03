@@ -26,6 +26,15 @@ describe('CreateEventModal component', () => {
     fireEvent.change(screen.getByLabelText('Date de début'), {
       target: { value: '15-06-2026' },
     });
+    expect(screen.getByLabelText('Date de début')).toHaveValue('15-06-2026');
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir le calendrier pour Date de début' }));
+    expect(screen.getByText('Juin 2026')).toBeInTheDocument();
+    expect(screen.getByText('Lun')).toBeInTheDocument();
+    expect(screen.getByText('Dim')).toBeInTheDocument();
+    expect(screen.getAllByRole('option', { name: '09 h 00' })).toHaveLength(2);
+    fireEvent.change(screen.getByLabelText('Heure de début'), {
+      target: { value: '09:00' },
+    });
     fireEvent.change(screen.getByLabelText('Lieu'), {
       target: { value: 'Salle du conseil' },
     });
@@ -40,6 +49,7 @@ describe('CreateEventModal component', () => {
         title: 'Conseil municipal',
         date: '15-06-2026',
         endDate: '15-06-2026',
+        startTime: '09:00',
         location: 'Salle du conseil',
         assigneeIds: ['alice'],
       })

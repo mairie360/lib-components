@@ -1,5 +1,5 @@
 import React from 'react';
-import { CalendarDays, Clock, MapPin, Pencil, Repeat, Tag, Users, X } from 'lucide-react';
+import { CalendarDays, Check, Clock, MapPin, Pencil, Repeat, ShieldCheck, Tag, Trash2, Users, X } from 'lucide-react';
 
 import { CreateEventModal } from './CreateEventModal';
 import { defaultEventCategories } from './calendar/constants';
@@ -32,6 +32,7 @@ const getEventValues = (event: CalendarEvent): CreateCalendarEventValues => ({
   date: normalizeDateForServer(event.date),
   endDate: event.endDate ? normalizeDateForServer(event.endDate) : normalizeDateForServer(event.date),
   category: event.category || '',
+  service: event.service || '',
   startTime: event.startTime || '',
   endTime: event.endTime || '',
   location: event.location || '',
@@ -48,6 +49,12 @@ const getSelectedAssignees = (people: CalendarAssignee[], value: CalendarAssigne
   value
     .map((id) => people.find((person) => idsMatch(person.id, id)))
     .filter((person): person is CalendarAssignee => Boolean(person));
+
+const approvalStatusLabels = {
+  pending: 'En attente',
+  approved: 'Validé',
+  rejected: 'Refusé',
+};
 
 const DetailRow = ({
   icon,
@@ -76,13 +83,23 @@ export const EventDetailsModal = ({
   event,
   people = [],
   categories = defaultEventCategories,
+  canEdit,
+  canDelete = false,
+  canValidate = false,
+  canCreateRecurringEvents = true,
   title = 'Détail de l’événement',
   closeLabel = 'Fermer',
   editLabel = 'Modifier',
+  deleteLabel = 'Supprimer',
+  approveLabel = 'Valider',
+  rejectLabel = 'Refuser',
   cancelLabel = 'Annuler',
   saveLabel = 'Enregistrer',
   onClose,
   onSave,
+  onDelete,
+  onApprove,
+  onReject,
 }: EventDetailsModalProps) => {
   const [editing, setEditing] = React.useState(false);
   const [values, setValues] = React.useState<CreateCalendarEventValues>(() =>
@@ -93,6 +110,7 @@ export const EventDetailsModal = ({
           description: '',
           date: '',
           category: categories[0]?.value || '',
+          service: '',
           startTime: '',
           endTime: '',
           location: '',
@@ -148,6 +166,8 @@ export const EventDetailsModal = ({
   const categoryLabel =
     categories.find((category) => category.value === values.category)?.label || values.category || undefined;
   const selectedAssignees = getSelectedAssignees(people, values.assigneeIds);
+  const resolvedCanEdit = canEdit ?? Boolean(onSave);
+  const showValidationActions = canValidate && event.approvalStatus === 'pending';
 
   const handleSave = (eventValues: CreateCalendarEventValues) => {
     const date = normalizeDateForServer(eventValues.date);
@@ -162,6 +182,7 @@ export const EventDetailsModal = ({
       date,
       endDate,
       category: eventValues.category,
+      service: eventValues.service,
       startTime: eventValues.startTime,
       endTime: eventValues.endTime,
       location: eventValues.location,
@@ -185,6 +206,7 @@ export const EventDetailsModal = ({
         people={people}
         categories={categories}
         initialValues={values}
+        canCreateRecurringEvents={canCreateRecurringEvents}
         title="Modifier l’événement"
         subtitle="Modifier les informations de l’événement sélectionné"
         cancelLabel={cancelLabel}
@@ -250,6 +272,13 @@ export const EventDetailsModal = ({
               label="Catégorie"
               value={categoryLabel}
             />
+            {event.approvalStatus && (
+              <DetailRow
+                icon={<ShieldCheck className="h-4 w-4" strokeWidth={1.8} />}
+                label="Validation"
+                value={approvalStatusLabels[event.approvalStatus]}
+              />
+            )}
             <DetailRow
               icon={<MapPin className="h-4 w-4" strokeWidth={1.8} />}
               label="Lieu"
@@ -285,7 +314,7 @@ export const EventDetailsModal = ({
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
+        <div className="flex flex-wrap justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
           <button
             type="button"
             className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25"
@@ -293,7 +322,37 @@ export const EventDetailsModal = ({
           >
             {closeLabel}
           </button>
-          {onSave && (
+          {showValidationActions && onReject && (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#fecaca] bg-white px-4 text-sm font-semibold text-[#dc2626] shadow-sm transition-colors hover:bg-[#fff1f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef4444]/25"
+              onClick={() => onReject(event)}
+            >
+              <X className="h-4 w-4" strokeWidth={1.8} />
+              {rejectLabel}
+            </button>
+          )}
+          {showValidationActions && onApprove && (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2faa55] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#27984b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa55]/35"
+              onClick={() => onApprove(event)}
+            >
+              <Check className="h-4 w-4" strokeWidth={1.8} />
+              {approveLabel}
+            </button>
+          )}
+          {canDelete && onDelete && (
+            <button
+              type="button"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#fecaca] bg-white px-4 text-sm font-semibold text-[#dc2626] shadow-sm transition-colors hover:bg-[#fff1f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef4444]/25"
+              onClick={() => onDelete(event)}
+            >
+              <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+              {deleteLabel}
+            </button>
+          )}
+          {resolvedCanEdit && onSave && (
             <button
               type="button"
               className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35"
