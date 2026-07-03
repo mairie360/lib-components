@@ -29,6 +29,7 @@ const getDefaultValues = (
   return {
     title: '',
     description: '',
+    service: '',
     category: defaultCategory,
     startTime: '',
     endTime: '',
@@ -55,6 +56,7 @@ export const CreateEventModal = ({
   people = [],
   categories = defaultEventCategories,
   initialValues,
+  canCreateRecurringEvents = true,
   title = 'Créer un événement',
   subtitle = 'Ajouter un nouvel événement au calendrier',
   cancelLabel = 'Annuler',
@@ -105,17 +107,19 @@ export const CreateEventModal = ({
     const date = normalizeDateForServer(values.date);
     const endDate = normalizeDateForServer(values.endDate || values.date);
 
+    const recurrence =
+      canCreateRecurringEvents && values.recurrence.frequency !== 'none'
+        ? {
+            ...values.recurrence,
+            endsOn: normalizeDateForServer(values.recurrence.endsOn),
+          }
+        : { frequency: 'none' as const, interval: 1, daysOfWeek: [], endsOn: '' };
+
     onCreate({
       ...values,
       date,
       endDate,
-      recurrence:
-        values.recurrence.frequency === 'none'
-          ? { frequency: 'none', interval: 1, daysOfWeek: [], endsOn: '' }
-          : {
-              ...values.recurrence,
-              endsOn: normalizeDateForServer(values.recurrence.endsOn),
-            },
+      recurrence,
     });
   };
 
@@ -265,87 +269,89 @@ export const CreateEventModal = ({
             </select>
           </div>
 
-          <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
-            <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="event-recurrence" className={labelClassName}>
-                Récurrence
-              </label>
-              <select
-                id="event-recurrence"
-                value={values.recurrence.frequency}
-                className={fieldClassName}
-                onChange={(event) => updateRecurrence('frequency', event.target.value as CalendarRecurrenceFrequency)}
-              >
-                <option value="none">Ne se répète pas</option>
-                <option value="daily">Tous les jours</option>
-                <option value="weekly">Chaque semaine</option>
-                <option value="monthly">Chaque mois</option>
-              </select>
-            </div>
-              {values.recurrence.frequency !== 'none' && (
+          {canCreateRecurringEvents && (
+            <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
+              <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="event-recurrence-interval" className={labelClassName}>
-                    Intervalle
+                  <label htmlFor="event-recurrence" className={labelClassName}>
+                    Récurrence
+                  </label>
+                  <select
+                    id="event-recurrence"
+                    value={values.recurrence.frequency}
+                    className={fieldClassName}
+                    onChange={(event) => updateRecurrence('frequency', event.target.value as CalendarRecurrenceFrequency)}
+                  >
+                    <option value="none">Ne se répète pas</option>
+                    <option value="daily">Tous les jours</option>
+                    <option value="weekly">Chaque semaine</option>
+                    <option value="monthly">Chaque mois</option>
+                  </select>
+                </div>
+                {values.recurrence.frequency !== 'none' && (
+                  <div>
+                    <label htmlFor="event-recurrence-interval" className={labelClassName}>
+                      Intervalle
+                    </label>
+                    <input
+                      id="event-recurrence-interval"
+                      type="number"
+                      min={1}
+                      value={values.recurrence.interval || 1}
+                      className={fieldClassName}
+                      onChange={(event) => updateRecurrence('interval', Number(event.target.value) || 1)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {values.recurrence.frequency === 'weekly' && (
+                <div className="mt-3">
+                  <div className={labelClassName}>Jours</div>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {weekDayOptions.map((day) => {
+                      const selected = values.recurrence.daysOfWeek?.includes(day.value);
+
+                      return (
+                        <button
+                          key={day.value}
+                          type="button"
+                          className={joinClasses(
+                            'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25',
+                            selected
+                              ? 'border-[#2563eb] bg-[#e9f2ff] text-[#2563eb]'
+                              : 'border-[#cbd5e1] bg-[#f8fafc] text-[#334155] hover:bg-white'
+                          )}
+                          onClick={() => toggleRecurrenceDay(day.value)}
+                        >
+                          {day.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {values.recurrence.frequency !== 'none' && (
+                <div className="mt-3">
+                  <label htmlFor="event-recurrence-end" className={labelClassName}>
+                    Fin de récurrence
                   </label>
                   <input
-                    id="event-recurrence-interval"
-                    type="number"
-                    min={1}
-                    value={values.recurrence.interval || 1}
+                    id="event-recurrence-end"
+                    type="text"
+                    inputMode="numeric"
+                    pattern={serverDatePattern}
+                    value={String(values.recurrence.endsOn || '')}
+                    placeholder={serverDatePlaceholder}
+                    title="Format attendu : JJ-MM-AAAA"
                     className={fieldClassName}
-                    onChange={(event) => updateRecurrence('interval', Number(event.target.value) || 1)}
+                    onChange={(event) => updateRecurrence('endsOn', event.target.value)}
                   />
                 </div>
               )}
             </div>
-
-            {values.recurrence.frequency === 'weekly' && (
-              <div className="mt-3">
-                <div className={labelClassName}>Jours</div>
-                <div className="grid grid-cols-7 gap-1.5">
-                  {weekDayOptions.map((day) => {
-                    const selected = values.recurrence.daysOfWeek?.includes(day.value);
-
-                    return (
-                      <button
-                        key={day.value}
-                        type="button"
-                        className={joinClasses(
-                          'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25',
-                          selected
-                            ? 'border-[#2563eb] bg-[#e9f2ff] text-[#2563eb]'
-                            : 'border-[#cbd5e1] bg-[#f8fafc] text-[#334155] hover:bg-white'
-                        )}
-                        onClick={() => toggleRecurrenceDay(day.value)}
-                      >
-                        {day.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {values.recurrence.frequency !== 'none' && (
-              <div className="mt-3">
-                <label htmlFor="event-recurrence-end" className={labelClassName}>
-                  Fin de récurrence
-                </label>
-                <input
-                  id="event-recurrence-end"
-                  type="text"
-                  inputMode="numeric"
-                  pattern={serverDatePattern}
-                  value={String(values.recurrence.endsOn || '')}
-                  placeholder={serverDatePlaceholder}
-                  title="Format attendu : JJ-MM-AAAA"
-                  className={fieldClassName}
-                  onChange={(event) => updateRecurrence('endsOn', event.target.value)}
-                />
-              </div>
-            )}
-          </div>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
