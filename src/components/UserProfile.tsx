@@ -1,10 +1,13 @@
 import React from 'react';
 import {
+  Activity,
+  AlertCircle,
   Briefcase,
   Building2,
   CalendarClock,
   Check,
   Mail,
+  LoaderCircle,
   MapPin,
   Pencil,
   Phone,
@@ -30,6 +33,7 @@ export interface UserProfileUser {
   service?: string;
   position?: string;
   role?: UserProfileRole;
+  status?: string;
   address?: string;
   city?: string;
   lastConnection?: string;
@@ -40,6 +44,8 @@ export interface UserProfileProps extends Omit<React.HTMLAttributes<HTMLElement>
   title?: React.ReactNode;
   subtitle?: React.ReactNode;
   editable?: boolean;
+  loading?: boolean;
+  error?: string | null;
   editLabel?: string;
   saveLabel?: string;
   cancelLabel?: string;
@@ -55,8 +61,23 @@ const defaultUser: UserProfileUser = {
 
 const roleLabels: Record<string, string> = {
   admin: 'Administrateur',
-  manager: 'Manager',
+  administrateur: 'Administrateur',
+  administrator: 'Administrateur',
+  responsable: 'Responsable',
+  manager: 'Responsable',
+  maire: 'Maire',
   user: 'Utilisateur',
+  utilisateur: 'Utilisateur',
+  guest: 'Invité',
+  invite: 'Invité',
+};
+
+const statusLabels: Record<string, string> = {
+  active: 'Actif',
+  inactive: 'Inactif',
+  offline: 'Hors ligne',
+  suspended: 'Suspendu',
+  archived: 'Archivé',
 };
 
 const emptyValue = 'Non renseigné';
@@ -71,7 +92,13 @@ const getInitials = (name: string) =>
 
 const formatRole = (role?: string) => {
   if (!role) return emptyValue;
-  return roleLabels[role] || role;
+  const normalizedRole = role.trim().toLowerCase();
+  return roleLabels[normalizedRole] || role;
+};
+
+const formatStatus = (status?: string) => {
+  if (!status) return emptyValue;
+  return statusLabels[status.trim().toLowerCase()] || status;
 };
 
 type ProfileField = {
@@ -94,6 +121,8 @@ export const UserProfile = ({
   title = 'Profil utilisateur',
   subtitle = 'Consultation des informations personnelles',
   editable = true,
+  loading = false,
+  error = null,
   editLabel = 'Modifier',
   saveLabel = 'Enregistrer',
   cancelLabel = 'Annuler',
@@ -115,16 +144,22 @@ export const UserProfile = ({
 
   const avatarSrc = currentUser.avatar || currentUser.avatarUrl;
   const roleLabel = formatRole(currentUser.role);
+  const statusLabel = formatStatus(currentUser.status);
   const location = [currentUser.address, currentUser.city].filter(Boolean).join(', ');
   const fields: ProfileField[] = [
     { label: 'Nom complet', value: currentUser.name, icon: UserRound },
     { label: 'Adresse e-mail', value: currentUser.email, icon: Mail },
     { label: 'Téléphone', value: currentUser.phone, icon: Phone },
-    { label: 'Service', value: currentUser.service, icon: Building2 },
-    { label: 'Fonction', value: currentUser.position, icon: Briefcase },
+    { label: 'Groupe ou service', value: currentUser.service, icon: Building2 },
     { label: 'Rôle', value: roleLabel, icon: ShieldCheck },
-    { label: 'Adresse', value: location, icon: MapPin },
-    { label: 'Dernière connexion', value: currentUser.lastConnection, icon: CalendarClock },
+    { label: 'Statut du compte', value: statusLabel, icon: Activity },
+    ...(currentUser.position
+      ? [{ label: 'Fonction', value: currentUser.position, icon: Briefcase }]
+      : []),
+    ...(location ? [{ label: 'Adresse', value: location, icon: MapPin }] : []),
+    ...(currentUser.lastConnection
+      ? [{ label: 'Dernière connexion', value: currentUser.lastConnection, icon: CalendarClock }]
+      : []),
   ];
 
   const handleEdit = () => {
@@ -169,6 +204,35 @@ export const UserProfile = ({
       <span>{editLabel}</span>
     </button>
   ) : null;
+
+  if (loading || error) {
+    return (
+      <section
+        id="profile"
+        aria-label={typeof title === 'string' ? title : undefined}
+        className={joinClasses('space-y-6 text-[#172033]', className)}
+        {...props}
+      >
+        <PageTitleBar title={title} subtitle={subtitle} />
+        <Card>
+          <div
+            role={error ? 'alert' : 'status'}
+            className={joinClasses(
+              'flex min-h-40 items-center justify-center gap-3 border-t border-[#e4e0dc] px-6 py-10 text-sm font-medium',
+              error ? 'bg-[#fff7f6] text-[#912018]' : 'bg-white text-[#5f6770]',
+            )}
+          >
+            {error ? (
+              <AlertCircle className="h-5 w-5 shrink-0" aria-hidden="true" />
+            ) : (
+              <LoaderCircle className="h-5 w-5 shrink-0 animate-spin" aria-hidden="true" />
+            )}
+            <span>{error || 'Chargement des informations du profil…'}</span>
+          </div>
+        </Card>
+      </section>
+    );
+  }
 
   return (
     <section
