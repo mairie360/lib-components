@@ -34,6 +34,11 @@ const buttonPrimaryClassName =
   'inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:bg-[#b7cce3]';
 
 const emptyMemberIds: MessagingContactId[] = [];
+const normalizeSearchValue = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
 export const CreateGroupModal = ({
   isOpen,
@@ -57,23 +62,32 @@ export const CreateGroupModal = ({
   const initialMemberValuesKey = initialMemberValues.join('\u0000');
   const [name, setName] = React.useState(initialName);
   const [description, setDescription] = React.useState(initialDescription);
+  const [memberSearch, setMemberSearch] = React.useState('');
   const [selectedMemberValues, setSelectedMemberValues] = React.useState(() => initialMemberValues);
   const titleId = React.useId();
   const subtitleId = React.useId();
   const nameId = React.useId();
   const descriptionId = React.useId();
+  const memberSearchId = React.useId();
 
   React.useEffect(() => {
     if (!isOpen) return;
 
     setName(initialName);
     setDescription(initialDescription);
+    setMemberSearch('');
     setSelectedMemberValues(initialMemberValues);
   }, [initialDescription, initialMemberValuesKey, initialName, isOpen]);
 
   if (!isOpen) return null;
 
   const selectedMembers = members.filter((member) => selectedMemberValues.includes(String(member.id)));
+  const normalizedMemberSearch = normalizeSearchValue(memberSearch.trim());
+  const displayedMembers = normalizedMemberSearch
+    ? members.filter((member) =>
+        normalizeSearchValue(`${member.name} ${member.department ?? ''}`).includes(normalizedMemberSearch)
+      )
+    : members;
   const canSubmit = name.trim().length > 0 && selectedMembers.length > 0;
 
   const toggleMember = (memberId: MessagingContactId) => {
@@ -123,10 +137,13 @@ export const CreateGroupModal = ({
         </label>
         <input
           id={nameId}
+          name="groupName"
           type="text"
           value={name}
           placeholder={namePlaceholder}
           className={fieldClassName}
+          autoComplete="off"
+          required
           onChange={(event) => setName(event.target.value)}
         />
       </div>
@@ -137,41 +154,60 @@ export const CreateGroupModal = ({
         </label>
         <input
           id={descriptionId}
+          name="groupDescription"
           type="text"
           value={description}
           placeholder={descriptionPlaceholder}
           className={fieldClassName}
+          autoComplete="off"
           onChange={(event) => setDescription(event.target.value)}
         />
       </div>
 
       <fieldset>
         <legend className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">{membersLabel}</legend>
-        <div className="max-h-48 overflow-y-auto rounded-md border border-[#d8d2ca] bg-white py-2 pr-1">
-          {members.map((member) => {
-            const checked = selectedMemberValues.includes(String(member.id));
+        <label htmlFor={memberSearchId} className="sr-only">
+          Rechercher un contact
+        </label>
+        <input
+          id={memberSearchId}
+          name="memberSearch"
+          type="search"
+          value={memberSearch}
+          placeholder="Rechercher un contact..."
+          className={fieldClassName}
+          autoComplete="off"
+          onChange={(event) => setMemberSearch(event.target.value)}
+        />
+        <div className="mt-2 max-h-48 overflow-y-auto rounded-md border border-[#d8d2ca] bg-white py-2 pr-1">
+          {displayedMembers.length > 0 ? (
+            displayedMembers.map((member) => {
+              const checked = selectedMemberValues.includes(String(member.id));
 
-            return (
-              <label
-                key={member.id}
-                className="flex min-h-11 cursor-pointer items-center gap-3 px-5 text-sm text-[#2f3747] transition hover:bg-[#fbfaf9]"
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  className={joinClasses(
-                    'size-4 rounded border-[#d8d2ca] text-[#1256a6] focus:ring-[#1256a6]/30',
-                    checked ? 'accent-[#1256a6]' : ''
-                  )}
-                  onChange={() => toggleMember(member.id)}
-                />
-                <span>
-                  {member.name}
-                  {member.department ? ` - ${member.department}` : ''}
-                </span>
-              </label>
-            );
-          })}
+              return (
+                <label
+                  key={member.id}
+                  className="flex min-h-11 cursor-pointer items-center gap-3 px-5 text-sm text-[#2f3747] transition hover:bg-[#fbfaf9]"
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    className={joinClasses(
+                      'size-4 rounded border-[#d8d2ca] text-[#1256a6] focus:ring-[#1256a6]/30',
+                      checked ? 'accent-[#1256a6]' : ''
+                    )}
+                    onChange={() => toggleMember(member.id)}
+                  />
+                  <span>
+                    {member.name}
+                    {member.department ? ` - ${member.department}` : ''}
+                  </span>
+                </label>
+              );
+            })
+          ) : (
+            <p className="px-5 py-2 text-sm text-[#5f6770]">Aucun contact trouvé.</p>
+          )}
         </div>
       </fieldset>
     </MessagingModalFrame>

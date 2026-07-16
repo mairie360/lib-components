@@ -27,6 +27,7 @@ import type {
 
 export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   conversations?: MessagingConversation[];
+  contacts?: MessagingConversation[];
   messages?: MessagingMessage[];
   incomingMessages?: MessagingMessage[];
   businessReferences?: MessagingBusinessReference[];
@@ -50,9 +51,16 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onMoreActions?: (conversation: MessagingConversation) => void;
 }
 
+const messagingIdsMatch = (
+  left: MessagingContactId | undefined,
+  right: MessagingContactId | undefined
+) => left !== undefined && right !== undefined && String(left) === String(right);
+
 const getMessageDirection = (message: MessagingMessage, currentUserId?: MessagingContactId) => {
+  if (currentUserId !== undefined && message.authorId !== undefined) {
+    return messagingIdsMatch(message.authorId, currentUserId) ? 'outgoing' : 'incoming';
+  }
   if (message.direction) return message.direction;
-  if (currentUserId !== undefined && message.authorId === currentUserId) return 'outgoing';
 
   return 'incoming';
 };
@@ -101,6 +109,7 @@ const getBusinessReferenceLabel = (reference: MessagingBusinessReference) => {
 
 export const Messaging = ({
   conversations,
+  contacts,
   messages,
   incomingMessages = [],
   businessReferences = defaultMessagingBusinessReferences,
@@ -131,6 +140,8 @@ export const Messaging = ({
   const [newMessageOpen, setNewMessageOpen] = React.useState(false);
   const [createGroupOpen, setCreateGroupOpen] = React.useState(false);
   const displayedConversations = conversations ?? internalConversations;
+  const displayedContacts =
+    contacts ?? displayedConversations.filter((conversation) => conversation.kind !== 'group');
   const firstConversationId = displayedConversations[0]?.id;
   const [internalActiveId, setInternalActiveId] = React.useState<MessagingContactId | undefined>(
     defaultActiveConversationId ?? firstConversationId
@@ -141,10 +152,13 @@ export const Messaging = ({
   );
   const resolvedActiveId = activeConversationId ?? internalActiveId;
   const activeConversation =
-    displayedConversations.find((conversation) => conversation.id === resolvedActiveId) ?? null;
+    displayedConversations.find((conversation) => messagingIdsMatch(conversation.id, resolvedActiveId)) ?? null;
   const displayedMessages = mergeMessagesById(messages ?? internalMessages, incomingMessages);
   const visibleMessages = displayedMessages
-    .filter((message) => message.conversationId === undefined || message.conversationId === resolvedActiveId)
+    .filter(
+      (message) =>
+        message.conversationId === undefined || messagingIdsMatch(message.conversationId, resolvedActiveId)
+    )
     .map((message) => ({
       ...message,
       direction: getMessageDirection(message, currentUserId),
@@ -171,7 +185,7 @@ export const Messaging = ({
 
     setInternalConversations((currentConversations) =>
       currentConversations.map((conversation) =>
-        conversation.id === conversationId
+        messagingIdsMatch(conversation.id, conversationId)
           ? {
               ...conversation,
               lastMessage,
@@ -188,7 +202,9 @@ export const Messaging = ({
 
     setInternalConversations((currentConversations) =>
       currentConversations.map((conversation) =>
-        conversation.id === conversationId ? { ...conversation, unreadCount: 0 } : conversation
+        messagingIdsMatch(conversation.id, conversationId)
+          ? { ...conversation, unreadCount: 0 }
+          : conversation
       )
     );
   };
@@ -208,7 +224,8 @@ export const Messaging = ({
 
     nextIncomingMessages.forEach((message) => {
       const conversationId = message.conversationId;
-      const unreadDelta = conversationId !== undefined && conversationId !== resolvedActiveId ? 1 : 0;
+      const unreadDelta =
+        conversationId !== undefined && !messagingIdsMatch(conversationId, resolvedActiveId) ? 1 : 0;
 
       updateConversationPreview(
         conversationId,
@@ -344,18 +361,23 @@ export const Messaging = ({
 
     if (messages === undefined) {
       setInternalMessages((currentMessages) =>
-        currentMessages.filter((message) => message.conversationId !== conversationToDelete.id)
+        currentMessages.filter(
+          (message) => !messagingIdsMatch(message.conversationId, conversationToDelete.id)
+        )
       );
     }
 
     if (conversations === undefined) {
       const remainingConversations = internalConversations.filter(
-        (conversation) => conversation.id !== conversationToDelete.id
+        (conversation) => !messagingIdsMatch(conversation.id, conversationToDelete.id)
       );
 
       setInternalConversations(remainingConversations);
 
-      if (activeConversationId === undefined && resolvedActiveId === conversationToDelete.id) {
+      if (
+        activeConversationId === undefined &&
+        messagingIdsMatch(resolvedActiveId, conversationToDelete.id)
+      ) {
         setInternalActiveId(remainingConversations[0]?.id);
       }
     }
@@ -477,13 +499,13 @@ export const Messaging = ({
 
       <NewMessageModal
         isOpen={newMessageOpen}
-        contacts={displayedConversations.filter((conversation) => conversation.kind !== 'group')}
+        contacts={displayedContacts}
         onCancel={() => setNewMessageOpen(false)}
         onSendMessage={handleSendNewMessage}
       />
       <CreateGroupModal
         isOpen={createGroupOpen}
-        members={displayedConversations.filter((conversation) => conversation.kind !== 'group')}
+        members={displayedContacts}
         onCancel={() => setCreateGroupOpen(false)}
         onCreateGroup={handleCreateGroup}
       />
