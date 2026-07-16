@@ -30,6 +30,7 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   contacts?: MessagingConversation[];
   messages?: MessagingMessage[];
   incomingMessages?: MessagingMessage[];
+  mentionOptions?: MessagingMention[];
   businessReferences?: MessagingBusinessReference[];
   contextReference?: MessagingBusinessReference;
   activeConversationId?: MessagingContactId;
@@ -107,11 +108,43 @@ const getBusinessReferenceLabel = (reference: MessagingBusinessReference) => {
   return 'Projet';
 };
 
+const buildMentionOptions = (
+  contacts: MessagingConversation[],
+  conversations: MessagingConversation[]
+): MessagingMention[] => {
+  const seenMentions = new Set<string>();
+
+  return [
+    ...contacts.map((contact) => ({
+      id: contact.id,
+      name: contact.name,
+      kind: 'direct' as const,
+      description: contact.department,
+    })),
+    ...conversations
+      .filter((conversation) => conversation.kind === 'group')
+      .map((conversation) => ({
+        id: conversation.id,
+        name: conversation.name,
+        kind: 'group' as const,
+        description: conversation.department,
+      })),
+  ].filter((mention) => {
+    const mentionKey = `${mention.kind}:${String(mention.id)}`;
+
+    if (seenMentions.has(mentionKey)) return false;
+
+    seenMentions.add(mentionKey);
+    return true;
+  });
+};
+
 export const Messaging = ({
   conversations,
   contacts,
   messages,
   incomingMessages = [],
+  mentionOptions,
   businessReferences = defaultMessagingBusinessReferences,
   contextReference,
   activeConversationId,
@@ -142,6 +175,8 @@ export const Messaging = ({
   const displayedConversations = conversations ?? internalConversations;
   const displayedContacts =
     contacts ?? displayedConversations.filter((conversation) => conversation.kind !== 'group');
+  const displayedMentionOptions =
+    mentionOptions ?? buildMentionOptions(displayedContacts, displayedConversations);
   const firstConversationId = displayedConversations[0]?.id;
   const [internalActiveId, setInternalActiveId] = React.useState<MessagingContactId | undefined>(
     defaultActiveConversationId ?? firstConversationId
@@ -484,12 +519,7 @@ export const Messaging = ({
 
         <MessagingComposer
           disabled={!activeConversation}
-          mentionOptions={displayedConversations.map((conversation) => ({
-            id: conversation.id,
-            name: conversation.name,
-            kind: conversation.kind ?? 'direct',
-            description: conversation.department,
-          }))}
+          mentionOptions={displayedMentionOptions}
           businessReferenceOptions={businessReferences}
           onSendMessage={handleSendMessage}
           onAttach={onAttach}
