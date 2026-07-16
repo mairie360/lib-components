@@ -20,12 +20,59 @@ import {
 } from './DropdownMenu';
 
 type User = {
-  name: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
   avatar?: string;
   avatarUrl?: string;
   email?: string;
   role?: string;
+  service?: string;
 };
+
+const roleLabels: Record<string, string> = {
+  admin: 'Administrateur',
+  administrateur: 'Administrateur',
+  administrator: 'Administrateur',
+  responsable: 'Responsable',
+  manager: 'Responsable',
+  maire: 'Maire',
+  mayor: 'Maire',
+  user: 'Utilisateur',
+  utilisateur: 'Utilisateur',
+  guest: 'Invité',
+  invite: 'Invité',
+};
+
+const normalizeRole = (role?: string) =>
+  role
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '')
+    .replace(/^role/, '') || '';
+
+const getDisplayName = (user?: User) => {
+  const explicitName = user?.name?.trim();
+  if (explicitName) return explicitName;
+
+  const structuredName = [user?.first_name, user?.last_name]
+    .map((part) => part?.trim())
+    .filter(Boolean)
+    .join(' ');
+
+  return structuredName || (user ? 'Utilisateur' : 'Admin Système');
+};
+
+const getInitials = (displayName: string) =>
+  displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
 
 export interface HeaderProps {
   /** Current user information, if logged in */
@@ -51,27 +98,17 @@ export const Header = ({
   isAdmin = false,
 }: HeaderProps) => {
   const isDefaultUser = !user;
-  const displayName = user?.name || 'Admin Système';
-  const displayEmail = user?.email || (isDefaultUser ? 'admin@mairie360.fr' : '');
-
-  const getUserInitials = () => {
-    return displayName
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
-  };
+  const displayName = getDisplayName(user);
+  const displayEmail = user?.email?.trim() || (isDefaultUser ? 'admin@mairie360.fr' : '');
+  const displayService = user?.service?.trim() || '';
 
   const avatarSrc = user?.avatar || user?.avatarUrl;
   const role = user?.role;
-  const roleLabel = (() => {
-    if (isAdmin || role === 'admin' || isDefaultUser) return 'Administrateur';
-    if (role === 'manager') return 'Manager';
-    if (role === 'user') return 'Utilisateur';
-    return role;
-  })();
-  const canAdministrate = isAdmin || role === 'admin' || isDefaultUser;
+  const normalizedRole = normalizeRole(role);
+  const roleLabel = isAdmin || normalizedRole === 'admin' || isDefaultUser
+    ? 'Administrateur'
+    : roleLabels[normalizedRole] || role?.trim();
+  const canAdministrate = isAdmin || normalizedRole === 'admin' || isDefaultUser;
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     if (onPageChange) {
       event.preventDefault();
@@ -130,7 +167,7 @@ export const Header = ({
               <Avatar
                 src={avatarSrc}
                 alt={displayName}
-                fallback={<span className="text-[11px] font-semibold leading-none text-white">{getUserInitials()}</span>}
+                fallback={<span className="text-[11px] font-semibold leading-none text-white">{getInitials(displayName)}</span>}
                 className="!h-6 !w-6 border-2 border-[#4b908d]"
               />
               <span className="hidden whitespace-nowrap sm:inline">{displayName}</span>
@@ -140,15 +177,46 @@ export const Header = ({
           <DropdownMenuContent
             align="end"
             sideOffset={7}
-            className="!w-[150px] !min-w-[150px] !rounded-md !border-[#bfdad8] bg-white !p-0 shadow-[0_6px_18px_rgba(0,0,0,0.14)]"
+            className="!w-[260px] !min-w-[260px] !rounded-lg !border-[#bfdad8] bg-white !p-0 shadow-[0_8px_24px_rgba(0,0,0,0.16)]"
           >
-            <div className="px-3 py-2 text-sm">
-              <div className="font-medium leading-5 text-[#2a2f35]">{displayName}</div>
+            <div className="space-y-2.5 px-3.5 py-3 text-sm">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wide text-[#7a8087]">
+                  Nom
+                </div>
+                <div className="mt-0.5 break-words font-semibold leading-5 text-[#2a2f35]">
+                  {displayName}
+                </div>
+              </div>
               {displayEmail && (
-                <div className="truncate text-xs leading-5 text-[#7a8087]">{displayEmail}</div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-[#7a8087]">
+                    Adresse e-mail
+                  </div>
+                  <div className="mt-0.5 break-all text-xs leading-5 text-[#4c5258]">
+                    {displayEmail}
+                  </div>
+                </div>
               )}
               {roleLabel && (
-                <div className="truncate text-xs leading-5 text-[#7a8087]">{roleLabel}</div>
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-[#7a8087]">
+                    Rôle
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium leading-5 text-[#315f5c]">
+                    {roleLabel}
+                  </div>
+                </div>
+              )}
+              {displayService && (
+                <div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wide text-[#7a8087]">
+                    Groupe ou service
+                  </div>
+                  <div className="mt-0.5 break-words text-xs leading-5 text-[#4c5258]">
+                    {displayService}
+                  </div>
+                </div>
               )}
             </div>
             <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
