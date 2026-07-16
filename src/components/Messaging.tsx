@@ -480,6 +480,8 @@ export const Messaging = ({
                 <MessagingMessageBubble
                   key={message.id}
                   message={message}
+                  mentionOptions={displayedMentionOptions}
+                  businessReferenceOptions={businessReferences}
                   onBusinessReferenceClick={onBusinessReferenceClick}
                 />
               ))

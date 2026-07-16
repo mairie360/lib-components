@@ -51,7 +51,15 @@ export const MentionsConnectees: Story = {
         kind: 'direct',
       },
     ],
-    messages: [],
+    messages: [
+      {
+        id: 'message-mentions-connectees',
+        conversationId: 'group-culture',
+        content: 'Bonjour @Alice Martin, consultez #Rénovation mairie.',
+        sentAt: 'Maintenant',
+        direction: 'incoming',
+      },
+    ],
     activeConversationId: 'group-culture',
     businessReferences: [
       { id: 'project:12', title: 'Rénovation mairie', kind: 'project', description: 'Projet' },
