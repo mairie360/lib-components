@@ -47,7 +47,8 @@ export const NewMessageModal = ({
   onCancel,
   onSendMessage,
 }: NewMessageModalProps) => {
-  const [recipientValue, setRecipientValue] = React.useState(initialRecipientId ? String(initialRecipientId) : '');
+  const initialRecipientValue = initialRecipientId === undefined ? '' : String(initialRecipientId);
+  const [recipientValue, setRecipientValue] = React.useState(initialRecipientValue);
   const [message, setMessage] = React.useState(initialMessage);
   const titleId = React.useId();
   const subtitleId = React.useId();
@@ -57,9 +58,9 @@ export const NewMessageModal = ({
   React.useEffect(() => {
     if (!isOpen) return;
 
-    setRecipientValue(initialRecipientId ? String(initialRecipientId) : '');
+    setRecipientValue(initialRecipientValue);
     setMessage(initialMessage);
-  }, [initialMessage, initialRecipientId, isOpen]);
+  }, [initialMessage, initialRecipientValue, isOpen]);
 
   if (!isOpen) return null;
 

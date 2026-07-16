@@ -89,6 +89,66 @@ describe('Messaging components', () => {
     expect(screen.getByRole('dialog', { name: 'Créer un groupe' })).toBeInTheDocument();
   });
 
+  it('uses dedicated contacts in the new message and group modals', () => {
+    const contacts = [
+      {
+        id: 'alice-martin',
+        name: 'Alice Martin',
+        department: 'Urbanisme',
+        kind: 'direct' as const,
+      },
+    ];
+
+    render(
+      <Messaging
+        conversations={[defaultMessagingConversations[0]]}
+        contacts={contacts}
+        messages={[]}
+        activeConversationId={defaultMessagingConversations[0].id}
+      />
+    );
+
+    fireEvent.click(screen.getByLabelText('Nouveau message'));
+    expect(screen.getByRole('option', { name: 'Alice Martin - Urbanisme' })).toBeInTheDocument();
+    fireEvent.click(screen.getByLabelText('Fermer'));
+
+    fireEvent.click(screen.getByLabelText('Créer un groupe'));
+    expect(screen.getByLabelText('Alice Martin - Urbanisme')).toBeInTheDocument();
+  });
+
+  it('uses author ids before backend direction and normalizes numeric ids', () => {
+    render(
+      <Messaging
+        conversations={[{ id: 100, name: 'Conversation test', kind: 'direct' }]}
+        messages={[
+          {
+            id: 'own-message',
+            conversationId: 100,
+            content: 'Message de l’utilisateur courant',
+            authorId: '7',
+            direction: 'incoming',
+          },
+          {
+            id: 'other-message',
+            conversationId: '100',
+            content: 'Message de l’autre personne',
+            authorId: 8,
+            direction: 'outgoing',
+          },
+        ]}
+        activeConversationId="100"
+        currentUserId={7}
+      />
+    );
+
+    expect(screen.getByText('Message de l’utilisateur courant').parentElement?.parentElement).toHaveClass(
+      'items-end'
+    );
+    expect(screen.getByText('Message de l’autre personne').parentElement?.parentElement).toHaveClass(
+      'items-start'
+    );
+  });
+
   it('deletes the active conversation from the more actions menu', () => {
     const handleDelete = jest.fn();
     render(<Messaging onConversationDelete={handleDelete} />);
@@ -276,12 +336,19 @@ describe('Messaging components', () => {
       <CreateGroupModal
         isOpen
         members={defaultMessagingConversations}
-        initialName="Groupe projet"
         onCancel={jest.fn()}
         onCreateGroup={handleCreateGroup}
       />
     );
 
+    fireEvent.change(screen.getByLabelText('Nom du groupe'), {
+      target: { value: 'Groupe projet' },
+    });
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Rechercher un contact' }), {
+      target: { value: 'Marie' },
+    });
+
+    expect(screen.queryByLabelText('Pierre Martin - Urbanisme')).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('Marie Dubois - Finances'));
     fireEvent.click(screen.getByText('Créer le groupe'));
 
