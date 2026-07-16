@@ -230,6 +230,37 @@ describe('Messaging components', () => {
     );
   });
 
+  it('offers dedicated contacts and group conversations as user mentions', () => {
+    render(
+      <Messaging
+        conversations={[
+          {
+            id: 'group-culture',
+            name: 'Groupe Culture',
+            kind: 'group',
+          },
+        ]}
+        contacts={[
+          {
+            id: 'user-alice',
+            name: 'Alice Martin',
+            department: 'Urbanisme',
+            kind: 'direct',
+          },
+        ]}
+        messages={[]}
+        activeConversationId="group-culture"
+      />
+    );
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), {
+      target: { value: '@' },
+    });
+
+    expect(screen.getByText('@Alice Martin')).toBeInTheDocument();
+    expect(screen.getByText('@Groupe Culture')).toBeInTheDocument();
+  });
+
   it('opens user mention suggestions from the @ toolbar button', () => {
     render(<Messaging />);
 

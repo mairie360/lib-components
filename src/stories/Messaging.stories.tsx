@@ -34,6 +34,38 @@ export const ModuleComplet: Story = {
   ),
 };
 
+export const MentionsConnectees: Story = {
+  args: {
+    conversations: [
+      {
+        id: 'group-culture',
+        name: 'Groupe Culture',
+        kind: 'group',
+      },
+    ],
+    contacts: [
+      {
+        id: 'user-alice',
+        name: 'Alice Martin',
+        department: 'Urbanisme',
+        kind: 'direct',
+      },
+    ],
+    messages: [],
+    activeConversationId: 'group-culture',
+    businessReferences: [
+      { id: 'project:12', title: 'Rénovation mairie', kind: 'project', description: 'Projet' },
+      { id: 'task:34', title: 'Valider le budget', kind: 'task', description: 'Tâche' },
+      { id: 'event:56', title: 'Conseil municipal', kind: 'event', description: 'Calendrier' },
+    ],
+  },
+  render: (args) => (
+    <div className="min-h-screen bg-[#f5f3f0] p-8">
+      <Messaging {...args} />
+    </div>
+  ),
+};
+
 export const NouveauMessage: Story = {
   render: () => (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
