@@ -35,6 +35,9 @@ describe('Header component', () => {
     fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
 
     expect(screen.getAllByText('Admin Système')).toHaveLength(2);
+    expect(screen.getByText('Nom')).toBeInTheDocument();
+    expect(screen.getByText('Adresse e-mail')).toBeInTheDocument();
+    expect(screen.getByText('Rôle')).toBeInTheDocument();
     expect(screen.getByText('admin@mairie360.fr')).toBeInTheDocument();
     expect(screen.getByText('Administrateur')).toBeInTheDocument();
     expect(screen.getByText('Profil')).toBeInTheDocument();
@@ -100,5 +103,27 @@ describe('Header component', () => {
 
     expect(screen.getByText('Utilisateur')).toBeInTheDocument();
     expect(screen.queryByText('Administration')).not.toBeInTheDocument();
+  });
+
+  it('formats an API user response instead of rendering raw identity data', () => {
+    render(
+      <Header
+        user={{
+          first_name: 'Admin',
+          last_name: 'User',
+          email: 'template.email@gmail.com',
+          role: 'Admin',
+          service: 'Direction générale',
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /Admin User/ }));
+
+    expect(screen.getAllByText('Admin User')).toHaveLength(2);
+    expect(screen.getByText('Administrateur')).toBeInTheDocument();
+    expect(screen.getByText('Groupe ou service')).toBeInTheDocument();
+    expect(screen.getByText('Direction générale')).toBeInTheDocument();
+    expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();
   });
 });
