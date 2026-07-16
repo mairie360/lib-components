@@ -34,6 +34,7 @@ export interface ElearningCourseContentItem {
 export interface ElearningCourseChapter {
   id: string;
   title: string;
+  description?: string;
   duration: string;
   completed?: boolean;
   active?: boolean;
