@@ -15,6 +15,7 @@ describe('UserProfile component', () => {
           service: 'Communication',
           position: 'Responsable communication',
           role: 'manager',
+          status: 'active',
           address: '12 rue de la Mairie',
           city: 'Saint-Denis',
           lastConnection: "Aujourd'hui à 09:42",
@@ -26,13 +27,36 @@ describe('UserProfile component', () => {
     expect(screen.getByText('Consultation des informations personnelles')).toBeInTheDocument();
     expect(screen.getByText('Informations personnelles')).toBeInTheDocument();
     expect(screen.getAllByText('Marie Martin')).toHaveLength(2);
-    expect(screen.getAllByText('Manager')).toHaveLength(2);
+    expect(screen.getAllByText('Responsable')).toHaveLength(2);
     expect(screen.getAllByText('marie.martin@mairie360.fr')).toHaveLength(2);
     expect(screen.getByText('+33 1 23 45 67 90')).toBeInTheDocument();
     expect(screen.getByText('Communication')).toBeInTheDocument();
+    expect(screen.getByText('Actif')).toBeInTheDocument();
     expect(screen.getByText('Responsable communication')).toBeInTheDocument();
     expect(screen.getByText('12 rue de la Mairie, Saint-Denis')).toBeInTheDocument();
     expect(screen.getByText("Aujourd'hui à 09:42")).toBeInTheDocument();
+  });
+
+  it('shows a loading state while real profile information is fetched', () => {
+    render(<UserProfile user={{ name: 'Chargement…' }} loading />);
+
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Chargement des informations du profil…'
+    );
+    expect(screen.queryByText('Informations personnelles')).not.toBeInTheDocument();
+  });
+
+  it('shows the profile API error', () => {
+    render(
+      <UserProfile
+        user={{ name: 'Utilisateur' }}
+        error="Les informations du profil sont indisponibles."
+      />
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Les informations du profil sont indisponibles.'
+    );
   });
 
   it('shows fallback values when profile details are missing', () => {
