@@ -474,6 +474,7 @@ describe('Elearning components', () => {
     render(<ElearningCatalog courses={courses} />);
 
     expect(screen.queryByRole('button', { name: 'Nouvelle formation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Statistiques des formations' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Modifier Sécurité au travail/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Supprimer Sécurité au travail/ })).not.toBeInTheDocument();
   });
@@ -493,13 +494,19 @@ describe('Elearning components', () => {
       />
     );
 
+    expect(screen.getByRole('heading', { name: 'Statistiques des formations' })).toBeInTheDocument();
+    expect(screen.getByText('Apprenants inscrits')).toBeInTheDocument();
+
     fireEvent.click(screen.getByRole('button', { name: 'Nouvelle formation' }));
     let dialog = screen.getByRole('dialog', { name: 'Nouvelle formation' });
 
-    fireEvent.change(within(dialog).getByLabelText('Titre'), {
+    fireEvent.change(within(dialog).getByLabelText('Titre', { selector: '#elearning-course-title' }), {
       target: { value: 'Prévention incendie' },
     });
-    fireEvent.change(within(dialog).getByLabelText('Description'), {
+    fireEvent.change(within(dialog).getByLabelText('Sous-titre'), {
+      target: { value: 'Les bons réflexes en mairie' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Description', { selector: '#elearning-course-description' }), {
       target: { value: 'Identifier les risques et appliquer les consignes d’évacuation.' },
     });
     fireEvent.change(within(dialog).getByLabelText('Catégorie'), {
@@ -508,11 +515,32 @@ describe('Elearning components', () => {
     fireEvent.change(within(dialog).getByLabelText('Instructeur'), {
       target: { value: 'Anne Leroy' },
     });
-    fireEvent.change(within(dialog).getByLabelText('Durée'), {
+    fireEvent.change(within(dialog).getByLabelText('Durée totale'), {
       target: { value: '1h 15min' },
     });
-    fireEvent.change(within(dialog).getByLabelText('Chapitres'), {
-      target: { value: '3' },
+    fireEvent.change(within(dialog).getByLabelText('Échéance'), {
+      target: { value: '30 juin 2026' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Type de parcours'), {
+      target: { value: 'mandatory' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Niveau'), {
+      target: { value: 'beginner' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Titre du chapitre'), {
+      target: { value: 'Prévenir et donner l’alerte' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Durée', { selector: 'input[id^="chapter-duration-"]' }), {
+      target: { value: '35 min' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Description du chapitre'), {
+      target: { value: 'Reconnaître les risques et connaître la procédure.' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Titre', { selector: 'input[id^="content-title-"]' }), {
+      target: { value: 'Vidéo : déclencher l’alarme' },
+    });
+    fireEvent.change(within(dialog).getByLabelText('Lien ou fichier'), {
+      target: { value: 'alarme-incendie.mp4' },
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Créer' }));
 
@@ -521,6 +549,18 @@ describe('Elearning components', () => {
         title: 'Prévention incendie',
         category: 'Sécurité',
         instructor: 'Anne Leroy',
+        deadline: '30 juin 2026',
+        titleBadge: expect.objectContaining({ label: 'Obligatoire' }),
+        levelBadge: expect.objectContaining({ label: 'Débutant' }),
+        details: expect.objectContaining({
+          subtitle: 'Les bons réflexes en mairie',
+          chapters: [
+            expect.objectContaining({
+              title: 'Prévenir et donner l’alerte',
+              contents: [expect.objectContaining({ title: 'Vidéo : déclencher l’alarme' })],
+            }),
+          ],
+        }),
       }),
       expect.objectContaining({
         title: 'Prévention incendie',
@@ -531,22 +571,22 @@ describe('Elearning components', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Modifier Prévention incendie' }));
     dialog = screen.getByRole('dialog', { name: 'Modifier la formation' });
-    fireEvent.change(within(dialog).getByLabelText('Titre'), {
+    fireEvent.change(within(dialog).getByLabelText('Titre', { selector: '#elearning-course-title' }), {
       target: { value: 'Prévention incendie actualisée' },
     });
-    fireEvent.change(within(dialog).getByLabelText('Progression'), {
-      target: { value: '100' },
+    fireEvent.change(within(dialog).getByLabelText('Niveau'), {
+      target: { value: 'intermediate' },
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
 
     expect(handleUpdateCourse).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Prévention incendie actualisée',
-        progress: 100,
-        statusValue: 'completed',
+        progress: 0,
+        levelBadge: expect.objectContaining({ label: 'Intermédiaire' }),
       }),
       expect.objectContaining({
-        progress: 100,
+        level: 'intermediate',
       })
     );
     expect(screen.queryByText('Prévention incendie')).not.toBeInTheDocument();
