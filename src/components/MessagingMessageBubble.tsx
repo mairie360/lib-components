@@ -2,15 +2,70 @@ import React from 'react';
 import { Briefcase, CalendarDays, FileText, ListTodo } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import type { MessagingBusinessReference, MessagingMessage } from './messaging/types';
+import type {
+  MessagingBusinessReference,
+  MessagingMention,
+  MessagingMessage,
+} from './messaging/types';
 
 export interface MessagingMessageBubbleProps extends React.HTMLAttributes<HTMLDivElement> {
   message: MessagingMessage;
+  mentionOptions?: MessagingMention[];
+  businessReferenceOptions?: MessagingBusinessReference[];
   onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
 }
 
+type InlineMentionKind = 'user' | 'business';
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const renderMentionedContent = (
+  content: React.ReactNode,
+  mentions: MessagingMention[],
+  businessReferences: MessagingBusinessReference[]
+) => {
+  if (typeof content !== 'string') return content;
+
+  const mentionKinds = new Map<string, InlineMentionKind>();
+
+  mentions.forEach((mention) => {
+    const label = `@${mention.name}`;
+    if (mention.name.trim() && content.includes(label)) mentionKinds.set(label, 'user');
+  });
+  businessReferences.forEach((reference) => {
+    const label = `#${reference.title}`;
+    if (reference.title.trim() && content.includes(label)) mentionKinds.set(label, 'business');
+  });
+
+  if (mentionKinds.size === 0) return content;
+
+  const mentionPattern = Array.from(mentionKinds.keys())
+    .sort((left, right) => right.length - left.length)
+    .map(escapeRegExp)
+    .join('|');
+  const parts = content.split(new RegExp(`(${mentionPattern})(?![\\p{L}\\p{N}_])`, 'gu'));
+
+  return parts.map((part, index) => {
+    const mentionKind = mentionKinds.get(part);
+
+    if (!mentionKind) return part;
+
+    return (
+      <strong
+        key={`${part}-${index}`}
+        className="font-bold underline underline-offset-2"
+        data-mention-kind={mentionKind}
+      >
+        {part}
+      </strong>
+    );
+  });
+};
+
 export const MessagingMessageBubble = ({
   message,
+  mentionOptions = [],
+  businessReferenceOptions = [],
   onBusinessReferenceClick,
   className = '',
   ...props
@@ -22,6 +77,11 @@ export const MessagingMessageBubble = ({
       !!reference && references.findIndex((currentReference) => currentReference?.id === reference.id) === index
   );
   const hasBusinessReferences = businessReferences.length > 0;
+  const mentionedContent = renderMentionedContent(
+    message.content,
+    [...mentionOptions, ...(message.mentions ?? [])],
+    [...businessReferenceOptions, ...businessReferences]
+  );
 
   const getBusinessReferenceIcon = (reference: MessagingBusinessReference) => {
     if (reference.kind === 'event') return <CalendarDays className="size-3.5 shrink-0" strokeWidth={1.8} />;
@@ -50,7 +110,7 @@ export const MessagingMessageBubble = ({
             : 'border border-[#d8d2ca] bg-white text-[#172033]'
         )}
       >
-        <div>{message.content}</div>
+        <div>{mentionedContent}</div>
         {hasBusinessReferences && (
           <div className="mt-3 flex flex-wrap gap-2">
             {businessReferences.map((reference) =>

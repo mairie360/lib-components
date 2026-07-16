@@ -261,6 +261,37 @@ describe('Messaging components', () => {
     expect(screen.getByText('@Groupe Culture')).toBeInTheDocument();
   });
 
+  it('renders user and business mentions in bold with an underline', () => {
+    render(
+      <Messaging
+        conversations={[{ id: 'group-culture', name: 'Groupe Culture', kind: 'group' }]}
+        contacts={[{ id: 'user-alice', name: 'Alice Martin', kind: 'direct' }]}
+        messages={[
+          {
+            id: 'message-with-mentions',
+            conversationId: 'group-culture',
+            content: 'Bonjour @Alice Martin, consultez #Rénovation mairie.',
+            direction: 'incoming',
+          },
+        ]}
+        businessReferences={[
+          { id: 'project-renovation', title: 'Rénovation mairie', kind: 'project' },
+        ]}
+        activeConversationId="group-culture"
+      />
+    );
+
+    const userMention = screen.getByText('@Alice Martin');
+    const businessMention = screen.getByText('#Rénovation mairie');
+
+    expect(userMention.tagName).toBe('STRONG');
+    expect(userMention).toHaveClass('font-bold', 'underline');
+    expect(userMention).toHaveAttribute('data-mention-kind', 'user');
+    expect(businessMention.tagName).toBe('STRONG');
+    expect(businessMention).toHaveClass('font-bold', 'underline');
+    expect(businessMention).toHaveAttribute('data-mention-kind', 'business');
+  });
+
   it('opens user mention suggestions from the @ toolbar button', () => {
     render(<Messaging />);
 
