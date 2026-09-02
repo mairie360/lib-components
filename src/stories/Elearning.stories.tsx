@@ -494,6 +494,46 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const CourseDetailsModalExample = () => {
+  const [open, setOpen] = React.useState(true);
+
+  return (
+    <div className="min-h-screen bg-[#f4f2ef] p-8">
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="rounded-md bg-[#1256a6] px-4 py-2 text-sm font-semibold text-white"
+      >
+        Ouvrir le détail du cours
+      </button>
+      <ElearningCourseDetailsModal
+        {...archivesCourseDetails}
+        open={open}
+        onClose={() => setOpen(false)}
+        onAction={fn()}
+      />
+    </div>
+  );
+};
+
+const CourseCardExample = () => {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <div className="min-h-screen bg-[#f4f2ef] p-6">
+      <div className="w-[360px]">
+        <ElearningCourseCard {...accountingCourseCard} onAction={() => setOpen(true)} />
+      </div>
+      <ElearningCourseDetailsModal
+        {...accountingCourseDetails}
+        open={open}
+        onClose={() => setOpen(false)}
+        onAction={fn()}
+      />
+    </div>
+  );
+};
+
 export const Catalog: Story = {
   args: {
     courses,
@@ -506,27 +546,7 @@ export const Catalog: Story = {
 };
 
 export const CourseDetailsModal: StoryObj<typeof ElearningCourseDetailsModal> = {
-  render: () => {
-    const [open, setOpen] = React.useState(true);
-
-    return (
-      <div className="min-h-screen bg-[#f4f2ef] p-8">
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          className="rounded-md bg-[#1256a6] px-4 py-2 text-sm font-semibold text-white"
-        >
-          Ouvrir le détail du cours
-        </button>
-        <ElearningCourseDetailsModal
-          {...archivesCourseDetails}
-          open={open}
-          onClose={() => setOpen(false)}
-          onAction={fn()}
-        />
-      </div>
-    );
-  },
+  render: () => <CourseDetailsModalExample />,
   parameters: {
     layout: 'fullscreen',
   },
@@ -546,23 +566,7 @@ export const CourseRating: StoryObj<typeof ElearningCourseRating> = {
 };
 
 export const CourseCard: StoryObj<typeof ElearningCourseCard> = {
-  render: () => {
-    const [open, setOpen] = React.useState(false);
-
-    return (
-      <div className="min-h-screen bg-[#f4f2ef] p-6">
-        <div className="w-[360px]">
-          <ElearningCourseCard {...accountingCourseCard} onAction={() => setOpen(true)} />
-        </div>
-        <ElearningCourseDetailsModal
-          {...accountingCourseDetails}
-          open={open}
-          onClose={() => setOpen(false)}
-          onAction={fn()}
-        />
-      </div>
-    );
-  },
+  render: () => <CourseCardExample />,
   parameters: {
     layout: 'fullscreen',
   },

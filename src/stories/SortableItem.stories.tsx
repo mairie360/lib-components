@@ -38,6 +38,38 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const MultipleItemsExample = () => {
+  const [items, setItems] = useState(['item-1', 'item-2', 'item-3']);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = items.indexOf(active.id as string);
+      const newIndex = items.indexOf(over.id as string);
+      setItems(arrayMove(items, oldIndex, newIndex));
+    }
+  };
+
+  return (
+    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={items} strategy={verticalListSortingStrategy}>
+        <div className="flex flex-col gap-2 w-[300px]">
+          {items.map((id) => (
+            <SortableItem
+              key={id}
+              id={id}
+              title={`Élément ${id}`}
+              description="Déplace-moi !"
+              onDelete={fn()}
+              onEdit={fn()}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </DndContext>
+  );
+};
+
 export const Default: Story = {
   render: (args) => {
     return (
@@ -52,35 +84,5 @@ export const Default: Story = {
 
 
 export const MultipleItems: Story = {
-  render: () => {
-    const [items, setItems] = useState(['item-1', 'item-2', 'item-3']);
-
-    const handleDragEnd = (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (over && active.id !== over.id) {
-        const oldIndex = items.indexOf(active.id as string);
-        const newIndex = items.indexOf(over.id as string);
-        setItems(arrayMove(items, oldIndex, newIndex));
-      }
-    };
-
-    return (
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={items} strategy={verticalListSortingStrategy}>
-          <div className="flex flex-col gap-2 w-[300px]">
-            {items.map((id) => (
-              <SortableItem
-                key={id}
-                id={id}
-                title={`Élément ${id}`}
-                description="Déplace-moi !"
-                onDelete={fn()}
-                onEdit={fn()}
-              />
-            ))}
-          </div>
-        </SortableContext>
-      </DndContext>
-    );
-  },
+  render: () => <MultipleItemsExample />,
 };

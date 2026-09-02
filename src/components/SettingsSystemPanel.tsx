@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download, HardDrive, LifeBuoy, MessageCircleQuestion, Trash2, TriangleAlert } from 'lucide-react';
+import { Download, HardDrive, LifeBuoy, MessageCircleQuestion, TriangleAlert } from 'lucide-react';
 
 import { SettingsSection } from './settings/controls';
 import type { SettingsAssistanceAction, SettingsSystemInfo } from './settings/types';
@@ -49,7 +49,7 @@ export const SettingsSystemPanel = ({ systemInfo, onClearCache, onAssistanceActi
           <HardDrive className="size-4" />
           Vider le cache
         </button>
-        <p className="mt-2 text-sm text-[#667085]">Supprime les données temporaires pour libérer de l'espace</p>
+        <p className="mt-2 text-sm text-[#667085]">Supprime les données temporaires pour libérer de l’espace</p>
       </SettingsSection>
 
       <SettingsSection title="Assistance">
@@ -68,4 +68,3 @@ export const SettingsSystemPanel = ({ systemInfo, onClearCache, onAssistanceActi
     </div>
   );
 };
-
