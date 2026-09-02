@@ -29,6 +29,20 @@ interface ToggleFieldProps {
 const fieldClassName =
   'h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
 
+const updateBoundedInteger = (
+  rawValue: string,
+  minimum: number,
+  maximum: number,
+  update: (value: number) => void
+) => {
+  if (!/^\d+$/.test(rawValue)) return;
+
+  const value = Number(rawValue);
+  if (!Number.isInteger(value) || value < minimum || value > maximum) return;
+
+  update(value);
+};
+
 const ToggleField = ({ checked, label, description, onChange }: ToggleFieldProps) => (
   <div className="flex items-start justify-between gap-4">
     <div className="min-w-0">
@@ -104,11 +118,22 @@ export const AdministrationSettingsPanel = ({
               </span>
               <input
                 type="number"
+                aria-label="Délai d'expiration de session (heures)"
                 min={1}
+                max={720}
+                step={1}
                 value={internalSettings.sessionExpirationHours}
                 className={fieldClassName}
-                onChange={(event) => updateSettings('sessionExpirationHours', Number(event.target.value))}
+                aria-describedby="session-expiration-help"
+                onChange={(event) =>
+                  updateBoundedInteger(event.target.value, 1, 720, (value) =>
+                    updateSettings('sessionExpirationHours', value)
+                  )
+                }
               />
+              <span id="session-expiration-help" className="mt-1 block text-xs text-[#667085]">
+                Valeur entière comprise entre 1 et 720 heures.
+              </span>
             </label>
 
             <label className="block">
@@ -117,11 +142,22 @@ export const AdministrationSettingsPanel = ({
               </span>
               <input
                 type="number"
+                aria-label="Nombre max de tentatives de connexion"
                 min={1}
+                max={20}
+                step={1}
                 value={internalSettings.maxLoginAttempts}
                 className={fieldClassName}
-                onChange={(event) => updateSettings('maxLoginAttempts', Number(event.target.value))}
+                aria-describedby="login-attempts-help"
+                onChange={(event) =>
+                  updateBoundedInteger(event.target.value, 1, 20, (value) =>
+                    updateSettings('maxLoginAttempts', value)
+                  )
+                }
               />
+              <span id="login-attempts-help" className="mt-1 block text-xs text-[#667085]">
+                Valeur entière comprise entre 1 et 20 tentatives.
+              </span>
             </label>
           </div>
         </section>

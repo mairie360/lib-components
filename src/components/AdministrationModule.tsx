@@ -37,6 +37,11 @@ import { AdministrationUserFilters } from './AdministrationUserFilters';
 import { AdministrationUserModal } from './AdministrationUserModal';
 import { AdministrationUsersTable } from './AdministrationUsersTable';
 import { joinClasses } from './calendar/style';
+import { ConfirmModal } from './ConfirmModal';
+
+type AdministrationConfirmation =
+  | { kind: 'clear-logs'; action?: undefined }
+  | { kind: 'danger'; action: AdministrationDangerAction };
 
 export interface AdministrationModuleProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
   title?: React.ReactNode;
@@ -203,6 +208,7 @@ export const AdministrationModule = ({
   const [userModalOpen, setUserModalOpen] = React.useState(false);
   const [editingUser, setEditingUser] = React.useState<AdministrationUser | null>(null);
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
+  const [pendingConfirmation, setPendingConfirmation] = React.useState<AdministrationConfirmation | null>(null);
   const resolvedActiveTab = activeTab ?? internalActiveTab;
   const resolvedUsers = users ?? internalUsers;
   const resolvedLogs = logs ?? internalLogs;
@@ -326,14 +332,27 @@ export const AdministrationModule = ({
     setStatusMessage('Export CSV préparé.');
   };
 
-  const handleClearLogs = () => {
+  const clearLogs = () => {
     onClearLogs?.();
 
     if (logs === undefined) {
       setInternalLogs([]);
     }
 
+    prependAuditEntry({
+      id: `clear-logs-${Date.now()}`,
+      action: 'Suppression',
+      actor: 'Admin Système',
+      subject: 'Logs système',
+      description: 'Tous les logs système ont été effacés',
+      timestamp: formatDateTime(new Date()),
+      outcome: 'success',
+    });
     setStatusMessage('Tous les logs ont été effacés.');
+  };
+
+  const handleClearLogs = () => {
+    setPendingConfirmation({ kind: 'clear-logs' });
   };
 
   const handleCreateBackup = () => {
@@ -364,15 +383,11 @@ export const AdministrationModule = ({
     setStatusMessage('Paramètres mis à jour.');
   };
 
-  const handleDangerAction = (action: AdministrationDangerAction) => {
+  const executeDangerAction = (action: AdministrationDangerAction) => {
     onDangerAction?.(action);
 
     if (action.id === 'clear-logs') {
-      if (logs === undefined) {
-        setInternalLogs([]);
-      }
-
-      setStatusMessage('Tous les logs ont été effacés.');
+      clearLogs();
       return;
     }
 
@@ -387,6 +402,30 @@ export const AdministrationModule = ({
     });
     setStatusMessage(`${action.buttonLabel} effectué.`);
   };
+
+  const handleDangerAction = (action: AdministrationDangerAction) => {
+    setPendingConfirmation({ kind: 'danger', action });
+  };
+
+  const confirmPendingAction = () => {
+    if (!pendingConfirmation) return;
+
+    if (pendingConfirmation.kind === 'clear-logs') {
+      clearLogs();
+    } else {
+      executeDangerAction(pendingConfirmation.action);
+    }
+
+    setPendingConfirmation(null);
+  };
+
+  const confirmationAction = pendingConfirmation?.kind === 'danger'
+    ? pendingConfirmation.action
+    : undefined;
+  const confirmationTitle = confirmationAction?.title ?? 'Effacer les logs système';
+  const confirmationMessage = confirmationAction?.description
+    ?? 'Cette action supprimera définitivement tous les logs système. Elle est irréversible.';
+  const confirmationLabel = confirmationAction?.buttonLabel ?? 'Effacer les logs';
 
   return (
     <section
@@ -471,6 +510,15 @@ export const AdministrationModule = ({
         initialValues={editingUser ? getUserFormValues(editingUser) : undefined}
         onCancel={handleCancelUserModal}
         onCreateUser={handleSubmitUserModal}
+      />
+
+      <ConfirmModal
+        isOpen={pendingConfirmation !== null}
+        title={confirmationTitle}
+        message={confirmationMessage}
+        confirmLabel={confirmationLabel}
+        onCancel={() => setPendingConfirmation(null)}
+        onConfirm={confirmPendingAction}
       />
     </section>
   );
