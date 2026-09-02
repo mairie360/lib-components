@@ -1,15 +1,15 @@
 import React from 'react';
-import { UserRound } from 'lucide-react';
-
 import { Footer } from './Footer';
 import type { FooterProps } from './Footer';
 import { Header } from './Header';
 import type { HeaderProps } from './Header';
 import { Sidebar, defaultSidebarItems } from './Sidebar';
 import type { SidebarItem, SidebarProps } from './Sidebar';
-import { UserProfile } from './UserProfile';
+import { SettingsModule } from './SettingsModule';
+import type { SettingsModuleProps } from './SettingsModule';
 import type { UserProfileProps, UserProfileUser } from './UserProfile';
 import { joinClasses } from './calendar/style';
+import type { SettingsProfile } from './settings/types';
 
 export interface UserProfilePageProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
   user?: UserProfileUser;
@@ -19,7 +19,9 @@ export interface UserProfilePageProps extends Omit<React.HTMLAttributes<HTMLDivE
   headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen'>;
   sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin'>;
   footerProps?: FooterProps;
+  /** @deprecated Le profil est désormais rendu dans SettingsModule. */
   profileProps?: Omit<UserProfileProps, 'user' | 'onUpdateUser'>;
+  settingsProps?: Omit<SettingsModuleProps, 'profile' | 'onProfileSave'>;
 }
 
 const defaultUser: UserProfileUser = {
@@ -29,27 +31,35 @@ const defaultUser: UserProfileUser = {
   service: 'Administration',
 };
 
-const profileSidebarItem: SidebarItem = {
-  id: 'profile',
-  label: 'Profil',
-  icon: UserRound,
-};
+const getInitials = (name: string) => name
+  .split(/\s+/)
+  .filter(Boolean)
+  .map((part) => part[0])
+  .join('')
+  .slice(0, 2)
+  .toUpperCase();
 
-const defaultProfileSidebarItems: SidebarItem[] = [
-  ...defaultSidebarItems.filter((item) => item.id !== 'settings'),
-  profileSidebarItem,
-  ...defaultSidebarItems.filter((item) => item.id === 'settings'),
-];
+const toSettingsProfile = (user: UserProfileUser): SettingsProfile => ({
+  initials: getInitials(user.name),
+  avatarUrl: user.avatarUrl ?? user.avatar,
+  fullName: user.name,
+  email: user.email ?? '',
+  phone: user.phone ?? '',
+  service: user.service ?? '',
+  position: user.position ?? '',
+  biography: user.biography ?? '',
+});
 
 export const UserProfilePage = ({
   user = defaultUser,
   isAdmin,
-  activeItem = 'profile',
+  activeItem = 'settings',
   onUpdateUser,
   headerProps,
   sidebarProps,
   footerProps,
   profileProps,
+  settingsProps,
   className = '',
   ...props
 }: UserProfilePageProps) => {
@@ -63,7 +73,7 @@ export const UserProfilePage = ({
     ...restHeaderProps
   } = headerProps ?? {};
   const {
-    items = defaultProfileSidebarItems,
+    items = defaultSidebarItems,
     onItemSelect,
     className: sidebarClassName,
     ...restSidebarProps
@@ -86,6 +96,21 @@ export const UserProfilePage = ({
   const handleUpdateUser = (updatedUser: UserProfileUser) => {
     setCurrentUser(updatedUser);
     onUpdateUser?.(updatedUser);
+  };
+
+  const handleProfileSave = (profile: SettingsProfile) => {
+    const updatedUser: UserProfileUser = {
+      ...currentUser,
+      name: profile.fullName,
+      avatarUrl: profile.avatarUrl,
+      email: profile.email,
+      phone: profile.phone,
+      service: profile.service,
+      position: profile.position,
+      biography: profile.biography,
+    };
+
+    handleUpdateUser(updatedUser);
   };
 
   const renderSidebar = () => (
@@ -127,10 +152,16 @@ export const UserProfilePage = ({
             setSidebarOpen={setSidebarOpen}
             onPageChange={handlePageChange}
             onLogout={onLogout}
-            profileHref={profileHref}
+            profileHref={profileHref ?? '/settings?tab=profile'}
           />
           <main className="min-h-0 flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            <UserProfile user={currentUser} onUpdateUser={handleUpdateUser} {...profileProps} />
+            <SettingsModule
+              defaultActiveTab="profile"
+              profile={toSettingsProfile(currentUser)}
+              onProfileSave={handleProfileSave}
+              className={profileProps?.className}
+              {...settingsProps}
+            />
           </main>
           <Footer version="2.1.0" {...footerProps} />
         </div>

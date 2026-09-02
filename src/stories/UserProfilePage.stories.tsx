@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/nextjs';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { fn } from 'storybook/test';
 
 import { UserProfilePage } from '../components/UserProfilePage';
@@ -16,7 +16,7 @@ const meta: Meta<typeof UserProfilePage> = {
     headerProps: {
       onPageChange: fn(),
       onLogout: fn(),
-      profileHref: '/profil',
+      profileHref: '/settings?tab=profile',
     },
     footerProps: {
       year: 2026,

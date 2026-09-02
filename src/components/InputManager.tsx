@@ -6,6 +6,9 @@ export type Option = {
   value: string;
 };
 
+export type InputValue = string | number | boolean;
+export type InputChangeEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>;
+
 export type InputProps = {
   label: string;
   name: string;
@@ -22,8 +25,8 @@ export type InputProps = {
     | "number"
     | "search"
     | "default";
-  value: any;
-  onChange: (event: React.ChangeEvent<any>) => void;
+  value: InputValue;
+  onChange: (event: InputChangeEvent) => void;
   options?: Option[];
   table?: string;
   id?: string;
@@ -68,6 +71,7 @@ export const InputManager = ({
   const [error, setError] = React.useState<string | null>(null);
 
   const [phoneError, setPhoneError] = React.useState<string | null>(null);
+  const inputValue = typeof value === "boolean" ? "" : value;
 
   const validatePhone = (phone: string) => {
     const regex = /^(\+33|0)[1-9](\d{2}){4}$/;
@@ -151,7 +155,7 @@ export const InputManager = ({
   const commonProps = {
     id: name,
     name,
-    value,
+    value: inputValue,
     onChange,
     className:
       "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm",
@@ -277,7 +281,7 @@ export const InputManager = ({
               type="email"
               id={name}
               name={name}
-              value={value}
+              value={inputValue}
               onChange={(e) => {
                 onChange(e);
                 const isValid = validateEmail(e.target.value);
@@ -303,7 +307,7 @@ export const InputManager = ({
               type="tel"
               id={name}
               name={name}
-              value={value}
+              value={inputValue}
               onChange={handleChange}
               placeholder="06 12 34 56 78"
               className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
@@ -320,7 +324,7 @@ export const InputManager = ({
             type="number"
             id={name}
             name={name}
-            value={value}
+            value={inputValue}
             onChange={handleChangeNumber}
             min={min}
             max={max}
@@ -337,7 +341,7 @@ export const InputManager = ({
             type="search"
             id={name}
             name={name}
-            value={value}
+            value={inputValue}
             onChange={onChange}
             placeholder="Rechercher..."
             className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"

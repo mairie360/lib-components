@@ -100,7 +100,7 @@ export const AdministrationSettingsPanel = ({
 
             <label className="block">
               <span className="mb-2 block text-sm font-semibold leading-5 text-[#172033]">
-                Délai d'expiration de session (heures)
+                Délai d’expiration de session (heures)
               </span>
               <input
                 type="number"
@@ -128,7 +128,7 @@ export const AdministrationSettingsPanel = ({
 
         <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
           <h2 className="text-base font-bold leading-6 text-[#172033]">Système</h2>
-          <p className="mt-1 text-base leading-6 text-[#667085]">Configuration générale de l'application</p>
+          <p className="mt-1 text-base leading-6 text-[#667085]">Configuration générale de l’application</p>
 
           <div className="mt-7 space-y-6">
             <ToggleField

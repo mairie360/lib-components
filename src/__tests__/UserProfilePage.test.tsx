@@ -29,10 +29,12 @@ describe('UserProfilePage component', () => {
     expect(screen.getByRole('complementary', { name: 'Navigation principale' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Profil utilisateur' })).toBeInTheDocument();
-    expect(screen.getByText('Consultation des informations personnelles')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Paramètres' })).toBeInTheDocument();
+    expect(screen.getByText('Gérez vos préférences et paramètres de compte')).toBeInTheDocument();
     expect(screen.getByText('Informations personnelles')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Profil/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: /Paramètres/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('complementary', { name: 'Navigation principale' })).not.toHaveTextContent('Profil');
+    expect(screen.getByRole('tab', { name: /Profil/ })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('© 2026 Mairie360')).toBeInTheDocument();
     expect(screen.getByText('Version 2.1.0')).toBeInTheDocument();
   });
@@ -50,34 +52,28 @@ describe('UserProfilePage component', () => {
     const onUpdateUser = jest.fn();
     render(<UserProfilePage user={profileUser} onUpdateUser={onUpdateUser} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Modifier' }));
     fireEvent.change(screen.getByLabelText('Adresse e-mail'), {
       target: { value: 'marie.contact@mairie360.fr' },
     });
     fireEvent.change(screen.getByLabelText('Téléphone'), {
       target: { value: '+33 1 23 45 67 99' },
     });
-    fireEvent.change(screen.getByLabelText('Adresse'), {
-      target: { value: '24 avenue de la République' },
+    fireEvent.change(screen.getByLabelText('Poste'), {
+      target: { value: 'Directrice communication' },
     });
-    fireEvent.change(screen.getByLabelText('Ville'), {
-      target: { value: 'Saint-Pierre' },
-    });
-    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enregistrer les modifications' }));
 
     expect(onUpdateUser).toHaveBeenCalledWith(
       expect.objectContaining({
         email: 'marie.contact@mairie360.fr',
         phone: '+33 1 23 45 67 99',
-        address: '24 avenue de la République',
-        city: 'Saint-Pierre',
+        position: 'Directrice communication',
       })
     );
-    expect(screen.getByText('+33 1 23 45 67 99')).toBeInTheDocument();
-    expect(screen.getByText('24 avenue de la République, Saint-Pierre')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Modifications enregistrées.');
 
     fireEvent.click(screen.getByRole('button', { name: /Marie Martin/ }));
 
-    expect(screen.getAllByText('marie.contact@mairie360.fr').length).toBeGreaterThan(1);
+    expect(screen.getByText('marie.contact@mairie360.fr')).toBeInTheDocument();
   });
 });

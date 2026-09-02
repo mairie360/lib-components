@@ -37,6 +37,7 @@ export interface UserProfileUser {
   address?: string;
   city?: string;
   lastConnection?: string;
+  biography?: string;
 }
 
 export interface UserProfileProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {

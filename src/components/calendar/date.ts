@@ -261,7 +261,7 @@ export const getEventTimeRangeForDate = (
   const occurrenceEndDate = addDays(occurrenceStartDate, spanInDays);
   const isStart = isSameDay(date, occurrenceStartDate);
   const isEnd = isSameDay(date, occurrenceEndDate);
-  let startMinutes = isStart && event.startTime ? timeToMinutes(event.startTime) : visibleStartMinutes;
+  const startMinutes = isStart && event.startTime ? timeToMinutes(event.startTime) : visibleStartMinutes;
   let endMinutes = isEnd && event.endTime ? timeToMinutes(event.endTime) : visibleEndMinutes;
 
   if (isStart && isEnd && !event.endTime) {
