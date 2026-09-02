@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Meta, StoryObj } from "@storybook/react";
 import { InputManager } from "../components/InputManager";
-import type { InputProps } from "../components/InputManager";
+import type { InputChangeEvent, InputProps } from "../components/InputManager";
 
 /**
  * Configuration de la story du composant `InputManager`.
@@ -30,15 +30,15 @@ export default meta;
 
 type Story = StoryObj<typeof InputManager>;
 
-const Template = (args: any) => {
+const Template = (args: InputProps) => {
   const [value, setValue] = useState(args.value || "");
 
-  const handleChange = (e: React.ChangeEvent<any>) => {
-  const { type, checked, value } = e.target;
-
-  const finalValue = type === "checkbox" ? checked : value;
-  setValue(finalValue);
-};
+  const handleChange = (e: InputChangeEvent) => {
+    const finalValue = e.target instanceof HTMLInputElement && e.target.type === "checkbox"
+      ? e.target.checked
+      : e.target.value;
+    setValue(finalValue);
+  };
 
 
   return <InputManager {...args} value={value} onChange={handleChange} />;
