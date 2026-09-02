@@ -58,8 +58,7 @@
     "@storybook/addon-docs": "^10.4.6",
     "@storybook/addon-onboarding": "^10.4.6",
     "@storybook/addon-vitest": "^10.4.6",
-    "@storybook/nextjs": "^10.4.6",
-    "@storybook/nextjs-vite": "^10.4.6",
+    "@storybook/react-vite": "^10.5.10",
     "@tailwindcss/postcss": "^4.1.5",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -89,6 +88,11 @@
     "wait-on": "^8.0.3"
   },
   "overrides": {
-    "storybook": "$storybook"
+    "esbuild": "0.28.2",
+    "postcss": "$postcss",
+    "puppeteer-core": "25.9.0",
+    "storybook": "$storybook",
+    "tmp": "0.2.7",
+    "uuid": "11.1.1"
   }
 }
