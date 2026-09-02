@@ -41,6 +41,10 @@ interface DropdownMenuTriggerProps extends React.ButtonHTMLAttributes<HTMLButton
   children: React.ReactNode;
 }
 
+type DropdownMenuTriggerChildProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  "data-slot"?: string;
+};
+
 function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTriggerProps) {
   const { open, setOpen } = React.useContext(DropdownMenuContext);
 
@@ -50,8 +54,8 @@ function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTrigge
     props.onClick?.(e);
   };
 
-  if (asChild && React.isValidElement(children)) {
-    return React.cloneElement(children as React.ReactElement<any>, {
+  if (asChild && React.isValidElement<DropdownMenuTriggerChildProps>(children)) {
+    return React.cloneElement(children, {
       onClick: handleClick,
       "data-slot": "dropdown-menu-trigger",
     });
@@ -137,6 +141,12 @@ interface DropdownMenuItemProps extends React.HTMLAttributes<HTMLElement> {
   disabled?: boolean;
 }
 
+type DropdownMenuItemChildProps = React.HTMLAttributes<HTMLElement> & {
+  "data-inset"?: boolean;
+  "data-slot"?: string;
+  "data-variant"?: DropdownMenuItemProps["variant"];
+};
+
 function DropdownMenuItem({
   className = "",
   asChild,
@@ -169,8 +179,8 @@ function DropdownMenuItem({
     inset ? "pl-8" : ""
   } ${isDeleteItem ? "text-red-600" : ""} ${className}`;
 
-  if (asChild && React.isValidElement(children)) {
-    const child = children as React.ReactElement<any>;
+  if (asChild && React.isValidElement<DropdownMenuItemChildProps>(children)) {
+    const child = children;
     const childClassName = child.props.className ? ` ${child.props.className}` : "";
 
     return (
@@ -234,7 +244,7 @@ function DropdownMenuLabel({
   );
 }
 
-interface DropdownMenuSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+type DropdownMenuSeparatorProps = React.HTMLAttributes<HTMLDivElement>;
 
 function DropdownMenuSeparator({
   className = "",
@@ -249,7 +259,7 @@ function DropdownMenuSeparator({
   );
 }
 
-interface DropdownMenuGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+type DropdownMenuGroupProps = React.HTMLAttributes<HTMLDivElement>;
 
 function DropdownMenuGroup({ children, ...props }: DropdownMenuGroupProps) {
   return (
@@ -259,7 +269,7 @@ function DropdownMenuGroup({ children, ...props }: DropdownMenuGroupProps) {
   );
 }
 
-interface DropdownMenuShortcutProps extends React.HTMLAttributes<HTMLSpanElement> {}
+type DropdownMenuShortcutProps = React.HTMLAttributes<HTMLSpanElement>;
 
 function DropdownMenuShortcut({
   className = "",
@@ -443,7 +453,7 @@ function DropdownMenuSubTrigger({
   );
 }
 
-interface DropdownMenuSubContentProps extends React.HTMLAttributes<HTMLDivElement> {}
+type DropdownMenuSubContentProps = React.HTMLAttributes<HTMLDivElement>;
 
 function DropdownMenuSubContent({
   className = "",
