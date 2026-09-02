@@ -157,6 +157,12 @@ describe('AdministrationModule', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Export CSV préparé.');
 
     fireEvent.click(screen.getByRole('button', { name: /Effacer/ }));
+    expect(screen.getByRole('dialog', { name: 'Effacer les logs système' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    expect(screen.getByText('Actualisation effectuée')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Effacer/ }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Effacer les logs' }));
     expect(screen.getByText('Aucun log pour ce niveau.')).toBeInTheDocument();
   });
 
@@ -176,16 +182,51 @@ describe('AdministrationModule', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Paramètres mis à jour.');
   });
 
-  it('executes dangerous actions with visible feedback', () => {
-    render(<AdministrationModule defaultActiveTab="settings" />);
+  it('confirms dangerous actions, preserves data on cancellation and records an audit entry', () => {
+    const handleDangerAction = jest.fn();
+    render(<AdministrationModule defaultActiveTab="settings" onDangerAction={handleDangerAction} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Réinitialiser/ }));
+    expect(screen.getByRole('dialog', { name: 'Réinitialiser tous les mots de passe' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Annuler' }));
+    expect(handleDangerAction).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: /Réinitialiser/ }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Réinitialiser' }));
     expect(screen.getByRole('status')).toHaveTextContent('Réinitialiser effectué.');
+    expect(handleDangerAction).toHaveBeenCalledWith(expect.objectContaining({ id: 'reset-passwords' }));
 
     fireEvent.click(screen.getByRole('button', { name: /Effacer les logs/ }));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Effacer les logs' }));
     expect(screen.getByRole('status')).toHaveTextContent('Tous les logs ont été effacés.');
 
     fireEvent.click(screen.getByRole('tab', { name: /Logs/ }));
     expect(screen.getByText('Aucun log pour ce niveau.')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: /Audit/ }));
+    expect(screen.getByText('Logs système')).toBeInTheDocument();
+  });
+
+  it('rejects invalid numeric security settings', () => {
+    const handleSettingsChange = jest.fn();
+    render(
+      <AdministrationModule
+        defaultActiveTab="settings"
+        onSettingsChange={handleSettingsChange}
+      />
+    );
+
+    const sessionExpiration = screen.getByLabelText("Délai d'expiration de session (heures)");
+    const maxAttempts = screen.getByLabelText('Nombre max de tentatives de connexion');
+
+    fireEvent.change(sessionExpiration, { target: { value: '0' } });
+    fireEvent.change(maxAttempts, { target: { value: '21' } });
+    expect(handleSettingsChange).not.toHaveBeenCalled();
+
+    fireEvent.change(sessionExpiration, { target: { value: '12' } });
+    fireEvent.change(maxAttempts, { target: { value: '6' } });
+    expect(handleSettingsChange).toHaveBeenLastCalledWith(
+      expect.objectContaining({ sessionExpirationHours: 12, maxLoginAttempts: 6 })
+    );
   });
 });
