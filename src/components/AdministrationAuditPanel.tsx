@@ -26,7 +26,7 @@ export const AdministrationAuditPanel = ({
     )}
     {...props}
   >
-    <h2 className="text-base font-bold leading-6 text-[#172033]">Journal d'audit</h2>
+    <h2 className="text-base font-bold leading-6 text-[#172033]">Journal d’audit</h2>
     <p className="mt-1 text-base leading-6 text-[#667085]">
       Historique de toutes les actions sensibles effectuées dans le système
     </p>

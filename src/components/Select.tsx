@@ -244,7 +244,7 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
   );
 }
 
-interface SelectLabelProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SelectLabelProps = React.HTMLAttributes<HTMLDivElement>;
 
 function SelectLabel({ className = "", ...props }: SelectLabelProps) {
   return (
@@ -256,7 +256,7 @@ function SelectLabel({ className = "", ...props }: SelectLabelProps) {
   );
 }
 
-interface SelectSeparatorProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SelectSeparatorProps = React.HTMLAttributes<HTMLDivElement>;
 
 function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
   return (
@@ -268,7 +268,7 @@ function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
   );
 }
 
-interface SelectGroupProps extends React.HTMLAttributes<HTMLDivElement> {}
+type SelectGroupProps = React.HTMLAttributes<HTMLDivElement>;
 
 function SelectGroup({ ...props }: SelectGroupProps) {
   return <div data-slot="select-group" {...props} />;
