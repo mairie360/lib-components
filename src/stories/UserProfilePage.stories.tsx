@@ -16,7 +16,7 @@ const meta: Meta<typeof UserProfilePage> = {
     headerProps: {
       onPageChange: fn(),
       onLogout: fn(),
-      profileHref: '/profil',
+      profileHref: '/settings?tab=profile',
     },
     footerProps: {
       year: 2026,
