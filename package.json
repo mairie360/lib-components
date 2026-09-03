@@ -96,6 +96,6 @@
     "puppeteer-core": "25.9.0",
     "storybook": "$storybook",
     "tmp": "0.2.7",
-    "uuid": "11.1.1"
+    "uuid": "14.0.2"
   }
 }
