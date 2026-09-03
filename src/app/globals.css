@@ -1,5 +1,9 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  /* Next.js 15.3/Turbopack cannot parse the select component's
+     experimental ::picker(select) rules yet. Our selects use custom styles. */
+  exclude: select;
+}
 
 :root {
   --background: #ffffff;
