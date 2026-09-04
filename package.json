@@ -93,7 +93,7 @@
   "overrides": {
     "esbuild": "0.28.2",
     "postcss": "$postcss",
-    "puppeteer-core": "25.9.0",
+    "puppeteer-core": "25.10.0",
     "storybook": "$storybook",
     "tmp": "0.2.7",
     "uuid": "11.1.1"
