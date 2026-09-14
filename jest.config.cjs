@@ -12,4 +12,12 @@ module.exports = {
     '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: './tsconfig.jest.json' }],
   },
   testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  coverageThreshold: {
+    global: {
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
+    },
+  },
 };
