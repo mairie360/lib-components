@@ -111,7 +111,9 @@ export const defaultAdministrationLogs: AdministrationLogEntry[] = [
     description: 'Connexion depuis Chrome sur Windows',
     actor: 'admin@mairie360.fr',
     timestamp: '28/06/2026 20:16:25',
-    ipAddress: '192.168.1.100',
+    // Adresses TEST-NET-3 (RFC 5737), réservées à la documentation : une IP privée dans le bundle
+    // publié déclenche l'alerte « Private IP Disclosure » des scans ZAP des fronts.
+    ipAddress: '203.0.113.10',
   },
   {
     id: 'api-error',
@@ -120,7 +122,7 @@ export const defaultAdministrationLogs: AdministrationLogEntry[] = [
     title: 'Erreur de requête',
     description: "Timeout lors de l'appel à /api/projects",
     timestamp: '28/06/2026 20:11:25',
-    ipAddress: '192.168.1.101',
+    ipAddress: '203.0.113.11',
   },
   {
     id: 'storage-warning',
