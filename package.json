@@ -70,7 +70,7 @@
     "chromatic": "^18.0.0",
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^9.39.5",
+    "eslint": "^10.0.0",
     "eslint-config-next": "15.5.26",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
