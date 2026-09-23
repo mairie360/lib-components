@@ -65,8 +65,9 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@vitest/browser": "^3.1.2",
-    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/browser": "^4.1.11",
+    "@vitest/browser-playwright": "^4.1.11",
+    "@vitest/coverage-v8": "^4.1.11",
     "chromatic": "^18.0.0",
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
@@ -87,7 +88,7 @@
     "ts-jest": "^29.4.0",
     "tsup": "^8.5.0",
     "typescript": "^5",
-    "vitest": "^3.1.2",
+    "vitest": "^4.1.11",
     "wait-on": "^9.0.0"
   },
   "overrides": {
