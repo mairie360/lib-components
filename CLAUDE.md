@@ -54,3 +54,7 @@ Components use hooks but carry no `'use client'` directive; consumers (Next.js A
 - Jest (`jest.config.cjs`, `ts-jest`, jsdom, `tsconfig.jest.json`) runs `src/__tests__/*.test.tsx`; CSS maps to `identity-obj-proxy`, images to `src/__mocks__/fileMock.ts`; `@/` aliases `src/`.
 - Stories live in `src/stories/`, titled `Components/<Feature>/<Name>` with `tags: ['autodocs']`, and use `fn()` from `storybook/test` for callback args. Module stories typically render inside `Sidebar` + `Header` + `Footer` for a full-page layout. `scripts/generate-lhci-urls.js` derives Lighthouse URLs from each story's `title`, so every story file needs a literal `title:`.
 - `vitest.config.ts` is only the Storybook Vitest addon (browser tests of stories via Playwright), separate from `npm test`.
+
+## Pull request reviewers
+
+Every PR requests a review from the whole team, minus its author: `CarolinHugo`, `LAURETbenjamin`, `MathTek` and `Quentintnrl` (`gh pr create … --reviewer CarolinHugo,LAURETbenjamin,MathTek`). `.github/CODEOWNERS` makes GitHub request them automatically as well.
