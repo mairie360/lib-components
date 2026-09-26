@@ -2,7 +2,7 @@ import React from 'react';
 import { Laptop, Moon, Sun } from 'lucide-react';
 
 import { SettingsSection, SettingsSelect } from './settings/controls';
-import { settingsDensityOptions, settingsFontOptions } from './settings/defaultData';
+import { settingsDensityOptions, settingsFontOptions } from './settings/options';
 import type { SettingsAppearanceState, SettingsOption, SettingsTheme } from './settings/types';
 
 export interface SettingsAppearancePanelProps
@@ -43,6 +43,7 @@ export const SettingsAppearancePanel = ({
                 type="button"
                 role="radio"
                 aria-checked={selected}
+                disabled={!onChange}
                 className={`flex h-12 items-center gap-3 rounded-md border px-4 text-sm font-semibold ${selected ? 'border-[#1256a6] bg-[#edf5ff]' : 'border-[#d8d2ca] bg-white'}`}
                 onClick={() => update('theme', theme.value)}
               >
@@ -57,7 +58,7 @@ export const SettingsAppearancePanel = ({
 
       <SettingsSection title="Personnalisation">
         <div className="space-y-5">
-          <SettingsSelect id="settings-font" label="Police de caractères" value={appearance.fontFamily} options={fontOptions} onChange={(value) => update('fontFamily', value)} />
+          <SettingsSelect id="settings-font" label="Police de caractères" value={appearance.fontFamily} options={fontOptions} disabled={!onChange} onChange={(value) => update('fontFamily', value)} />
           <label htmlFor="settings-font-size" className="block text-sm font-semibold text-[#172033]">
             Taille de police
             <input
@@ -67,12 +68,13 @@ export const SettingsAppearancePanel = ({
               max={100}
               step={1}
               value={appearance.fontSize}
+              disabled={!onChange}
               className="mt-2 block w-full accent-[#1256a6]"
               onChange={(event) => update('fontSize', Number(event.target.value))}
             />
             <span className="mt-1 flex justify-between text-xs font-normal text-[#667085]"><span>Petit</span><span>Normal</span><span>Grand</span></span>
           </label>
-          <SettingsSelect id="settings-density" label="Compacité de l'interface" value={appearance.density} options={densityOptions} onChange={(value) => update('density', value)} />
+          <SettingsSelect id="settings-density" label="Compacité de l'interface" value={appearance.density} options={densityOptions} disabled={!onChange} onChange={(value) => update('density', value)} />
         </div>
       </SettingsSection>
     </div>

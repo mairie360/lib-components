@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultDashboardPerformance } from './dashboard/defaultData';
 import { joinDashboardClasses } from './dashboard/styles';
 import type { DashboardPerformanceMetric } from './dashboard/types';
 
@@ -15,7 +14,7 @@ const toneStyles = {
 };
 
 export const DashboardPerformancePanel = ({
-  metrics = defaultDashboardPerformance,
+  metrics = [],
   className = '',
   ...props
 }: DashboardPerformancePanelProps) => (

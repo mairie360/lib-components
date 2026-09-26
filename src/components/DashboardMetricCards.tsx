@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultDashboardMetrics } from './dashboard/defaultData';
 import { joinDashboardClasses } from './dashboard/styles';
 import type { DashboardMetric, DashboardTone } from './dashboard/types';
 
@@ -17,7 +16,7 @@ const toneStyles: Record<DashboardTone, string> = {
 };
 
 export const DashboardMetricCards = ({
-  metrics = defaultDashboardMetrics,
+  metrics = [],
   className = '',
   ...props
 }: DashboardMetricCardsProps) => (

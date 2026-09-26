@@ -6,6 +6,16 @@ import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { SettingsModule } from '../components/SettingsModule';
 import { Sidebar } from '../components/Sidebar';
+import {
+  defaultSettingsAppearance,
+  defaultSettingsGeneral,
+  defaultSettingsNotifications,
+  defaultSettingsProfile,
+  defaultSettingsSecurity,
+  defaultSettingsSessions,
+  defaultSettingsSystemInfo,
+  settingsServiceOptions,
+} from './settingsFixtures';
 
 const meta: Meta<typeof SettingsModule> = {
   title: 'Components/Settings/SettingsModule',
@@ -13,6 +23,14 @@ const meta: Meta<typeof SettingsModule> = {
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
   args: {
+    profile: defaultSettingsProfile,
+    serviceOptions: settingsServiceOptions,
+    security: defaultSettingsSecurity,
+    sessions: defaultSettingsSessions,
+    notifications: defaultSettingsNotifications,
+    appearance: defaultSettingsAppearance,
+    general: defaultSettingsGeneral,
+    systemInfo: defaultSettingsSystemInfo,
     onTabChange: fn(),
     onProfileSave: fn(),
     onPhotoChange: fn(),

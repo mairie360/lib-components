@@ -25,11 +25,13 @@ export const SettingsToggle = ({
   description,
   checked,
   onChange,
+  disabled = false,
 }: {
   label: string;
   description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  disabled?: boolean;
 }) => (
   <div className="flex items-start justify-between gap-5 py-2">
     <div className="min-w-0">
@@ -41,7 +43,8 @@ export const SettingsToggle = ({
       role="switch"
       aria-label={label}
       aria-checked={checked}
-      className={`mt-0.5 inline-flex h-[18px] w-8 shrink-0 items-center rounded-full p-[2px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 ${
+      disabled={disabled}
+      className={`mt-0.5 inline-flex h-[18px] w-8 shrink-0 items-center rounded-full p-[2px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-default disabled:opacity-60 ${
         checked ? 'bg-[#1256a6]' : 'bg-[#d8d4ce]'
       }`}
       onClick={() => onChange(!checked)}
@@ -61,12 +64,14 @@ export const SettingsSelect = ({
   value,
   options,
   onChange,
+  disabled = false,
 }: {
   id: string;
   label: string;
   value: string;
   options: SettingsOption[];
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) => (
   <label htmlFor={id} className="block text-sm font-semibold leading-5 text-[#172033]">
     {label}
@@ -74,6 +79,7 @@ export const SettingsSelect = ({
       id={id}
       className={`${settingsFieldClassName} mt-1 font-normal`}
       value={value}
+      disabled={disabled}
       onChange={(event) => onChange(event.target.value)}
     >
       {options.map((option) => (
@@ -84,4 +90,3 @@ export const SettingsSelect = ({
     </select>
   </label>
 );
-

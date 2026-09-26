@@ -6,14 +6,6 @@ import { DashboardPerformancePanel } from './DashboardPerformancePanel';
 import { DashboardQuickActions } from './DashboardQuickActions';
 import { DashboardRecentProjects } from './DashboardRecentProjects';
 import { DashboardUpcomingEvents } from './DashboardUpcomingEvents';
-import {
-  defaultDashboardEvents,
-  defaultDashboardMetrics,
-  defaultDashboardPerformance,
-  defaultDashboardProjects,
-  defaultDashboardQuickActions,
-  defaultDashboardTasks,
-} from './dashboard/defaultData';
 import { joinDashboardClasses } from './dashboard/styles';
 import type {
   DashboardEvent,
@@ -44,13 +36,13 @@ export interface DashboardModuleProps extends React.HTMLAttributes<HTMLElement> 
 }
 
 export const DashboardModule = ({
-  userFirstName = 'Jean',
-  metrics = defaultDashboardMetrics,
-  projects = defaultDashboardProjects,
-  tasks = defaultDashboardTasks,
-  quickActions = defaultDashboardQuickActions,
-  events = defaultDashboardEvents,
-  performance = defaultDashboardPerformance,
+  userFirstName,
+  metrics = [],
+  projects = [],
+  tasks = [],
+  quickActions = [],
+  events = [],
+  performance = [],
   showPerformance = true,
   onProjectSelect,
   onViewAllProjects,
@@ -65,15 +57,17 @@ export const DashboardModule = ({
   <section className={joinDashboardClasses('space-y-6 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
     <header>
       <h1 className="text-[28px] font-bold leading-tight text-[#172033]">Tableau de Bord</h1>
-      <p className="mt-1 text-base text-[#687385]">Bienvenue {userFirstName}, voici un aperçu de vos activités</p>
+      <p className="mt-1 text-base text-[#687385]">
+        {userFirstName ? `Bienvenue ${userFirstName}, voici un aperçu de vos activités` : 'Voici un aperçu de vos activités'}
+      </p>
     </header>
-    <DashboardMetricCards metrics={metrics} />
+    {metrics.length > 0 && <DashboardMetricCards metrics={metrics} />}
     <div className="grid gap-6 xl:grid-cols-2">
       <DashboardRecentProjects projects={projects} onSelect={onProjectSelect} onViewAll={onViewAllProjects} />
       <DashboardPendingTasks tasks={tasks} onSelect={onTaskSelect} onViewAll={onViewAllTasks} />
-      <DashboardQuickActions actions={quickActions} onAction={onQuickAction} />
+      {quickActions.length > 0 && <DashboardQuickActions actions={quickActions} onAction={onQuickAction} />}
       <DashboardUpcomingEvents events={events} onSelect={onEventSelect} onOpenCalendar={onOpenCalendar} />
     </div>
-    {showPerformance && <DashboardPerformancePanel metrics={performance} />}
+    {showPerformance && performance.length > 0 && <DashboardPerformancePanel metrics={performance} />}
   </section>
 );

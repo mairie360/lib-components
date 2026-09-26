@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultDashboardQuickActions } from './dashboard/defaultData';
 import { joinDashboardClasses } from './dashboard/styles';
 import type { DashboardQuickAction, DashboardQuickActionId } from './dashboard/types';
 
@@ -10,7 +9,7 @@ export interface DashboardQuickActionsProps extends React.HTMLAttributes<HTMLEle
 }
 
 export const DashboardQuickActions = ({
-  actions = defaultDashboardQuickActions,
+  actions = [],
   onAction,
   className = '',
   ...props
@@ -21,7 +20,7 @@ export const DashboardQuickActions = ({
       {actions.map((action) => {
         const Icon = action.icon;
         return (
-          <button key={action.id} type="button" disabled={action.disabled} className="flex min-h-20 flex-col items-center justify-center gap-3 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 py-3 font-medium text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#155bb5]/30 disabled:cursor-not-allowed disabled:opacity-45" onClick={() => onAction?.(action.id)}>
+          <button key={action.id} type="button" disabled={action.disabled || !onAction} className="flex min-h-20 flex-col items-center justify-center gap-3 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 py-3 font-medium text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#155bb5]/30 disabled:cursor-not-allowed disabled:opacity-45" onClick={() => onAction?.(action.id)}>
             <Icon className="size-5" strokeWidth={1.8} aria-hidden="true" />
             <span>{action.label}</span>
           </button>

@@ -6,7 +6,7 @@ import {
   settingsHomePageOptions,
   settingsLanguageOptions,
   settingsTimezoneOptions,
-} from './settings/defaultData';
+} from './settings/options';
 import type { SettingsGeneralState, SettingsOption } from './settings/types';
 
 export interface SettingsGeneralPanelProps
@@ -36,19 +36,20 @@ export const SettingsGeneralPanel = ({
     <div className={`space-y-6 ${className}`} {...props}>
       <SettingsSection title="Langue et région">
         <div className="space-y-4">
-          <SettingsSelect id="settings-language" label="Langue de l'interface" value={general.language} options={languageOptions} onChange={(value) => update('language', value)} />
-          <SettingsSelect id="settings-timezone" label="Fuseau horaire" value={general.timezone} options={timezoneOptions} onChange={(value) => update('timezone', value)} />
-          <SettingsSelect id="settings-date-format" label="Format de date" value={general.dateFormat} options={dateFormatOptions} onChange={(value) => update('dateFormat', value)} />
+          <SettingsSelect id="settings-language" label="Langue de l'interface" value={general.language} options={languageOptions} disabled={!onChange} onChange={(value) => update('language', value)} />
+          <SettingsSelect id="settings-timezone" label="Fuseau horaire" value={general.timezone} options={timezoneOptions} disabled={!onChange} onChange={(value) => update('timezone', value)} />
+          <SettingsSelect id="settings-date-format" label="Format de date" value={general.dateFormat} options={dateFormatOptions} disabled={!onChange} onChange={(value) => update('dateFormat', value)} />
         </div>
       </SettingsSection>
 
       <SettingsSection title="Démarrage">
         <div className="space-y-4">
-          <SettingsSelect id="settings-home-page" label="Page d'accueil par défaut" value={general.homePage} options={homePageOptions} onChange={(value) => update('homePage', value)} />
+          <SettingsSelect id="settings-home-page" label="Page d'accueil par défaut" value={general.homePage} options={homePageOptions} disabled={!onChange} onChange={(value) => update('homePage', value)} />
           <SettingsToggle
             label="Ouverture automatique des notifications"
             description="Ouvrir automatiquement le panneau de notifications au démarrage"
             checked={general.autoOpenNotifications}
+            disabled={!onChange}
             onChange={(value) => update('autoOpenNotifications', value)}
           />
         </div>

@@ -17,15 +17,15 @@ export const SettingsNotificationsPanel = ({ notifications, onChange, className 
     <div className={className} {...props}>
       <SettingsSection title="Préférences de notification">
         <div className="space-y-1">
-          <SettingsToggle label="Notifications par e-mail" description="Recevez les notifications importantes par e-mail" checked={notifications.email} onChange={(value) => update('email', value)} />
-          <SettingsToggle label="Notifications push" description="Notifications instantanées dans votre navigateur" checked={notifications.push} onChange={(value) => update('push', value)} />
-          <SettingsToggle label="Notifications desktop" description="Notifications sur votre bureau" checked={notifications.desktop} onChange={(value) => update('desktop', value)} />
+          <SettingsToggle label="Notifications par e-mail" description="Recevez les notifications importantes par e-mail" checked={notifications.email} disabled={!onChange} onChange={(value) => update('email', value)} />
+          <SettingsToggle label="Notifications push" description="Notifications instantanées dans votre navigateur" checked={notifications.push} disabled={!onChange} onChange={(value) => update('push', value)} />
+          <SettingsToggle label="Notifications desktop" description="Notifications sur votre bureau" checked={notifications.desktop} disabled={!onChange} onChange={(value) => update('desktop', value)} />
         </div>
         <div className="my-5 border-t border-[#e3e0dc]" />
         <h3 className="mb-2 text-sm font-bold text-[#172033]">Types de notifications</h3>
-        <SettingsToggle label="Messages" description="Nouveaux messages reçus" checked={notifications.messages} onChange={(value) => update('messages', value)} />
-        <SettingsToggle label="Projets" description="Mises à jour des projets" checked={notifications.projects} onChange={(value) => update('projects', value)} />
-        <SettingsToggle label="Calendrier" description="Rappels d'événements" checked={notifications.calendar} onChange={(value) => update('calendar', value)} />
+        <SettingsToggle label="Messages" description="Nouveaux messages reçus" checked={notifications.messages} disabled={!onChange} onChange={(value) => update('messages', value)} />
+        <SettingsToggle label="Projets" description="Mises à jour des projets" checked={notifications.projects} disabled={!onChange} onChange={(value) => update('projects', value)} />
+        <SettingsToggle label="Calendrier" description="Rappels d'événements" checked={notifications.calendar} disabled={!onChange} onChange={(value) => update('calendar', value)} />
       </SettingsSection>
     </div>
   );
