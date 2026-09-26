@@ -16,4 +16,6 @@ jobs:
     uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v3.1.1
     with:
       cicd_version: v3.1.1
-    secrets: inherit
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
