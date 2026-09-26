@@ -4,6 +4,7 @@ import { fn } from 'storybook/test';
 
 import { CalendarModule } from '../components/CalendarModule';
 import type { CalendarModuleProps } from '../components/CalendarModule';
+import { calendarEvents, calendarPeople, calendarServices } from './calendarFixtures';
 
 const meta = {
   title: 'Components/Calendar/CalendarModule',
@@ -13,6 +14,9 @@ const meta = {
   },
   tags: ['autodocs'],
   args: {
+    events: calendarEvents,
+    people: calendarPeople,
+    services: calendarServices,
     initialDate: '15-06-2026',
     currentUserRole: 'responsable',
     currentUserId: 'alice',

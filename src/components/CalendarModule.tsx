@@ -72,86 +72,6 @@ export interface CalendarModuleProps extends Omit<React.HTMLAttributes<HTMLEleme
   onValidateEvent?: (event: CalendarEvent, approvalStatus: CalendarEventApprovalStatus) => void;
 }
 
-const defaultCalendarPeople: CalendarAssignee[] = [
-  { id: 'alice', name: 'Alice Dupont', role: 'Communication' },
-  { id: 'karim', name: 'Karim Payet', role: 'Logistique' },
-  { id: 'lea', name: 'Léa Martin', role: 'Culture' },
-  { id: 'thomas', name: 'Thomas Robert', role: 'Sécurité' },
-];
-
-const defaultCalendarServices: CalendarServiceOption[] = [
-  { label: 'Direction générale', value: 'direction' },
-  { label: 'Communication', value: 'communication' },
-  { label: 'Culture', value: 'culture' },
-  { label: 'Logistique', value: 'logistique' },
-  { label: 'Accueil', value: 'accueil' },
-  { label: 'Sécurité', value: 'securite' },
-];
-
-const defaultCalendarEvents: CalendarEvent[] = [
-  {
-    id: 'council',
-    title: 'Conseil municipal',
-    date: '15-06-2026',
-    category: 'meeting',
-    service: 'direction',
-    startTime: '09:00',
-    endTime: '10:30',
-    location: 'Salle du conseil',
-    description: 'Séance mensuelle du conseil municipal',
-    assigneeIds: ['alice', 'karim'],
-    approvalStatus: 'approved',
-    createdById: 'alice',
-  },
-  {
-    id: 'culture-review',
-    title: 'Atelier culture proposé',
-    date: '17-06-2026',
-    category: 'activity',
-    service: 'culture',
-    startTime: '14:00',
-    endTime: '15:30',
-    location: 'Médiathèque',
-    description: 'Proposition à valider pour les habitants du quartier centre',
-    assigneeIds: ['lea'],
-    approvalStatus: 'pending',
-    createdById: 'lea',
-  },
-  {
-    id: 'market',
-    title: 'Marché local',
-    date: '20-06-2026',
-    endDate: '21-06-2026',
-    category: 'activity',
-    service: 'logistique',
-    startTime: '08:00',
-    endTime: '12:00',
-    location: 'Place centrale',
-    assigneeIds: ['karim', 'thomas'],
-    approvalStatus: 'approved',
-    colorClassName: 'bg-[#eaf6ef] text-[#24734c]',
-  },
-  {
-    id: 'weekly-duty',
-    title: 'Permanence d’accueil',
-    date: '15-06-2026',
-    category: 'meeting',
-    service: 'accueil',
-    startTime: '10:00',
-    endTime: '11:00',
-    location: 'Accueil de la mairie',
-    assigneeIds: ['alice'],
-    recurrence: {
-      frequency: 'weekly',
-      interval: 1,
-      daysOfWeek: [1, 3],
-      endsOn: '30-06-2026',
-    },
-    approvalStatus: 'approved',
-    colorClassName: 'bg-[#e9f2ff] text-[#2563eb]',
-  },
-];
-
 const fieldClassName =
   'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
 
@@ -186,7 +106,7 @@ const getDefaultEventColorClassName = (event: CalendarEvent) => {
 const buildServiceOptions = (services: CalendarServiceOption[] | undefined, events: CalendarEvent[]) => {
   const optionsByValue = new Map<string, CalendarServiceOption>();
 
-  [...defaultCalendarServices, ...(services || [])].forEach((service) => {
+  (services || []).forEach((service) => {
     optionsByValue.set(service.value, service);
   });
 
@@ -201,10 +121,10 @@ const buildServiceOptions = (services: CalendarServiceOption[] | undefined, even
 
 const canSeeEvent = (
   event: CalendarEvent,
-  currentUserRole: CalendarUserRole,
+  currentUserRole?: CalendarUserRole,
   currentUserId?: CalendarAssigneeId
 ) => {
-  if (event.visibleToRoles?.length && !event.visibleToRoles.includes(currentUserRole)) {
+  if (event.visibleToRoles?.length && (!currentUserRole || !event.visibleToRoles.includes(currentUserRole))) {
     return false;
   }
 
@@ -235,13 +155,13 @@ export const CalendarModule = ({
   title = 'Calendrier',
   subtitle = 'Planifiez les événements municipaux et gérez leur validation',
   events,
-  people = defaultCalendarPeople,
+  people = [],
   categories = defaultEventCategories,
   services,
   currentUserId,
-  currentUserRole = 'responsable',
+  currentUserRole,
   currentUserService,
-  initialDate = '15-06-2026',
+  initialDate,
   view,
   defaultView = 'month',
   onViewChange,
@@ -255,8 +175,10 @@ export const CalendarModule = ({
   className = '',
   ...props
 }: CalendarModuleProps) => {
-  const [internalEvents, setInternalEvents] = React.useState(defaultCalendarEvents);
-  const [activeDate, setActiveDate] = React.useState(() => parseDateInput(initialDate));
+  const [internalEvents, setInternalEvents] = React.useState<CalendarEvent[]>([]);
+  const [activeDate, setActiveDate] = React.useState(() =>
+    initialDate === undefined ? new Date() : parseDateInput(initialDate)
+  );
   const [internalView, setInternalView] = React.useState<CalendarViewMode>(defaultView);
   const [dateFilter, setDateFilter] = React.useState('');
   const [categoryFilter, setCategoryFilter] = React.useState('all');
@@ -267,11 +189,13 @@ export const CalendarModule = ({
   const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const resolvedEvents = events ?? internalEvents;
   const resolvedView = view ?? internalView;
-  const canEditEvents = currentUserRole === 'responsable';
-  const canDeleteEvents = currentUserRole === 'responsable';
-  const canValidateEvents = currentUserRole === 'responsable' || currentUserRole === 'mayor';
+  const canCreateEvents = Boolean(currentUserRole && onCreateEvent);
+  const canEditEvents = currentUserRole === 'responsable' && Boolean(onUpdateEvent);
+  const canDeleteEvents = currentUserRole === 'responsable' && Boolean(onDeleteEvent);
+  const canValidateEvents =
+    (currentUserRole === 'responsable' || currentUserRole === 'mayor') && Boolean(onValidateEvent);
   const canCreateRecurringEvents = currentUserRole === 'responsable';
-  const serviceOptions = React.useMemo(() => buildServiceOptions(services, resolvedEvents), [events, resolvedEvents, services]);
+  const serviceOptions = React.useMemo(() => buildServiceOptions(services, resolvedEvents), [resolvedEvents, services]);
   const toolbarTitle = resolvedView === 'day' ? formatFullDate(activeDate) : formatMonthYear(activeDate);
   const visibleEvents = resolvedEvents
     .map((event) => ({
@@ -296,6 +220,7 @@ export const CalendarModule = ({
   };
 
   const handleSelectSlot = (date: Date, time: string) => {
+    if (!canCreateEvents) return;
     handleDateChange(date);
     setCreateInitialValues({
       date: formatDateForServer(date),
@@ -335,6 +260,7 @@ export const CalendarModule = ({
   };
 
   const handleNewEventClick = () => {
+    if (!canCreateEvents) return;
     setCreateInitialValues({
       date: formatDateForServer(activeDate),
       service: currentUserService,
@@ -343,6 +269,7 @@ export const CalendarModule = ({
   };
 
   const handleCreateEvent = (values: CreateCalendarEventValues) => {
+    if (!canCreateEvents) return;
     const createdEvent: CalendarEvent = {
       ...values,
       id: `event-${Date.now()}`,
@@ -367,6 +294,7 @@ export const CalendarModule = ({
   };
 
   const handleUpdateEvent = (updatedEvent: CalendarEvent) => {
+    if (!canEditEvents) return;
     onUpdateEvent?.(updatedEvent);
     updateInternalEvent(updatedEvent);
     setSelectedEvent(updatedEvent);
@@ -374,6 +302,7 @@ export const CalendarModule = ({
   };
 
   const handleDeleteEvent = (event: CalendarEvent) => {
+    if (!canDeleteEvents) return;
     onDeleteEvent?.(event);
 
     if (events === undefined) {
@@ -385,6 +314,7 @@ export const CalendarModule = ({
   };
 
   const handleValidateEvent = (event: CalendarEvent, approvalStatus: CalendarEventApprovalStatus) => {
+    if (!canValidateEvents) return;
     const updatedEvent: CalendarEvent = {
       ...event,
       approvalStatus,
@@ -427,8 +357,8 @@ export const CalendarModule = ({
       <PageTitleBar
         title={title}
         subtitle={subtitle}
-        actionLabel="Nouvel événement"
-        onAction={handleNewEventClick}
+        actionLabel={canCreateEvents ? 'Nouvel événement' : undefined}
+        onAction={canCreateEvents ? handleNewEventClick : undefined}
       />
 
       <div className="border-t border-[#d8d2ca]" />
@@ -506,7 +436,7 @@ export const CalendarModule = ({
 
             {visibleEvents.length === 0 && (
               <div className="mt-6 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 py-3 text-sm text-[#64748b]">
-                Aucun événement ne correspond aux filtres.
+                {hasActiveFilters ? 'Aucun événement ne correspond aux filtres.' : 'Aucun événement à afficher.'}
               </div>
             )}
 
@@ -526,7 +456,7 @@ export const CalendarModule = ({
                   selectedDate={activeDate}
                   events={visibleEvents}
                   onSelectDate={handleSelectDate}
-                  onSelectSlot={handleSelectSlot}
+                  onSelectSlot={canCreateEvents ? handleSelectSlot : undefined}
                   onEventClick={setSelectedEvent}
                 />
               )}
@@ -534,7 +464,7 @@ export const CalendarModule = ({
                 <DaySchedule
                   currentDate={activeDate}
                   events={visibleEvents}
-                  onSelectSlot={handleSelectSlot}
+                  onSelectSlot={canCreateEvents ? handleSelectSlot : undefined}
                   onEventClick={setSelectedEvent}
                 />
               )}
