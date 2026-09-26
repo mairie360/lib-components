@@ -35,6 +35,20 @@ describe('AppShell', () => {
     expect(onNavigate).toHaveBeenCalledWith('/settings', 'settings');
   });
 
+  it('shows safe relative destinations without a router callback', () => {
+    render(<AppShell activeItem="admin" isAdmin user={user} hrefs={{ admin: '/', settings: '/settings' }}><p>Contenu</p></AppShell>);
+
+    expect(screen.getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Administration/ })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it('uses the safe Settings destination when the configured profile URL is unsafe', () => {
+    render(<AppShell user={user} hrefs={{ profile: 'javascript:alert(1)', settings: '/settings' }}><p>Contenu</p></AppShell>);
+
+    fireEvent.click(screen.getByRole('button', { name: /Marie Martin/ }));
+    expect(screen.getByRole('link', { name: 'Profil' })).toHaveAttribute('href', '/settings');
+  });
+
   it('opens and closes the mobile drawer without a second navigation implementation', () => {
     const onNavigate = jest.fn();
     render(<AppShell user={user} hrefs={{ projects: '/projects' }} onNavigate={onNavigate}><p>Contenu</p></AppShell>);
@@ -47,9 +61,10 @@ describe('AppShell', () => {
   });
 
   it('does not expose unsafe or missing destinations', () => {
-    render(<AppShell user={user} hrefs={{ projects: 'javascript:alert(1)', messages: '//example.org' }}><p>Contenu</p></AppShell>);
+    render(<AppShell user={user} hrefs={{ projects: 'javascript:alert(1)', messages: '//example.org', settings: '\\\\example.org' }}><p>Contenu</p></AppShell>);
 
     expect(screen.queryByRole('button', { name: 'Projets' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Messagerie' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Paramètres' })).not.toBeInTheDocument();
   });
 });
