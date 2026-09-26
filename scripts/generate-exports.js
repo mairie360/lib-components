@@ -21,6 +21,8 @@ const exports = files.map((file) => {
 });
 
 exports.push("export { mairie360LogoSrc } from './assets/logo';");
+exports.push("export { defaultSidebarItems } from './components/Sidebar';");
+exports.push("export type { AppShellProps } from './components/AppShell';");
 
 fs.writeFileSync(outputFile, exports.join('\n') + '\n', 'utf8');
 

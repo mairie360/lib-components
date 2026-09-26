@@ -13,6 +13,8 @@ const meta: Meta<typeof UserProfilePage> = {
   },
   args: {
     onUpdateUser: fn(),
+    hrefs: { settings: '/settings', projects: '/projects', dashboard: '/' },
+    onNavigate: fn(),
     headerProps: {
       onPageChange: fn(),
       onLogout: fn(),

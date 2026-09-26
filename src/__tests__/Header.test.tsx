@@ -11,13 +11,26 @@ const adminUser = {
 };
 
 describe('Header component', () => {
-  it('renders the search field and admin profile controls', () => {
+  it('does not invent search, notifications, or a notification count', () => {
     render(<Header user={adminUser} isAdmin />);
 
-    expect(screen.getByPlaceholderText('Rechercher...')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Notifications' })).toBeInTheDocument();
-    expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText('Rechercher...')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Notifications' })).not.toBeInTheDocument();
     expect(screen.getByText('Admin Système')).toBeInTheDocument();
+  });
+
+  it('wires configured search and notifications to handlers', () => {
+    const onSearch = jest.fn();
+    const onNotificationsClick = jest.fn();
+    render(<Header user={adminUser} onSearch={onSearch} onNotificationsClick={onNotificationsClick} notificationCount={2} />);
+
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Rechercher' }), { target: { value: 'projet' } });
+    fireEvent.submit(screen.getByRole('search'));
+    fireEvent.click(screen.getByRole('button', { name: 'Notifications' }));
+
+    expect(onSearch).toHaveBeenCalledWith('projet');
+    expect(onNotificationsClick).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('2')).toBeInTheDocument();
   });
 
   it('opens the sidebar from the navigation button', () => {
@@ -30,7 +43,7 @@ describe('Header component', () => {
   });
 
   it('renders the profile dropdown content', () => {
-    render(<Header user={adminUser} isAdmin />);
+    render(<Header user={adminUser} isAdmin onPageChange={jest.fn()} onLogout={jest.fn()} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Admin Système/ }));
 

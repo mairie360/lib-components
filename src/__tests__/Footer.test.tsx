@@ -4,14 +4,12 @@ import { Footer } from '../components/Footer';
 import '@testing-library/jest-dom';
 
 describe('Footer component', () => {
-  it('renders the default copyright, version, and links', () => {
+  it('renders copyright without inventing a version or dead links', () => {
     render(<Footer year={2026} />);
 
     expect(screen.getByText('© 2026 Mairie360')).toBeInTheDocument();
-    expect(screen.getByText('Version 1.0')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Support technique' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Documentation' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Conditions d’utilisation' })).toBeInTheDocument();
+    expect(screen.queryByText(/Version/)).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Liens du pied de page' })).not.toBeInTheDocument();
   });
 
   it('supports custom product information', () => {
@@ -34,5 +32,12 @@ describe('Footer component', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Support technique' }));
 
     expect(onSupportClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('omits links without a destination or handler', () => {
+    render(<Footer links={[{ label: 'Unavailable' }, { label: 'Documentation', href: '/docs' }]} />);
+
+    expect(screen.queryByText('Unavailable')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Documentation' })).toBeInTheDocument();
   });
 });

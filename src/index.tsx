@@ -10,6 +10,7 @@ export { AdministrationUserFilters } from './components/AdministrationUserFilter
 export { AdministrationUserModal } from './components/AdministrationUserModal';
 export { AdministrationUsersTable } from './components/AdministrationUsersTable';
 export { Alert } from './components/Alert';
+export { AppShell } from './components/AppShell';
 export { Avatar } from './components/Avatar';
 export { Badge } from './components/Badge';
 export { Button } from './components/Button';
@@ -93,3 +94,5 @@ export { UserProfilePage } from './components/UserProfilePage';
 export { ViewSwitcher } from './components/ViewSwitcher';
 export { WeekGrid } from './components/WeekGrid';
 export { mairie360LogoSrc } from './assets/logo';
+export { defaultSidebarItems } from './components/Sidebar';
+export type { AppShellProps } from './components/AppShell';
