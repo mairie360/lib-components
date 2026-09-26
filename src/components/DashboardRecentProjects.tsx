@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { defaultDashboardProjects } from './dashboard/defaultData';
 import { clampDashboardProgress, joinDashboardClasses } from './dashboard/styles';
 import type { DashboardProject, DashboardProjectStatus } from './dashboard/types';
 
@@ -23,7 +22,7 @@ const statusStyles: Record<DashboardProjectStatus, string> = {
 };
 
 export const DashboardRecentProjects = ({
-  projects = defaultDashboardProjects,
+  projects = [],
   onSelect,
   onViewAll,
   className = '',
@@ -32,13 +31,13 @@ export const DashboardRecentProjects = ({
   <section className={joinDashboardClasses('rounded-lg border border-[#dfd9d1] bg-white p-6', className)} {...props}>
     <div className="flex items-center justify-between gap-4">
       <h2 className="text-base font-semibold text-[#243041]">Projets récents</h2>
-      <button type="button" className="rounded-md border border-[#c8d9d8] bg-[#e6f3f2] px-3 py-2 text-sm font-medium text-[#285c59]" onClick={onViewAll}>Voir tous</button>
+      {onViewAll && <button type="button" className="rounded-md border border-[#c8d9d8] bg-[#e6f3f2] px-3 py-2 text-sm font-medium text-[#285c59]" onClick={onViewAll}>Voir tous</button>}
     </div>
     <div className="mt-6 space-y-4">
       {projects.map((project) => {
         const progress = clampDashboardProgress(project.progress);
         return (
-          <button key={project.id} type="button" className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#155bb5]/30" onClick={() => onSelect?.(project)}>
+          <button key={project.id} type="button" disabled={!onSelect} className="block w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#155bb5]/30 disabled:cursor-default" onClick={() => onSelect?.(project)}>
             <span className="flex items-center justify-between gap-4">
               <span className="font-semibold text-[#172033]">{project.name}</span>
               <span className={joinDashboardClasses('rounded-md px-2.5 py-1 text-xs font-semibold', statusStyles[project.status])}>{statusLabels[project.status]}</span>

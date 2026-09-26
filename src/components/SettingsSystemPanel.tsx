@@ -45,14 +45,14 @@ export const SettingsSystemPanel = ({ systemInfo, onClearCache, onAssistanceActi
         <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#e5e7eb]" aria-label="Utilisation du stockage" aria-valuemin={0} aria-valuemax={systemInfo.storageLimitMb} aria-valuenow={systemInfo.storageUsedMb} role="progressbar">
           <div className="h-full rounded-full bg-[#1256a6]" style={{ width: `${percentage}%` }} />
         </div>
-        <button type="button" className="mt-4 inline-flex h-9 items-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold" onClick={onClearCache}>
+        {onClearCache && <button type="button" className="mt-4 inline-flex h-9 items-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold" onClick={onClearCache}>
           <HardDrive className="size-4" />
           Vider le cache
-        </button>
-        <p className="mt-2 text-sm text-[#667085]">Supprime les données temporaires pour libérer de l’espace</p>
+        </button>}
+        {onClearCache && <p className="mt-2 text-sm text-[#667085]">Supprime les données temporaires pour libérer de l’espace</p>}
       </SettingsSection>
 
-      <SettingsSection title="Assistance">
+      {onAssistanceAction && <SettingsSection title="Assistance">
         <div className="grid gap-3 sm:grid-cols-2">
           {assistanceActions.map((action) => {
             const Icon = action.icon;
@@ -64,7 +64,7 @@ export const SettingsSystemPanel = ({ systemInfo, onClearCache, onAssistanceActi
             );
           })}
         </div>
-      </SettingsSection>
+      </SettingsSection>}
     </div>
   );
 };

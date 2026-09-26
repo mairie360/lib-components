@@ -6,6 +6,14 @@ import { DashboardModule } from '../components/DashboardModule';
 import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
+import {
+  defaultDashboardEvents,
+  defaultDashboardMetrics,
+  defaultDashboardPerformance,
+  defaultDashboardProjects,
+  defaultDashboardQuickActions,
+  defaultDashboardTasks,
+} from './dashboardFixtures';
 
 const meta: Meta<typeof DashboardModule> = {
   title: 'Components/Dashboard/DashboardModule',
@@ -13,6 +21,13 @@ const meta: Meta<typeof DashboardModule> = {
   tags: ['autodocs'],
   parameters: { layout: 'fullscreen' },
   args: {
+    userFirstName: 'Jean',
+    metrics: defaultDashboardMetrics,
+    projects: defaultDashboardProjects,
+    tasks: defaultDashboardTasks,
+    quickActions: defaultDashboardQuickActions,
+    events: defaultDashboardEvents,
+    performance: defaultDashboardPerformance,
     onProjectSelect: fn(),
     onViewAllProjects: fn(),
     onTaskSelect: fn(),

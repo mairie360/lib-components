@@ -2,10 +2,33 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { DashboardModule } from '../components/DashboardModule';
+import { DashboardMetricCards } from '../components/DashboardMetricCards';
+import { DashboardPendingTasks } from '../components/DashboardPendingTasks';
+import { DashboardPerformancePanel } from '../components/DashboardPerformancePanel';
+import { DashboardQuickActions } from '../components/DashboardQuickActions';
+import { DashboardRecentProjects } from '../components/DashboardRecentProjects';
+import { DashboardUpcomingEvents } from '../components/DashboardUpcomingEvents';
+import {
+  defaultDashboardEvents,
+  defaultDashboardMetrics,
+  defaultDashboardPerformance,
+  defaultDashboardProjects,
+  defaultDashboardQuickActions,
+  defaultDashboardTasks,
+} from '../stories/dashboardFixtures';
+
+const fixtureProps = {
+  metrics: defaultDashboardMetrics,
+  projects: defaultDashboardProjects,
+  tasks: defaultDashboardTasks,
+  quickActions: defaultDashboardQuickActions,
+  events: defaultDashboardEvents,
+  performance: defaultDashboardPerformance,
+};
 
 describe('DashboardModule', () => {
   it('renders the personalized overview and ATP sections', () => {
-    render(<DashboardModule userFirstName="Alice" />);
+    render(<DashboardModule {...fixtureProps} userFirstName="Alice" />);
 
     expect(screen.getByRole('heading', { name: 'Tableau de Bord' })).toBeInTheDocument();
     expect(screen.getByText('Bienvenue Alice, voici un aperçu de vos activités')).toBeInTheDocument();
@@ -25,7 +48,7 @@ describe('DashboardModule', () => {
     const onViewAllProjects = jest.fn();
     const onTaskSelect = jest.fn();
     const onViewAllTasks = jest.fn();
-    render(<DashboardModule {...{ onProjectSelect, onViewAllProjects, onTaskSelect, onViewAllTasks }} />);
+    render(<DashboardModule {...fixtureProps} {...{ onProjectSelect, onViewAllProjects, onTaskSelect, onViewAllTasks }} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Rénovation bibliothèque/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Voir tous' }));
@@ -40,7 +63,7 @@ describe('DashboardModule', () => {
 
   it('dispatches all authorized quick actions', () => {
     const onQuickAction = jest.fn();
-    render(<DashboardModule onQuickAction={onQuickAction} />);
+    render(<DashboardModule {...fixtureProps} onQuickAction={onQuickAction} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Nouveau document' }));
     fireEvent.click(screen.getByRole('button', { name: 'Planifier événement' }));
@@ -78,8 +101,37 @@ describe('DashboardModule', () => {
   });
 
   it('supports hiding privileged performance data', () => {
-    render(<DashboardModule showPerformance={false} quickActions={[]} />);
+    render(<DashboardModule {...fixtureProps} showPerformance={false} quickActions={[]} />);
     expect(screen.queryByRole('heading', { name: 'Aperçu des performances' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Voir rapports' })).not.toBeInTheDocument();
+  });
+
+  it('does not invent business data when props are omitted', () => {
+    render(<DashboardModule />);
+
+    expect(screen.getByText('Voici un aperçu de vos activités')).toBeInTheDocument();
+    expect(screen.getByText('Aucun projet récent.')).toBeInTheDocument();
+    expect(screen.getByText('Aucune tâche en attente.')).toBeInTheDocument();
+    expect(screen.getByText('Aucun événement à venir.')).toBeInTheDocument();
+    expect(screen.queryByText('Rénovation bibliothèque')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Actions rapides' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Aperçu des performances' })).not.toBeInTheDocument();
+  });
+
+  it('keeps standalone panels free of implicit demo records and actions', () => {
+    render(<>
+      <DashboardMetricCards />
+      <DashboardRecentProjects />
+      <DashboardPendingTasks />
+      <DashboardQuickActions />
+      <DashboardUpcomingEvents />
+      <DashboardPerformancePanel />
+    </>);
+
+    expect(screen.queryByText('Rénovation bibliothèque')).not.toBeInTheDocument();
+    expect(screen.queryByText('Validation budget formation')).not.toBeInTheDocument();
+    expect(screen.queryByText('Conseil Municipal')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Voir rapports' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Voir tous' })).not.toBeInTheDocument();
   });
 });

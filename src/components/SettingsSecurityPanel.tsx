@@ -11,7 +11,7 @@ export interface SettingsPasswordChange {
 export interface SettingsSecurityPanelProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'security'> {
   security: SettingsSecurityState;
-  sessions: SettingsSession[];
+  sessions?: SettingsSession[];
   onSecurityChange?: (security: SettingsSecurityState) => void;
   onPasswordChange?: (change: SettingsPasswordChange) => void;
   onDisconnectSession?: (session: SettingsSession) => void;
@@ -49,7 +49,7 @@ export const SettingsSecurityPanel = ({
 
   return (
     <div className={`space-y-6 ${className}`} {...props}>
-      <SettingsSection title="Mot de passe">
+      {onPasswordChange && <SettingsSection title="Mot de passe">
         <form className="space-y-4" onSubmit={submitPassword}>
           {[
             ['Mot de passe actuel', 'current'],
@@ -74,7 +74,7 @@ export const SettingsSecurityPanel = ({
             {feedback && <span role={feedback.includes('correspondent') || feedback.includes('obligatoires') ? 'alert' : 'status'} className="text-sm text-[#667085]">{feedback}</span>}
           </div>
         </form>
-      </SettingsSection>
+      </SettingsSection>}
 
       <SettingsSection title="Authentification à deux facteurs">
         <div className="space-y-2">
@@ -82,12 +82,14 @@ export const SettingsSecurityPanel = ({
             label="Authentification par SMS"
             description="Recevez un code par SMS pour sécuriser votre compte"
             checked={security.smsTwoFactor}
+            disabled={!onSecurityChange}
             onChange={(value) => updateSecurity('smsTwoFactor', value)}
           />
           <SettingsToggle
             label="Application d'authentification"
             description="Utilisez Google Authenticator ou une app similaire"
             checked={security.authenticatorTwoFactor}
+            disabled={!onSecurityChange}
             onChange={(value) => updateSecurity('authenticatorTwoFactor', value)}
           />
         </div>
@@ -95,7 +97,7 @@ export const SettingsSecurityPanel = ({
 
       <SettingsSection title="Sessions actives">
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {sessions?.map((session) => (
             <article key={session.id} className="flex items-center justify-between gap-4 rounded-md border border-[#e3e0dc] bg-[#fbfcfd] px-4 py-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 text-sm font-semibold text-[#172033]">
@@ -106,13 +108,15 @@ export const SettingsSecurityPanel = ({
               </div>
               {session.current ? (
                 <span className="rounded-md bg-[#4b9693] px-2.5 py-1 text-xs font-semibold text-white">Actuelle</span>
-              ) : (
+              ) : onDisconnectSession ? (
                 <button type="button" className="h-8 rounded-md border border-[#d8d2ca] px-3 text-sm font-semibold text-[#d92d20]" onClick={() => onDisconnectSession?.(session)}>
                   Déconnecter
                 </button>
-              )}
+              ) : null}
             </article>
           ))}
+          {sessions === undefined && <p className="text-sm text-[#667085]">Données de session indisponibles.</p>}
+          {sessions?.length === 0 && <p className="text-sm text-[#667085]">Aucune session à afficher.</p>}
         </div>
       </SettingsSection>
     </div>

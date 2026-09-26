@@ -2,7 +2,6 @@ import React from 'react';
 import { Save } from 'lucide-react';
 
 import { SettingsSection, settingsFieldClassName } from './settings/controls';
-import { settingsServiceOptions } from './settings/defaultData';
 import type { SettingsOption, SettingsProfile } from './settings/types';
 
 export interface SettingsProfilePanelProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -15,7 +14,7 @@ export interface SettingsProfilePanelProps extends React.HTMLAttributes<HTMLDivE
 
 export const SettingsProfilePanel = ({
   profile,
-  serviceOptions = settingsServiceOptions,
+  serviceOptions = [],
   maxPhotoSizeBytes = 2 * 1024 * 1024,
   onSave,
   onPhotoChange,
@@ -51,7 +50,8 @@ export const SettingsProfilePanel = ({
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSave?.(draft);
+    if (!onSave) return;
+    onSave(draft);
     setStatus('Modifications enregistrées.');
   };
 
@@ -71,7 +71,7 @@ export const SettingsProfilePanel = ({
                 {draft.initials}
               </div>
             )}
-            <div>
+            {onPhotoChange && <div>
               <label className="inline-flex h-9 cursor-pointer items-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] hover:bg-white">
                 Changer la photo
                 <input
@@ -84,7 +84,7 @@ export const SettingsProfilePanel = ({
               </label>
               <p className="mt-2 text-sm text-[#667085]">Formats acceptés: JPG, PNG. Taille max: 2MB</p>
               {photoError && <p role="alert" className="mt-1 text-sm text-[#b42318]">{photoError}</p>}
-            </div>
+            </div>}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
@@ -94,6 +94,7 @@ export const SettingsProfilePanel = ({
                 className={`${settingsFieldClassName} mt-1 font-normal`}
                 value={draft.fullName}
                 required
+                disabled={!onSave}
                 onChange={(event) => update('fullName', event.target.value)}
               />
             </label>
@@ -104,6 +105,7 @@ export const SettingsProfilePanel = ({
                 className={`${settingsFieldClassName} mt-1 font-normal`}
                 value={draft.email}
                 required
+                disabled={!onSave}
                 onChange={(event) => update('email', event.target.value)}
               />
             </label>
@@ -113,24 +115,32 @@ export const SettingsProfilePanel = ({
                 type="tel"
                 className={`${settingsFieldClassName} mt-1 font-normal`}
                 value={draft.phone}
+                disabled={!onSave}
                 onChange={(event) => update('phone', event.target.value)}
               />
             </label>
             <label className="text-sm font-semibold text-[#172033]">
               Service
-              <select
-                className={`${settingsFieldClassName} mt-1 font-normal`}
-                value={draft.service}
-                onChange={(event) => update('service', event.target.value)}
-              >
-                {serviceOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-              </select>
+              {serviceOptions.length > 0 ? (
+                <select
+                  className={`${settingsFieldClassName} mt-1 font-normal`}
+                  value={draft.service}
+                  disabled={!onSave}
+                  onChange={(event) => update('service', event.target.value)}
+                >
+                  {!serviceOptions.some((option) => option.value === draft.service) && <option value={draft.service}>{draft.service || 'Non renseigné'}</option>}
+                  {serviceOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+                </select>
+              ) : (
+                <input className={`${settingsFieldClassName} mt-1 font-normal`} value={draft.service} placeholder="Non renseigné" readOnly />
+              )}
             </label>
             <label className="text-sm font-semibold text-[#172033]">
               Poste
               <input
                 className={`${settingsFieldClassName} mt-1 font-normal`}
                 value={draft.position}
+                disabled={!onSave}
                 onChange={(event) => update('position', event.target.value)}
               />
             </label>
@@ -141,15 +151,16 @@ export const SettingsProfilePanel = ({
             <textarea
               className="mt-1 min-h-24 w-full rounded-md border border-[#d8d2ca] bg-white px-3 py-2 font-normal outline-none focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
               value={draft.biography}
+              disabled={!onSave}
               onChange={(event) => update('biography', event.target.value)}
             />
           </label>
 
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className="inline-flex h-9 items-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4a90]">
+            {onSave && <button type="submit" className="inline-flex h-9 items-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4a90]">
               <Save className="size-4" />
               Enregistrer les modifications
-            </button>
+            </button>}
             {status && <span role="status" className="text-sm font-medium text-[#315f5c]">{status}</span>}
           </div>
         </form>
@@ -157,4 +168,3 @@ export const SettingsProfilePanel = ({
     </div>
   );
 };
-

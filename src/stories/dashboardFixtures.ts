@@ -16,7 +16,7 @@ import type {
   DashboardProject,
   DashboardQuickAction,
   DashboardTask,
-} from './types';
+} from '../components/dashboard/types';
 
 export const defaultDashboardMetrics: DashboardMetric[] = [
   { id: 'projects', label: 'Projets actifs', value: 12, trend: '+2 ce mois', trendTone: 'positive', tone: 'blue', icon: BarChart3 },

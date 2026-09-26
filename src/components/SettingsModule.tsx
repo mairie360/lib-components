@@ -7,20 +7,12 @@ import { SettingsProfilePanel } from './SettingsProfilePanel';
 import { SettingsSecurityPanel, type SettingsPasswordChange } from './SettingsSecurityPanel';
 import { SettingsSystemPanel } from './SettingsSystemPanel';
 import { SettingsTabs } from './SettingsTabs';
-import {
-  defaultSettingsAppearance,
-  defaultSettingsGeneral,
-  defaultSettingsNotifications,
-  defaultSettingsProfile,
-  defaultSettingsSecurity,
-  defaultSettingsSessions,
-  defaultSettingsSystemInfo,
-} from './settings/defaultData';
 import type {
   SettingsAppearanceState,
   SettingsAssistanceAction,
   SettingsGeneralState,
   SettingsNotificationState,
+  SettingsOption,
   SettingsProfile,
   SettingsSecurityState,
   SettingsSession,
@@ -33,6 +25,7 @@ export interface SettingsModuleProps
   activeTab?: SettingsTabId;
   defaultActiveTab?: SettingsTabId;
   profile?: SettingsProfile;
+  serviceOptions?: SettingsOption[];
   security?: SettingsSecurityState;
   sessions?: SettingsSession[];
   notifications?: SettingsNotificationState;
@@ -55,13 +48,14 @@ export interface SettingsModuleProps
 export const SettingsModule = ({
   activeTab,
   defaultActiveTab = 'profile',
-  profile = defaultSettingsProfile,
+  profile,
+  serviceOptions,
   security,
-  sessions = defaultSettingsSessions,
+  sessions,
   notifications,
   appearance,
   general,
-  systemInfo = defaultSettingsSystemInfo,
+  systemInfo,
   onTabChange,
   onProfileSave,
   onPhotoChange,
@@ -77,35 +71,12 @@ export const SettingsModule = ({
   ...props
 }: SettingsModuleProps) => {
   const [internalTab, setInternalTab] = React.useState<SettingsTabId>(defaultActiveTab);
-  const [internalSecurity, setInternalSecurity] = React.useState(security ?? defaultSettingsSecurity);
-  const [internalNotifications, setInternalNotifications] = React.useState(notifications ?? defaultSettingsNotifications);
-  const [internalAppearance, setInternalAppearance] = React.useState(appearance ?? defaultSettingsAppearance);
-  const [internalGeneral, setInternalGeneral] = React.useState(general ?? defaultSettingsGeneral);
   const resolvedTab = activeTab ?? internalTab;
-  const resolvedSecurity = security ?? internalSecurity;
-  const resolvedNotifications = notifications ?? internalNotifications;
-  const resolvedAppearance = appearance ?? internalAppearance;
-  const resolvedGeneral = general ?? internalGeneral;
+  const unavailable = <p role="status" className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6 text-sm text-[#667085]">Données indisponibles pour cette rubrique.</p>;
 
   const changeTab = (tab: SettingsTabId) => {
     if (activeTab === undefined) setInternalTab(tab);
     onTabChange?.(tab);
-  };
-  const changeSecurity = (next: SettingsSecurityState) => {
-    if (security === undefined) setInternalSecurity(next);
-    onSecurityChange?.(next);
-  };
-  const changeNotifications = (next: SettingsNotificationState) => {
-    if (notifications === undefined) setInternalNotifications(next);
-    onNotificationsChange?.(next);
-  };
-  const changeAppearance = (next: SettingsAppearanceState) => {
-    if (appearance === undefined) setInternalAppearance(next);
-    onAppearanceChange?.(next);
-  };
-  const changeGeneral = (next: SettingsGeneralState) => {
-    if (general === undefined) setInternalGeneral(next);
-    onGeneralChange?.(next);
   };
 
   return (
@@ -116,12 +87,12 @@ export const SettingsModule = ({
       </div>
       <SettingsTabs value={resolvedTab} onValueChange={changeTab} />
       <div role="tabpanel" aria-label={resolvedTab}>
-        {resolvedTab === 'profile' && <SettingsProfilePanel profile={profile} onSave={onProfileSave} onPhotoChange={onPhotoChange} />}
-        {resolvedTab === 'security' && <SettingsSecurityPanel security={resolvedSecurity} sessions={sessions} onSecurityChange={changeSecurity} onPasswordChange={onPasswordChange} onDisconnectSession={onDisconnectSession} />}
-        {resolvedTab === 'notifications' && <SettingsNotificationsPanel notifications={resolvedNotifications} onChange={changeNotifications} />}
-        {resolvedTab === 'appearance' && <SettingsAppearancePanel appearance={resolvedAppearance} onChange={changeAppearance} />}
-        {resolvedTab === 'general' && <SettingsGeneralPanel general={resolvedGeneral} onChange={changeGeneral} />}
-        {resolvedTab === 'system' && <SettingsSystemPanel systemInfo={systemInfo} onClearCache={onClearCache} onAssistanceAction={onAssistanceAction} />}
+        {resolvedTab === 'profile' && (profile ? <SettingsProfilePanel profile={profile} serviceOptions={serviceOptions} onSave={onProfileSave} onPhotoChange={onPhotoChange} /> : unavailable)}
+        {resolvedTab === 'security' && (security ? <SettingsSecurityPanel security={security} sessions={sessions} onSecurityChange={onSecurityChange} onPasswordChange={onPasswordChange} onDisconnectSession={onDisconnectSession} /> : unavailable)}
+        {resolvedTab === 'notifications' && (notifications ? <SettingsNotificationsPanel notifications={notifications} onChange={onNotificationsChange} /> : unavailable)}
+        {resolvedTab === 'appearance' && (appearance ? <SettingsAppearancePanel appearance={appearance} onChange={onAppearanceChange} /> : unavailable)}
+        {resolvedTab === 'general' && (general ? <SettingsGeneralPanel general={general} onChange={onGeneralChange} /> : unavailable)}
+        {resolvedTab === 'system' && (systemInfo ? <SettingsSystemPanel systemInfo={systemInfo} onClearCache={onClearCache} onAssistanceAction={onAssistanceAction} /> : unavailable)}
       </div>
     </section>
   );

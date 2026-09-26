@@ -2,11 +2,32 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 
 import { SettingsModule } from '../components/SettingsModule';
+import {
+  defaultSettingsAppearance,
+  defaultSettingsGeneral,
+  defaultSettingsNotifications,
+  defaultSettingsProfile,
+  defaultSettingsSecurity,
+  defaultSettingsSessions,
+  defaultSettingsSystemInfo,
+  settingsServiceOptions,
+} from '../stories/settingsFixtures';
+
+const fixtureProps = {
+  profile: defaultSettingsProfile,
+  serviceOptions: settingsServiceOptions,
+  security: defaultSettingsSecurity,
+  sessions: defaultSettingsSessions,
+  notifications: defaultSettingsNotifications,
+  appearance: defaultSettingsAppearance,
+  general: defaultSettingsGeneral,
+  systemInfo: defaultSettingsSystemInfo,
+};
 
 describe('SettingsModule', () => {
   it('renders the profile inside the settings module and saves changes', () => {
     const onProfileSave = jest.fn();
-    render(<SettingsModule onProfileSave={onProfileSave} />);
+    render(<SettingsModule {...fixtureProps} onProfileSave={onProfileSave} />);
 
     expect(screen.getByRole('heading', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Profil' })).toHaveAttribute('aria-selected', 'true');
@@ -20,7 +41,7 @@ describe('SettingsModule', () => {
 
   it('validates profile photos before notifying the consumer', () => {
     const onPhotoChange = jest.fn();
-    render(<SettingsModule onPhotoChange={onPhotoChange} />);
+    render(<SettingsModule {...fixtureProps} onPhotoChange={onPhotoChange} />);
     const input = screen.getByLabelText('Changer la photo');
 
     fireEvent.change(input, { target: { files: [new File(['x'], 'avatar.gif', { type: 'image/gif' })] } });
@@ -35,7 +56,7 @@ describe('SettingsModule', () => {
     const onPasswordChange = jest.fn();
     const onSecurityChange = jest.fn();
     const onDisconnectSession = jest.fn();
-    render(<SettingsModule onPasswordChange={onPasswordChange} onSecurityChange={onSecurityChange} onDisconnectSession={onDisconnectSession} />);
+    render(<SettingsModule {...fixtureProps} onPasswordChange={onPasswordChange} onSecurityChange={onSecurityChange} onDisconnectSession={onDisconnectSession} />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Sécurité' }));
     fireEvent.change(screen.getByLabelText('Mot de passe actuel'), { target: { value: 'old-pass' } });
@@ -54,7 +75,7 @@ describe('SettingsModule', () => {
     const onNotificationsChange = jest.fn();
     const onAppearanceChange = jest.fn();
     const onGeneralChange = jest.fn();
-    render(<SettingsModule onNotificationsChange={onNotificationsChange} onAppearanceChange={onAppearanceChange} onGeneralChange={onGeneralChange} />);
+    render(<SettingsModule {...fixtureProps} onNotificationsChange={onNotificationsChange} onAppearanceChange={onAppearanceChange} onGeneralChange={onGeneralChange} />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Notifications' }));
     fireEvent.click(screen.getByRole('switch', { name: 'Notifications desktop' }));
@@ -72,7 +93,7 @@ describe('SettingsModule', () => {
   it('exposes system cache and assistance actions', () => {
     const onClearCache = jest.fn();
     const onAssistanceAction = jest.fn();
-    render(<SettingsModule onClearCache={onClearCache} onAssistanceAction={onAssistanceAction} />);
+    render(<SettingsModule {...fixtureProps} onClearCache={onClearCache} onAssistanceAction={onAssistanceAction} />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Système' }));
     fireEvent.click(screen.getByRole('button', { name: /Vider le cache/ }));
@@ -82,5 +103,36 @@ describe('SettingsModule', () => {
     expect(onAssistanceAction).toHaveBeenCalledWith('download-logs');
     expect(screen.getByRole('progressbar', { name: 'Utilisation du stockage' })).toHaveAttribute('aria-valuenow', '2.4');
   });
-});
 
+  it('shows unavailable states instead of fabricated profile, session, or system data', () => {
+    render(<SettingsModule />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Données indisponibles');
+    expect(screen.queryByDisplayValue('Jean Dupont')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Sécurité' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Données indisponibles');
+    expect(screen.queryByText('Session actuelle')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Système' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Données indisponibles');
+    expect(screen.queryByText('Mairie360 v2.1.0')).not.toBeInTheDocument();
+  });
+
+  it('does not offer unsupported settings actions without consumer callbacks', () => {
+    render(<SettingsModule {...fixtureProps} serviceOptions={undefined} />);
+
+    expect(screen.queryByRole('button', { name: /Enregistrer les modifications/ })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Changer la photo')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Service')).toHaveAttribute('readonly');
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Sécurité' }));
+    expect(screen.queryByRole('button', { name: 'Changer le mot de passe' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Déconnecter' })).not.toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Authentification par SMS' })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Système' }));
+    expect(screen.queryByRole('button', { name: 'Vider le cache' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Télécharger les logs' })).not.toBeInTheDocument();
+  });
+});
