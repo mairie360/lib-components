@@ -15,5 +15,5 @@ jobs:
   CICD:
     uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v3.1.1
     with:
-      cicd_version: v2.3.1
+      cicd_version: v3.1.1
     secrets: inherit
