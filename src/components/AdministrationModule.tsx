@@ -1,16 +1,5 @@
 import React from 'react';
 
-import {
-  defaultAdministrationAuditEntries,
-  defaultAdministrationDatabaseMetrics,
-  defaultAdministrationDangerActions,
-  defaultAdministrationLogs,
-  defaultAdministrationResources,
-  defaultAdministrationServerStatuses,
-  defaultAdministrationSettings,
-  defaultAdministrationStats,
-  defaultAdministrationUsers,
-} from './administration/defaultData';
 import type {
   AdministrationAuditEntry,
   AdministrationDangerAction,
@@ -75,23 +64,6 @@ const normalizeSearch = (value: string) =>
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '');
 
-const createLocalUser = (values: AdministrationUserFormValues): AdministrationUser => ({
-  id: `user-${Date.now()}`,
-  name: values.name,
-  email: values.email,
-  service: values.service,
-  phone: values.phone || '-',
-  role: values.role,
-  status: 'active',
-  lastConnection: 'Jamais',
-});
-
-const statusLabels: Record<AdministrationStatus, string> = {
-  active: 'actif',
-  inactive: 'inactif',
-  suspended: 'suspendu',
-};
-
 const getUserFormValues = (user: AdministrationUser): AdministrationUserFormValues => ({
   name: user.name,
   email: user.email,
@@ -99,75 +71,6 @@ const getUserFormValues = (user: AdministrationUser): AdministrationUserFormValu
   phone: user.phone,
   role: user.role,
 });
-
-const buildStatsFromUsers = (stats: AdministrationStat[], users: AdministrationUser[]) =>
-  stats.map((stat) => {
-    if (stat.id === 'users') {
-      return { ...stat, value: users.length };
-    }
-
-    if (stat.id === 'active') {
-      return {
-        ...stat,
-        value: users.filter((user) => user.status === 'active').length,
-        indicator: users.length > 0 ? `${Math.round((users.filter((user) => user.status === 'active').length / users.length) * 100)}%` : '0%',
-      };
-    }
-
-    return stat;
-  });
-
-const formatDateTime = (date: Date) =>
-  new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(date);
-
-const escapeCsvValue = (value: React.ReactNode) =>
-  `"${String(value ?? '').replace(/"/g, '""')}"`;
-
-const buildLogsCsv = (logs: AdministrationLogEntry[]) => {
-  const rows = [
-    ['Niveau', 'Source', 'Titre', 'Description', 'Acteur', 'Horodatage', 'Adresse IP'],
-    ...logs.map((log) => [
-      log.level,
-      log.source,
-      log.title,
-      log.description,
-      log.actor ?? '',
-      log.timestamp,
-      log.ipAddress ?? '',
-    ]),
-  ];
-
-  return rows.map((row) => row.map(escapeCsvValue).join(',')).join('\n');
-};
-
-const downloadCsv = (filename: string, csv: string) => {
-  if (typeof window === 'undefined' || typeof document === 'undefined' || typeof Blob === 'undefined') {
-    return csv;
-  }
-
-  const url = window.URL?.createObjectURL?.(
-    new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8;' })
-  );
-
-  if (!url) return csv;
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  window.URL?.revokeObjectURL?.(url);
-
-  return csv;
-};
 
 export const AdministrationModule = ({
   title = 'Administration',
@@ -177,12 +80,12 @@ export const AdministrationModule = ({
   stats,
   users,
   logs,
-  resources = defaultAdministrationResources,
+  resources,
   databaseMetrics,
-  serverStatuses = defaultAdministrationServerStatuses,
+  serverStatuses,
   auditEntries,
-  settings = defaultAdministrationSettings,
-  dangerActions = defaultAdministrationDangerActions,
+  settings,
+  dangerActions,
   onTabChange,
   onCreateUser,
   onUpdateUser,
@@ -197,26 +100,16 @@ export const AdministrationModule = ({
   ...props
 }: AdministrationModuleProps) => {
   const [internalActiveTab, setInternalActiveTab] = React.useState(defaultActiveTab);
-  const [internalUsers, setInternalUsers] = React.useState(defaultAdministrationUsers);
-  const [internalLogs, setInternalLogs] = React.useState(defaultAdministrationLogs);
-  const [internalDatabaseMetrics, setInternalDatabaseMetrics] = React.useState(defaultAdministrationDatabaseMetrics);
-  const [internalAuditEntries, setInternalAuditEntries] = React.useState(defaultAdministrationAuditEntries);
   const [searchValue, setSearchValue] = React.useState('');
   const [roleValue, setRoleValue] = React.useState<AdministrationRole | 'all'>('all');
   const [statusValue, setStatusValue] = React.useState<AdministrationStatus | 'all'>('all');
   const [logLevelValue, setLogLevelValue] = React.useState<AdministrationLogEntry['level'] | 'all'>('all');
   const [userModalOpen, setUserModalOpen] = React.useState(false);
   const [editingUser, setEditingUser] = React.useState<AdministrationUser | null>(null);
-  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
   const [pendingConfirmation, setPendingConfirmation] = React.useState<AdministrationConfirmation | null>(null);
   const resolvedActiveTab = activeTab ?? internalActiveTab;
-  const resolvedUsers = users ?? internalUsers;
-  const resolvedLogs = logs ?? internalLogs;
-  const resolvedDatabaseMetrics = databaseMetrics ?? internalDatabaseMetrics;
-  const resolvedAuditEntries = auditEntries ?? internalAuditEntries;
-  const resolvedStats = stats ?? buildStatsFromUsers(defaultAdministrationStats, resolvedUsers);
   const normalizedQuery = normalizeSearch(searchValue);
-  const visibleUsers = resolvedUsers.filter((user) => {
+  const visibleUsers = users?.filter((user) => {
     const searchable = normalizeSearch(`${user.name} ${user.email} ${user.service} ${user.phone}`);
     const matchesSearch = normalizedQuery.length === 0 || searchable.includes(normalizedQuery);
     const matchesRole = roleValue === 'all' || user.role === roleValue;
@@ -231,14 +124,6 @@ export const AdministrationModule = ({
     }
 
     onTabChange?.(tab);
-  };
-
-  const updateInternalUser = (userId: string, updater: (user: AdministrationUser) => AdministrationUser) => {
-    if (users !== undefined) return;
-
-    setInternalUsers((currentUsers) =>
-      currentUsers.map((currentUser) => (currentUser.id === userId ? updater(currentUser) : currentUser))
-    );
   };
 
   const handleNewUserClick = () => {
@@ -258,149 +143,26 @@ export const AdministrationModule = ({
 
   const handleSubmitUserModal = (values: AdministrationUserFormValues) => {
     if (!editingUser) {
-      onCreateUser?.(values);
-
-      if (users === undefined) {
-        setInternalUsers((currentUsers) => [...currentUsers, createLocalUser(values)]);
-      }
-
-      setStatusMessage(`Utilisateur ${values.name} créé.`);
+      if (!onCreateUser) return;
+      onCreateUser(values);
       setUserModalOpen(false);
       return;
     }
 
+    if (!onUpdateUser) return;
     const updatedUser: AdministrationUser = {
       ...editingUser,
       ...values,
       phone: values.phone || '-',
     };
 
-    onUpdateUser?.(updatedUser);
-    updateInternalUser(editingUser.id, () => updatedUser);
-    setStatusMessage(`${updatedUser.name} a été mis à jour.`);
+    onUpdateUser(updatedUser);
     setEditingUser(null);
     setUserModalOpen(false);
   };
 
-  const handleUserStatusToggle = (user: AdministrationUser) => {
-    const nextStatus: AdministrationStatus = user.status === 'active' ? 'inactive' : 'active';
-    updateInternalUser(user.id, (currentUser) => ({
-      ...currentUser,
-      status: nextStatus,
-    }));
-    setStatusMessage(`${user.name} est maintenant ${statusLabels[nextStatus]}.`);
-  };
-
-  const handleUserDelete = (user: AdministrationUser) => {
-    if (users === undefined) {
-      setInternalUsers((currentUsers) => currentUsers.filter((currentUser) => currentUser.id !== user.id));
-    }
-
-    setStatusMessage(`${user.name} a été supprimé.`);
-  };
-
-  const prependLog = (log: AdministrationLogEntry) => {
-    if (logs === undefined) {
-      setInternalLogs((currentLogs) => [log, ...currentLogs]);
-    }
-  };
-
-  const prependAuditEntry = (entry: AdministrationAuditEntry) => {
-    if (auditEntries === undefined) {
-      setInternalAuditEntries((currentEntries) => [entry, ...currentEntries]);
-    }
-  };
-
-  const handleRefreshLogs = () => {
-    onRefreshLogs?.();
-    prependLog({
-      id: `refresh-${Date.now()}`,
-      level: 'info',
-      source: 'SYSTEM',
-      title: 'Actualisation effectuée',
-      description: 'Les journaux système ont été actualisés',
-      actor: 'admin@mairie360.fr',
-      timestamp: formatDateTime(new Date()),
-      ipAddress: '127.0.0.1',
-    });
-    setStatusMessage('Logs actualisés.');
-  };
-
-  const handleExportLogsCsv = () => {
-    onExportLogsCsv?.();
-    downloadCsv('mairie360-logs.csv', buildLogsCsv(resolvedLogs));
-    setStatusMessage('Export CSV préparé.');
-  };
-
-  const clearLogs = () => {
-    onClearLogs?.();
-
-    if (logs === undefined) {
-      setInternalLogs([]);
-    }
-
-    prependAuditEntry({
-      id: `clear-logs-${Date.now()}`,
-      action: 'Suppression',
-      actor: 'Admin Système',
-      subject: 'Logs système',
-      description: 'Tous les logs système ont été effacés',
-      timestamp: formatDateTime(new Date()),
-      outcome: 'success',
-    });
-    setStatusMessage('Tous les logs ont été effacés.');
-  };
-
   const handleClearLogs = () => {
     setPendingConfirmation({ kind: 'clear-logs' });
-  };
-
-  const handleCreateBackup = () => {
-    onCreateBackup?.();
-
-    if (databaseMetrics === undefined) {
-      setInternalDatabaseMetrics((currentMetrics) =>
-        currentMetrics.map((metric) =>
-          metric.id === 'last-backup' ? { ...metric, value: "À l'instant" } : metric
-        )
-      );
-    }
-
-    prependLog({
-      id: `backup-${Date.now()}`,
-      level: 'info',
-      source: 'BACKUP',
-      title: 'Sauvegarde créée',
-      description: 'Une nouvelle sauvegarde de la base de données a été créée',
-      actor: 'admin@mairie360.fr',
-      timestamp: formatDateTime(new Date()),
-    });
-    setStatusMessage('Sauvegarde créée.');
-  };
-
-  const handleSettingsChange = (nextSettings: AdministrationSettingsState) => {
-    onSettingsChange?.(nextSettings);
-    setStatusMessage('Paramètres mis à jour.');
-  };
-
-  const executeDangerAction = (action: AdministrationDangerAction) => {
-    onDangerAction?.(action);
-
-    if (action.id === 'clear-logs') {
-      clearLogs();
-      return;
-    }
-
-    prependAuditEntry({
-      id: `${action.id}-${Date.now()}`,
-      action: 'Action dangereuse',
-      actor: 'Admin Système',
-      subject: action.title,
-      description: action.description,
-      timestamp: formatDateTime(new Date()),
-      outcome: 'success',
-    });
-    setStatusMessage(`${action.buttonLabel} effectué.`);
   };
 
   const handleDangerAction = (action: AdministrationDangerAction) => {
@@ -411,9 +173,9 @@ export const AdministrationModule = ({
     if (!pendingConfirmation) return;
 
     if (pendingConfirmation.kind === 'clear-logs') {
-      clearLogs();
+      onClearLogs?.();
     } else {
-      executeDangerAction(pendingConfirmation.action);
+      onDangerAction?.(pendingConfirmation.action);
     }
 
     setPendingConfirmation(null);
@@ -437,18 +199,9 @@ export const AdministrationModule = ({
         {subtitle && <p className="mt-1 text-base leading-6 text-[#334155]">{subtitle}</p>}
       </div>
 
-      <AdministrationMetricCards stats={resolvedStats} />
+      <AdministrationMetricCards stats={stats} />
 
       <AdministrationTabs value={resolvedActiveTab} onValueChange={handleTabChange} />
-
-      {statusMessage && (
-        <div
-          role="status"
-          className="rounded-md border border-[#b9d6d5] bg-white px-4 py-3 text-sm font-medium text-[#2f5f5c]"
-        >
-          {statusMessage}
-        </div>
-      )}
 
       {resolvedActiveTab === 'users' && (
         <div className="space-y-6">
@@ -459,46 +212,44 @@ export const AdministrationModule = ({
             onSearchChange={setSearchValue}
             onRoleChange={setRoleValue}
             onStatusChange={setStatusValue}
-            onNewUserClick={handleNewUserClick}
+            onNewUserClick={onCreateUser ? handleNewUserClick : undefined}
           />
           <AdministrationUsersTable
             users={visibleUsers}
             onUserAction={onUserAction}
-            onEditUser={handleEditUser}
-            onToggleUserStatus={handleUserStatusToggle}
-            onDeleteUser={handleUserDelete}
+            onEditUser={onUpdateUser ? handleEditUser : undefined}
           />
         </div>
       )}
 
       {resolvedActiveTab === 'logs' && (
         <AdministrationLogsPanel
-          logs={resolvedLogs}
+          logs={logs}
           levelValue={logLevelValue}
           onLevelChange={setLogLevelValue}
-          onRefresh={handleRefreshLogs}
-          onExportCsv={handleExportLogsCsv}
-          onClear={handleClearLogs}
+          onRefresh={onRefreshLogs}
+          onExportCsv={onExportLogsCsv}
+          onClear={onClearLogs ? handleClearLogs : undefined}
         />
       )}
 
       {resolvedActiveTab === 'system' && (
         <AdministrationSystemPanel
           resources={resources}
-          databaseMetrics={resolvedDatabaseMetrics}
+          databaseMetrics={databaseMetrics}
           serverStatuses={serverStatuses}
-          onCreateBackup={handleCreateBackup}
+          onCreateBackup={onCreateBackup}
         />
       )}
 
-      {resolvedActiveTab === 'audit' && <AdministrationAuditPanel entries={resolvedAuditEntries} />}
+      {resolvedActiveTab === 'audit' && <AdministrationAuditPanel entries={auditEntries} />}
 
       {resolvedActiveTab === 'settings' && (
         <AdministrationSettingsPanel
           settings={settings}
           dangerActions={dangerActions}
-          onSettingsChange={handleSettingsChange}
-          onDangerAction={handleDangerAction}
+          onSettingsChange={onSettingsChange}
+          onDangerAction={onDangerAction ? handleDangerAction : undefined}
         />
       )}
 

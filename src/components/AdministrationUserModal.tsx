@@ -1,7 +1,7 @@
 import React from 'react';
 import { X } from 'lucide-react';
 
-import { administrationUserRoleOptions } from './administration/defaultData';
+import { administrationUserRoleOptions } from './administration/options';
 import type { AdministrationRole, AdministrationUserFormValues } from './administration/types';
 import { AdministrationSelect } from './AdministrationSelect';
 import { joinClasses } from './calendar/style';

@@ -1,7 +1,6 @@
 import React from 'react';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
-import { defaultAdministrationAuditEntries } from './administration/defaultData';
 import type { AdministrationAuditEntry } from './administration/types';
 import { joinClasses } from './calendar/style';
 
@@ -15,7 +14,7 @@ const outcomeStyles: Record<AdministrationAuditEntry['outcome'], string> = {
 };
 
 export const AdministrationAuditPanel = ({
-  entries = defaultAdministrationAuditEntries,
+  entries,
   className = '',
   ...props
 }: AdministrationAuditPanelProps) => (
@@ -32,7 +31,7 @@ export const AdministrationAuditPanel = ({
     </p>
 
     <div className="mt-7 space-y-4">
-      {entries.map((entry) => {
+      {(entries ?? []).map((entry) => {
         const Icon = entry.outcome === 'success' ? CheckCircle2 : XCircle;
 
         return (
@@ -62,6 +61,11 @@ export const AdministrationAuditPanel = ({
           </article>
         );
       })}
+      {(entries?.length ?? 0) === 0 && (
+        <p className="rounded-md border border-[#e3e0dc] px-4 py-10 text-center text-sm text-[#667085]">
+          {entries ? 'Aucune action à afficher.' : 'Journal d’audit indisponible.'}
+        </p>
+      )}
     </div>
   </section>
 );

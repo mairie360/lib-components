@@ -1,10 +1,6 @@
 import React from 'react';
 
-import {
-  administrationBackupFrequencies,
-  defaultAdministrationDangerActions,
-  defaultAdministrationSettings,
-} from './administration/defaultData';
+import { administrationBackupFrequencies } from './administration/options';
 import type {
   AdministrationDangerAction,
   AdministrationSettingsState,
@@ -21,6 +17,7 @@ export interface AdministrationSettingsPanelProps extends React.HTMLAttributes<H
 
 interface ToggleFieldProps {
   checked: boolean;
+  disabled?: boolean;
   label: string;
   description: string;
   onChange: (checked: boolean) => void;
@@ -43,7 +40,7 @@ const updateBoundedInteger = (
   update(value);
 };
 
-const ToggleField = ({ checked, label, description, onChange }: ToggleFieldProps) => (
+const ToggleField = ({ checked, disabled, label, description, onChange }: ToggleFieldProps) => (
   <div className="flex items-start justify-between gap-4">
     <div className="min-w-0">
       <div className="text-sm font-semibold leading-5 text-[#172033]">{label}</div>
@@ -52,6 +49,7 @@ const ToggleField = ({ checked, label, description, onChange }: ToggleFieldProps
     <button
       type="button"
       role="switch"
+      disabled={disabled}
       aria-label={label}
       aria-checked={checked}
       className={joinClasses(
@@ -71,42 +69,38 @@ const ToggleField = ({ checked, label, description, onChange }: ToggleFieldProps
 );
 
 export const AdministrationSettingsPanel = ({
-  settings = defaultAdministrationSettings,
-  dangerActions = defaultAdministrationDangerActions,
+  settings,
+  dangerActions,
   onSettingsChange,
   onDangerAction,
   className = '',
   ...props
 }: AdministrationSettingsPanelProps) => {
-  const [internalSettings, setInternalSettings] = React.useState(settings);
-
-  React.useEffect(() => {
-    setInternalSettings(settings);
-  }, [settings]);
-
   const updateSettings = <K extends keyof AdministrationSettingsState>(
     field: K,
     value: AdministrationSettingsState[K]
   ) => {
+    if (!settings || !onSettingsChange) return;
+
     const nextSettings = {
-      ...internalSettings,
+      ...settings,
       [field]: value,
     };
 
-    setInternalSettings(nextSettings);
-    onSettingsChange?.(nextSettings);
+    onSettingsChange(nextSettings);
   };
 
   return (
     <div className={joinClasses('space-y-6 text-[#172033]', className)} {...props}>
-      <div className="grid gap-6 lg:grid-cols-2">
+      {settings ? <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
           <h2 className="text-base font-bold leading-6 text-[#172033]">Sécurité</h2>
           <p className="mt-1 text-base leading-6 text-[#667085]">Paramètres de sécurité et authentification</p>
 
           <div className="mt-7 space-y-6">
             <ToggleField
-              checked={internalSettings.twoFactorEnabled}
+              checked={settings.twoFactorEnabled}
+              disabled={!onSettingsChange}
               label="Authentification à deux facteurs"
               description="Obligatoire pour tous les utilisateurs"
               onChange={(checked) => updateSettings('twoFactorEnabled', checked)}
@@ -122,7 +116,8 @@ export const AdministrationSettingsPanel = ({
                 min={1}
                 max={720}
                 step={1}
-                value={internalSettings.sessionExpirationHours}
+                value={settings.sessionExpirationHours}
+                disabled={!onSettingsChange}
                 className={fieldClassName}
                 aria-describedby="session-expiration-help"
                 onChange={(event) =>
@@ -146,7 +141,8 @@ export const AdministrationSettingsPanel = ({
                 min={1}
                 max={20}
                 step={1}
-                value={internalSettings.maxLoginAttempts}
+                value={settings.maxLoginAttempts}
+                disabled={!onSettingsChange}
                 className={fieldClassName}
                 aria-describedby="login-attempts-help"
                 onChange={(event) =>
@@ -168,19 +164,22 @@ export const AdministrationSettingsPanel = ({
 
           <div className="mt-7 space-y-6">
             <ToggleField
-              checked={internalSettings.maintenanceMode}
+              checked={settings.maintenanceMode}
+              disabled={!onSettingsChange}
               label="Mode maintenance"
               description="Désactiver l'accès pour maintenance"
               onChange={(checked) => updateSettings('maintenanceMode', checked)}
             />
             <ToggleField
-              checked={internalSettings.publicRegistration}
+              checked={settings.publicRegistration}
+              disabled={!onSettingsChange}
               label="Inscription publique"
               description="Permettre l'auto-inscription"
               onChange={(checked) => updateSettings('publicRegistration', checked)}
             />
             <ToggleField
-              checked={internalSettings.emailNotifications}
+              checked={settings.emailNotifications}
+              disabled={!onSettingsChange}
               label="Notifications email"
               description="Envoyer des emails automatiques"
               onChange={(checked) => updateSettings('emailNotifications', checked)}
@@ -192,14 +191,19 @@ export const AdministrationSettingsPanel = ({
               </div>
               <AdministrationSelect
                 ariaLabel="Fréquence des sauvegardes"
-                value={internalSettings.backupFrequency}
+                value={settings.backupFrequency}
                 options={administrationBackupFrequencies}
+                disabled={!onSettingsChange}
                 onValueChange={(value) => updateSettings('backupFrequency', value)}
               />
             </div>
           </div>
         </section>
-      </div>
+      </div> : (
+        <p className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-10 text-sm text-[#667085]">
+          Paramètres indisponibles.
+        </p>
+      )}
 
       <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
         <h2 className="text-base font-bold leading-6 text-[#172033]">Actions dangereuses</h2>
@@ -208,7 +212,7 @@ export const AdministrationSettingsPanel = ({
         </p>
 
         <div className="mt-7 space-y-4">
-          {dangerActions.map((action) => {
+          {(dangerActions ?? []).map((action) => {
             const Icon = action.icon;
 
             return (
@@ -220,6 +224,7 @@ export const AdministrationSettingsPanel = ({
                 <p className="mt-3 text-sm leading-5 text-[#e60012]">{action.description}</p>
                 <button
                   type="button"
+                  disabled={!onDangerAction}
                   className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#c92f2f] px-4 text-sm font-semibold text-white transition hover:bg-[#b62626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c92f2f]/35"
                   onClick={() => onDangerAction?.(action)}
                 >
@@ -229,6 +234,11 @@ export const AdministrationSettingsPanel = ({
               </article>
             );
           })}
+          {(dangerActions?.length ?? 0) === 0 && (
+            <p className="text-sm text-[#667085]">
+              {dangerActions ? 'Aucune action disponible.' : 'Actions indisponibles.'}
+            </p>
+          )}
         </div>
       </section>
     </div>

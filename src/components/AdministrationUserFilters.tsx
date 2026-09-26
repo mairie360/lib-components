@@ -4,7 +4,7 @@ import { Search, UserPlus } from 'lucide-react';
 import {
   administrationRoleOptions,
   administrationStatusOptions,
-} from './administration/defaultData';
+} from './administration/options';
 import type { AdministrationRole, AdministrationStatus } from './administration/types';
 import { AdministrationSelect } from './AdministrationSelect';
 import { joinClasses } from './calendar/style';
@@ -66,7 +66,8 @@ export const AdministrationUserFilters = ({
 
       <button
         type="button"
-        className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+        disabled={!onNewUserClick}
+        className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={onNewUserClick}
       >
         <UserPlus className="size-4" strokeWidth={1.9} />

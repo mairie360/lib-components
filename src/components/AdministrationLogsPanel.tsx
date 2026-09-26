@@ -1,10 +1,7 @@
 import React from 'react';
 import { AlertTriangle, Clock3, Download, Info, RefreshCw, Trash2, Wifi, XCircle } from 'lucide-react';
 
-import {
-  administrationLogLevelOptions,
-  defaultAdministrationLogs,
-} from './administration/defaultData';
+import { administrationLogLevelOptions } from './administration/options';
 import type { AdministrationLogEntry } from './administration/types';
 import { AdministrationSelect } from './AdministrationSelect';
 import { joinClasses } from './calendar/style';
@@ -37,7 +34,7 @@ const levelStyles = {
 };
 
 export const AdministrationLogsPanel = ({
-  logs = defaultAdministrationLogs,
+  logs,
   levelValue = 'all',
   onLevelChange,
   onRefresh,
@@ -46,7 +43,7 @@ export const AdministrationLogsPanel = ({
   className = '',
   ...props
 }: AdministrationLogsPanelProps) => {
-  const visibleLogs = levelValue === 'all' ? logs : logs.filter((log) => log.level === levelValue);
+  const visibleLogs = levelValue === 'all' ? (logs ?? []) : (logs ?? []).filter((log) => log.level === levelValue);
 
   return (
     <section
@@ -67,6 +64,7 @@ export const AdministrationLogsPanel = ({
           />
           <button
             type="button"
+            disabled={!onRefresh}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
             onClick={onRefresh}
           >
@@ -78,6 +76,7 @@ export const AdministrationLogsPanel = ({
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
           <button
             type="button"
+            disabled={!onExportCsv}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
             onClick={onExportCsv}
           >
@@ -86,6 +85,7 @@ export const AdministrationLogsPanel = ({
           </button>
           <button
             type="button"
+            disabled={!onClear}
             className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
             onClick={onClear}
           >
@@ -137,7 +137,7 @@ export const AdministrationLogsPanel = ({
         })}
         {visibleLogs.length === 0 && (
           <div className="rounded-md border border-[#e8e4de] px-4 py-10 text-center text-sm text-[#667085]">
-            Aucun log pour ce niveau.
+            {logs ? 'Aucun log pour ce niveau.' : 'Journaux indisponibles.'}
           </div>
         )}
       </div>
