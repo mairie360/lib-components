@@ -12,8 +12,8 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /Tableau de bord/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Projets/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Messagerie/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /E-mails/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Fichiers/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /E-mails/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Fichiers/ })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Formation/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Calendrier/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toBeInTheDocument();

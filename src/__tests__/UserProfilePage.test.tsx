@@ -21,6 +21,8 @@ describe('UserProfilePage component', () => {
     render(
       <UserProfilePage
         user={profileUser}
+        hrefs={{ settings: '/settings' }}
+        onNavigate={jest.fn()}
         footerProps={{ year: 2026, version: '2.1.0' }}
       />
     );

@@ -19,19 +19,14 @@ export interface FooterProps {
   className?: string;
 }
 
-const defaultFooterLinks: FooterLink[] = [
-  { label: 'Support technique' },
-  { label: 'Documentation' },
-  { label: 'Conditions d’utilisation' },
-];
-
 export const Footer = ({
   productName = 'Mairie360',
   year = new Date().getFullYear(),
-  version = '1.0',
-  links = defaultFooterLinks,
+  version,
+  links = [],
   className = '',
 }: FooterProps) => {
+  const actionableLinks = links.filter((link) => Boolean(link.href || link.onClick));
   const renderLink = (link: FooterLink) => {
     const className =
       'text-sm font-medium text-[#4c5258] transition-colors hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4b908d]/30 rounded-sm';
@@ -57,14 +52,16 @@ export const Footer = ({
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
         <span>{`© ${year} ${productName}`}</span>
-        <span className="text-[#4b908d]" aria-hidden="true">
-          •
-        </span>
-        <span>{`Version ${version}`}</span>
+        {version && (
+          <>
+            <span className="text-[#4b908d]" aria-hidden="true">•</span>
+            <span>{`Version ${version}`}</span>
+          </>
+        )}
       </div>
 
-      <nav aria-label="Liens du pied de page" className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        {links.map((link, index) => (
+      {actionableLinks.length > 0 && <nav aria-label="Liens du pied de page" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        {actionableLinks.map((link, index) => (
           <React.Fragment key={`${link.label}-${index}`}>
             {index > 0 && (
               <span className="text-[#4b908d]" aria-hidden="true">
@@ -74,7 +71,7 @@ export const Footer = ({
             {renderLink(link)}
           </React.Fragment>
         ))}
-      </nav>
+      </nav>}
     </footer>
   );
 };

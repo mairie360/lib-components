@@ -62,7 +62,7 @@ const getDisplayName = (user?: User) => {
     .filter(Boolean)
     .join(' ');
 
-  return structuredName || (user ? 'Utilisateur' : 'Admin Système');
+  return structuredName || 'Utilisateur';
 };
 
 const getInitials = (displayName: string) =>
@@ -87,30 +87,42 @@ export interface HeaderProps {
   onLogout?: () => void;
   /** Indicates if the logged-in user is an administrator */
   isAdmin?: boolean;
+  onSearch?: (query: string) => void;
+  onNotificationsClick?: () => void;
+  notificationCount?: number;
+  showProfile?: boolean;
+  showSettings?: boolean;
+  showAdministration?: boolean;
 }
 
 export const Header = ({
   user,
   setSidebarOpen,
   onPageChange,
-  profileHref = '/profile',
+  profileHref = null,
   onLogout,
   isAdmin = false,
+  onSearch,
+  onNotificationsClick,
+  notificationCount,
+  showProfile,
+  showSettings,
+  showAdministration,
 }: HeaderProps) => {
-  const isDefaultUser = !user;
+  const [searchQuery, setSearchQuery] = React.useState('');
   const displayName = getDisplayName(user);
-  const displayEmail = user?.email?.trim() || (isDefaultUser ? 'admin@mairie360.fr' : '');
+  const displayEmail = user?.email?.trim() || '';
   const displayService = user?.service?.trim() || '';
 
   const avatarSrc = user?.avatar || user?.avatarUrl;
   const role = user?.role;
   const normalizedRole = normalizeRole(role);
-  const roleLabel = isAdmin || normalizedRole === 'admin' || isDefaultUser
+  const roleLabel = isAdmin || normalizedRole === 'admin'
     ? 'Administrateur'
     : roleLabels[normalizedRole] || role?.trim();
-  const canAdministrate = isAdmin || normalizedRole === 'admin' || isDefaultUser;
+  const canAdministrate = isAdmin || normalizedRole === 'admin';
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
-    if (onPageChange) {
+    if (onPageChange && profileHref && !/^https?:\/\//i.test(profileHref)) {
       event.preventDefault();
       onPageChange('profile');
     }
@@ -128,35 +140,35 @@ export const Header = ({
           <Menu className="h-4 w-4" />
         </button>
 
-        <div className="relative hidden sm:block">
+        {onSearch && <form
+          role="search"
+          className="relative"
+          onSubmit={(event) => { event.preventDefault(); onSearch(searchQuery); }}
+        >
           <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#535d67]" />
           <input
-            type="text"
+            type="search"
+            aria-label="Rechercher"
             placeholder="Rechercher..."
-            className="h-9 w-64 rounded-md border border-[#b9d6d5] bg-[#fbfaf9] pl-10 pr-3 text-sm text-[#172033] shadow-none outline-none transition-colors placeholder:text-[#67717c] focus:border-[#4b908d] focus:ring-2 focus:ring-[#4b908d]/15 disabled:cursor-not-allowed disabled:opacity-50"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            className="h-9 w-40 rounded-md border border-[#b9d6d5] bg-[#fbfaf9] pl-10 pr-3 text-sm text-[#172033] shadow-none outline-none transition-colors placeholder:text-[#67717c] focus:border-[#4b908d] focus:ring-2 focus:ring-[#4b908d]/15 sm:w-64"
           />
-        </div>
+        </form>}
       </div>
 
       <div className="flex items-center gap-4">
-        <button
-          type="button"
-          aria-label="Rechercher"
-          className="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10 sm:hidden"
-        >
-          <Search className="h-4 w-4" />
-        </button>
-
-        <button
+        {onNotificationsClick && <button
           type="button"
           aria-label="Notifications"
           className="relative inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10"
+          onClick={onNotificationsClick}
         >
           <Bell className="h-[17px] w-[17px]" strokeWidth={1.8} />
-          <span className="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-md border border-white/70 bg-[#d8292f] text-[11px] font-semibold leading-none text-white shadow-md">
-            3
-          </span>
-        </button>
+          {typeof notificationCount === 'number' && notificationCount > 0 && <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-md border border-white/70 bg-[#d8292f] px-0.5 text-[11px] font-semibold leading-none text-white shadow-md">
+            {notificationCount > 99 ? '99+' : notificationCount}
+          </span>}
+        </button>}
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -220,7 +232,7 @@ export const Header = ({
               )}
             </div>
             <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
-            {profileHref ? (
+            {(showProfile ?? Boolean(profileHref || onPageChange)) && (profileHref ? (
               <DropdownMenuItem
                 asChild
                 onClick={handleProfileClick}
@@ -239,15 +251,15 @@ export const Header = ({
                 <UserIcon className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
                 Profil
               </DropdownMenuItem>
-            )}
-            <DropdownMenuItem
+            ))}
+            {(showSettings ?? Boolean(onPageChange)) && <DropdownMenuItem
               onClick={() => onPageChange?.('settings')}
               className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#4c5258] hover:!bg-[#f5f5f5]"
             >
               <Settings className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
               Paramètres
-            </DropdownMenuItem>
-            {canAdministrate && (
+            </DropdownMenuItem>}
+            {canAdministrate && (showAdministration ?? Boolean(onPageChange)) && (
               <>
                 <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
                 <DropdownMenuItem
@@ -259,14 +271,14 @@ export const Header = ({
                 </DropdownMenuItem>
               </>
             )}
-            <DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
+            {onLogout && <><DropdownMenuSeparator className="mx-0 my-0 bg-[#e4e0dc]" />
             <DropdownMenuItem
               onClick={onLogout}
               className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[#e60012] hover:!bg-[#fff2f2]"
             >
               <LogOut className="h-4 w-4 shrink-0 text-[#6c7278]" strokeWidth={1.7} />
               Déconnexion
-            </DropdownMenuItem>
+            </DropdownMenuItem></>}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
