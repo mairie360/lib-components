@@ -33,9 +33,15 @@ describe('SettingsModule', () => {
     expect(screen.getByRole('tab', { name: 'Profil' })).toHaveAttribute('aria-selected', 'true');
 
     fireEvent.change(screen.getByLabelText('Nom complet'), { target: { value: 'Jeanne Dupont' } });
+    fireEvent.change(screen.getByLabelText('Service'), { target: { value: 'urbanisme' } });
+    fireEvent.change(screen.getByLabelText('Biographie'), { target: { value: 'Responsable du service' } });
     fireEvent.click(screen.getByRole('button', { name: /Enregistrer les modifications/ }));
 
-    expect(onProfileSave).toHaveBeenCalledWith(expect.objectContaining({ fullName: 'Jeanne Dupont' }));
+    expect(onProfileSave).toHaveBeenCalledWith(expect.objectContaining({
+      fullName: 'Jeanne Dupont',
+      service: 'urbanisme',
+      biography: 'Responsable du service',
+    }));
     expect(screen.getByRole('status')).toHaveTextContent('Modifications enregistrées.');
   });
 
@@ -67,6 +73,8 @@ describe('SettingsModule', () => {
     expect(onPasswordChange).toHaveBeenCalledWith({ currentPassword: 'old-pass', newPassword: 'new-pass' });
     fireEvent.click(screen.getByRole('switch', { name: 'Authentification par SMS' }));
     expect(onSecurityChange).toHaveBeenCalledWith(expect.objectContaining({ smsTwoFactor: true }));
+    fireEvent.click(screen.getByRole('switch', { name: "Application d'authentification" }));
+    expect(onSecurityChange).toHaveBeenCalledWith(expect.objectContaining({ authenticatorTwoFactor: true }));
     fireEvent.click(screen.getByRole('button', { name: 'Déconnecter' }));
     expect(onDisconnectSession).toHaveBeenCalledWith(expect.objectContaining({ id: 'mobile-session' }));
   });
@@ -78,16 +86,40 @@ describe('SettingsModule', () => {
     render(<SettingsModule {...fixtureProps} onNotificationsChange={onNotificationsChange} onAppearanceChange={onAppearanceChange} onGeneralChange={onGeneralChange} />);
 
     fireEvent.click(screen.getByRole('tab', { name: 'Notifications' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Notifications par e-mail' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Notifications push' }));
     fireEvent.click(screen.getByRole('switch', { name: 'Notifications desktop' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Messages' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Projets' }));
+    fireEvent.click(screen.getByRole('switch', { name: 'Calendrier' }));
+    expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ email: false }));
+    expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ push: false }));
     expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ desktop: true }));
+    expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ messages: false }));
+    expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ projects: false }));
+    expect(onNotificationsChange).toHaveBeenCalledWith(expect.objectContaining({ calendar: false }));
 
     fireEvent.click(screen.getByRole('tab', { name: 'Apparence' }));
     fireEvent.click(screen.getByRole('radio', { name: /Sombre/ }));
     expect(onAppearanceChange).toHaveBeenCalledWith(expect.objectContaining({ theme: 'dark' }));
+    fireEvent.change(screen.getByLabelText('Police de caractères'), { target: { value: 'serif' } });
+    fireEvent.change(screen.getByLabelText(/Taille de police/), { target: { value: '50' } });
+    fireEvent.change(screen.getByLabelText("Compacité de l'interface"), { target: { value: 'compact' } });
+    expect(onAppearanceChange).toHaveBeenCalledWith(expect.objectContaining({ fontFamily: 'serif' }));
+    expect(onAppearanceChange).toHaveBeenCalledWith(expect.objectContaining({ fontSize: 50 }));
+    expect(onAppearanceChange).toHaveBeenCalledWith(expect.objectContaining({ density: 'compact' }));
 
     fireEvent.click(screen.getByRole('tab', { name: 'Général' }));
     fireEvent.change(screen.getByLabelText("Langue de l'interface"), { target: { value: 'en' } });
+    fireEvent.change(screen.getByLabelText('Fuseau horaire'), { target: { value: 'Indian/Reunion' } });
+    fireEvent.change(screen.getByLabelText('Format de date'), { target: { value: 'YYYY-MM-DD' } });
+    fireEvent.change(screen.getByLabelText("Page d'accueil par défaut"), { target: { value: 'projects' } });
+    fireEvent.click(screen.getByRole('switch', { name: 'Ouverture automatique des notifications' }));
     expect(onGeneralChange).toHaveBeenCalledWith(expect.objectContaining({ language: 'en' }));
+    expect(onGeneralChange).toHaveBeenCalledWith(expect.objectContaining({ timezone: 'Indian/Reunion' }));
+    expect(onGeneralChange).toHaveBeenCalledWith(expect.objectContaining({ dateFormat: 'YYYY-MM-DD' }));
+    expect(onGeneralChange).toHaveBeenCalledWith(expect.objectContaining({ homePage: 'projects' }));
+    expect(onGeneralChange).toHaveBeenCalledWith(expect.objectContaining({ autoOpenNotifications: true }));
   });
 
   it('exposes system cache and assistance actions', () => {
