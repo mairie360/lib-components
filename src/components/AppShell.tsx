@@ -12,7 +12,7 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onLogout?: () => void;
   /** Destinations supplied by the consuming frontend; the library reads no environment variables. */
   hrefs: Record<string, string | undefined>;
-  /** Handle relative destinations with the consuming frontend's router. */
+  /** Optional client-side router for relative destinations; otherwise use a full-page navigation. */
   onNavigate?: (href: string, itemId: string) => void;
   /** Compatibility callback for pages that already navigate by item id. */
   onPageChange?: (itemId: string) => void;
@@ -27,7 +27,11 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
 
 const isAbsoluteWebUrl = (href: string) => /^https?:\/\//i.test(href);
 const isSafeRelativeUrl = (href: string) =>
-  !href.startsWith('//') && !/^[a-z][a-z\d+.-]*:/i.test(href);
+  !href.startsWith('//') && !href.includes('\\') && !/^[a-z][a-z\d+.-]*:/i.test(href);
+const safeHref = (href: string | undefined) => {
+  const value = href?.trim();
+  return value && (isAbsoluteWebUrl(value) || isSafeRelativeUrl(value)) ? value : undefined;
+};
 
 export const AppShell = ({
   activeItem = 'dashboard',
@@ -56,10 +60,7 @@ export const AppShell = ({
 
   const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, ...restSidebarProps } = sidebarProps ?? {};
   const canNavigate = (itemId: string) => {
-    const href = hrefs[itemId]?.trim();
-    return Boolean(
-      (href && (isAbsoluteWebUrl(href) || (isSafeRelativeUrl(href) && onNavigate))) || onPageChange,
-    );
+    return Boolean(safeHref(hrefs[itemId]) || onPageChange);
   };
   const visibleItems = items.filter((item) => canNavigate(item.id));
 
@@ -71,8 +72,9 @@ export const AppShell = ({
       window.location.assign(href);
       return;
     }
-    if (href && isSafeRelativeUrl(href) && onNavigate) {
-      onNavigate(href, destinationId);
+    if (href && isSafeRelativeUrl(href)) {
+      if (onNavigate) onNavigate(href, destinationId);
+      else window.location.assign(href);
       return;
     }
     onPageChange?.(itemId);
@@ -83,7 +85,7 @@ export const AppShell = ({
     navigate(item.id);
   };
 
-  const profileHref = hrefs.profile?.trim() || hrefs.settings?.trim() || null;
+  const profileHref = safeHref(hrefs.profile) || safeHref(hrefs.settings) || null;
   const headerCanNavigate = canNavigate('profile') || canNavigate('settings') || canNavigate('admin');
   const renderSidebar = () => (
     <Sidebar
