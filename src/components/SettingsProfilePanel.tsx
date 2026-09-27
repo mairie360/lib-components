@@ -23,7 +23,6 @@ export const SettingsProfilePanel = ({
 }: SettingsProfilePanelProps) => {
   const [draft, setDraft] = React.useState(profile);
   const [photoError, setPhotoError] = React.useState<string | null>(null);
-  const [status, setStatus] = React.useState<string | null>(null);
 
   React.useEffect(() => setDraft(profile), [profile]);
 
@@ -52,7 +51,6 @@ export const SettingsProfilePanel = ({
     event.preventDefault();
     if (!onSave) return;
     onSave(draft);
-    setStatus('Modifications enregistrées.');
   };
 
   return (
@@ -161,7 +159,6 @@ export const SettingsProfilePanel = ({
               <Save className="size-4" />
               Enregistrer les modifications
             </button>}
-            {status && <span role="status" className="text-sm font-medium text-[#315f5c]">{status}</span>}
           </div>
         </form>
       </SettingsSection>

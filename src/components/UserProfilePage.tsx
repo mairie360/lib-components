@@ -23,10 +23,6 @@ export interface UserProfilePageProps extends Omit<React.HTMLAttributes<HTMLDivE
   settingsProps?: Omit<SettingsModuleProps, 'profile' | 'onProfileSave'>;
 }
 
-const defaultUser: UserProfileUser = {
-  name: 'Utilisateur',
-};
-
 const getInitials = (name: string) => name
   .split(/\s+/)
   .filter(Boolean)
@@ -47,7 +43,7 @@ const toSettingsProfile = (user: UserProfileUser): SettingsProfile => ({
 });
 
 export const UserProfilePage = ({
-  user = defaultUser,
+  user,
   isAdmin,
   activeItem = 'settings',
   onUpdateUser,
@@ -61,8 +57,7 @@ export const UserProfilePage = ({
   className = '',
   ...props
 }: UserProfilePageProps) => {
-  const [currentUser, setCurrentUser] = React.useState<UserProfileUser>(user);
-  const resolvedIsAdmin = isAdmin ?? currentUser.role === 'admin';
+  const resolvedIsAdmin = isAdmin ?? user?.role === 'admin';
   const {
     onPageChange,
     onLogout,
@@ -70,18 +65,9 @@ export const UserProfilePage = ({
     ...restHeaderProps
   } = headerProps ?? {};
 
-  React.useEffect(() => {
-    setCurrentUser(user);
-  }, [user]);
-
-  const handleUpdateUser = (updatedUser: UserProfileUser) => {
-    setCurrentUser(updatedUser);
-    onUpdateUser?.(updatedUser);
-  };
-
-  const handleProfileSave = (profile: SettingsProfile) => {
+  const handleProfileSave = user && onUpdateUser ? (profile: SettingsProfile) => {
     const updatedUser: UserProfileUser = {
-      ...currentUser,
+      ...user,
       name: profile.fullName,
       avatarUrl: profile.avatarUrl,
       email: profile.email,
@@ -91,14 +77,14 @@ export const UserProfilePage = ({
       biography: profile.biography,
     };
 
-    handleUpdateUser(updatedUser);
-  };
+    onUpdateUser(updatedUser);
+  } : undefined;
 
   return (
     <AppShell
       activeItem={activeItem}
       isAdmin={resolvedIsAdmin}
-      user={currentUser}
+      user={user}
       onLogout={onLogout}
       hrefs={{ ...hrefs, ...(profileHref ? { profile: profileHref } : {}) }}
       onNavigate={onNavigate}
@@ -111,7 +97,7 @@ export const UserProfilePage = ({
     >
       <SettingsModule
         defaultActiveTab="profile"
-        profile={toSettingsProfile(currentUser)}
+        profile={user ? toSettingsProfile(user) : undefined}
         onProfileSave={handleProfileSave}
         className={profileProps?.className}
         {...settingsProps}

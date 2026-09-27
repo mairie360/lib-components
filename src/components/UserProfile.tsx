@@ -53,13 +53,6 @@ export interface UserProfileProps extends Omit<React.HTMLAttributes<HTMLElement>
   onUpdateUser?: (user: UserProfileUser) => void;
 }
 
-const defaultUser: UserProfileUser = {
-  name: 'Admin Système',
-  email: 'admin@mairie360.fr',
-  role: 'admin',
-  service: 'Administration',
-};
-
 const roleLabels: Record<string, string> = {
   admin: 'Administrateur',
   administrateur: 'Administrateur',
@@ -110,15 +103,15 @@ type ProfileField = {
 
 type EditableProfileValues = Pick<UserProfileUser, 'email' | 'phone' | 'address' | 'city'>;
 
-const getEditableValues = (user: UserProfileUser): EditableProfileValues => ({
-  email: user.email || '',
-  phone: user.phone || '',
-  address: user.address || '',
-  city: user.city || '',
+const getEditableValues = (user?: UserProfileUser): EditableProfileValues => ({
+  email: user?.email || '',
+  phone: user?.phone || '',
+  address: user?.address || '',
+  city: user?.city || '',
 });
 
 export const UserProfile = ({
-  user = defaultUser,
+  user,
   title = 'Profil utilisateur',
   subtitle = 'Consultation des informations personnelles',
   editable = true,
@@ -131,48 +124,22 @@ export const UserProfile = ({
   className = '',
   ...props
 }: UserProfileProps) => {
-  const [currentUser, setCurrentUser] = React.useState<UserProfileUser>(user);
   const [isEditing, setIsEditing] = React.useState(false);
   const [formValues, setFormValues] = React.useState<EditableProfileValues>(() => getEditableValues(user));
-  const [statusMessage, setStatusMessage] = React.useState('');
 
   React.useEffect(() => {
-    setCurrentUser(user);
     setFormValues(getEditableValues(user));
     setIsEditing(false);
-    setStatusMessage('');
   }, [user]);
 
-  const avatarSrc = currentUser.avatar || currentUser.avatarUrl;
-  const roleLabel = formatRole(currentUser.role);
-  const statusLabel = formatStatus(currentUser.status);
-  const location = [currentUser.address, currentUser.city].filter(Boolean).join(', ');
-  const fields: ProfileField[] = [
-    { label: 'Nom complet', value: currentUser.name, icon: UserRound },
-    { label: 'Adresse e-mail', value: currentUser.email, icon: Mail },
-    { label: 'Téléphone', value: currentUser.phone, icon: Phone },
-    { label: 'Groupe ou service', value: currentUser.service, icon: Building2 },
-    { label: 'Rôle', value: roleLabel, icon: ShieldCheck },
-    { label: 'Statut du compte', value: statusLabel, icon: Activity },
-    ...(currentUser.position
-      ? [{ label: 'Fonction', value: currentUser.position, icon: Briefcase }]
-      : []),
-    ...(location ? [{ label: 'Adresse', value: location, icon: MapPin }] : []),
-    ...(currentUser.lastConnection
-      ? [{ label: 'Dernière connexion', value: currentUser.lastConnection, icon: CalendarClock }]
-      : []),
-  ];
-
   const handleEdit = () => {
-    setFormValues(getEditableValues(currentUser));
-    setStatusMessage('');
+    setFormValues(getEditableValues(user));
     setIsEditing(true);
   };
 
   const handleCancel = () => {
-    setFormValues(getEditableValues(currentUser));
+    setFormValues(getEditableValues(user));
     setIsEditing(false);
-    setStatusMessage('');
   };
 
   const handleFieldChange = (field: keyof EditableProfileValues) => (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -184,18 +151,10 @@ export const UserProfile = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const updatedUser = {
-      ...currentUser,
-      ...formValues,
-    };
-
-    setCurrentUser(updatedUser);
-    setIsEditing(false);
-    setStatusMessage('Informations personnelles mises à jour.');
-    onUpdateUser?.(updatedUser);
+    if (user && onUpdateUser) onUpdateUser({ ...user, ...formValues });
   };
 
-  const editAction = editable && !isEditing ? (
+  const editAction = editable && user && onUpdateUser && !isEditing ? (
     <button
       type="button"
       className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#0f4a8d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
@@ -235,6 +194,44 @@ export const UserProfile = ({
     );
   }
 
+  if (!user) {
+    return (
+      <section
+        id="profile"
+        aria-label={typeof title === 'string' ? title : undefined}
+        className={joinClasses('space-y-6 text-[#172033]', className)}
+        {...props}
+      >
+        <PageTitleBar title={title} subtitle={subtitle} />
+        <Card>
+          <div role="status" className="border-t border-[#e4e0dc] bg-white px-6 py-10 text-sm text-[#5f6770]">
+            Informations du profil indisponibles.
+          </div>
+        </Card>
+      </section>
+    );
+  }
+
+  const avatarSrc = user.avatar || user.avatarUrl;
+  const roleLabel = formatRole(user.role);
+  const statusLabel = formatStatus(user.status);
+  const location = [user.address, user.city].filter(Boolean).join(', ');
+  const fields: ProfileField[] = [
+    { label: 'Nom complet', value: user.name, icon: UserRound },
+    { label: 'Adresse e-mail', value: user.email, icon: Mail },
+    { label: 'Téléphone', value: user.phone, icon: Phone },
+    { label: 'Groupe ou service', value: user.service, icon: Building2 },
+    { label: 'Rôle', value: roleLabel, icon: ShieldCheck },
+    { label: 'Statut du compte', value: statusLabel, icon: Activity },
+    ...(user.position
+      ? [{ label: 'Fonction', value: user.position, icon: Briefcase }]
+      : []),
+    ...(location ? [{ label: 'Adresse', value: location, icon: MapPin }] : []),
+    ...(user.lastConnection
+      ? [{ label: 'Dernière connexion', value: user.lastConnection, icon: CalendarClock }]
+      : []),
+  ];
+
   return (
     <section
       id="profile"
@@ -248,19 +245,19 @@ export const UserProfile = ({
         <div className="flex flex-col gap-5 p-6 sm:flex-row sm:items-center">
           <Avatar
             src={avatarSrc}
-            alt={currentUser.name}
-            fallback={<span className="text-xl font-semibold leading-none text-white">{getInitials(currentUser.name)}</span>}
+            alt={user.name}
+            fallback={<span className="text-xl font-semibold leading-none text-white">{getInitials(user.name)}</span>}
             className="!h-20 !w-20 border-4 border-[#4b908d]"
           />
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-2xl font-bold leading-8 text-[#172033]">
-              {currentUser.name}
+              {user.name}
             </h2>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <span className="inline-flex h-7 items-center rounded-md bg-[#e4f2f1] px-3 text-sm font-medium text-[#1f5f5b]">
                 {roleLabel}
               </span>
-              {currentUser.email && <span className="text-sm leading-6 text-[#5f6770]">{currentUser.email}</span>}
+              {user.email && <span className="text-sm leading-6 text-[#5f6770]">{user.email}</span>}
             </div>
           </div>
         </div>
@@ -341,11 +338,6 @@ export const UserProfile = ({
           </dl>
         )}
       </Card>
-      {statusMessage && (
-        <div role="status" className="sr-only">
-          {statusMessage}
-        </div>
-      )}
     </section>
   );
 };
