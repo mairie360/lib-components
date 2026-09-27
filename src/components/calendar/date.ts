@@ -145,17 +145,20 @@ export const getMonthCells = (date: CalendarDateInput, weekStartsOn: 0 | 1 = 1) 
 export const formatTimeLabel = (time?: string) => {
   if (!time) return null;
 
-  const [hours = '', minutes = ''] = time.split(':');
-  if (!hours || !minutes) return time;
+  const match = time.match(/^(\d{1,2}):(\d{1,2})$/);
+  if (!match) return null;
 
-  return `${hours.padStart(2, '0')} h ${minutes.padStart(2, '0')}`;
+  const [, hours, minutes] = match;
+  if (Number(hours) > 23 || Number(minutes) > 59) return null;
+
+  return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
 };
 
 export const getEventTimeLabel = (event: CalendarEvent) => {
   const startTime = formatTimeLabel(event.startTime);
   const endTime = formatTimeLabel(event.endTime);
 
-  if (startTime && endTime) return `${startTime} - ${endTime}`;
+  if (startTime && endTime) return `${startTime} – ${endTime}`;
   return startTime || endTime || null;
 };
 
