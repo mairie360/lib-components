@@ -238,6 +238,28 @@ describe('Messaging components', () => {
     expect(screen.queryByText('Message reçu')).not.toBeInTheDocument();
   });
 
+  it('renders references and attachments without destinations as non-clickable labels', () => {
+    render(
+      <Messaging
+        conversations={[defaultMessagingConversations[0]]}
+        messages={[
+          {
+            id: 'message-with-unavailable-links',
+            conversationId: 'marie-dubois',
+            content: 'Dossier partagé',
+            businessLinks: [{ id: 'project-1', title: 'Projet test', kind: 'project' }],
+            attachments: [{ id: 'file-1', name: 'rapport.pdf' }],
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Projet test')).toBeInTheDocument();
+    expect(screen.getByText('rapport.pdf')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Projet test' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'rapport.pdf' })).not.toBeInTheDocument();
+  });
+
   it('adds a system emoji to the composer', () => {
     render(<DemoMessaging />);
 
