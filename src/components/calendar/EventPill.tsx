@@ -41,10 +41,11 @@ export const EventPill = ({ event, onClick, className, style, showTime = true }:
         event.className,
         className
       )}
+      title={typeof event.title === 'string' ? event.title : undefined}
       style={style}
       {...clickableProps}
     >
-      <div className="break-words">{event.title}</div>
+      <div className="min-w-0 truncate text-left">{event.title}</div>
       {timeLabel && (
         <div className="break-words text-[11px] font-normal opacity-75">{timeLabel}</div>
       )}
