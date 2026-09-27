@@ -1,5 +1,5 @@
 import React from 'react';
-import { Award, BookOpen, Filter, Pencil, Percent, Plus, Trash2, Users, X } from 'lucide-react';
+import { Award, BookOpen, Filter, Pencil, Percent, Plus, Trash2, Users } from 'lucide-react';
 
 import { ElearningAdminStats, type ElearningAdminStatsData } from './ElearningAdminStats';
 import type { ElearningBadgeVariant } from './ElearningBadge';
@@ -17,7 +17,6 @@ import {
   getElearningRatingAverage,
   incrementElearningRatingDistribution,
   type ElearningCourseDetails,
-  type ElearningCourseProgressSummary,
   type ElearningCourseRatingDistribution,
   type ElearningCourseRatingSummary,
 } from './ElearningCourseDetailsModal';
@@ -101,17 +100,12 @@ const inferStatusValue = (course: ElearningCourse) => {
 
 const getCourseProgress = (course: ElearningCourse) => {
   if (typeof course.progress === 'number') return clampProgress(course.progress);
-  const statusValue = inferStatusValue(course);
-  if (statusValue === 'completed') return 100;
-  if (statusValue === 'in-progress') return 50;
+  if (typeof course.details?.progress === 'number') return clampProgress(course.details.progress);
   return 0;
 };
 
-const getRuntimeStatusValue = (course: ElearningCourse, progress: number) => {
-  if (progress >= 100) return 'completed';
-  if (progress > 0) return 'in-progress';
-  return inferStatusValue(course);
-};
+const hasCourseProgress = (course: ElearningCourse) =>
+  typeof course.progress === 'number' || typeof course.details?.progress === 'number';
 
 const getStatusBadge = (statusValue: string, fallback?: ElearningCourse['statusBadge']) => ({
   ...fallback,
@@ -154,9 +148,10 @@ const getPercentage = (value: number, total: number) => `${total === 0 ? 0 : Mat
 
 const buildDefaultStats = (courses: ElearningCourse[], certificationCount = 0): ElearningStatCardProps[] => {
   const totalCourses = courses.length;
-  const participatingCourses = courses.filter((course) => getCourseProgress(course) > 0).length;
-  const averageProgress = totalCourses
-    ? Math.round(courses.reduce((total, course) => total + getCourseProgress(course), 0) / totalCourses)
+  const participatingCourses = courses.filter((course) => inferStatusValue(course) !== 'not-started' || getCourseProgress(course) > 0).length;
+  const coursesWithProgress = courses.filter(hasCourseProgress);
+  const averageProgress = coursesWithProgress.length
+    ? Math.round(coursesWithProgress.reduce((total, course) => total + getCourseProgress(course), 0) / coursesWithProgress.length)
     : 0;
 
   return [
@@ -169,6 +164,7 @@ const buildDefaultStats = (courses: ElearningCourse[], certificationCount = 0): 
 
 const buildAdminStats = (courses: ElearningCourse[]): ElearningAdminStatsData => {
   const ratings = courses.map((course) => Number(course.rating)).filter((rating) => Number.isFinite(rating));
+  const coursesWithProgress = courses.filter(hasCourseProgress);
   return {
     totalCourses: courses.length,
     totalLearners: courses.reduce((total, course) => total + parseNumberValue(course.learners), 0),
@@ -179,52 +175,21 @@ const buildAdminStats = (courses: ElearningCourse[]): ElearningAdminStatsData =>
       0
     ),
     averageRating: ratings.length ? Math.round((ratings.reduce((total, rating) => total + rating, 0) / ratings.length) * 10) / 10 : 0,
-    completionRate: courses.length
-      ? Math.round(courses.reduce((total, course) => total + getCourseProgress(course), 0) / courses.length)
+    completionRate: coursesWithProgress.length
+      ? Math.round(coursesWithProgress.reduce((total, course) => total + getCourseProgress(course), 0) / coursesWithProgress.length)
       : 0,
   };
 };
 
-const buildFallbackDetails = (course: ElearningCourse): ElearningCourseDetails => {
-  const chapterCount = Math.max(1, parseNumberValue(course.chapters) || 1);
-  const completed = inferStatusValue(course) === 'completed' || course.progress === 100;
-  return {
-    title: course.title,
-    description: course.description,
-    instructor: course.instructor,
-    duration: course.duration,
-    rating: course.rating,
-    progress: course.progress,
-    completed,
-    chapters: Array.from({ length: chapterCount }, (_, index) => ({
-      id: `${course.id}-chapter-${index + 1}`,
-      title: `Chapitre ${index + 1}`,
-      description: '',
-      duration: 'Durée estimée',
-      completed,
-      contents: [
-        {
-          id: `${course.id}-chapter-${index + 1}-video`,
-          title: `Vidéo du chapitre ${index + 1}`,
-          type: 'video' as const,
-          duration: 'Durée estimée',
-          completed,
-          required: true,
-        },
-        {
-          id: `${course.id}-chapter-${index + 1}-support`,
-          title: `Support du chapitre ${index + 1}`,
-          type: 'pdf' as const,
-          duration: 'Document de référence',
-          completed,
-          required: true,
-        },
-      ],
-    })),
-  };
+const getCourseDetails = (course: ElearningCourse): ElearningCourseDetails => course.details ?? {
+  title: course.title,
+  description: course.description,
+  instructor: course.instructor,
+  duration: course.duration,
+  rating: course.rating,
+  progress: course.progress,
+  chapters: [],
 };
-
-const getCourseDetails = (course: ElearningCourse) => course.details ?? buildFallbackDetails(course);
 
 const getCourseFormValues = (course?: ElearningCourse): ElearningCourseFormValues => {
   const details = course ? getCourseDetails(course) : undefined;
@@ -239,12 +204,13 @@ const getCourseFormValues = (course?: ElearningCourse): ElearningCourseFormValue
     deadline: course?.deadline ?? '',
     requirement: getRequirement(course),
     level: getLevel(course),
-    chapters:
-      details?.chapters.map((chapter) => ({
-        ...chapter,
-        description: chapter.description ?? '',
-        contents: (chapter.contents ?? []).map((content) => ({ ...content })),
-      })) ?? [createEmptyCourseChapter()],
+    chapters: details?.chapters.length
+      ? details.chapters.map((chapter) => ({
+          ...chapter,
+          description: chapter.description ?? '',
+          contents: (chapter.contents ?? []).map((content) => ({ ...content })),
+        }))
+      : [createEmptyCourseChapter()],
   };
 };
 
@@ -254,20 +220,13 @@ const createCourseId = (title: string) => {
 };
 
 const buildCourseFromFormValues = (values: ElearningCourseFormValues, existingCourse?: ElearningCourse): ElearningCourse => {
-  const currentProgress = existingCourse ? getCourseProgress(existingCourse) : 0;
-  const progress = values.statusValue === 'completed' ? 100 : values.statusValue === 'not-started' ? 0 : Math.max(1, currentProgress);
-  const completed = progress === 100;
-  const chapters = values.chapters.map((chapter, chapterIndex) => ({
+  const chapters = values.chapters.map((chapter) => ({
     ...chapter,
-    completed: completed || chapter.completed,
-    active: !completed && chapterIndex === 0,
     contents: chapter.contents.map((content) => ({
       ...content,
-      completed: completed || content.completed || false,
-      required: content.required !== false,
     })),
   }));
-  const statusValue = completed ? 'completed' : values.statusValue;
+  const statusValue = values.statusValue;
 
   return {
     ...existingCourse,
@@ -281,7 +240,7 @@ const buildCourseFromFormValues = (values: ElearningCourseFormValues, existingCo
     deadline: values.deadline || undefined,
     chapters: chapters.length,
     learners: existingCourse?.learners ?? 0,
-    progress,
+    progress: existingCourse?.progress,
     titleBadge: getTitleBadge(values.requirement),
     levelBadge: getLevelBadge(values.level),
     statusBadge: getStatusBadge(statusValue, existingCourse?.statusBadge),
@@ -292,8 +251,8 @@ const buildCourseFromFormValues = (values: ElearningCourseFormValues, existingCo
       description: values.description,
       instructor: values.instructor || undefined,
       duration: values.duration || undefined,
-      progress,
-      completed,
+      progress: existingCourse?.details?.progress,
+      completed: existingCourse?.details?.completed,
       chapters,
       completionRating: existingCourse?.details?.completionRating ?? { title: 'Noter cette formation' },
     },
@@ -323,102 +282,64 @@ export const ElearningCatalog = ({
   className = '',
   ...props
 }: ElearningCatalogProps) => {
-  const [managedCourses, setManagedCourses] = React.useState(courses);
   const [search, setSearch] = React.useState(defaultSearch);
   const [category, setCategory] = React.useState(defaultCategory);
   const [status, setStatus] = React.useState(defaultStatus);
-  const [selectedCourse, setSelectedCourse] = React.useState<ElearningCourse | null>(null);
-  const [editingCourse, setEditingCourse] = React.useState<ElearningCourse | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = React.useState<string | null>(null);
+  const [editingCourseId, setEditingCourseId] = React.useState<string | null>(null);
   const [courseFormOpen, setCourseFormOpen] = React.useState(false);
-  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
-  const [submittedRatingDistributions, setSubmittedRatingDistributions] = React.useState<Record<string, ElearningCourseRatingDistribution>>({});
-  const [contentProgressByCourse, setContentProgressByCourse] = React.useState<Record<string, ElearningCourseProgressSummary>>({});
-
-  React.useEffect(() => setManagedCourses(courses), [courses]);
-
-  const coursesWithRuntimeState = React.useMemo(
-    () =>
-      managedCourses.map((course) => {
-        const progress = contentProgressByCourse[course.id]?.progress ?? getCourseProgress(course);
-        const statusValue = getRuntimeStatusValue(course, progress);
-        const ratingDistribution = submittedRatingDistributions[course.id] ?? course.details?.ratingDistribution ?? course.ratingDistribution;
-        return {
-          ...course,
-          progress,
-          rating: getElearningRatingAverage(ratingDistribution) ?? course.rating,
-          ratingDistribution,
-          statusValue,
-          statusBadge: getStatusBadge(statusValue, course.statusBadge),
-        };
-      }),
-    [contentProgressByCourse, managedCourses, submittedRatingDistributions]
-  );
+  const selectedCourse = courses.find((course) => course.id === selectedCourseId);
+  const editingCourse = courses.find((course) => course.id === editingCourseId);
 
   const canManageCourses = currentUserRole === 'administrator';
-  const categoryOptions = React.useMemo(() => categories ?? buildCategories(coursesWithRuntimeState), [categories, coursesWithRuntimeState]);
-  const displayedStats = stats ?? buildDefaultStats(coursesWithRuntimeState, certificationCount);
-  const displayedAdminStats = adminStats ?? buildAdminStats(coursesWithRuntimeState);
+  const categoryOptions = React.useMemo(() => categories ?? buildCategories(courses), [categories, courses]);
+  const displayedStats = stats ?? buildDefaultStats(courses, certificationCount);
+  const displayedAdminStats = adminStats ?? buildAdminStats(courses);
   const selectedCourseDetails = React.useMemo(() => (selectedCourse ? getCourseDetails(selectedCourse) : undefined), [selectedCourse]);
-  const selectedCourseProgress = selectedCourse ? contentProgressByCourse[selectedCourse.id] : undefined;
   const courseFormInitialValues = React.useMemo(() => getCourseFormValues(editingCourse ?? undefined), [editingCourse]);
 
   const filteredCourses = React.useMemo(() => {
     const normalizedSearch = normalize(search.trim());
-    return coursesWithRuntimeState.filter((course) => {
+    return courses.filter((course) => {
       const matchesSearch = !normalizedSearch || normalize(`${course.title} ${course.description} ${course.instructor ?? ''}`).includes(normalizedSearch);
       return matchesSearch && (category === 'all' || course.category === category) && (status === 'all' || inferStatusValue(course) === status);
     });
-  }, [category, coursesWithRuntimeState, search, status]);
+  }, [category, courses, search, status]);
 
   const closeCourseForm = () => {
     setCourseFormOpen(false);
-    setEditingCourse(null);
+    setEditingCourseId(null);
   };
 
   const handleSubmitCourseForm = (values: ElearningCourseFormValues) => {
     if (!editingCourse) {
+      if (!onCreateCourse) return;
       const createdCourse = buildCourseFromFormValues(values);
-      setManagedCourses((currentCourses) => [...currentCourses, createdCourse]);
-      onCreateCourse?.(createdCourse, values);
-      setStatusMessage(`Formation "${createdCourse.title}" créée.`);
-      setCourseFormOpen(false);
+      onCreateCourse(createdCourse, values);
+      closeCourseForm();
       return;
     }
 
+    if (!onUpdateCourse) return;
     const updatedCourse = buildCourseFromFormValues(values, editingCourse);
-    setManagedCourses((currentCourses) => currentCourses.map((course) => (course.id === editingCourse.id ? updatedCourse : course)));
-    setSelectedCourse((course) => (course?.id === editingCourse.id ? updatedCourse : course));
-    onUpdateCourse?.(updatedCourse, values);
-    setStatusMessage(`Formation "${updatedCourse.title}" mise à jour.`);
+    onUpdateCourse(updatedCourse, values);
     closeCourseForm();
   };
 
   const handleDeleteCourse = (course: ElearningCourse) => {
-    setManagedCourses((currentCourses) => currentCourses.filter((currentCourse) => currentCourse.id !== course.id));
-    setSelectedCourse((currentCourse) => (currentCourse?.id === course.id ? null : currentCourse));
     onDeleteCourse?.(course);
-    setStatusMessage(`Formation "${course.title}" supprimée.`);
   };
 
   return (
     <section className={joinClasses('bg-[#f4f2ef] px-6 py-14 text-[#2f3747]', className)} {...props}>
       <div className="mx-auto max-w-[1130px]">
-        {statusMessage ? (
-          <div role="status" className="mb-5 flex items-center justify-between gap-4 rounded-md border border-[#b9dfc8] bg-[#eefaf3] px-4 py-3 text-sm font-semibold text-[#167544]">
-            <span className="truncate">{statusMessage}</span>
-            <button type="button" aria-label="Fermer le message" className="inline-flex size-7 items-center justify-center rounded-md hover:bg-white/70" onClick={() => setStatusMessage(null)}>
-              <X className="size-4" />
-            </button>
-          </div>
-        ) : null}
-
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold leading-8">{title}</h2>
             <p className="text-base leading-6 text-[#5f6470]">{subtitle}</p>
           </div>
-          {canManageCourses ? (
-            <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4b91]" onClick={() => { setEditingCourse(null); setCourseFormOpen(true); }}>
+          {canManageCourses && onCreateCourse ? (
+            <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4b91]" onClick={() => { setEditingCourseId(null); setCourseFormOpen(true); }}>
               <Plus className="size-4" /> Nouvelle formation
             </button>
           ) : null}
@@ -438,24 +359,23 @@ export const ElearningCatalog = ({
 
         <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredCourses.map((course) => {
-            const { id, category: _category, statusValue: _statusValue, details, onAction, ratingDistribution, progress, ...cardProps } = course;
+            const { id, category: _category, statusValue: _statusValue, details, onAction, ratingDistribution, ...cardProps } = course;
             return (
               <div key={id} className="relative h-full">
                 {canManageCourses ? (
                   <div className="absolute right-3 top-3 z-10 flex gap-2">
-                    <button type="button" aria-label={`Modifier ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#1256a6] shadow-sm hover:bg-[#e9f1fb]" onClick={() => { setEditingCourse(course); setCourseFormOpen(true); }}>
+                    {onUpdateCourse ? <button type="button" aria-label={`Modifier ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#1256a6] shadow-sm hover:bg-[#e9f1fb]" onClick={() => { setEditingCourseId(course.id); setCourseFormOpen(true); }}>
                       <Pencil className="size-4" />
-                    </button>
-                    <button type="button" aria-label={`Supprimer ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#c5323a] shadow-sm hover:bg-[#fff1f2]" onClick={() => handleDeleteCourse(course)}>
+                    </button> : null}
+                    {onDeleteCourse ? <button type="button" aria-label={`Supprimer ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#c5323a] shadow-sm hover:bg-[#fff1f2]" onClick={() => handleDeleteCourse(course)}>
                       <Trash2 className="size-4" />
-                    </button>
+                    </button> : null}
                   </div>
                 ) : null}
                 <ElearningCourseCard
                   {...cardProps}
-                  rating={getElearningRatingAverage(submittedRatingDistributions[id] ?? details?.ratingDistribution ?? ratingDistribution) ?? cardProps.rating}
-                  progress={contentProgressByCourse[id]?.progress ?? progress}
-                  onAction={() => { onAction?.(); setSelectedCourse(course); onCourseAction?.(course); }}
+                  rating={getElearningRatingAverage(details?.ratingDistribution ?? ratingDistribution) ?? cardProps.rating}
+                  onAction={() => { onAction?.(); setSelectedCourseId(course.id); onCourseAction?.(course); }}
                 />
               </div>
             );
@@ -470,26 +390,23 @@ export const ElearningCatalog = ({
       {selectedCourse && selectedCourseDetails ? (
         <ElearningCourseDetailsModal
           {...selectedCourseDetails}
-          rating={getElearningRatingAverage(submittedRatingDistributions[selectedCourse.id] ?? selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution) ?? selectedCourseDetails.rating}
-          ratingDistribution={submittedRatingDistributions[selectedCourse.id] ?? selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution}
-          chapters={selectedCourseProgress?.chapters ?? selectedCourseDetails.chapters}
-          progress={selectedCourseProgress?.progress ?? selectedCourseDetails.progress}
-          completionRating={{
+          rating={getElearningRatingAverage(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution) ?? selectedCourseDetails.rating}
+          ratingDistribution={selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution}
+          optimisticUpdates={false}
+          completionRating={onCourseRatingSubmit || selectedCourseDetails.completionRating?.onSubmit ? {
             ...selectedCourseDetails.completionRating,
             onSubmit: (rating) => {
-              const summary = incrementElearningRatingDistribution(submittedRatingDistributions[selectedCourse.id] ?? selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution, rating);
-              setSubmittedRatingDistributions((current) => ({ ...current, [selectedCourse.id]: summary.ratingDistribution }));
+              const summary = incrementElearningRatingDistribution(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution, rating);
               selectedCourseDetails.completionRating?.onSubmit?.(rating);
               onCourseRatingSubmit?.(selectedCourse, rating, summary);
             },
-          }}
-          onContentComplete={(payload) => {
-            setContentProgressByCourse((current) => ({ ...current, [selectedCourse.id]: payload }));
+          } : undefined}
+          onContentComplete={onCourseContentComplete || selectedCourseDetails.onContentComplete ? (payload) => {
             selectedCourseDetails.onContentComplete?.(payload);
             onCourseContentComplete?.(selectedCourse, payload);
-          }}
+          } : undefined}
           open
-          onClose={() => setSelectedCourse(null)}
+          onClose={() => setSelectedCourseId(null)}
         />
       ) : null}
 
