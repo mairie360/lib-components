@@ -306,6 +306,36 @@ describe('Calendar components', () => {
     expect(screen.getByText('Soir')).toBeInTheDocument();
   });
 
+  it('reserves readable month rows for several events on the same day', () => {
+    const onEventClick = jest.fn();
+    const events = ['Matin', 'Midi', 'Après-midi', 'Soir'].map((title, index) => ({
+      id: `event-${index}`,
+      title,
+      date: '2026-06-15',
+      startTime: `${String(8 + index * 3).padStart(2, '0')}:00`,
+    }));
+
+    const { container } = render(
+      <MonthGrid
+        className="month-spacing-test"
+        currentDate="2026-06-15"
+        events={events}
+        onEventClick={onEventClick}
+      />
+    );
+
+    const weeks = Array.from(container.querySelectorAll<HTMLElement>('.month-spacing-test > div:nth-child(2) > div'));
+    expect(weeks).toHaveLength(5);
+    expect(weeks.every((week) => Number.parseInt(week.style.height, 10) >= 144)).toBe(true);
+    expect(weeks[2]).toHaveStyle({ height: '188px' });
+    const eventPill = screen.getByText('Après-midi').parentElement;
+    expect(eventPill).toHaveClass('h-8');
+    expect(eventPill).toHaveStyle({ gridRow: '3' });
+
+    fireEvent.click(eventPill!);
+    expect(onEventClick).toHaveBeenCalledWith(events[2]);
+  });
+
   it('renders sidebar panels', () => {
     const { container } = render(
       <CalendarSidebar

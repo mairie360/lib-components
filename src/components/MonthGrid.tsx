@@ -16,9 +16,9 @@ import type { CalendarEvent, MonthGridProps } from './calendar/types';
 
 export type { CalendarDateInput, CalendarEvent, MonthGridProps } from './calendar/types';
 
-const dayCellMinHeight = 112;
+const dayCellMinHeight = 144;
 const dayHeaderHeight = 44;
-const eventRowHeight = 28;
+const eventRowHeight = 34;
 
 interface MonthEventSegment {
   event: CalendarEvent;
@@ -81,7 +81,7 @@ const getWeekEventSegments = (events: CalendarEvent[], weekCells: Array<Date | n
   return positionMonthSegments(segments);
 };
 
-const monthEventClassName = joinClasses('pointer-events-auto mx-1 flex h-6 items-center py-0 shadow-sm');
+const monthEventClassName = joinClasses('pointer-events-auto mx-1 flex h-8 items-center py-0 shadow-sm');
 
 export const MonthGrid = ({
   currentDate,
