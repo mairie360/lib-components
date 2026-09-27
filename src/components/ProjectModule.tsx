@@ -28,14 +28,11 @@ import {
 import { AdministrationSelect } from './AdministrationSelect';
 import { joinClasses } from './calendar/style';
 import {
-  defaultProjectMembers,
-  defaultProjects,
-  defaultProjectTags,
   editableProjectPriorityOptions,
   editableProjectStatusOptions,
   projectPriorityOptions,
   projectStatusOptions,
-} from './projects/defaultData';
+} from './projects/options';
 import type {
   Project,
   ProjectAction,
@@ -206,7 +203,7 @@ const defaultProjectFormValues: ProjectFormValues = {
   ownerId: '',
   assigneeIds: [],
   tagIds: [],
-  dueDate: '2026-07-30',
+  dueDate: '',
   progress: 0,
   tasks: [],
   history: [],
@@ -228,24 +225,16 @@ const getTag = (tags: ProjectTag[], tagId: string) => tags.find((tag) => tag.id 
 
 const getTaskComments = (task: ProjectTask) => task.comments ?? [];
 
-const createHistoryEntry = (label: string, actorId?: string, target?: string): ProjectHistoryEntry => ({
-  id: `history-${Date.now()}-${Math.round(Math.random() * 100000)}`,
-  actorId,
-  label,
-  target,
-  createdAt: new Date().toISOString(),
-});
-
 const getProjectHistory = (project: Project) => project.history ?? [];
 
 const getProjectAccessScope = (
   project: Project,
-  currentUserRole: ProjectUserRole,
+  currentUserRole?: ProjectUserRole,
   currentUserId?: string,
   teamMemberIds: string[] = []
 ) => {
   if (currentUserRole === 'mayor') return true;
-  if (!currentUserId) return currentUserRole === 'responsable';
+  if (!currentUserRole || !currentUserId) return false;
 
   if (currentUserRole === 'employee') {
     return project.assigneeIds.includes(currentUserId) || project.tasks.some((task) => task.assigneeIds.includes(currentUserId));
@@ -291,7 +280,7 @@ const getProjectFormValues = (project: Project): ProjectFormValues => ({
   history: getProjectHistory(project),
 });
 
-const buildProjectFromValues = (values: ProjectFormValues, sequence: number, id = `project-${Date.now()}`): Project => ({
+const buildProjectFromValues = (values: ProjectFormValues, sequence: number, id: string): Project => ({
   id,
   sequence,
   title: values.title,
@@ -564,7 +553,7 @@ const ProjectActionMenu = ({
   }, [open]);
 
   const handleAction = (action: ProjectAction) => {
-    onAction?.(project, action);
+    if (action !== 'delete') onAction?.(project, action);
     if (action === 'open' || action === 'edit') onEdit(project);
     if (action === 'close') onClose(project);
     if (action === 'delete') onDelete(project);
@@ -1226,8 +1215,7 @@ const ProjectTaskEditor = ({
   canManageTasks: boolean;
   onValueChange: (nextValues: ProjectFormValues) => void;
 }) => {
-  const fallbackTaskAssignee = members.find((member) => member.id === 'alex-moreau') ?? members[0];
-  const fallbackTaskAssigneeId = values.ownerId || fallbackTaskAssignee?.id || '';
+  const fallbackTaskAssigneeId = values.ownerId || currentUserId || '';
   const [editingTaskId, setEditingTaskId] = React.useState<string | null>(null);
   const [taskSearchValue, setTaskSearchValue] = React.useState('');
   const [taskStatusValue, setTaskStatusValue] = React.useState<ProjectStatus | 'all'>('all');
@@ -1283,11 +1271,10 @@ const ProjectTaskEditor = ({
     });
   };
 
-  const commitTaskChange = (nextTasks: ProjectTask[], label: string, target?: string) => {
+  const commitTaskChange = (nextTasks: ProjectTask[]) => {
     onValueChange({
       ...values,
       tasks: nextTasks,
-      history: [createHistoryEntry(label, currentUserId, target), ...values.history],
     });
   };
 
@@ -1307,9 +1294,7 @@ const ProjectTaskEditor = ({
                 title: trimmedTitle,
               }
             : task
-        ),
-        `Tâche modifiée : ${trimmedTitle}`,
-        trimmedTitle
+        )
       );
       resetDraftTask();
       return;
@@ -1323,9 +1308,7 @@ const ProjectTaskEditor = ({
           id: `task-${Date.now()}`,
           title: trimmedTitle,
         },
-      ],
-      `Tâche créée : ${trimmedTitle}`,
-      trimmedTitle
+      ]
     );
     resetDraftTask();
   };
@@ -1348,9 +1331,7 @@ const ProjectTaskEditor = ({
               status,
             }
           : currentTask
-      ),
-      `Statut mis à jour : ${task.title}`,
-      task.title
+      )
     );
   };
 
@@ -1362,9 +1343,7 @@ const ProjectTaskEditor = ({
     if (!canManageTasks) return;
 
     commitTaskChange(
-      values.tasks.filter((currentTask) => currentTask.id !== task.id),
-      `Tâche supprimée : ${task.title}`,
-      task.title
+      values.tasks.filter((currentTask) => currentTask.id !== task.id)
     );
   };
 
@@ -1390,9 +1369,7 @@ const ProjectTaskEditor = ({
               ],
             }
           : currentTask
-      ),
-      `Commentaire ajouté : ${task.title}`,
-      task.title
+      )
     );
     setCommentDrafts((currentDrafts) => ({ ...currentDrafts, [task.id]: '' }));
   };
@@ -1879,12 +1856,12 @@ export const ProjectModule = ({
   title = 'Projets',
   subtitle = 'Gérez vos projets municipaux avec des vues Kanban, tableau et grille',
   projects,
-  members = defaultProjectMembers,
-  tags = defaultProjectTags,
+  members = [],
+  tags = [],
   viewMode,
   defaultViewMode = 'kanban',
   currentUserId,
-  currentUserRole = 'mayor',
+  currentUserRole,
   teamMemberIds,
   onViewModeChange,
   onCreateProject,
@@ -1894,7 +1871,6 @@ export const ProjectModule = ({
   className = '',
   ...props
 }: ProjectModuleProps) => {
-  const [internalProjects, setInternalProjects] = React.useState(defaultProjects);
   const [internalViewMode, setInternalViewMode] = React.useState<ProjectViewMode>(defaultViewMode);
   const [searchValue, setSearchValue] = React.useState('');
   const [statusValue, setStatusValue] = React.useState<ProjectStatus | 'all'>('all');
@@ -1902,8 +1878,7 @@ export const ProjectModule = ({
   const [dueDateValue, setDueDateValue] = React.useState('');
   const [projectModalOpen, setProjectModalOpen] = React.useState(false);
   const [editingProject, setEditingProject] = React.useState<Project | null>(null);
-  const [statusMessage, setStatusMessage] = React.useState<string | null>(null);
-  const resolvedProjects = projects ?? internalProjects;
+  const resolvedProjects = projects ?? [];
   const resolvedViewMode = viewMode ?? internalViewMode;
   const currentMember = currentUserId ? getMember(members, currentUserId) : undefined;
   const resolvedTeamMemberIds =
@@ -1913,12 +1888,12 @@ export const ProjectModule = ({
           .filter((member) => member.id !== currentUserId && member.teamIds?.some((teamId) => currentMember.teamIds?.includes(teamId)))
           .map((member) => member.id)
       : []);
-  const canCreateProject = currentUserRole !== 'employee';
-  const canEditProjectFields = currentUserRole !== 'employee';
-  const canManageTasks = currentUserRole !== 'employee';
-  const canAssignEmployees = currentUserRole !== 'employee';
-  const canDeleteProject = currentUserRole !== 'employee';
-  const canCloseProject = currentUserRole !== 'employee';
+  const canCreateProject = Boolean(currentUserRole && currentUserRole !== 'employee' && onCreateProject && members.length > 0);
+  const canEditProjectFields = Boolean(currentUserRole && currentUserRole !== 'employee' && onUpdateProject);
+  const canManageTasks = canEditProjectFields;
+  const canAssignEmployees = canEditProjectFields;
+  const canDeleteProject = Boolean(currentUserRole && currentUserRole !== 'employee' && onProjectAction);
+  const canCloseProject = canEditProjectFields;
   const normalizedQuery = normalizeSearch(searchValue);
   const scopedProjects = resolvedProjects.filter((project) =>
     getProjectAccessScope(project, currentUserRole, currentUserId, resolvedTeamMemberIds)
@@ -1959,12 +1934,7 @@ export const ProjectModule = ({
 
   const handleDeleteProject = (project: Project) => {
     if (!canDeleteProject) return;
-
-    if (projects === undefined) {
-      setInternalProjects((currentProjects) => currentProjects.filter((currentProject) => currentProject.id !== project.id));
-    }
-
-    setStatusMessage(`Projet "${project.title}" supprimé.`);
+    onProjectAction?.(project, 'delete');
   };
 
   const handleCloseProject = (project: Project) => {
@@ -1974,18 +1944,9 @@ export const ProjectModule = ({
       ...project,
       status: 'done',
       progress: 100,
-      history: [createHistoryEntry('Projet clôturé.', currentUserId), ...getProjectHistory(project)],
     };
 
     onUpdateProject?.(closedProject);
-
-    if (projects === undefined) {
-      setInternalProjects((currentProjects) =>
-        currentProjects.map((currentProject) => (currentProject.id === project.id ? closedProject : currentProject))
-      );
-    }
-
-    setStatusMessage(`Projet "${project.title}" clôturé.`);
   };
 
   const handleCancelProjectModal = () => {
@@ -1995,73 +1956,23 @@ export const ProjectModule = ({
 
   const handleSubmitProjectModal = (values: ProjectFormValues) => {
     if (!editingProject) {
-      const createdValues = {
-        ...values,
-        history: [createHistoryEntry('Projet créé.', currentUserId), ...values.history],
-      };
-
-      onCreateProject?.(createdValues);
-
-      if (projects === undefined) {
-        setInternalProjects((currentProjects) => [
-          ...currentProjects,
-          buildProjectFromValues(createdValues, currentProjects.length + 1),
-        ]);
-      }
-
-      setStatusMessage(`Projet "${createdValues.title}" créé.`);
+      onCreateProject?.(values);
       setProjectModalOpen(false);
       return;
     }
 
-    const updatedProject = buildProjectFromValues(
-      {
-        ...values,
-        history: [createHistoryEntry('Projet enregistré.', currentUserId), ...values.history],
-      },
-      editingProject.sequence,
-      editingProject.id
-    );
+    const updatedProject = buildProjectFromValues(values, editingProject.sequence, editingProject.id);
     onUpdateProject?.(updatedProject);
-
-    if (projects === undefined) {
-      setInternalProjects((currentProjects) =>
-        currentProjects.map((currentProject) => (currentProject.id === editingProject.id ? updatedProject : currentProject))
-      );
-    }
-
-    setStatusMessage(`Projet "${updatedProject.title}" enregistré.`);
     setEditingProject(null);
     setProjectModalOpen(false);
   };
 
   const handleSettingsClick = () => {
     onSettingsClick?.();
-    setStatusMessage('Paramètres en cours de développement.');
   };
 
   return (
     <section className={joinClasses('space-y-7 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
-      {statusMessage && (
-        <div
-          role="status"
-          className="flex items-center justify-between gap-4 rounded-md border border-[#bfdbfe] bg-[#dbeafe] px-5 py-4 text-sm font-medium text-[#0046d5] shadow-sm"
-        >
-          <span className="inline-flex min-w-0 items-center gap-3">
-            <AlertCircle className="size-5 shrink-0" strokeWidth={1.8} />
-            <span className="truncate">{statusMessage}</span>
-          </span>
-          <button
-            type="button"
-            aria-label="Fermer le message"
-            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-[#475569] transition hover:bg-white/55 hover:text-[#0f172a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
-            onClick={() => setStatusMessage(null)}
-          >
-            <X className="size-4" strokeWidth={1.8} />
-          </button>
-        </div>
-      )}
-
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-[28px] font-bold leading-tight text-[#0b1220]">{title}</h1>
@@ -2078,14 +1989,16 @@ export const ProjectModule = ({
               Nouveau projet
             </button>
           )}
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-bold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
-            onClick={handleSettingsClick}
-          >
-            <Settings className="size-4" strokeWidth={1.8} />
-            Paramètres
-          </button>
+          {onSettingsClick && (
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-bold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+              onClick={handleSettingsClick}
+            >
+              <Settings className="size-4" strokeWidth={1.8} />
+              Paramètres
+            </button>
+          )}
         </div>
       </div>
 
@@ -2117,7 +2030,7 @@ export const ProjectModule = ({
 
       {visibleProjects.length === 0 ? (
         <div className="rounded-md border border-[#d8d2ca] bg-white px-6 py-10 text-center text-sm text-[#475569]">
-          Aucun projet ne correspond aux filtres.
+          {scopedProjects.length === 0 ? 'Aucun projet disponible.' : 'Aucun projet ne correspond aux filtres.'}
         </div>
       ) : resolvedViewMode === 'kanban' ? (
         <KanbanView
@@ -2170,10 +2083,10 @@ export const ProjectModule = ({
         members={members}
         tags={tags}
         currentUserId={currentUserId}
-        canEditProjectFields={canEditProjectFields}
-        canManageTasks={canManageTasks}
-        canAssignEmployees={canAssignEmployees}
-        canUpdateAssignedTasks={currentUserRole === 'employee'}
+        canEditProjectFields={editingProject ? canEditProjectFields : canCreateProject}
+        canManageTasks={editingProject ? canManageTasks : canCreateProject}
+        canAssignEmployees={editingProject ? canAssignEmployees : canCreateProject}
+        canUpdateAssignedTasks={currentUserRole === 'employee' && Boolean(onUpdateProject)}
         onCancel={handleCancelProjectModal}
         onSubmit={handleSubmitProjectModal}
       />

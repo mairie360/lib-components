@@ -7,6 +7,7 @@ import { Header } from '../components/Header';
 import { ProjectModule } from '../components/ProjectModule';
 import type { ProjectModuleProps } from '../components/ProjectModule';
 import { Sidebar } from '../components/Sidebar';
+import { defaultProjectMembers, defaultProjects, defaultProjectTags } from './projectFixtures';
 
 const meta: Meta<typeof ProjectModule> = {
   title: 'Components/Projects/ProjectModule',
@@ -16,6 +17,10 @@ const meta: Meta<typeof ProjectModule> = {
     layout: 'fullscreen',
   },
   args: {
+    projects: defaultProjects,
+    members: defaultProjectMembers,
+    tags: defaultProjectTags,
+    currentUserRole: 'mayor',
     onViewModeChange: fn(),
     onCreateProject: fn(),
     onUpdateProject: fn(),
