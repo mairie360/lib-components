@@ -25,7 +25,7 @@ const fixtureProps = {
 };
 
 describe('SettingsModule', () => {
-  it('renders the profile inside the settings module and saves changes', () => {
+  it('renders the profile and delegates changes without claiming persistence', () => {
     const onProfileSave = jest.fn();
     render(<SettingsModule {...fixtureProps} onProfileSave={onProfileSave} />);
 
@@ -42,7 +42,7 @@ describe('SettingsModule', () => {
       service: 'urbanisme',
       biography: 'Responsable du service',
     }));
-    expect(screen.getByRole('status')).toHaveTextContent('Modifications enregistrées.');
+    expect(screen.queryByText('Modifications enregistrées.')).not.toBeInTheDocument();
   });
 
   it('validates profile photos before notifying the consumer', () => {

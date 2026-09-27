@@ -50,9 +50,21 @@ describe('UserProfilePage component', () => {
     expect(onPageChange).toHaveBeenCalledWith('projects');
   });
 
-  it('updates editable profile information across the page layout', () => {
+  it('shows unavailable profile data without inventing a save action', () => {
+    const { rerender } = render(<UserProfilePage />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Données indisponibles');
+    expect(screen.queryByRole('button', { name: 'Enregistrer les modifications' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin Système')).not.toBeInTheDocument();
+
+    rerender(<UserProfilePage user={profileUser} />);
+    expect(screen.getByDisplayValue('Marie Martin')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Enregistrer les modifications' })).not.toBeInTheDocument();
+  });
+
+  it('delegates profile updates and waits for new consumer props', () => {
     const onUpdateUser = jest.fn();
-    render(<UserProfilePage user={profileUser} onUpdateUser={onUpdateUser} />);
+    const { rerender } = render(<UserProfilePage user={profileUser} onUpdateUser={onUpdateUser} />);
 
     fireEvent.change(screen.getByLabelText('Adresse e-mail'), {
       target: { value: 'marie.contact@mairie360.fr' },
@@ -72,9 +84,12 @@ describe('UserProfilePage component', () => {
         position: 'Directrice communication',
       })
     );
-    expect(screen.getByRole('status')).toHaveTextContent('Modifications enregistrées.');
+    expect(screen.queryByText('Modifications enregistrées.')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Marie Martin/ }));
+    expect(screen.queryByText('marie.contact@mairie360.fr')).not.toBeInTheDocument();
+
+    rerender(<UserProfilePage user={{ ...profileUser, ...onUpdateUser.mock.calls[0][0] }} onUpdateUser={onUpdateUser} />);
 
     expect(screen.getByText('marie.contact@mairie360.fr')).toBeInTheDocument();
   });

@@ -67,19 +67,33 @@ describe('UserProfile component', () => {
     expect(screen.getAllByText('Non renseigné').length).toBeGreaterThan(0);
   });
 
-  it('edits personal contact information', () => {
+  it('does not invent an administrator or offer editing without consumer data', () => {
+    const { rerender } = render(<UserProfile />);
+
+    expect(screen.getByRole('status')).toHaveTextContent('Informations du profil indisponibles.');
+    expect(screen.queryByText('Admin Système')).not.toBeInTheDocument();
+    expect(screen.queryByText('admin@mairie360.fr')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Modifier' })).not.toBeInTheDocument();
+
+    rerender(<UserProfile user={{ name: 'Marie Martin' }} />);
+    expect(screen.getByRole('heading', { name: 'Marie Martin' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Modifier' })).not.toBeInTheDocument();
+  });
+
+  it('delegates personal contact edits until the consumer supplies updated data', () => {
     const onUpdateUser = jest.fn();
-    render(
+    const user = {
+      name: 'Marie Martin',
+      email: 'marie.martin@mairie360.fr',
+      phone: '+33 1 23 45 67 90',
+      service: 'Communication',
+      role: 'manager',
+      address: '12 rue de la Mairie',
+      city: 'Saint-Denis',
+    };
+    const { rerender } = render(
       <UserProfile
-        user={{
-          name: 'Marie Martin',
-          email: 'marie.martin@mairie360.fr',
-          phone: '+33 1 23 45 67 90',
-          service: 'Communication',
-          role: 'manager',
-          address: '12 rue de la Mairie',
-          city: 'Saint-Denis',
-        }}
+        user={user}
         onUpdateUser={onUpdateUser}
       />
     );
@@ -107,9 +121,12 @@ describe('UserProfile component', () => {
         city: 'Saint-Pierre',
       })
     );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeInTheDocument();
+
+    rerender(<UserProfile user={{ ...user, ...onUpdateUser.mock.calls[0][0] }} onUpdateUser={onUpdateUser} />);
     expect(screen.getAllByText('marie.contact@mairie360.fr')).toHaveLength(2);
     expect(screen.getByText('+33 1 23 45 67 99')).toBeInTheDocument();
     expect(screen.getByText('24 avenue de la République, Saint-Pierre')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Informations personnelles mises à jour.');
   });
 });
