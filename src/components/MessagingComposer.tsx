@@ -44,6 +44,24 @@ const getTriggerMatch = (value: string, trigger: '@' | '#') => {
   };
 };
 
+const getBusinessReferenceMatch = (value: string) => {
+  const match = value.match(/(^|\s)#([^#@\r\n]*)$/);
+
+  if (!match || match.index === undefined) return null;
+
+  return {
+    start: match.index + match[1].length,
+    query: match[2].trim(),
+  };
+};
+
+const getBusinessReferenceKindLabel = (reference: MessagingBusinessReference) => {
+  if (reference.kind === 'event') return 'Événement du calendrier';
+  if (reference.kind === 'task') return 'Tâche';
+
+  return 'Projet';
+};
+
 const appendTrigger = (value: string, trigger: '@' | '#') =>
   `${value}${value.trim() && !value.endsWith(' ') ? ` ${trigger}` : trigger}`;
 
@@ -74,7 +92,7 @@ export const MessagingComposer = ({
   const currentValue = value ?? internalValue;
   const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled && !!onSendMessage;
   const mentionMatch = getTriggerMatch(currentValue, '@');
-  const businessReferenceMatch = getTriggerMatch(currentValue, '#');
+  const businessReferenceMatch = getBusinessReferenceMatch(currentValue);
   const mentionSuggestions = mentionMatch
     ? mentionOptions
         .filter((mention) => normalizeMentionValue(mention.name).includes(normalizeMentionValue(mentionMatch.query)))
@@ -82,11 +100,9 @@ export const MessagingComposer = ({
     : [];
   const businessReferenceSuggestions =
     !mentionMatch && businessReferenceMatch
-      ? businessReferenceOptions
-          .filter((reference) =>
-            normalizeMentionValue(reference.title).includes(normalizeMentionValue(businessReferenceMatch.query))
-          )
-          .slice(0, 6)
+      ? businessReferenceOptions.filter((reference) =>
+          normalizeMentionValue(reference.title).includes(normalizeMentionValue(businessReferenceMatch.query))
+        )
       : [];
   const mentionSuggestionsOpen = mentionSuggestions.length > 0;
   const businessReferenceSuggestionsOpen = businessReferenceSuggestions.length > 0;
@@ -246,7 +262,7 @@ export const MessagingComposer = ({
             onKeyDown={handleInputKeyDown}
           />
           {(mentionSuggestionsOpen || businessReferenceSuggestionsOpen) && (
-            <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 w-full max-w-[320px] overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+            <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 max-h-72 w-full max-w-[440px] overflow-y-auto rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
               {mentionSuggestionsOpen
                 ? mentionSuggestions.map((mention) => (
                     <button
@@ -270,6 +286,7 @@ export const MessagingComposer = ({
                     <button
                       key={reference.id}
                       type="button"
+                      title={reference.title}
                       className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
                       onClick={() => selectBusinessReference(reference)}
                     >
@@ -279,7 +296,8 @@ export const MessagingComposer = ({
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">#{reference.title}</span>
                         <span className="block truncate text-xs text-[#5f6770]">
-                          {reference.description || 'Élément métier'}
+                          {getBusinessReferenceKindLabel(reference)}
+                          {reference.description ? ` · ${reference.description}` : ''}
                         </span>
                       </span>
                     </button>

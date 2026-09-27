@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { Messaging } from '../components/Messaging';
+import { MessagingComposer } from '../components/MessagingComposer';
 import { NewMessageModal } from '../components/NewMessageModal';
 import {
   defaultMessagingBusinessReferences,
@@ -523,6 +524,40 @@ describe('Messaging components', () => {
           }),
         ],
       })
+    );
+  });
+
+  it('keeps event references available after six results and filters multi-word titles', () => {
+    const handleSendMessage = jest.fn();
+    const references = [
+      ...Array.from({ length: 6 }, (_, index) => ({
+        id: `project-${index}`,
+        title: `Projet ${index}`,
+        kind: 'project' as const,
+      })),
+      { id: 'event-1', title: 'Conseil municipal', kind: 'event' as const },
+    ];
+
+    render(<MessagingComposer businessReferenceOptions={references} onSendMessage={handleSendMessage} />);
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), { target: { value: '#' } });
+    expect(screen.getByRole('button', { name: /#Conseil municipal/ })).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText('Tapez votre message...'), {
+      target: { value: '#conseil muni' },
+    });
+    const eventSuggestion = screen.getByRole('button', { name: /#Conseil municipal/ });
+    expect(eventSuggestion).toHaveTextContent('Événement du calendrier');
+    expect(eventSuggestion).toHaveAttribute('title', 'Conseil municipal');
+
+    fireEvent.click(eventSuggestion);
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+
+    expect(handleSendMessage).toHaveBeenCalledWith(
+      '#Conseil municipal',
+      [],
+      [],
+      [expect.objectContaining({ id: 'event-1', kind: 'event' })]
     );
   });
 
