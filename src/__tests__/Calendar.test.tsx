@@ -6,6 +6,7 @@ import { CalendarToolbar } from '../components/CalendarToolbar';
 import { DaySchedule } from '../components/DaySchedule';
 import { MonthGrid } from '../components/MonthGrid';
 import { ViewSwitcher } from '../components/ViewSwitcher';
+import { EventPill } from '../components/calendar/EventPill';
 
 describe('Calendar components', () => {
   it('changes the active value from the view switcher', () => {
@@ -97,6 +98,37 @@ describe('Calendar components', () => {
       })
     );
     expect(handleSelectDate).not.toHaveBeenCalled();
+  });
+
+  it('exposes a compact event’s full title and preserves keyboard activation', () => {
+    const onClick = jest.fn();
+    const event = {
+      id: 'event-long-title',
+      title: 'Réunion de coordination des services de la mairie',
+      date: '2026-06-15',
+    };
+
+    render(<EventPill event={event} onClick={onClick} />);
+
+    const pill = screen.getByRole('button', { name: event.title });
+    expect(pill).toHaveAttribute('title', event.title);
+    expect(screen.getByText(event.title)).toHaveClass('truncate');
+
+    fireEvent.keyDown(pill, { key: 'Enter' });
+    fireEvent.keyDown(pill, { key: ' ' });
+    expect(onClick).toHaveBeenCalledTimes(2);
+    expect(onClick).toHaveBeenCalledWith(event);
+  });
+
+  it('does not invent a native title for React-node event titles', () => {
+    const { container } = render(
+      <EventPill
+        event={{ id: 'event-node-title', title: <span>Conseil municipal</span>, date: '2026-06-15' }}
+      />
+    );
+
+    expect(screen.getByText('Conseil municipal')).toBeInTheDocument();
+    expect(container.firstElementChild).not.toHaveAttribute('title');
   });
 
   it('renders multi-day and recurring events on matching days', () => {
