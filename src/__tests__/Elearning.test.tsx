@@ -1,5 +1,6 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseCard } from '../components/ElearningCourseCard';
@@ -76,6 +77,37 @@ describe('Elearning components', () => {
     expect(screen.getByRole('heading', { name: 'Comptabilité publique' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
     expect(handleAction).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the same course from its poster by pointer or keyboard', async () => {
+    const user = userEvent.setup();
+    const handleAction = jest.fn();
+
+    render(
+      <ElearningCourseCard
+        title="Comptabilité publique"
+        description="Perfectionnement en comptabilité publique."
+        onAction={handleAction}
+      />
+    );
+
+    const poster = screen.getByRole('button', { name: 'Ouvrir la formation Comptabilité publique' });
+    await user.click(poster);
+    expect(handleAction).toHaveBeenCalledTimes(1);
+
+    poster.focus();
+    await user.keyboard('{Enter}');
+    await user.keyboard(' ');
+    expect(handleAction).toHaveBeenCalledTimes(3);
+
+    await user.click(screen.getByRole('button', { name: 'Continuer' }));
+    expect(handleAction).toHaveBeenCalledTimes(4);
+  });
+
+  it('keeps the poster decorative when no course action is available', () => {
+    render(<ElearningCourseCard title="Formation sans action" description="Présentation du cours." />);
+
+    expect(screen.queryByRole('button', { name: 'Ouvrir la formation Formation sans action' })).not.toBeInTheDocument();
   });
 
   it('updates the course card action label from progress', () => {

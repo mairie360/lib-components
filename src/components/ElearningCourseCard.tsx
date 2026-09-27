@@ -56,6 +56,8 @@ export const ElearningCourseCard = ({
 }: ElearningCourseCardProps) => {
   const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
   const displayedActionLabel = getProgressActionLabel(normalizedProgress, actionLabel);
+  const posterClassName = 'flex aspect-video w-full items-center justify-center rounded-md bg-[#e9f2f5]';
+  const posterIcon = <Play aria-hidden="true" className="size-12 text-[#4b908d]" strokeWidth={2.2} />;
 
   return (
     <article
@@ -65,9 +67,21 @@ export const ElearningCourseCard = ({
       )}
       {...props}
     >
-      <div className="flex aspect-video w-full items-center justify-center rounded-md bg-[#1a5faa]">
-        <Play aria-hidden="true" className="size-12 text-white" strokeWidth={2.2} />
-      </div>
+      {onAction ? (
+        <button
+          type="button"
+          aria-label={`Ouvrir la formation ${title}`}
+          onClick={onAction}
+          className={joinClasses(
+            posterClassName,
+            'cursor-pointer transition-colors hover:bg-[#dcebed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1256a6]'
+          )}
+        >
+          {posterIcon}
+        </button>
+      ) : (
+        <div className={posterClassName}>{posterIcon}</div>
+      )}
 
       <div className="mt-4 flex items-start justify-between gap-3">
         <h3 className="min-w-0 text-base font-semibold leading-6 text-[#172033]">{title}</h3>
