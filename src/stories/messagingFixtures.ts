@@ -1,4 +1,4 @@
-import type { MessagingBusinessReference, MessagingConversation, MessagingMessage } from './types';
+import type { MessagingBusinessReference, MessagingConversation, MessagingMessage } from '../components/messaging/types';
 
 export const defaultMessagingConversations: MessagingConversation[] = [
   {
@@ -142,7 +142,6 @@ export const defaultMessagingMessages: MessagingMessage[] = [
         name: 'planning-travaux.pdf',
         size: 184320,
         type: 'application/pdf',
-        url: 'data:application/pdf;base64,JVBERi0xLjQKJcTl8uXrp/Og0MTGCg==',
       },
     ],
     sentAt: '11:30',
@@ -158,7 +157,6 @@ export const defaultMessagingMessages: MessagingMessage[] = [
         name: 'procedure-interne.docx',
         size: 96768,
         type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        url: 'data:text/plain;charset=utf-8,Nouvelle%20procedure%20interne%20Mairie360',
       },
     ],
     sentAt: 'Hier',

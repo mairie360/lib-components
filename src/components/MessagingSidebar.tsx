@@ -73,26 +73,32 @@ export const MessagingSidebar = ({
     >
       <div className="flex items-center justify-between gap-3">
         <h2 className="truncate text-lg font-bold leading-7">{title}</h2>
-        <div className="flex shrink-0 gap-1.5">
-          <button
-            type="button"
-            aria-label={newMessageLabel}
-            title={newMessageLabel}
-            className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-            onClick={onNewMessageClick}
-          >
-            <MessageSquare className="size-4" strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            aria-label={createGroupLabel}
-            title={createGroupLabel}
-            className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-            onClick={onCreateGroupClick}
-          >
-            <UsersRound className="size-4" strokeWidth={1.8} />
-          </button>
-        </div>
+        {(onNewMessageClick || onCreateGroupClick) && (
+          <div className="flex shrink-0 gap-1.5">
+            {onNewMessageClick && (
+              <button
+                type="button"
+                aria-label={newMessageLabel}
+                title={newMessageLabel}
+                className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                onClick={onNewMessageClick}
+              >
+                <MessageSquare className="size-4" strokeWidth={1.8} />
+              </button>
+            )}
+            {onCreateGroupClick && (
+              <button
+                type="button"
+                aria-label={createGroupLabel}
+                title={createGroupLabel}
+                className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                onClick={onCreateGroupClick}
+              >
+                <UsersRound className="size-4" strokeWidth={1.8} />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <label className="relative mt-4 block">

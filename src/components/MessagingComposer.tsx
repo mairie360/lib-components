@@ -72,7 +72,7 @@ export const MessagingComposer = ({
   const [businessLinks, setBusinessLinks] = React.useState<MessagingBusinessReference[]>([]);
   const [emojiOpen, setEmojiOpen] = React.useState(false);
   const currentValue = value ?? internalValue;
-  const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled;
+  const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled && !!onSendMessage;
   const mentionMatch = getTriggerMatch(currentValue, '@');
   const businessReferenceMatch = getTriggerMatch(currentValue, '#');
   const mentionSuggestions = mentionMatch
@@ -107,12 +107,12 @@ export const MessagingComposer = ({
     event.preventDefault();
 
     const nextMessage = currentValue.trim() || 'Pièce jointe';
-    if ((!currentValue.trim() && attachments.length === 0) || disabled) return;
+    if ((!currentValue.trim() && attachments.length === 0) || disabled || !onSendMessage) return;
 
     const messageMentions = mentions.filter((mention) => currentValue.includes(`@${mention.name}`));
     const messageBusinessLinks = businessLinks.filter((reference) => currentValue.includes(`#${reference.title}`));
 
-    onSendMessage?.(nextMessage, attachments, messageMentions, messageBusinessLinks);
+    onSendMessage(nextMessage, attachments, messageMentions, messageBusinessLinks);
 
     if (value === undefined) {
       setInternalValue('');
@@ -126,7 +126,7 @@ export const MessagingComposer = ({
   };
 
   const handleAttachClick = () => {
-    if (disabled) return;
+    if (disabled || !onSendMessage) return;
     fileInputRef.current?.click();
   };
 
@@ -229,6 +229,7 @@ export const MessagingComposer = ({
         type="file"
         className="hidden"
         multiple
+        disabled={disabled || !onSendMessage}
         tabIndex={-1}
         onChange={handleFilesChange}
       />
@@ -239,7 +240,7 @@ export const MessagingComposer = ({
             type="text"
             value={currentValue}
             placeholder={placeholder}
-            disabled={disabled}
+            disabled={disabled || !onSendMessage}
             className="h-10 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#5f6770] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:bg-[#f5f3f0]"
             onChange={handleChange}
             onKeyDown={handleInputKeyDown}
@@ -322,6 +323,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label={attachLabel}
           title={attachLabel}
+          disabled={disabled || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={handleAttachClick}
         >
@@ -331,6 +333,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label="Mentionner un utilisateur"
           title="Mentionner un utilisateur"
+          disabled={disabled || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={() => {
             if (disabled) return;
@@ -344,6 +347,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label="Mentionner un élément métier"
           title="Mentionner un élément métier"
+          disabled={disabled || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={() => {
             if (disabled) return;
@@ -358,6 +362,7 @@ export const MessagingComposer = ({
             type="button"
             aria-label={emojiLabel}
             title={emojiLabel}
+            disabled={disabled || !onSendMessage}
             className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
             onClick={() => setEmojiOpen((open) => !open)}
           >
