@@ -8,6 +8,17 @@ import { Footer } from '../components/Footer';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import type { AdministrationModuleProps } from '../components/AdministrationModule';
+import {
+  defaultAdministrationAuditEntries,
+  defaultAdministrationDangerActions,
+  defaultAdministrationDatabaseMetrics,
+  defaultAdministrationLogs,
+  defaultAdministrationResources,
+  defaultAdministrationServerStatuses,
+  defaultAdministrationSettings,
+  defaultAdministrationStats,
+  defaultAdministrationUsers,
+} from './administrationFixtures';
 
 const meta: Meta<typeof AdministrationModule> = {
   title: 'Components/Administration/AdministrationModule',
@@ -17,6 +28,15 @@ const meta: Meta<typeof AdministrationModule> = {
     layout: 'fullscreen',
   },
   args: {
+    stats: defaultAdministrationStats,
+    users: defaultAdministrationUsers,
+    logs: defaultAdministrationLogs,
+    resources: defaultAdministrationResources,
+    databaseMetrics: defaultAdministrationDatabaseMetrics,
+    serverStatuses: defaultAdministrationServerStatuses,
+    auditEntries: defaultAdministrationAuditEntries,
+    settings: defaultAdministrationSettings,
+    dangerActions: defaultAdministrationDangerActions,
     onTabChange: fn(),
     onCreateUser: fn(),
     onUpdateUser: fn(),

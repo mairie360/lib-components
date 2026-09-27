@@ -1,7 +1,6 @@
 import React from 'react';
 import { CalendarDays, Mail, MoreVertical, Pencil, Phone, RotateCcw, Trash2 } from 'lucide-react';
 
-import { defaultAdministrationUsers } from './administration/defaultData';
 import type {
   AdministrationRole,
   AdministrationStatus,
@@ -52,7 +51,7 @@ const getInitials = (name: string) =>
     .toUpperCase();
 
 export const AdministrationUsersTable = ({
-  users = defaultAdministrationUsers,
+  users,
   onUserAction,
   onEditUser,
   onToggleUserStatus,
@@ -143,7 +142,7 @@ export const AdministrationUsersTable = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e3e0dc] text-sm">
-            {users.map((user) => {
+            {(users ?? []).map((user) => {
               const isMenuOpen = openMenuUserId === user.id;
 
               return (
@@ -216,6 +215,7 @@ export const AdministrationUsersTable = ({
                           <button
                             type="button"
                             role="menuitem"
+                            disabled={!onToggleUserStatus && !onUserAction}
                             className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#172033] hover:bg-[#f1f5f9]"
                             onClick={() => handleMenuAction(user, 'toggle-status')}
                           >
@@ -225,6 +225,7 @@ export const AdministrationUsersTable = ({
                           <button
                             type="button"
                             role="menuitem"
+                            disabled={!onEditUser}
                             className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#172033] hover:bg-[#f1f5f9]"
                             onClick={() => handleMenuAction(user, 'edit')}
                           >
@@ -234,6 +235,7 @@ export const AdministrationUsersTable = ({
                           <button
                             type="button"
                             role="menuitem"
+                            disabled={!onDeleteUser && !onUserAction}
                             className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#dc2626] hover:bg-[#fee2e2]"
                             onClick={() => handleMenuAction(user, 'delete')}
                           >
@@ -247,10 +249,10 @@ export const AdministrationUsersTable = ({
                 </tr>
               );
             })}
-            {users.length === 0 && (
+            {(users?.length ?? 0) === 0 && (
               <tr>
                 <td colSpan={6} className="px-6 py-12 text-center text-sm text-[#667085]">
-                  Aucun utilisateur ne correspond aux filtres.
+                  {users ? 'Aucun utilisateur ne correspond aux filtres.' : 'Utilisateurs indisponibles.'}
                 </td>
               </tr>
             )}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { TrendingDown, TrendingUp } from 'lucide-react';
 
-import { defaultAdministrationStats } from './administration/defaultData';
 import type { AdministrationStat } from './administration/types';
 import { joinClasses } from './calendar/style';
 
@@ -41,7 +40,7 @@ const renderIndicator = (indicator: React.ReactNode, className: string) => {
 };
 
 export const AdministrationMetricCards = ({
-  stats = defaultAdministrationStats,
+  stats,
   className = '',
   ...props
 }: AdministrationMetricCardsProps) => (
@@ -49,7 +48,7 @@ export const AdministrationMetricCards = ({
     className={joinClasses('grid gap-4 sm:grid-cols-2 xl:grid-cols-4', className)}
     {...props}
   >
-    {stats.map((stat) => {
+    {(stats ?? []).map((stat) => {
       const Icon = stat.icon;
       const tone = toneClasses[stat.tone];
 
@@ -73,5 +72,10 @@ export const AdministrationMetricCards = ({
         </article>
       );
     })}
+    {(stats?.length ?? 0) === 0 && (
+      <p className="rounded-lg border border-[#e3e0dc] bg-white px-6 py-6 text-sm text-[#667085]">
+        {stats ? 'Aucun indicateur à afficher.' : 'Indicateurs indisponibles.'}
+      </p>
+    )}
   </div>
 );

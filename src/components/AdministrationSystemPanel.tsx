@@ -1,11 +1,6 @@
 import React from 'react';
 import { Archive } from 'lucide-react';
 
-import {
-  defaultAdministrationDatabaseMetrics,
-  defaultAdministrationResources,
-  defaultAdministrationServerStatuses,
-} from './administration/defaultData';
 import type {
   AdministrationDatabaseMetric,
   AdministrationResource,
@@ -35,9 +30,9 @@ const statusDotClassNames: Record<AdministrationServerStatus['status'], string> 
 };
 
 export const AdministrationSystemPanel = ({
-  resources = defaultAdministrationResources,
-  databaseMetrics = defaultAdministrationDatabaseMetrics,
-  serverStatuses = defaultAdministrationServerStatuses,
+  resources,
+  databaseMetrics,
+  serverStatuses,
   onCreateBackup,
   className = '',
   ...props
@@ -49,7 +44,7 @@ export const AdministrationSystemPanel = ({
         <p className="mt-1 text-base leading-6 text-[#667085]">Utilisation en temps réel</p>
 
         <div className="mt-7 space-y-6">
-          {resources.map((resource) => {
+          {(resources ?? []).map((resource) => {
             const Icon = resource.icon;
             const tone = resource.tone ?? 'green';
 
@@ -71,6 +66,9 @@ export const AdministrationSystemPanel = ({
               </div>
             );
           })}
+          {(resources?.length ?? 0) === 0 && (
+            <p className="text-sm text-[#667085]">{resources ? 'Aucune ressource à afficher.' : 'Ressources indisponibles.'}</p>
+          )}
         </div>
       </section>
 
@@ -79,7 +77,7 @@ export const AdministrationSystemPanel = ({
         <p className="mt-1 text-base leading-6 text-[#667085]">Informations et statistiques</p>
 
         <div className="mt-7 space-y-4">
-          {databaseMetrics.map((metric) => (
+          {(databaseMetrics ?? []).map((metric) => (
             <div
               key={metric.id}
               className="flex min-h-12 items-center justify-between gap-4 rounded-md bg-[#fbfcfd] px-3 text-sm leading-5"
@@ -88,9 +86,13 @@ export const AdministrationSystemPanel = ({
               <span className="text-base font-semibold text-[#172033]">{metric.value}</span>
             </div>
           ))}
+          {(databaseMetrics?.length ?? 0) === 0 && (
+            <p className="text-sm text-[#667085]">{databaseMetrics ? 'Aucune métrique à afficher.' : 'Métriques indisponibles.'}</p>
+          )}
 
           <button
             type="button"
+            disabled={!onCreateBackup}
             className="inline-flex h-9 w-full items-center justify-center gap-3 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
             onClick={onCreateBackup}
           >
@@ -106,7 +108,7 @@ export const AdministrationSystemPanel = ({
       <p className="mt-1 text-base leading-6 text-[#667085]">Informations système et services</p>
 
       <div className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {serverStatuses.map((serverStatus) => (
+        {(serverStatuses ?? []).map((serverStatus) => (
           <article key={serverStatus.id} className="rounded-md border border-[#e3e0dc] bg-white p-4">
             <div className="flex items-center gap-2">
               <span
@@ -121,6 +123,9 @@ export const AdministrationSystemPanel = ({
             <p className="mt-3 text-xs leading-4 text-[#475569]">{serverStatus.description}</p>
           </article>
         ))}
+        {(serverStatuses?.length ?? 0) === 0 && (
+          <p className="text-sm text-[#667085]">{serverStatuses ? 'Aucun état à afficher.' : 'État du serveur indisponible.'}</p>
+        )}
       </div>
     </section>
   </div>
