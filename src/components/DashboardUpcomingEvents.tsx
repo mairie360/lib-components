@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { joinDashboardClasses } from './dashboard/styles';
+import { dashboardCardActionClasses, joinDashboardClasses } from './dashboard/styles';
 import type { DashboardEvent } from './dashboard/types';
 
 export interface DashboardUpcomingEventsProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
@@ -34,7 +34,7 @@ export const DashboardUpcomingEvents = ({
     <section className={joinDashboardClasses('rounded-lg border border-[#dfd9d1] bg-white p-6', className)} {...props}>
       <div className="flex items-center justify-between gap-4">
         <h2 className="text-base font-semibold text-[#243041]">Événements à venir</h2>
-        {onOpenCalendar && <button type="button" className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-3 py-2 text-sm font-medium text-[#243041]" onClick={onOpenCalendar}>Calendrier</button>}
+        {onOpenCalendar && <button type="button" className={dashboardCardActionClasses} onClick={onOpenCalendar}>Voir tout</button>}
       </div>
       <div className="mt-6 space-y-3">
         {sortedEvents.map((event) => {
