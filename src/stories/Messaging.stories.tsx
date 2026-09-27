@@ -5,7 +5,11 @@ import { fn } from 'storybook/test';
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { Messaging } from '../components/Messaging';
 import { NewMessageModal } from '../components/NewMessageModal';
-import { defaultMessagingConversations } from '../components/messaging/defaultData';
+import {
+  defaultMessagingBusinessReferences,
+  defaultMessagingConversations,
+  defaultMessagingMessages,
+} from './messagingFixtures';
 
 const meta: Meta<typeof Messaging> = {
   title: 'Components/Messaging/Messaging',
@@ -15,10 +19,16 @@ const meta: Meta<typeof Messaging> = {
     layout: 'fullscreen',
   },
   args: {
+    conversations: defaultMessagingConversations,
+    messages: defaultMessagingMessages,
+    businessReferences: defaultMessagingBusinessReferences,
     onConversationSelect: fn(),
     onNewMessageClick: fn(),
     onCreateGroupClick: fn(),
     onSendMessage: fn(),
+    onNewMessageSend: fn(),
+    onCreateGroup: fn(),
+    onConversationDelete: fn(),
   },
 };
 
@@ -77,7 +87,11 @@ export const MentionsConnectees: Story = {
 export const NouveauMessage: Story = {
   render: () => (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
-      <Messaging className="opacity-60" />
+      <Messaging
+        conversations={defaultMessagingConversations}
+        messages={defaultMessagingMessages}
+        className="opacity-60"
+      />
       <NewMessageModal
         isOpen
         contacts={defaultMessagingConversations}
@@ -91,7 +105,11 @@ export const NouveauMessage: Story = {
 export const CreerGroupe: Story = {
   render: () => (
     <div className="min-h-screen bg-[#f5f3f0] p-8">
-      <Messaging className="opacity-60" />
+      <Messaging
+        conversations={defaultMessagingConversations}
+        messages={defaultMessagingMessages}
+        className="opacity-60"
+      />
       <CreateGroupModal
         isOpen
         members={defaultMessagingConversations.filter((conversation) => conversation.kind !== 'group')}

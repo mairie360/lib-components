@@ -93,54 +93,60 @@ export const MessagingChatHeader = ({
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5">
-        <button
-          type="button"
-          aria-label={callLabel}
-          title={callLabel}
-          className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-          onClick={() => onCall?.(conversation)}
-        >
-          <Phone className="size-4" strokeWidth={1.8} />
-        </button>
-        <button
-          type="button"
-          aria-label={videoCallLabel}
-          title={videoCallLabel}
-          className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-          onClick={() => onVideoCall?.(conversation)}
-        >
-          <Video className="size-4" strokeWidth={1.8} />
-        </button>
-        <div ref={actionsRef} className="relative">
+        {onCall && (
           <button
             type="button"
-            aria-label={moreActionsLabel}
-            title={moreActionsLabel}
-            aria-expanded={actionsOpen}
+            aria-label={callLabel}
+            title={callLabel}
             className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
-            onClick={() => {
-              setActionsOpen((open) => !open);
-              onMoreActions?.(conversation);
-            }}
+            onClick={() => onCall(conversation)}
           >
-            <MoreVertical className="size-4" strokeWidth={1.8} />
+            <Phone className="size-4" strokeWidth={1.8} />
           </button>
-          {actionsOpen && (
-            <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
-              <button
-                type="button"
-                className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[#d8292f] transition hover:bg-[#fff2f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8292f]/25"
-                onClick={() => {
-                  setActionsOpen(false);
-                  onDeleteConversation?.(conversation);
-                }}
-              >
-                <Trash2 className="size-4 shrink-0" strokeWidth={1.8} />
-                <span>{deleteConversationLabel}</span>
-              </button>
-            </div>
-          )}
-        </div>
+        )}
+        {onVideoCall && (
+          <button
+            type="button"
+            aria-label={videoCallLabel}
+            title={videoCallLabel}
+            className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+            onClick={() => onVideoCall(conversation)}
+          >
+            <Video className="size-4" strokeWidth={1.8} />
+          </button>
+        )}
+        {(onMoreActions || onDeleteConversation) && (
+          <div ref={actionsRef} className="relative">
+            <button
+              type="button"
+              aria-label={moreActionsLabel}
+              title={moreActionsLabel}
+              aria-expanded={actionsOpen}
+              className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+              onClick={() => {
+                if (onDeleteConversation) setActionsOpen((open) => !open);
+                onMoreActions?.(conversation);
+              }}
+            >
+              <MoreVertical className="size-4" strokeWidth={1.8} />
+            </button>
+            {actionsOpen && onDeleteConversation && (
+              <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[#d8292f] transition hover:bg-[#fff2f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8292f]/25"
+                  onClick={() => {
+                    setActionsOpen(false);
+                    onDeleteConversation(conversation);
+                  }}
+                >
+                  <Trash2 className="size-4 shrink-0" strokeWidth={1.8} />
+                  <span>{deleteConversationLabel}</span>
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
