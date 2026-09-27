@@ -2,10 +2,67 @@ import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { ProjectModule } from '../components/ProjectModule';
+import type { ProjectModuleProps } from '../components/ProjectModule';
+import { defaultProjectMembers, defaultProjects, defaultProjectTags } from '../stories/projectFixtures';
+
+const TestProjectModule = (props: ProjectModuleProps) => (
+  <ProjectModule
+    projects={defaultProjects}
+    members={defaultProjectMembers}
+    tags={defaultProjectTags}
+    currentUserRole="mayor"
+    {...props}
+  />
+);
 
 describe('ProjectModule', () => {
-  it('renders the projects kanban with default municipal projects', () => {
+  it('does not show demo records or unsupported actions without explicit props', () => {
     render(<ProjectModule />);
+
+    expect(screen.getByText('Aucun projet disponible.')).toBeInTheDocument();
+    expect(screen.queryByText('Aménagement du parc central')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nouveau projet' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Paramètres' })).not.toBeInTheDocument();
+  });
+
+  it('does not assume a privileged role for explicitly supplied projects', () => {
+    render(<ProjectModule projects={defaultProjects} members={defaultProjectMembers} />);
+
+    expect(screen.getByText('Aucun projet disponible.')).toBeInTheDocument();
+    expect(screen.queryByText('Aménagement du parc central')).not.toBeInTheDocument();
+  });
+
+  it('keeps unsupported project mutations unavailable', () => {
+    render(<TestProjectModule />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
+    expect(screen.getByRole('menuitem', { name: 'Ouvrir' })).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Modifier' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Clôturer' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Supprimer' })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Ouvrir' }));
+    expect(within(screen.getByRole('dialog', { name: 'Modifier le projet' })).getByRole('button', { name: 'Enregistrer' })).toBeDisabled();
+  });
+
+  it('delegates deletion without removing a supplied project locally', () => {
+    const handleProjectAction = jest.fn();
+    render(<TestProjectModule onProjectAction={handleProjectAction} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Supprimer' }));
+
+    expect(handleProjectAction).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'central-park' }),
+      'delete'
+    );
+    expect(handleProjectAction).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('renders the projects kanban with explicit fixture projects', () => {
+    render(<TestProjectModule />);
 
     expect(screen.getByRole('heading', { name: 'Projets' })).toBeInTheDocument();
     expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
@@ -17,7 +74,7 @@ describe('ProjectModule', () => {
   });
 
   it('switches between kanban, grid and table views', () => {
-    render(<ProjectModule />);
+    render(<TestProjectModule />);
 
     fireEvent.click(screen.getByRole('tab', { name: /Grille/ }));
     expect(screen.getByRole('tab', { name: /Grille/ })).toHaveAttribute('aria-selected', 'true');
@@ -29,7 +86,7 @@ describe('ProjectModule', () => {
   });
 
   it('filters projects by search, status and priority', () => {
-    render(<ProjectModule />);
+    render(<TestProjectModule />);
 
     fireEvent.change(screen.getByPlaceholderText('Rechercher des projets...'), {
       target: { value: 'archives' },
@@ -53,9 +110,9 @@ describe('ProjectModule', () => {
     expect(screen.getByText('Installation système éclairage LED')).toBeInTheDocument();
   });
 
-  it('creates a local project from the modal and calls the callback', () => {
+  it('submits a new project through the callback without fabricating persistence', () => {
     const handleCreateProject = jest.fn();
-    render(<ProjectModule onCreateProject={handleCreateProject} />);
+    render(<TestProjectModule onCreateProject={handleCreateProject} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Nouveau projet' }));
     const dialog = screen.getByRole('dialog', { name: 'Nouveau projet' });
@@ -71,6 +128,10 @@ describe('ProjectModule', () => {
     });
     fireEvent.click(within(dialog).getByRole('button', { name: 'Assigné principal' }));
     fireEvent.click(screen.getByRole('option', { name: 'Marie Dubois' }));
+    expect(within(dialog).getByLabelText('Échéance *')).toHaveValue('');
+    fireEvent.change(within(dialog).getByLabelText('Échéance *'), {
+      target: { value: '2026-10-31' },
+    });
     fireEvent.change(within(dialog).getByPlaceholderText('Ajouter une tâche...'), {
       target: { value: 'Réaliser le diagnostic technique' },
     });
@@ -84,16 +145,18 @@ describe('ProjectModule', () => {
         description: 'Remise aux normes des halles et amélioration des accès publics',
         status: 'todo',
         priority: 'medium',
+        dueDate: '2026-10-31',
+        history: [],
       })
     );
     expect(screen.queryByRole('dialog', { name: 'Nouveau projet' })).not.toBeInTheDocument();
-    expect(screen.getByText('Réhabilitation du marché couvert')).toBeInTheDocument();
+    expect(screen.queryByText('Réhabilitation du marché couvert')).not.toBeInTheDocument();
   });
 
   it('edits a project from the action menu', () => {
     const handleUpdateProject = jest.fn();
     const handleProjectAction = jest.fn();
-    render(<ProjectModule onUpdateProject={handleUpdateProject} onProjectAction={handleProjectAction} />);
+    render(<TestProjectModule onUpdateProject={handleUpdateProject} onProjectAction={handleProjectAction} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Modifier' }));
@@ -115,28 +178,29 @@ describe('ProjectModule', () => {
       })
     );
     expect(screen.queryByRole('dialog', { name: 'Modifier le projet' })).not.toBeInTheDocument();
-    expect(screen.getByText('Aménagement du parc central actualisé')).toBeInTheDocument();
+    expect(screen.queryByText('Aménagement du parc central actualisé')).not.toBeInTheDocument();
+    expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
   });
 
   it('scopes projects by employee, responsable and mayor roles', () => {
-    const { rerender } = render(<ProjectModule currentUserRole="employee" currentUserId="sophie-leroy" />);
+    const { rerender } = render(<TestProjectModule currentUserRole="employee" currentUserId="sophie-leroy" />);
 
     expect(screen.getByText('Digitalisation des archives')).toBeInTheDocument();
     expect(screen.getByText('Rénovation de la bibliothèque municipale')).toBeInTheDocument();
     expect(screen.queryByText('Aménagement du parc central')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Nouveau projet' })).not.toBeInTheDocument();
 
-    rerender(<ProjectModule currentUserRole="responsable" currentUserId="marie-dubois" />);
+    rerender(<TestProjectModule currentUserRole="responsable" currentUserId="marie-dubois" />);
     expect(screen.getByText('Création site web municipal')).toBeInTheDocument();
     expect(screen.queryByText('Réfection des routes du centre-ville')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Nouveau projet' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nouveau projet' })).not.toBeInTheDocument();
 
-    rerender(<ProjectModule currentUserRole="mayor" />);
+    rerender(<TestProjectModule currentUserRole="mayor" />);
     expect(screen.getByText('Réfection des routes du centre-ville')).toBeInTheDocument();
   });
 
   it('filters projects by due date', () => {
-    render(<ProjectModule />);
+    render(<TestProjectModule />);
 
     fireEvent.change(screen.getByLabelText('Filtrer par échéance'), {
       target: { value: '2024-11-30' },
@@ -148,7 +212,7 @@ describe('ProjectModule', () => {
   });
 
   it('limits employee task visibility to assigned tasks', () => {
-    render(<ProjectModule currentUserRole="employee" currentUserId="thomas-bernard" />);
+    render(<TestProjectModule currentUserRole="employee" currentUserId="thomas-bernard" onUpdateProject={jest.fn()} />);
 
     expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Voir les tâches/ }).length).toBeGreaterThan(0);
@@ -163,9 +227,9 @@ describe('ProjectModule', () => {
     expect(within(dialog).getByLabelText(/Titre/)).toBeDisabled();
   });
 
-  it('filters tasks, updates task status, comments and records history', () => {
+  it('submits task edits without fabricating audit history', () => {
     const handleUpdateProject = jest.fn();
-    render(<ProjectModule onUpdateProject={handleUpdateProject} />);
+    render(<TestProjectModule onUpdateProject={handleUpdateProject} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Ouvrir' }));
@@ -188,7 +252,7 @@ describe('ProjectModule', () => {
 
     expect(within(dialog).getByText('Budget revu avec les finances.')).toBeInTheDocument();
     expect(within(dialog).getByText('Historique des modifications')).toBeInTheDocument();
-    expect(within(dialog).getByText('Commentaire ajouté : Valider le budget prévisionnel')).toBeInTheDocument();
+    expect(within(dialog).queryByText('Commentaire ajouté : Valider le budget prévisionnel')).not.toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer' }));
 
@@ -210,7 +274,7 @@ describe('ProjectModule', () => {
 
   it('closes a project from the action menu', () => {
     const handleUpdateProject = jest.fn();
-    render(<ProjectModule onUpdateProject={handleUpdateProject} />);
+    render(<TestProjectModule onUpdateProject={handleUpdateProject} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Actions pour Aménagement du parc central' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Clôturer' }));
@@ -222,16 +286,17 @@ describe('ProjectModule', () => {
         progress: 100,
       })
     );
-    expect(screen.getByRole('status')).toHaveTextContent('Projet "Aménagement du parc central" clôturé.');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByText('Aménagement du parc central')).toBeInTheDocument();
   });
 
-  it('shows project settings feedback', () => {
+  it('delegates the settings action without claiming it succeeded', () => {
     const handleSettingsClick = jest.fn();
-    render(<ProjectModule onSettingsClick={handleSettingsClick} />);
+    render(<TestProjectModule onSettingsClick={handleSettingsClick} />);
 
     fireEvent.click(screen.getByRole('button', { name: 'Paramètres' }));
 
     expect(handleSettingsClick).toHaveBeenCalled();
-    expect(screen.getByRole('status')).toHaveTextContent('Paramètres en cours de développement.');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });
