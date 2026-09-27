@@ -5,6 +5,7 @@ import type { ComponentProps } from 'react';
 import { CreateGroupModal } from '../components/CreateGroupModal';
 import { Messaging } from '../components/Messaging';
 import { MessagingComposer } from '../components/MessagingComposer';
+import { MessagingConversationItem } from '../components/MessagingConversationItem';
 import { NewMessageModal } from '../components/NewMessageModal';
 import {
   defaultMessagingBusinessReferences,
@@ -42,6 +43,39 @@ describe('Messaging components', () => {
 
     expect(screen.getAllByText('Marie Dubois')[0]).toBeInTheDocument();
     expect(screen.getByText('Parfait, quelles sont vos conclusions ?')).toBeInTheDocument();
+  });
+
+  it('shows a full conversation name above the timestamp without losing metadata or selection', () => {
+    const onClick = jest.fn();
+    const name = 'Équipe de coordination du projet de rénovation des bâtiments municipaux';
+    render(
+      <MessagingConversationItem
+        conversation={{
+          id: 'municipal-buildings',
+          name,
+          kind: 'group',
+          department: 'Services techniques',
+          lastMessageAt: '27/09 14:42',
+          lastMessage: 'Réunion confirmée',
+          unreadCount: 3,
+        }}
+        onClick={onClick}
+      />
+    );
+
+    const item = screen.getByRole('button', { name: /Équipe de coordination du projet/ });
+    const nameElement = screen.getByText(name);
+    expect(nameElement).toHaveClass('break-words');
+    expect(nameElement).not.toHaveClass('truncate');
+    expect(nameElement.parentElement?.parentElement).toHaveClass('flex-col');
+    expect(item).toHaveTextContent('27/09 14:42');
+    expect(item).toHaveTextContent('Services techniques');
+    expect(item).toHaveTextContent('Réunion confirmée');
+    expect(item).toHaveTextContent('3');
+    item.focus();
+    expect(item).toHaveFocus();
+    fireEvent.click(item);
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 
   it('filters conversations from the sidebar search', () => {

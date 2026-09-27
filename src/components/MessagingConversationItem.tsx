@@ -36,9 +36,9 @@ export const MessagingConversationItem = ({
       className="mt-1"
     />
     <span className="min-w-0 flex-1">
-      <span className="flex items-start justify-between gap-2">
-        <span className="min-w-0">
-          <span className="block truncate text-base font-semibold leading-6">{conversation.name}</span>
+      <span className="flex min-w-0 flex-col items-start gap-1">
+        <span className="min-w-0 w-full">
+          <span className="block break-words text-base font-semibold leading-6">{conversation.name}</span>
           {conversation.department && (
             <span className="block truncate text-xs leading-5 text-[#5f6770]">{conversation.department}</span>
           )}
