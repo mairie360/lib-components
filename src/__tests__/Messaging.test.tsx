@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 
 import { CreateGroupModal } from '../components/CreateGroupModal';
@@ -52,6 +52,16 @@ describe('Messaging components', () => {
 
     expect(screen.getAllByText('Sophie Leroy')[0]).toBeInTheDocument();
     expect(screen.queryByText('Pierre Martin')).not.toBeInTheDocument();
+  });
+
+  it('switches the visible conversation when the consumer has not fixed the active id', () => {
+    const handleConversationSelect = jest.fn();
+    render(<DemoMessaging onConversationSelect={handleConversationSelect} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Pierre Martin Urbanisme/ }));
+
+    expect(handleConversationSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'pierre-martin' }));
+    expect(screen.getByRole('heading', { name: 'Pierre Martin' })).toBeInTheDocument();
   });
 
   it('does not show the available users strip in the messaging sidebar', () => {
@@ -115,6 +125,26 @@ describe('Messaging components', () => {
 
     fireEvent.click(screen.getByLabelText('Créer un groupe'));
     expect(screen.getByRole('dialog', { name: 'Créer un groupe' })).toBeInTheDocument();
+  });
+
+  it('delegates direct-message creation and closes the modal after submission', () => {
+    const handleNewMessageSend = jest.fn();
+    render(<DemoMessaging onNewMessageSend={handleNewMessageSend} />);
+
+    fireEvent.click(screen.getByLabelText('Nouveau message'));
+    fireEvent.change(screen.getByLabelText('Destinataire'), {
+      target: { value: 'pierre-martin' },
+    });
+    fireEvent.change(screen.getByLabelText('Message'), {
+      target: { value: 'Bonjour Pierre' },
+    });
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'Nouveau message' })).getByRole('button', { name: 'Envoyer' }));
+
+    expect(handleNewMessageSend).toHaveBeenCalledWith({
+      recipientId: 'pierre-martin',
+      message: 'Bonjour Pierre',
+    });
+    expect(screen.queryByRole('dialog', { name: 'Nouveau message' })).not.toBeInTheDocument();
   });
 
   it('uses dedicated contacts in the new message and group modals', () => {
@@ -189,6 +219,31 @@ describe('Messaging components', () => {
     expect(screen.getAllByText('Pierre Martin')[0]).toBeInTheDocument();
   });
 
+  it('only exposes supplied call callbacks and dismisses the actions menu on outside click', () => {
+    const handleCall = jest.fn();
+    const handleVideoCall = jest.fn();
+    const handleMoreActions = jest.fn();
+    render(
+      <DemoMessaging
+        onCall={handleCall}
+        onVideoCall={handleVideoCall}
+        onMoreActions={handleMoreActions}
+        onConversationDelete={jest.fn()}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Appeler' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Appel vidéo' }));
+    expect(handleCall).toHaveBeenCalledWith(expect.objectContaining({ id: 'marie-dubois' }));
+    expect(handleVideoCall).toHaveBeenCalledWith(expect.objectContaining({ id: 'marie-dubois' }));
+
+    fireEvent.click(screen.getByRole('button', { name: "Plus d'actions" }));
+    expect(handleMoreActions).toHaveBeenCalledWith(expect.objectContaining({ id: 'marie-dubois' }));
+    expect(screen.getByRole('button', { name: 'Supprimer la conversation' })).toBeInTheDocument();
+    fireEvent.mouseDown(document.body);
+    expect(screen.queryByRole('button', { name: 'Supprimer la conversation' })).not.toBeInTheDocument();
+  });
+
   it('delegates sending without fabricating a persisted message', () => {
     const handleSendMessage = jest.fn();
     render(<Messaging conversations={[defaultMessagingConversations[0]]} onSendMessage={handleSendMessage} />);
@@ -260,6 +315,33 @@ describe('Messaging components', () => {
     expect(screen.queryByRole('link', { name: 'rapport.pdf' })).not.toBeInTheDocument();
   });
 
+  it('delegates business-reference actions and exposes real attachment URLs', () => {
+    const handleBusinessReferenceClick = jest.fn();
+    const project = { id: 'project-1', title: 'Projet test', kind: 'project' as const };
+    const event = { id: 'event-1', title: 'Conseil municipal', kind: 'event' as const, href: '/events/1' };
+    render(
+      <Messaging
+        conversations={[defaultMessagingConversations[0]]}
+        messages={[
+          {
+            id: 'linked-message',
+            conversationId: 'marie-dubois',
+            content: 'Pièces liées',
+            businessLinks: [project, event],
+            attachments: [{ id: 'file-1', name: 'rapport.pdf', url: '/files/1' }],
+          },
+        ]}
+        onBusinessReferenceClick={handleBusinessReferenceClick}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Projet test' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Conseil municipal' }));
+    expect(handleBusinessReferenceClick).toHaveBeenNthCalledWith(1, project);
+    expect(handleBusinessReferenceClick).toHaveBeenNthCalledWith(2, event);
+    expect(screen.getByRole('link', { name: 'rapport.pdf' })).toHaveAttribute('href', '/files/1');
+  });
+
   it('adds a system emoji to the composer', () => {
     render(<DemoMessaging />);
 
@@ -298,6 +380,23 @@ describe('Messaging components', () => {
         ],
       })
     );
+  });
+
+  it('removes an attached file before sending', () => {
+    const handleSendMessage = jest.fn();
+    const { container } = render(<DemoMessaging onSendMessage={handleSendMessage} />);
+    const fileInput = container.querySelector('input[type="file"]') as HTMLInputElement;
+
+    fireEvent.change(fileInput, {
+      target: { files: [new File(['draft'], 'brouillon.pdf', { type: 'application/pdf' })] },
+    });
+    expect(screen.getByText('brouillon.pdf')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Retirer brouillon.pdf' }));
+
+    expect(screen.queryByText('brouillon.pdf')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Envoyer' })).toBeDisabled();
+    expect(handleSendMessage).not.toHaveBeenCalled();
   });
 
   it('mentions a contact or group with @ and sends mention metadata', () => {
