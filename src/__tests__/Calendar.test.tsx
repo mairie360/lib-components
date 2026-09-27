@@ -307,7 +307,7 @@ describe('Calendar components', () => {
   });
 
   it('renders sidebar panels', () => {
-    render(
+    const { container } = render(
       <CalendarSidebar
         showEmptyState
         stats={[
@@ -320,6 +320,12 @@ describe('Calendar components', () => {
     expect(screen.getByRole('heading', { name: 'Événements à venir' })).toBeInTheDocument();
     expect(screen.getByText('Aucun événement à venir')).toBeInTheDocument();
     expect(screen.getByText('12 événements')).toBeInTheDocument();
+
+    const panels = container.querySelectorAll('aside > section');
+    expect(panels).toHaveLength(2);
+    expect(panels[0]).toHaveTextContent('Statistiques');
+    expect(panels[1]).toHaveClass('calendar-upcoming-panel');
+    expect(panels[1]).toHaveTextContent('Événements à venir');
   });
 
   it('calculates sidebar stats from calendar events', () => {
