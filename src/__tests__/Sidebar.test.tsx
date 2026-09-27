@@ -35,6 +35,13 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /Tableau de bord/ })).not.toHaveAttribute('aria-current');
   });
 
+  it('keeps navigation scrollable without shrinking destinations in short viewports', () => {
+    render(<Sidebar isAdmin />);
+
+    expect(screen.getByRole('navigation', { name: 'Menu principal' })).toHaveClass('min-h-0', 'overflow-y-auto');
+    expect(screen.getByRole('button', { name: /Paramètres/ })).toHaveClass('shrink-0');
+  });
+
   it('calls onItemSelect when a navigation item is clicked', () => {
     const onItemSelect = jest.fn();
     render(<Sidebar isAdmin onItemSelect={onItemSelect} />);

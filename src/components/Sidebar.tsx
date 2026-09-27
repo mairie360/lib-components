@@ -91,7 +91,7 @@ export const Sidebar = ({
         <div className="text-lg font-semibold tracking-normal text-white">{brandLabel}</div>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-2 px-4 py-6" aria-label="Menu principal">
+      <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-4 py-6" aria-label="Menu principal">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
@@ -101,7 +101,7 @@ export const Sidebar = ({
               key={item.id}
               type="button"
               aria-current={isActive ? 'page' : undefined}
-              className={`flex h-[42px] w-full items-center gap-3 rounded-md border px-3 text-left text-base transition-colors ${
+              className={`flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border px-3 text-left text-base transition-colors ${
                 isActive
                   ? 'border-[#2677cf] bg-[#1c63b7] text-white shadow-[0_1px_2px_rgba(0,0,0,0.24)]'
                   : 'border-transparent text-[#dff9ff] hover:border-[#4b908d]/70 hover:bg-[#334d4a] hover:text-white'
