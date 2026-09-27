@@ -91,6 +91,7 @@ export interface ElearningCourseDetailsModalProps
   onClose?: () => void;
   closeLabel?: string;
   closeOnOutsideClick?: boolean;
+  optimisticUpdates?: boolean;
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
@@ -170,17 +171,7 @@ const getInitialChapter = (chapters: ElearningCourseChapter[]) =>
   chapters.find((chapter) => chapter.active) ?? chapters.find((chapter) => !chapter.completed) ?? chapters[0];
 
 const getChapterContents = (chapter: ElearningCourseChapter): ElearningCourseContentItem[] =>
-  chapter.contents && chapter.contents.length > 0
-    ? chapter.contents
-    : [
-        {
-          id: `${chapter.id}-video`,
-          title: chapter.title,
-          type: 'video',
-          duration: chapter.duration,
-          description: 'Séquence principale du chapitre',
-        },
-      ];
+  chapter.contents ?? [];
 
 const isRequiredContent = (content: ElearningCourseContentItem) => content.required !== false;
 
@@ -208,6 +199,12 @@ const normalizeChaptersForProgress = (chapters: ElearningCourseChapter[]) =>
       contents,
     };
   });
+
+const getDisplayedProgress = (progress: number | undefined, chapters: ElearningCourseChapter[]) => {
+  if (typeof progress === 'number') return clampProgress(progress);
+  if (!chapters.some((chapter) => getChapterContents(chapter).some(isRequiredContent))) return undefined;
+  return getElearningCourseProgressSummary(chapters).progress;
+};
 
 export const getElearningCourseProgressSummary = (
   chapters: ElearningCourseChapter[]
@@ -245,6 +242,7 @@ export const ElearningCourseDetailsModal = ({
   onClose,
   closeLabel = 'Fermer le détail du cours',
   closeOnOutsideClick = true,
+  optimisticUpdates = true,
   title,
   subtitle = 'Détails et contenu du cours',
   description,
@@ -264,7 +262,7 @@ export const ElearningCourseDetailsModal = ({
   ...props
 }: ElearningCourseDetailsModalProps) => {
   const initialChapters = React.useMemo(() => normalizeChaptersForProgress(chapters), [chapters]);
-  const initialProgress = typeof progress === 'number' ? clampProgress(progress) : getElearningCourseProgressSummary(initialChapters).progress;
+  const initialProgress = getDisplayedProgress(progress, initialChapters);
   const [localChapters, setLocalChapters] = React.useState<ElearningCourseChapter[]>(initialChapters);
   const [localProgress, setLocalProgress] = React.useState(initialProgress);
   const initialChapter = getInitialChapter(localChapters);
@@ -294,8 +292,7 @@ export const ElearningCourseDetailsModal = ({
     if (!open) return;
 
     const nextChapters = normalizeChaptersForProgress(chapters);
-    const nextProgress =
-      typeof progress === 'number' ? clampProgress(progress) : getElearningCourseProgressSummary(nextChapters).progress;
+    const nextProgress = getDisplayedProgress(progress, nextChapters);
 
     setLocalChapters(nextChapters);
     setLocalProgress(nextProgress);
@@ -329,9 +326,10 @@ export const ElearningCourseDetailsModal = ({
   if (!open) return null;
 
   const handleRatingSubmit = (newRating: number) => {
-    const nextRatingSummary = incrementElearningRatingDistribution(localRatingDistribution, newRating);
-
-    setLocalRatingDistribution(nextRatingSummary.ratingDistribution);
+    if (optimisticUpdates) {
+      const nextRatingSummary = incrementElearningRatingDistribution(localRatingDistribution, newRating);
+      setLocalRatingDistribution(nextRatingSummary.ratingDistribution);
+    }
     completionRating?.onSubmit?.(newRating);
   };
 
@@ -369,15 +367,19 @@ export const ElearningCourseDetailsModal = ({
     if (!completedChapter || !completedContent || wasAlreadyCompleted) {
       const progressSummary = getElearningCourseProgressSummary(nextChapters);
 
-      setLocalChapters(nextChapters);
-      setLocalProgress(progressSummary.progress);
+      if (optimisticUpdates) {
+        setLocalChapters(nextChapters);
+        setLocalProgress(progressSummary.progress);
+      }
       return;
     }
 
     const progressSummary = getElearningCourseProgressSummary(nextChapters);
 
-    setLocalChapters(nextChapters);
-    setLocalProgress(progressSummary.progress);
+    if (optimisticUpdates) {
+      setLocalChapters(nextChapters);
+      setLocalProgress(progressSummary.progress);
+    }
     onContentComplete?.({
       ...progressSummary,
       chapter: completedChapter,
@@ -439,12 +441,12 @@ export const ElearningCourseDetailsModal = ({
               <div className="flex aspect-video w-full items-center justify-center rounded">
                 <div className="text-center">
                   <PrimaryContentIcon aria-hidden="true" className="mx-auto size-16" strokeWidth={2.4} />
-                  {primaryContent && (
+                  {primaryContent ? (
                     <div className="mt-4 max-w-md">
                       <p className="text-sm font-semibold leading-5">{contentTypeLabels[primaryContent.type]}</p>
                       <p className="mt-1 break-words text-base font-semibold leading-6">{primaryContent.title}</p>
                     </div>
-                  )}
+                  ) : <p className="mt-4 text-sm">Aucun contenu disponible pour cette formation.</p>}
                 </div>
               </div>
             </div>
@@ -513,7 +515,7 @@ export const ElearningCourseDetailsModal = ({
                                   <ExternalLink aria-hidden="true" className="size-3.5" />
                                 </a>
                               )}
-                              <button
+                              {onContentComplete ? <button
                                 type="button"
                                 aria-label={
                                   contentCompleted
@@ -525,7 +527,7 @@ export const ElearningCourseDetailsModal = ({
                                 className="inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]"
                               >
                                 {contentCompleted ? 'Terminé' : 'Marquer comme terminé'}
-                              </button>
+                              </button> : null}
                             </div>
                           </div>
                           {content.description && (
@@ -578,6 +580,7 @@ export const ElearningCourseDetailsModal = ({
           <aside className="min-w-0">
             <h3 className="text-base font-bold leading-6 text-[#2f3747]">Chapitres</h3>
             <div className="mt-3 max-h-[420px] space-y-2 overflow-y-auto pr-1">
+              {localChapters.length === 0 ? <p className="text-sm text-[#6f6f6f]">Aucun chapitre disponible.</p> : null}
               {localChapters.map((chapter) => {
                 const Icon = chapter.completed ? CircleCheck : Circle;
                 const selected = chapter.id === selectedChapter?.id;
@@ -634,10 +637,11 @@ export const ElearningCourseDetailsModal = ({
               </div>
             )}
 
-            {canRateCourse && (
+            {canRateCourse && completionRating?.onSubmit && (
               <ElearningCourseRating
                 {...completionRating}
                 className={joinClasses('mt-4', completionRating?.className ?? '')}
+                confirmOnSubmit={optimisticUpdates}
                 onSubmit={handleRatingSubmit}
               />
             )}

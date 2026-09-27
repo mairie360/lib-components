@@ -281,6 +281,7 @@ describe('Elearning components', () => {
         title="Cours en cours"
         description="Formation pas encore terminée."
         progress={75}
+        completionRating={{ onSubmit: jest.fn() }}
         chapters={[
           {
             id: 'chapter-active',
@@ -300,6 +301,7 @@ describe('Elearning components', () => {
         title="Cours terminé"
         description="Formation terminée."
         progress={100}
+        completionRating={{ onSubmit: jest.fn() }}
         chapters={[
           {
             id: 'chapter-completed',
@@ -324,6 +326,7 @@ describe('Elearning components', () => {
         ratingLabel="(12 apprenants)"
         ratingDistribution={{ 1: 0, 2: 0, 3: 12, 4: 0, 5: 0 }}
         progress={100}
+        completionRating={{ onSubmit: jest.fn() }}
         chapters={[
           {
             id: 'chapter-completed',
@@ -344,20 +347,19 @@ describe('Elearning components', () => {
     expect(screen.queryByText('3 (12 notes)')).not.toBeInTheDocument();
   });
 
-  it('updates the catalog card rating after submitting a course rating', () => {
+  it('keeps the server rating until updated course props arrive', () => {
     const handleCourseRatingSubmit = jest.fn();
+    const course = {
+      ...courses[1],
+      rating: 2.5,
+      ratingDistribution: { 1: 0, 2: 1, 3: 1, 4: 0, 5: 0 },
+      progress: 100,
+      actionLabel: 'Revoir',
+    };
 
-    render(
+    const { rerender } = render(
       <ElearningCatalog
-        courses={[
-          {
-            ...courses[1],
-            rating: 2.5,
-            ratingDistribution: { 1: 0, 2: 1, 3: 1, 4: 0, 5: 0 },
-            progress: 100,
-            actionLabel: 'Revoir',
-          },
-        ]}
+        courses={[course]}
         onCourseRatingSubmit={handleCourseRatingSubmit}
       />
     );
@@ -367,6 +369,7 @@ describe('Elearning components', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Revoir' }));
     fireEvent.click(screen.getByRole('button', { name: 'Donner la note 4 sur 5' }));
     fireEvent.click(screen.getByRole('button', { name: 'Envoyer la note' }));
+    expect(screen.queryByText('Merci, votre note a bien été enregistrée.')).not.toBeInTheDocument();
     fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
 
     expect(handleCourseRatingSubmit).toHaveBeenCalledWith(
@@ -374,23 +377,42 @@ describe('Elearning components', () => {
       4,
       expect.objectContaining({ rating: 3, ratingCount: 3 })
     );
+    expect(within(screen.getByRole('article')).getByText('2.5')).toBeInTheDocument();
+
+    rerender(
+      <ElearningCatalog
+        courses={[{ ...course, rating: 3, ratingDistribution: { 1: 0, 2: 1, 3: 1, 4: 1, 5: 0 } }]}
+        onCourseRatingSubmit={handleCourseRatingSubmit}
+      />
+    );
     expect(within(screen.getByRole('article')).getByText('3')).toBeInTheDocument();
-    expect(within(screen.getByRole('article')).queryByText('2.5')).not.toBeInTheDocument();
   });
 
-  it('updates the catalog card progress after completing a course content', () => {
+  it('keeps server progress until updated course props arrive', () => {
     const handleCourseContentComplete = jest.fn();
+    const course = {
+      ...courses[0],
+      progress: 0,
+      chapters: 1,
+      details: {
+        title: 'Sécurité au travail',
+        description: 'Formation sur les règles de sécurité.',
+        progress: 0,
+        chapters: [{
+          id: 'safety',
+          title: 'Règles de sécurité',
+          duration: '20 min',
+          contents: [
+            { id: 'safety-video', title: 'Vidéo de sécurité', type: 'video' as const },
+            { id: 'safety-guide', title: 'Guide de sécurité', type: 'pdf' as const },
+          ],
+        }],
+      },
+    };
 
-    render(
+    const { rerender } = render(
       <ElearningCatalog
-        courses={[
-          {
-            ...courses[0],
-            progress: 0,
-            chapters: 1,
-            actionLabel: 'Continuer',
-          },
-        ]}
+        courses={[course]}
         onCourseContentComplete={handleCourseContentComplete}
       />
     );
@@ -398,15 +420,34 @@ describe('Elearning components', () => {
     expect(within(screen.getByRole('article')).getByText('0%')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Commencer' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo du chapitre 1 comme terminé' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo de sécurité comme terminé' }));
+    expect(screen.getByRole('dialog')).toHaveTextContent('0%');
     fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
 
     expect(handleCourseContentComplete).toHaveBeenCalledWith(
       expect.objectContaining({ id: 'security' }),
       expect.objectContaining({ progress: 50 })
     );
+    expect(within(screen.getByRole('article')).getByText('0%')).toBeInTheDocument();
+
+    rerender(
+      <ElearningCatalog
+        courses={[{
+          ...course,
+          progress: 50,
+          details: {
+            ...course.details,
+            progress: 50,
+            chapters: [{
+              ...course.details.chapters[0],
+              contents: [{ ...course.details.chapters[0].contents[0], completed: true }, course.details.chapters[0].contents[1]],
+            }],
+          },
+        }]}
+        onCourseContentComplete={handleCourseContentComplete}
+      />
+    );
     expect(within(screen.getByRole('article')).getByText('50%')).toBeInTheDocument();
-    expect(within(screen.getByRole('article')).getByRole('button', { name: 'Continuer' })).toBeInTheDocument();
   });
 
   it('opens course details from catalog when a course provides details', () => {
@@ -439,15 +480,32 @@ describe('Elearning components', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('Règles de sécurité à respecter dans les bâtiments municipaux');
   });
 
-  it('opens fallback course details from catalog when details are not provided', () => {
+  it('shows only course information when chapter details are unavailable', () => {
     render(<ElearningCatalog courses={[courses[1]]} />);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Revoir' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Continuer' }));
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
-    expect(screen.getByRole('dialog')).toHaveTextContent('Chapitre 1');
-    expect(screen.getByRole('dialog')).toHaveTextContent('Support du chapitre 1');
-    expect(screen.getByRole('dialog')).toHaveTextContent('Noter cette formation');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Aucun chapitre disponible.');
+    expect(screen.getByRole('dialog')).toHaveTextContent('Aucun contenu disponible pour cette formation.');
+    expect(screen.queryByText('Chapitre 1')).not.toBeInTheDocument();
+    expect(screen.queryByText('Noter cette formation')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('dialog')).queryByText('0%')).not.toBeInTheDocument();
+  });
+
+  it('does not invent a video for a chapter without resources', () => {
+    render(
+      <ElearningCourseDetailsModal
+        open
+        title="Formation sans ressource"
+        description="Contenu à venir."
+        chapters={[{ id: 'intro', title: 'Introduction', duration: '15 min' }]}
+      />
+    );
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Aucun contenu disponible pour cette formation.');
+    expect(screen.queryByRole('button', { name: /Marquer Introduction comme terminé/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('0%')).not.toBeInTheDocument();
   });
 
   it('filters catalog courses by category and search', () => {
@@ -479,12 +537,12 @@ describe('Elearning components', () => {
     expect(screen.queryByRole('button', { name: /Supprimer Sécurité au travail/ })).not.toBeInTheDocument();
   });
 
-  it('lets administrators create, edit and delete formations', () => {
+  it('delegates administration changes and waits for updated course props', () => {
     const handleCreateCourse = jest.fn();
     const handleUpdateCourse = jest.fn();
     const handleDeleteCourse = jest.fn();
 
-    render(
+    const { rerender } = render(
       <ElearningCatalog
         courses={courses}
         currentUserRole="administrator"
@@ -566,7 +624,19 @@ describe('Elearning components', () => {
         title: 'Prévention incendie',
       })
     );
-    expect(screen.getByRole('status')).toHaveTextContent('Formation "Prévention incendie" créée.');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.queryByText('Prévention incendie')).not.toBeInTheDocument();
+
+    const createdCourse = handleCreateCourse.mock.calls[0][0] as ElearningCourse;
+    rerender(
+      <ElearningCatalog
+        courses={[...courses, createdCourse]}
+        currentUserRole="administrator"
+        onCreateCourse={handleCreateCourse}
+        onUpdateCourse={handleUpdateCourse}
+        onDeleteCourse={handleDeleteCourse}
+      />
+    );
     expect(screen.getByText('Prévention incendie')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Modifier Prévention incendie' }));
@@ -582,14 +652,26 @@ describe('Elearning components', () => {
     expect(handleUpdateCourse).toHaveBeenCalledWith(
       expect.objectContaining({
         title: 'Prévention incendie actualisée',
-        progress: 0,
+        progress: undefined,
         levelBadge: expect.objectContaining({ label: 'Intermédiaire' }),
       }),
       expect.objectContaining({
         level: 'intermediate',
       })
     );
-    expect(screen.queryByText('Prévention incendie')).not.toBeInTheDocument();
+    expect(screen.getByText('Prévention incendie')).toBeInTheDocument();
+    expect(screen.queryByText('Prévention incendie actualisée')).not.toBeInTheDocument();
+
+    const updatedCourse = handleUpdateCourse.mock.calls[0][0] as ElearningCourse;
+    rerender(
+      <ElearningCatalog
+        courses={[...courses, updatedCourse]}
+        currentUserRole="administrator"
+        onCreateCourse={handleCreateCourse}
+        onUpdateCourse={handleUpdateCourse}
+        onDeleteCourse={handleDeleteCourse}
+      />
+    );
     expect(screen.getByText('Prévention incendie actualisée')).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Supprimer Prévention incendie actualisée' }));
@@ -599,33 +681,60 @@ describe('Elearning components', () => {
         title: 'Prévention incendie actualisée',
       })
     );
-    expect(screen.getByRole('status')).toHaveTextContent('Formation "Prévention incendie actualisée" supprimée.');
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByText('Prévention incendie actualisée')).toBeInTheDocument();
+
+    rerender(
+      <ElearningCatalog
+        courses={courses}
+        currentUserRole="administrator"
+        onCreateCourse={handleCreateCourse}
+        onUpdateCourse={handleUpdateCourse}
+        onDeleteCourse={handleDeleteCourse}
+      />
+    );
     expect(screen.queryByText('Prévention incendie actualisée')).not.toBeInTheDocument();
   });
 
-  it('updates training statistics from participation and completion progress', () => {
-    render(
+  it('updates training statistics only from supplied course progress', () => {
+    const course = {
+      ...courses[0],
+      statusValue: 'not-started',
+      statusBadge: { label: 'Non commencé', variant: 'notStarted' as const },
+      progress: 0,
+      chapters: 1,
+    };
+    const { rerender } = render(
       <ElearningCatalog
-        courses={[
-          {
-            ...courses[0],
-            statusValue: 'not-started',
-            statusBadge: { label: 'Non commencé', variant: 'notStarted' },
-            progress: 0,
-            chapters: 1,
-          },
-        ]}
+        courses={[course]}
       />
     );
 
     expect(within(screen.getByText('Participation').parentElement as HTMLElement).getByText('0%')).toBeInTheDocument();
     expect(within(screen.getByText('Complétion').parentElement as HTMLElement).getByText('0%')).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Commencer' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Marquer Vidéo du chapitre 1 comme terminé' }));
-    fireEvent.click(screen.getByLabelText('Fermer le détail du cours'));
+    rerender(<ElearningCatalog courses={[{ ...course, statusValue: 'in-progress', progress: 50 }]} />);
 
     expect(within(screen.getByText('Participation').parentElement as HTMLElement).getByText('100%')).toBeInTheDocument();
     expect(within(screen.getByText('Complétion').parentElement as HTMLElement).getByText('50%')).toBeInTheDocument();
+  });
+
+  it('does not offer management actions without matching callbacks', () => {
+    render(<ElearningCatalog courses={courses} currentUserRole="administrator" />);
+
+    expect(screen.queryByRole('button', { name: 'Nouvelle formation' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Modifier Sécurité au travail/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Supprimer Sécurité au travail/ })).not.toBeInTheDocument();
+  });
+
+  it('provides an empty editable chapter when a server course has no details', () => {
+    render(
+      <ElearningCatalog courses={courses} currentUserRole="administrator" onUpdateCourse={jest.fn()} />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Modifier Sécurité au travail' }));
+    const dialog = screen.getByRole('dialog', { name: 'Modifier la formation' });
+    expect(within(dialog).getByLabelText('Titre du chapitre')).toBeInTheDocument();
+    expect(within(dialog).getByLabelText('Titre', { selector: 'input[id^="content-title-"]' })).toBeInTheDocument();
   });
 });

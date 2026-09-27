@@ -8,6 +8,7 @@ export interface ElearningCourseRatingProps
   initialValue?: number;
   max?: number;
   submitted?: boolean;
+  confirmOnSubmit?: boolean;
   disabled?: boolean;
   title?: string;
   helperText?: string;
@@ -27,6 +28,7 @@ export const ElearningCourseRating = ({
   initialValue,
   max = 5,
   submitted = false,
+  confirmOnSubmit = true,
   disabled = false,
   title = 'Noter cette formation',
   helperText = 'Votre retour aide à améliorer les prochaines sessions.',
@@ -63,7 +65,7 @@ export const ElearningCourseRating = ({
     if (!value || isLocked) return;
 
     onSubmit?.(value);
-    setHasSubmitted(true);
+    if (confirmOnSubmit) setHasSubmitted(true);
   };
 
   return (
