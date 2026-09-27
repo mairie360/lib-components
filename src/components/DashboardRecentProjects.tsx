@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { clampDashboardProgress, joinDashboardClasses } from './dashboard/styles';
+import { clampDashboardProgress, dashboardCardActionClasses, joinDashboardClasses } from './dashboard/styles';
 import type { DashboardProject, DashboardProjectStatus } from './dashboard/types';
 
 export interface DashboardRecentProjectsProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onSelect'> {
@@ -31,7 +31,7 @@ export const DashboardRecentProjects = ({
   <section className={joinDashboardClasses('rounded-lg border border-[#dfd9d1] bg-white p-6', className)} {...props}>
     <div className="flex items-center justify-between gap-4">
       <h2 className="text-base font-semibold text-[#243041]">Projets récents</h2>
-      {onViewAll && <button type="button" className="rounded-md border border-[#c8d9d8] bg-[#e6f3f2] px-3 py-2 text-sm font-medium text-[#285c59]" onClick={onViewAll}>Voir tous</button>}
+      {onViewAll && <button type="button" className={dashboardCardActionClasses} onClick={onViewAll}>Voir tout</button>}
     </div>
     <div className="mt-6 space-y-4">
       {projects.map((project) => {

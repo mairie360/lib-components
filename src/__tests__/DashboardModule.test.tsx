@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 
 import { DashboardModule } from '../components/DashboardModule';
 import { DashboardMetricCards } from '../components/DashboardMetricCards';
@@ -51,9 +51,9 @@ describe('DashboardModule', () => {
     render(<DashboardModule {...fixtureProps} {...{ onProjectSelect, onViewAllProjects, onTaskSelect, onViewAllTasks }} />);
 
     fireEvent.click(screen.getByRole('button', { name: /Rénovation bibliothèque/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Voir tous' }));
+    fireEvent.click(within(screen.getByRole('heading', { name: 'Projets récents' }).closest('section')!).getByRole('button', { name: 'Voir tout' }));
     fireEvent.click(screen.getByRole('button', { name: /Validation budget formation/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Voir toutes' }));
+    fireEvent.click(within(screen.getByRole('heading', { name: 'Tâches en attente' }).closest('section')!).getByRole('button', { name: 'Voir tout' }));
 
     expect(onProjectSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'library' }));
     expect(onViewAllProjects).toHaveBeenCalledTimes(1);
@@ -95,7 +95,7 @@ describe('DashboardModule', () => {
     const eventButtons = screen.getAllByRole('button').filter((button) => /En premier|Plus tard/.test(button.textContent ?? ''));
     expect(eventButtons[0]).toHaveTextContent('En premier');
     fireEvent.click(screen.getByRole('button', { name: /En premier/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Calendrier' }));
+    fireEvent.click(within(screen.getByRole('heading', { name: 'Événements à venir' }).closest('section')!).getByRole('button', { name: 'Voir tout' }));
     expect(onEventSelect).toHaveBeenCalledWith(expect.objectContaining({ id: 'first' }));
     expect(onOpenCalendar).toHaveBeenCalledTimes(1);
   });
@@ -132,6 +132,26 @@ describe('DashboardModule', () => {
     expect(screen.queryByText('Validation budget formation')).not.toBeInTheDocument();
     expect(screen.queryByText('Conseil Municipal')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Voir rapports' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Voir tous' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Voir tout' })).not.toBeInTheDocument();
+  });
+
+  it('uses one neutral card action treatment without changing navigation callbacks', () => {
+    const onViewAllProjects = jest.fn();
+    const onViewAllTasks = jest.fn();
+    const onOpenCalendar = jest.fn();
+    render(<DashboardModule onViewAllProjects={onViewAllProjects} onViewAllTasks={onViewAllTasks} onOpenCalendar={onOpenCalendar} />);
+
+    const cardTitles = ['Projets récents', 'Tâches en attente', 'Événements à venir'];
+    const actions = cardTitles.map((title) =>
+      within(screen.getByRole('heading', { name: title }).closest('section')!).getByRole('button', { name: 'Voir tout' })
+    );
+    expect(actions[0].className).toBe(actions[1].className);
+    expect(actions[1].className).toBe(actions[2].className);
+    expect(actions[0]).toHaveClass('border-[#d8d2ca]', 'bg-[#fbfaf9]', 'text-[#243041]');
+
+    actions.forEach((action) => fireEvent.click(action));
+    expect(onViewAllProjects).toHaveBeenCalledTimes(1);
+    expect(onViewAllTasks).toHaveBeenCalledTimes(1);
+    expect(onOpenCalendar).toHaveBeenCalledTimes(1);
   });
 });
