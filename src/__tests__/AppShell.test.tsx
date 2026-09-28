@@ -53,11 +53,60 @@ describe('AppShell', () => {
     const onNavigate = jest.fn();
     render(<AppShell user={user} hrefs={{ projects: '/projects' }} onNavigate={onNavigate}><p>Contenu</p></AppShell>);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    const menuButton = screen.getByRole('button', { name: 'Ouvrir la navigation' });
+    menuButton.focus();
+    fireEvent.click(menuButton);
     const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
     expect(drawer).toBeInTheDocument();
-    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.getByRole('button', { name: 'Fermer la navigation' })).toHaveFocus();
+    expect(screen.getByRole('main').parentElement).toHaveAttribute('inert');
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
+    expect(screen.getByRole('main').parentElement).not.toHaveAttribute('inert');
+  });
+
+  it('keeps Tab and Shift+Tab inside the mobile drawer', () => {
+    render(<AppShell user={user} hrefs={{ projects: '/projects', settings: '/settings' }} onNavigate={jest.fn()}><p>Contenu</p></AppShell>);
+
+    const menuButton = screen.getByRole('button', { name: 'Ouvrir la navigation' });
+    menuButton.focus();
+    fireEvent.click(menuButton);
+    const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
+    const closeButton = screen.getByRole('button', { name: 'Fermer la navigation' });
+    const lastDestination = Array.from(drawer.querySelectorAll('button')).find((button) => button.textContent?.includes('Paramètres'));
+    expect(lastDestination).toBeDefined();
+
+    lastDestination!.focus();
+    fireEvent.keyDown(lastDestination!, { key: 'Tab' });
+    expect(closeButton).toHaveFocus();
+
+    fireEvent.keyDown(closeButton, { key: 'Tab', shiftKey: true });
+    expect(lastDestination).toHaveFocus();
+
+    menuButton.focus();
+    fireEvent.keyDown(menuButton, { key: 'Tab' });
+    expect(closeButton).toHaveFocus();
+  });
+
+  it('restores focus when the backdrop or desktop breakpoint closes the drawer', () => {
+    render(<AppShell user={user} hrefs={{ projects: '/projects' }} onNavigate={jest.fn()}><p>Contenu</p></AppShell>);
+
+    const menuButton = screen.getByRole('button', { name: 'Ouvrir la navigation' });
+    menuButton.focus();
+    fireEvent.click(menuButton);
+    const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
+    fireEvent.click(drawer.querySelector('[aria-hidden="true"]')!);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
+
+    fireEvent.click(menuButton);
+    const originalWidth = window.innerWidth;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1200 });
+    fireEvent.resize(window);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(menuButton).toHaveFocus();
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: originalWidth });
   });
 
   it('does not expose unsafe or missing destinations', () => {

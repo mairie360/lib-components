@@ -16,7 +16,7 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onNavigate?: (href: string, itemId: string) => void;
   /** Compatibility callback for pages that already navigate by item id. */
   onPageChange?: (itemId: string) => void;
-  headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen' | 'onPageChange' | 'onLogout' | 'profileHref'>;
+  headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen' | 'menuButtonRef' | 'onPageChange' | 'onLogout' | 'profileHref'>;
   sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin' | 'items' | 'onItemSelect'> & {
     items?: SidebarItem[];
     onItemSelect?: (item: SidebarItem) => void;
@@ -49,13 +49,49 @@ export const AppShell = ({
   ...props
 }: AppShellProps) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const menuButtonRef = React.useRef<HTMLButtonElement>(null);
+  const drawerRef = React.useRef<HTMLDivElement>(null);
+  const closeButtonRef = React.useRef<HTMLButtonElement>(null);
+
   React.useEffect(() => {
     if (!sidebarOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSidebarOpen(false);
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        setSidebarOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab' || !drawerRef.current) return;
+
+      const focusable = Array.from(
+        drawerRef.current.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'),
+      ).filter((element) => element.tabIndex >= 0 && !element.closest('[aria-hidden="true"]'));
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (!first || !last) {
+        event.preventDefault();
+        drawerRef.current.focus();
+      } else if (!active || !focusable.includes(active) || (event.shiftKey && active === first) || (!event.shiftKey && active === last)) {
+        event.preventDefault();
+        (event.shiftKey ? last : first).focus();
+      }
     };
-    window.addEventListener('keydown', closeOnEscape);
-    return () => window.removeEventListener('keydown', closeOnEscape);
+
+    const closeOnDesktop = () => {
+      if (window.innerWidth >= 1024) setSidebarOpen(false);
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', closeOnDesktop);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', closeOnDesktop);
+      if (menuButtonRef.current?.isConnected) menuButtonRef.current.focus();
+    };
   }, [sidebarOpen]);
 
   const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, ...restSidebarProps } = sidebarProps ?? {};
@@ -104,23 +140,36 @@ export const AppShell = ({
         <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>
 
         {sidebarOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation mobile">
+          <div ref={drawerRef} tabIndex={-1} className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation mobile">
             <button
               type="button"
-              aria-label="Fermer la navigation"
+              tabIndex={-1}
+              aria-hidden="true"
               className="absolute inset-0 h-full w-full bg-black/35"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="relative h-full w-[260px] max-w-[82vw] shadow-2xl">{renderSidebar()}</div>
+            <div className="relative h-full w-[260px] max-w-[82vw] shadow-2xl">
+              <button
+                ref={closeButtonRef}
+                type="button"
+                aria-label="Fermer la navigation"
+                className="absolute right-3 top-3 z-10 rounded-md p-2 text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                onClick={() => setSidebarOpen(false)}
+              >
+                ×
+              </button>
+              {renderSidebar()}
+            </div>
           </div>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen}>
           <Header
             {...headerProps}
             user={user}
             isAdmin={isAdmin}
             setSidebarOpen={setSidebarOpen}
+            menuButtonRef={menuButtonRef}
             onPageChange={headerCanNavigate ? navigate : undefined}
             onLogout={onLogout}
             profileHref={profileHref}

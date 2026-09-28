@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { fn } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { AppShell } from '../components/AppShell';
 
@@ -22,3 +22,23 @@ const meta: Meta<typeof AppShell> = {
 
 export default meta;
 export const Default: StoryObj<typeof AppShell> = {};
+
+export const MobileKeyboardNavigation: StoryObj<typeof AppShell> = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story: 'Open the mobile menu to verify that focus starts inside the drawer and returns to the menu button after Escape.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const menuButton = canvas.queryByRole('button', { name: 'Ouvrir la navigation' });
+    if (!menuButton) return;
+    await userEvent.click(menuButton);
+    await expect(canvas.getByRole('button', { name: 'Fermer la navigation' })).toHaveFocus();
+    await userEvent.keyboard('{Escape}');
+    await expect(menuButton).toHaveFocus();
+  },
+};
