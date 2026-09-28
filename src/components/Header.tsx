@@ -79,6 +79,8 @@ export interface HeaderProps {
   user?: User;
   /** Callback to toggle the sidebar */
   setSidebarOpen?: (open: boolean) => void;
+  /** Ref to the button that opens the mobile navigation. */
+  menuButtonRef?: React.Ref<HTMLButtonElement>;
   /** Function to handle page navigation from header */
   onPageChange?: (page: string) => void;
   /** URL of the user profile page. Used when no client-side page handler is provided. */
@@ -98,6 +100,7 @@ export interface HeaderProps {
 export const Header = ({
   user,
   setSidebarOpen,
+  menuButtonRef,
   onPageChange,
   profileHref = null,
   onLogout,
@@ -132,6 +135,7 @@ export const Header = ({
     <header className="flex h-16 items-center justify-between border-b border-b-[#b9d6d5] bg-white px-4 text-[#172033] shadow-[0_2px_8px_rgba(0,0,0,0.16)] sm:px-6">
       <div className="flex flex-1 items-center gap-3 sm:gap-4">
         <button
+          ref={menuButtonRef}
           type="button"
           aria-label="Ouvrir la navigation"
           className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-transparent text-[#172033] transition-colors hover:border-[#4b908d]/30 hover:bg-[#4b908d]/10 lg:hidden"
