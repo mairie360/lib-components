@@ -29,7 +29,7 @@ const normalize = (value: React.ReactNode) =>
 export const MessagingSidebar = ({
   conversations,
   activeConversationId,
-  title = 'Messagerie interne',
+  title = 'Messagerie',
   searchPlaceholder = 'Rechercher un contact...',
   searchValue,
   newMessageLabel = 'Nouveau message',

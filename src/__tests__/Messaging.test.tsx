@@ -6,6 +6,7 @@ import { CreateGroupModal } from '../components/CreateGroupModal';
 import { Messaging } from '../components/Messaging';
 import { MessagingComposer } from '../components/MessagingComposer';
 import { MessagingConversationItem } from '../components/MessagingConversationItem';
+import { MessagingSidebar } from '../components/MessagingSidebar';
 import { NewMessageModal } from '../components/NewMessageModal';
 import {
   defaultMessagingBusinessReferences,
@@ -29,13 +30,20 @@ describe('Messaging components', () => {
   it('renders no demo content or unsupported actions by default', () => {
     render(<Messaging />);
 
-    expect(screen.getByText('Messagerie interne')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Messagerie' })).toBeInTheDocument();
     expect(screen.getByText('Aucune conversation trouvée.')).toBeInTheDocument();
     expect(screen.getByText('Sélectionnez une conversation pour commencer.')).toBeInTheDocument();
     expect(screen.queryByText('Marie Dubois')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Nouveau message' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Créer un groupe' })).not.toBeInTheDocument();
     expect(screen.getByPlaceholderText('Tapez votre message...')).toBeDisabled();
+  });
+
+  it('keeps an explicitly configured sidebar title', () => {
+    render(<MessagingSidebar conversations={[]} title="Échanges de l’équipe" />);
+
+    expect(screen.getByRole('heading', { name: 'Échanges de l’équipe' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Messagerie' })).not.toBeInTheDocument();
   });
 
   it('renders explicitly provided conversations and messages', () => {
