@@ -49,6 +49,8 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   defaultStatus?: string;
   emptyLabel?: string;
   currentUserRole?: ElearningUserRole;
+  initialCourseId?: string | null;
+  onCourseClose?: () => void;
   onCourseAction?: (course: ElearningCourse) => void;
   onCreateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => void;
   onUpdateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => void;
@@ -273,6 +275,8 @@ export const ElearningCatalog = ({
   defaultStatus = 'all',
   emptyLabel = 'Aucune formation ne correspond aux filtres.',
   currentUserRole = 'user',
+  initialCourseId = null,
+  onCourseClose,
   onCourseAction,
   onCreateCourse,
   onUpdateCourse,
@@ -285,7 +289,7 @@ export const ElearningCatalog = ({
   const [search, setSearch] = React.useState(defaultSearch);
   const [category, setCategory] = React.useState(defaultCategory);
   const [status, setStatus] = React.useState(defaultStatus);
-  const [selectedCourseId, setSelectedCourseId] = React.useState<string | null>(null);
+  const [selectedCourseId, setSelectedCourseId] = React.useState<string | null>(initialCourseId);
   const [editingCourseId, setEditingCourseId] = React.useState<string | null>(null);
   const [courseFormOpen, setCourseFormOpen] = React.useState(false);
   const selectedCourse = courses.find((course) => course.id === selectedCourseId);
@@ -406,7 +410,10 @@ export const ElearningCatalog = ({
             onCourseContentComplete?.(selectedCourse, payload);
           } : undefined}
           open
-          onClose={() => setSelectedCourseId(null)}
+          onClose={() => {
+            setSelectedCourseId(null);
+            onCourseClose?.();
+          }}
         />
       ) : null}
 
