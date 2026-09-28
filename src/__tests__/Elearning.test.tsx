@@ -512,6 +512,46 @@ describe('Elearning components', () => {
     expect(screen.getByRole('dialog')).toHaveTextContent('Règles de sécurité à respecter dans les bâtiments municipaux');
   });
 
+  it('opens an initial catalog course without starting it and follows a keyed navigation', () => {
+    const handleAction = jest.fn();
+    const handleClose = jest.fn();
+    const { rerender } = render(
+      <ElearningCatalog
+        key="archives"
+        courses={courses}
+        initialCourseId="archives"
+        onCourseAction={handleAction}
+        onCourseClose={handleClose}
+      />
+    );
+
+    expect(screen.getByRole('dialog')).toHaveTextContent('Gestion des archives numériques');
+    expect(handleAction).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fermer le détail du cours' }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(handleClose).toHaveBeenCalledTimes(1);
+
+    rerender(
+      <ElearningCatalog
+        key="security"
+        courses={courses}
+        initialCourseId="security"
+        onCourseAction={handleAction}
+        onCourseClose={handleClose}
+      />
+    );
+    expect(screen.getByRole('dialog')).toHaveTextContent('Sécurité au travail');
+    expect(handleAction).not.toHaveBeenCalled();
+  });
+
+  it('does not fabricate a course for an unknown initial ID', () => {
+    render(<ElearningCatalog courses={courses} initialCourseId="unknown" />);
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Sécurité au travail' })).toBeInTheDocument();
+  });
+
   it('shows only course information when chapter details are unavailable', () => {
     render(<ElearningCatalog courses={[courses[1]]} />);
 
