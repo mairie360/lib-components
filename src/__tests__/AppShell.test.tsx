@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 
 import { AppShell } from '../components/AppShell';
@@ -40,6 +40,15 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: /Administration/ })).toHaveClass('bg-[#891827]');
+  });
+
+  it('uses the same highlighted Administration row in the mobile drawer', () => {
+    render(<AppShell isAdmin user={user} hrefs={{ admin: '/admin' }} onNavigate={jest.fn()}><p>Contenu</p></AppShell>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
+    expect(within(drawer).getByRole('button', { name: 'Administration' })).toHaveClass('bg-[#b4232f]', 'focus-visible:outline-[#ffccd1]');
   });
 
   it('uses the safe Settings destination when the configured profile URL is unsafe', () => {
