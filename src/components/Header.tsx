@@ -62,7 +62,7 @@ const getDisplayName = (user?: User) => {
     .filter(Boolean)
     .join(' ');
 
-  return structuredName || 'Utilisateur';
+  return structuredName || user?.email?.trim() || 'Utilisateur';
 };
 
 const getInitials = (displayName: string) =>
@@ -113,6 +113,9 @@ export const Header = ({
   showAdministration,
 }: HeaderProps) => {
   const [searchQuery, setSearchQuery] = React.useState('');
+  const hasIdentity = Boolean(
+    user?.name?.trim() || user?.first_name?.trim() || user?.last_name?.trim() || user?.email?.trim(),
+  );
   const displayName = getDisplayName(user);
   const displayEmail = user?.email?.trim() || '';
   const displayService = user?.service?.trim() || '';
@@ -174,7 +177,7 @@ export const Header = ({
           </span>}
         </button>}
 
-        <DropdownMenu>
+        {hasIdentity && <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               type="button"
@@ -284,7 +287,7 @@ export const Header = ({
               Déconnexion
             </DropdownMenuItem></>}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu>}
       </div>
     </header>
   );

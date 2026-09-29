@@ -7,6 +7,20 @@ import { AppShell } from '../components/AppShell';
 const user = { name: 'Marie Martin', email: 'marie@example.fr', role: 'user' };
 
 describe('AppShell', () => {
+  it('keeps desktop and mobile navigation available without a fictitious account', () => {
+    const onNavigate = jest.fn();
+    render(<AppShell hrefs={{ projects: '/projects', settings: '/settings' }} onNavigate={onNavigate}><p>Contenu</p></AppShell>);
+
+    expect(screen.queryByText('Utilisateur')).not.toBeInTheDocument();
+    expect(screen.queryByText('Profil')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Projets' }));
+    expect(onNavigate).toHaveBeenCalledWith('/projects', 'projects');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
+    expect(within(drawer).getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
+  });
+
   it('renders the shared layout with only configured destinations', () => {
     render(<AppShell activeItem="projects" user={user} hrefs={{ projects: '/projects', settings: '/settings' }} onNavigate={jest.fn()}><h1>Mes projets</h1></AppShell>);
 
