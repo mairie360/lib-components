@@ -2,7 +2,7 @@ import React from 'react';
 import { AtSign, Briefcase, CalendarDays, FileText, Hash, ListTodo, Paperclip, Send, Smile, X } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import type { MessagingAttachment, MessagingBusinessReference, MessagingMention } from './messaging/types';
+import type { MessagingAttachment, MessagingBusinessReference, MessagingMention, MessagingSendResult } from './messaging/types';
 
 export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormElement> {
   value?: string;
@@ -20,7 +20,7 @@ export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormEle
     attachments?: MessagingAttachment[],
     mentions?: MessagingMention[],
     businessLinks?: MessagingBusinessReference[]
-  ) => void;
+  ) => MessagingSendResult;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
 }
@@ -89,8 +89,11 @@ export const MessagingComposer = ({
   const [mentions, setMentions] = React.useState<MessagingMention[]>([]);
   const [businessLinks, setBusinessLinks] = React.useState<MessagingBusinessReference[]>([]);
   const [emojiOpen, setEmojiOpen] = React.useState(false);
+  const [isSending, setIsSending] = React.useState(false);
+  const sendingRef = React.useRef(false);
   const currentValue = value ?? internalValue;
-  const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !disabled && !!onSendMessage;
+  const isBusy = disabled || isSending;
+  const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !isBusy && !!onSendMessage;
   const mentionMatch = getTriggerMatch(currentValue, '@');
   const businessReferenceMatch = getBusinessReferenceMatch(currentValue);
   const mentionSuggestions = mentionMatch
@@ -123,30 +126,52 @@ export const MessagingComposer = ({
     event.preventDefault();
 
     const nextMessage = currentValue.trim() || 'Pièce jointe';
-    if ((!currentValue.trim() && attachments.length === 0) || disabled || !onSendMessage) return;
+    if ((!currentValue.trim() && attachments.length === 0) || disabled || sendingRef.current || !onSendMessage) return;
 
     const messageMentions = mentions.filter((mention) => currentValue.includes(`@${mention.name}`));
     const messageBusinessLinks = businessLinks.filter((reference) => currentValue.includes(`#${reference.title}`));
 
-    onSendMessage(nextMessage, attachments, messageMentions, messageBusinessLinks);
+    const clearDraft = () => {
+      if (value === undefined) setInternalValue('');
+      setAttachments([]);
+      setMentions([]);
+      setBusinessLinks([]);
+      setEmojiOpen(false);
+      onValueChange?.('');
+    };
 
-    if (value === undefined) {
-      setInternalValue('');
+    sendingRef.current = true;
+    try {
+      const result = onSendMessage(nextMessage, attachments, messageMentions, messageBusinessLinks);
+      if (result instanceof Promise) {
+        setIsSending(true);
+        void result
+          .then((confirmed) => {
+            if (confirmed !== false) clearDraft();
+          })
+          .catch(() => {
+            // The consumer owns error presentation; keep the draft for retry.
+          })
+          .finally(() => {
+            sendingRef.current = false;
+            setIsSending(false);
+          });
+      } else {
+        if (result !== false) clearDraft();
+        sendingRef.current = false;
+      }
+    } catch {
+      sendingRef.current = false;
     }
-
-    setAttachments([]);
-    setMentions([]);
-    setBusinessLinks([]);
-    setEmojiOpen(false);
-    onValueChange?.('');
   };
 
   const handleAttachClick = () => {
-    if (disabled || !onSendMessage) return;
+    if (isBusy || !onSendMessage) return;
     fileInputRef.current?.click();
   };
 
   const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (isBusy) return;
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
@@ -245,7 +270,7 @@ export const MessagingComposer = ({
         type="file"
         className="hidden"
         multiple
-        disabled={disabled || !onSendMessage}
+        disabled={isBusy || !onSendMessage}
         tabIndex={-1}
         onChange={handleFilesChange}
       />
@@ -256,7 +281,7 @@ export const MessagingComposer = ({
             type="text"
             value={currentValue}
             placeholder={placeholder}
-            disabled={disabled || !onSendMessage}
+            disabled={isBusy || !onSendMessage}
             className="h-10 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#5f6770] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:bg-[#f5f3f0]"
             onChange={handleChange}
             onKeyDown={handleInputKeyDown}
@@ -327,6 +352,7 @@ export const MessagingComposer = ({
               <button
                 type="button"
                 aria-label={`Retirer ${attachment.name}`}
+                disabled={isBusy}
                 className="inline-flex size-5 items-center justify-center rounded text-[#5f6770] transition hover:bg-[#ece8e2] hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
                 onClick={() => removeAttachment(attachment.id)}
               >
@@ -341,7 +367,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label={attachLabel}
           title={attachLabel}
-          disabled={disabled || !onSendMessage}
+          disabled={isBusy || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={handleAttachClick}
         >
@@ -351,7 +377,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label="Mentionner un utilisateur"
           title="Mentionner un utilisateur"
-          disabled={disabled || !onSendMessage}
+          disabled={isBusy || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={() => {
             if (disabled) return;
@@ -365,7 +391,7 @@ export const MessagingComposer = ({
           type="button"
           aria-label="Mentionner un élément métier"
           title="Mentionner un élément métier"
-          disabled={disabled || !onSendMessage}
+          disabled={isBusy || !onSendMessage}
           className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={() => {
             if (disabled) return;

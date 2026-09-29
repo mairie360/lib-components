@@ -3,7 +3,7 @@ import { ChevronDown, Send } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { MessagingModalFrame } from './messaging/MessagingModalFrame';
-import type { MessagingContactId, MessagingConversation, NewMessagePayload } from './messaging/types';
+import type { MessagingContactId, MessagingConversation, MessagingSendResult, NewMessagePayload } from './messaging/types';
 
 export interface NewMessageModalProps {
   isOpen: boolean;
@@ -19,7 +19,7 @@ export interface NewMessageModalProps {
   initialRecipientId?: MessagingContactId;
   initialMessage?: string;
   onCancel: () => void;
-  onSendMessage: (payload: NewMessagePayload) => void;
+  onSendMessage: (payload: NewMessagePayload) => MessagingSendResult;
 }
 
 const fieldClassName =
@@ -50,6 +50,8 @@ export const NewMessageModal = ({
   const initialRecipientValue = initialRecipientId === undefined ? '' : String(initialRecipientId);
   const [recipientValue, setRecipientValue] = React.useState(initialRecipientValue);
   const [message, setMessage] = React.useState(initialMessage);
+  const [isSending, setIsSending] = React.useState(false);
+  const sendingRef = React.useRef(false);
   const titleId = React.useId();
   const subtitleId = React.useId();
   const recipientId = React.useId();
@@ -65,16 +67,34 @@ export const NewMessageModal = ({
   if (!isOpen) return null;
 
   const selectedContact = contacts.find((contact) => String(contact.id) === recipientValue);
-  const canSubmit = !!selectedContact && message.trim().length > 0;
+  const canSubmit = !!selectedContact && message.trim().length > 0 && !isSending;
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!selectedContact || !message.trim()) return;
+    if (!selectedContact || !message.trim() || sendingRef.current) return;
 
-    onSendMessage({
-      recipientId: selectedContact.id,
-      message: message.trim(),
-    });
+    sendingRef.current = true;
+    try {
+      const result = onSendMessage({
+        recipientId: selectedContact.id,
+        message: message.trim(),
+      });
+      if (result instanceof Promise) {
+        setIsSending(true);
+        void result
+          .catch(() => {
+            // The consumer displays the error; keep recipient and message for retry.
+          })
+          .finally(() => {
+            sendingRef.current = false;
+            setIsSending(false);
+          });
+      } else {
+        sendingRef.current = false;
+      }
+    } catch {
+      sendingRef.current = false;
+    }
   };
 
   return (
@@ -105,6 +125,7 @@ export const NewMessageModal = ({
           <select
             id={recipientId}
             value={recipientValue}
+            disabled={isSending}
             className={joinClasses(fieldClassName, 'appearance-none pr-10')}
             onChange={(event) => setRecipientValue(event.target.value)}
           >
@@ -127,6 +148,7 @@ export const NewMessageModal = ({
         <textarea
           id={messageId}
           value={message}
+          disabled={isSending}
           placeholder={messagePlaceholder}
           className={joinClasses(fieldClassName, 'h-[100px] resize-none py-2')}
           onChange={(event) => setMessage(event.target.value)}

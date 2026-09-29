@@ -5,6 +5,7 @@ export type MessagingConversationKind = 'direct' | 'group';
 export type MessagingPresence = 'online' | 'offline' | 'away';
 export type MessagingMessageDirection = 'incoming' | 'outgoing';
 export type MessagingBusinessReferenceKind = 'project' | 'task' | 'event';
+export type MessagingSendResult = void | boolean | Promise<void | boolean>;
 
 export interface MessagingAttachment {
   id: MessagingContactId;

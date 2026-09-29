@@ -17,6 +17,7 @@ import type {
   MessagingMention,
   MessagingMessage,
   MessagingSendMessagePayload,
+  MessagingSendResult,
   NewMessagePayload,
 } from './messaging/types';
 
@@ -35,8 +36,8 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onConversationSelect?: (conversation: MessagingConversation) => void;
   onNewMessageClick?: () => void;
   onCreateGroupClick?: () => void;
-  onSendMessage?: (payload: MessagingSendMessagePayload) => void;
-  onNewMessageSend?: (payload: NewMessagePayload) => void;
+  onSendMessage?: (payload: MessagingSendMessagePayload) => MessagingSendResult;
+  onNewMessageSend?: (payload: NewMessagePayload) => MessagingSendResult;
   onCreateGroup?: (payload: CreateGroupPayload) => void;
   onConversationDelete?: (conversation: MessagingConversation) => void;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
@@ -223,12 +224,19 @@ export const Messaging = ({
       payload.context = contextReference;
     }
 
-    onSendMessage?.(payload);
+    return onSendMessage?.(payload);
   };
 
   const handleSendNewMessage = (payload: NewMessagePayload) => {
-    onNewMessageSend?.(payload);
-    setNewMessageOpen(false);
+    const result = onNewMessageSend?.(payload);
+    if (result instanceof Promise) {
+      return result.then((confirmed) => {
+        if (confirmed !== false) setNewMessageOpen(false);
+        return confirmed;
+      });
+    }
+    if (result !== false) setNewMessageOpen(false);
+    return result;
   };
 
   const handleCreateGroup = (payload: CreateGroupPayload) => {
