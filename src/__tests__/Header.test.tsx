@@ -11,6 +11,24 @@ const adminUser = {
 };
 
 describe('Header component', () => {
+  it.each([undefined, {}, { role: 'admin' }])('does not expose account actions without a user identity (%p)', (user) => {
+    const setSidebarOpen = jest.fn();
+    render(<Header user={user} isAdmin onPageChange={jest.fn()} onLogout={jest.fn()} setSidebarOpen={setSidebarOpen} />);
+
+    expect(screen.queryByText('Utilisateur')).not.toBeInTheDocument();
+    expect(screen.queryByText('Profil')).not.toBeInTheDocument();
+    expect(screen.queryByText('Déconnexion')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    expect(setSidebarOpen).toHaveBeenCalledWith(true);
+  });
+
+  it('uses the email as the visible identity when no name is provided', () => {
+    render(<Header user={{ email: 'agent@mairie.fr' }} />);
+
+    expect(screen.getByRole('button', { name: /agent@mairie.fr/ })).toBeInTheDocument();
+    expect(screen.queryByText('Utilisateur')).not.toBeInTheDocument();
+  });
+
   it('does not invent search, notifications, or a notification count', () => {
     render(<Header user={adminUser} isAdmin />);
 

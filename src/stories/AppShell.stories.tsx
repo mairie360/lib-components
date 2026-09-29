@@ -23,6 +23,14 @@ const meta: Meta<typeof AppShell> = {
 export default meta;
 export const Default: StoryObj<typeof AppShell> = {};
 
+export const Anonymous: StoryObj<typeof AppShell> = {
+  args: {
+    user: undefined,
+    onLogout: undefined,
+    children: <h1 className="text-2xl font-semibold">Connexion</h1>,
+  },
+};
+
 export const MobileKeyboardNavigation: StoryObj<typeof AppShell> = {
   parameters: {
     viewport: { defaultViewport: 'mobile1' },
