@@ -17,8 +17,23 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /Formation/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Calendrier/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toBeInTheDocument();
-    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Paramètres/ })).toBeInTheDocument();
+  });
+
+  it('highlights the entire Administration row without changing other destinations', () => {
+    render(<Sidebar isAdmin />);
+
+    const administration = screen.getByRole('button', { name: 'Administration' });
+    expect(administration).toHaveClass('bg-[#b4232f]', 'border-[#db5260]', 'hover:bg-[#951c28]', 'focus-visible:outline-[#ffccd1]');
+    expect(screen.getByRole('button', { name: 'Projets' })).not.toHaveClass('bg-[#b4232f]');
+  });
+
+  it('keeps the Administration row red when it is active', () => {
+    render(<Sidebar isAdmin activeItem="admin" />);
+
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[#891827]', 'border-[#ffb0b7]');
   });
 
   it('hides Administration when the user is not an administrator', () => {

@@ -47,7 +47,7 @@ export const defaultSidebarItems: SidebarItem[] = [
   { id: 'messages', label: 'Messagerie', icon: MessageSquare },
   { id: 'training', label: 'Formation', icon: GraduationCap },
   { id: 'calendar', label: 'Calendrier', icon: Calendar },
-  { id: 'admin', label: 'Administration', icon: Shield, adminOnly: true, badge: 'Admin' },
+  { id: 'admin', label: 'Administration', icon: Shield, adminOnly: true },
   { id: 'settings', label: 'Paramètres', icon: Settings },
 ];
 
@@ -95,23 +95,29 @@ export const Sidebar = ({
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
+          const isAdministration = item.id === 'admin';
+          let appearance = isActive
+            ? 'border-[#2677cf] bg-[#1c63b7] text-white shadow-[0_1px_2px_rgba(0,0,0,0.24)]'
+            : 'border-transparent text-[#dff9ff] hover:border-[#4b908d]/70 hover:bg-[#334d4a] hover:text-white';
+
+          if (isAdministration) {
+            appearance = isActive
+              ? 'border-[#ffb0b7] bg-[#891827] text-white shadow-[inset_3px_0_0_#ffccd1,0_2px_6px_#0003] hover:bg-[#891827] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffccd1]'
+              : 'border-[#db5260] bg-[#b4232f] text-white shadow-[0_2px_6px_#0003] hover:bg-[#951c28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffccd1]';
+          }
 
           return (
             <button
               key={item.id}
               type="button"
               aria-current={isActive ? 'page' : undefined}
-              className={`flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border px-3 text-left text-base transition-colors ${
-                isActive
-                  ? 'border-[#2677cf] bg-[#1c63b7] text-white shadow-[0_1px_2px_rgba(0,0,0,0.24)]'
-                  : 'border-transparent text-[#dff9ff] hover:border-[#4b908d]/70 hover:bg-[#334d4a] hover:text-white'
-              }`}
+              className={`flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border px-3 text-left text-base transition-colors ${appearance}`}
               onClick={() => onItemSelect?.(item)}
             >
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.9} />
               <span className="min-w-0 flex-1 truncate">{item.label}</span>
               {item.badge && (
-                <span className="shrink-0 rounded-md bg-[#e60012] px-2 py-0.5 text-xs font-semibold leading-5 text-white">
+                <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-white ${isAdministration ? 'bg-white/20' : 'bg-[#e60012]'}`}>
                   {item.badge}
                 </span>
               )}
