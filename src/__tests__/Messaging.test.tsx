@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { ComponentProps } from 'react';
 
 import { CreateGroupModal } from '../components/CreateGroupModal';
@@ -425,6 +425,60 @@ describe('Messaging components', () => {
     );
   });
 
+  it('keeps text, references and attachments after a refused send, then clears them on retry success', async () => {
+    let resolveFirstSend!: (confirmed: boolean) => void;
+    const firstSend = new Promise<boolean>((resolve) => { resolveFirstSend = resolve; });
+    const onSendMessage = jest.fn().mockReturnValueOnce(firstSend).mockResolvedValueOnce(true);
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      value: jest.fn(() => 'blob:retry.pdf'),
+    });
+    const { container } = render(
+      <MessagingComposer
+        mentionOptions={[{ id: 'marie', name: 'Marie', kind: 'direct' }]}
+        businessReferenceOptions={[{ id: 'project-1', title: 'Projet mairie', kind: 'project' }]}
+        onSendMessage={onSendMessage}
+      />
+    );
+    const input = screen.getByPlaceholderText('Tapez votre message...');
+    fireEvent.change(input, { target: { value: '@Mar' } });
+    fireEvent.click(screen.getByRole('button', { name: /@Marie/ }));
+    fireEvent.change(input, { target: { value: '@Marie #Projet' } });
+    fireEvent.click(screen.getByRole('button', { name: /#Projet mairie/ }));
+    fireEvent.change(container.querySelector('input[type="file"]') as HTMLInputElement, {
+      target: { files: [new File(['draft'], 'retry.pdf', { type: 'application/pdf' })] },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect(onSendMessage).toHaveBeenCalledTimes(1);
+    expect(input).toBeDisabled();
+    expect(screen.getByText('retry.pdf')).toBeInTheDocument();
+    fireEvent.submit(container.querySelector('form') as HTMLFormElement);
+    expect(onSendMessage).toHaveBeenCalledTimes(1);
+
+    await act(async () => { resolveFirstSend(false); await firstSend; });
+    expect(input).toHaveValue('@Marie #Projet mairie ');
+    expect(screen.getByText('retry.pdf')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    await waitFor(() => expect(input).toHaveValue(''));
+    expect(onSendMessage.mock.calls[1]).toEqual(onSendMessage.mock.calls[0]);
+    expect(onSendMessage.mock.calls[1][2]).toEqual([expect.objectContaining({ id: 'marie' })]);
+    expect(onSendMessage.mock.calls[1][3]).toEqual([expect.objectContaining({ id: 'project-1' })]);
+    expect(screen.queryByText('retry.pdf')).not.toBeInTheDocument();
+  });
+
+  it('keeps the composer draft when an asynchronous sender rejects', async () => {
+    const onSendMessage = jest.fn().mockRejectedValueOnce(new Error('network')).mockReturnValueOnce(true);
+    render(<MessagingComposer onSendMessage={onSendMessage} />);
+    const input = screen.getByPlaceholderText('Tapez votre message...');
+    fireEvent.change(input, { target: { value: 'Message à réessayer' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Envoyer' })).toBeEnabled());
+    expect(input).toHaveValue('Message à réessayer');
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect(input).toHaveValue('');
+  });
+
   it('removes an attached file before sending', () => {
     const handleSendMessage = jest.fn();
     const { container } = render(<DemoMessaging onSendMessage={handleSendMessage} />);
@@ -663,6 +717,22 @@ describe('Messaging components', () => {
       recipientId: 'pierre-martin',
       message: 'Bonjour Pierre',
     });
+  });
+
+  it('keeps the direct-message modal open for retry after a refused send', async () => {
+    const onNewMessageSend = jest.fn().mockResolvedValueOnce(false).mockResolvedValueOnce(true);
+    render(<DemoMessaging onNewMessageSend={onNewMessageSend} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Nouveau message' }));
+    fireEvent.change(screen.getByLabelText('Destinataire'), { target: { value: 'pierre-martin' } });
+    fireEvent.change(screen.getByLabelText('Message'), { target: { value: 'Bonjour Pierre' } });
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Envoyer' }));
+    await waitFor(() => expect(within(screen.getByRole('dialog')).getByRole('button', { name: 'Envoyer' })).toBeEnabled());
+    expect(screen.getByLabelText('Destinataire')).toHaveValue('pierre-martin');
+    expect(screen.getByLabelText('Message')).toHaveValue('Bonjour Pierre');
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Envoyer' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onNewMessageSend).toHaveBeenCalledTimes(2);
+    expect(onNewMessageSend.mock.calls[1]).toEqual(onNewMessageSend.mock.calls[0]);
   });
 
   it('submits a group creation payload from the modal', () => {
