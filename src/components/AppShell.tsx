@@ -17,11 +17,13 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /** Compatibility callback for pages that already navigate by item id. */
   onPageChange?: (itemId: string) => void;
   headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen' | 'menuButtonRef' | 'onPageChange' | 'onLogout' | 'profileHref'>;
-  sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin' | 'items' | 'onItemSelect'> & {
+  sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin' | 'items' | 'onItemSelect' | 'footer'> & {
     items?: SidebarItem[];
     onItemSelect?: (item: SidebarItem) => void;
   };
   footerProps?: FooterProps;
+  /** Sidebar placement matches the frontend prototype; content preserves the legacy horizontal layout. */
+  footerPlacement?: 'sidebar' | 'content';
   children: React.ReactNode;
 }
 
@@ -44,6 +46,7 @@ export const AppShell = ({
   headerProps,
   sidebarProps,
   footerProps,
+  footerPlacement = 'sidebar',
   children,
   className = '',
   ...props
@@ -130,6 +133,7 @@ export const AppShell = ({
       isAdmin={isAdmin}
       items={visibleItems}
       onItemSelect={handleSidebarItemSelect}
+      footer={footerPlacement === 'sidebar' ? <Footer {...footerProps} variant="sidebar" /> : undefined}
       className={joinClasses('h-full', sidebarClassName)}
     />
   );
@@ -180,7 +184,7 @@ export const AppShell = ({
           <main className="min-h-0 flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {children}
           </main>
-          <Footer {...footerProps} />
+          {footerPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}
         </div>
       </div>
     </div>

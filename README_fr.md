@@ -87,6 +87,16 @@ export function Example() {
 
 Les composants interactifs utilisent des hooks React et des API du navigateur. Dans un projet Next.js avec l’App Router, utilisez-les depuis un Client Component, comme dans l’exemple ci-dessus.
 
+`AppShell` place par défaut le copyright dans la sidebar sur ordinateur et dans
+le tiroir de navigation sur mobile, sans réduire la hauteur disponible pour le
+contenu. `footerProps` fournit toujours les informations produit réelles et les
+liens raccordés ; aucune version de livraison n’est inventée. Utilisez
+`footerPlacement="content"` uniquement lorsqu’un pied de page horizontal est
+voulu. Le composant `Footer` seul reste horizontal par défaut ;
+`variant="sidebar"` choisit sa présentation compacte sur fond sombre.
+`Sidebar` accepte aussi un nœud React `footer`, hors de sa navigation défilante.
+Les écrans d’authentification Login n’utilisent pas `AppShell`.
+
 ## Groupes de composants
 
 L’API publique comprend les groupes principaux suivants :

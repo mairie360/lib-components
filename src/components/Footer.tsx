@@ -15,6 +15,8 @@ export interface FooterProps {
   version?: string;
   /** Links displayed on the right side */
   links?: FooterLink[];
+  /** Compact application information on the dark sidebar, or the standalone horizontal footer. */
+  variant?: 'horizontal' | 'sidebar';
   /** Additional CSS classes for the footer container */
   className?: string;
 }
@@ -24,12 +26,15 @@ export const Footer = ({
   year = new Date().getFullYear(),
   version,
   links = [],
+  variant = 'horizontal',
   className = '',
 }: FooterProps) => {
   const actionableLinks = links.filter((link) => Boolean(link.href || link.onClick));
+  const isSidebar = variant === 'sidebar';
   const renderLink = (link: FooterLink) => {
-    const className =
-      'text-sm font-medium text-[#4c5258] transition-colors hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4b908d]/30 rounded-sm';
+    const className = isSidebar
+      ? 'rounded-sm text-xs font-medium text-[#dff9ff] transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
+      : 'text-sm font-medium text-[#4c5258] transition-colors hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4b908d]/30 rounded-sm';
 
     if (link.href) {
       return (
@@ -48,23 +53,26 @@ export const Footer = ({
 
   return (
     <footer
-      className={`flex min-h-16 w-full flex-col gap-3 border-t border-[#b9d6d5] bg-white px-6 py-4 text-[#4c5258] shadow-[0_-1px_5px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:justify-between sm:gap-6 ${className}`}
+      role="contentinfo"
+      className={`${isSidebar
+        ? 'flex w-full flex-col items-center gap-3 border-t border-[#4b908d]/45 bg-transparent px-4 py-5 text-[#dff9ff]'
+        : 'flex min-h-16 w-full flex-col gap-3 border-t border-[#b9d6d5] bg-white px-6 py-4 text-[#4c5258] shadow-[0_-1px_5px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:justify-between sm:gap-6'} ${className}`}
     >
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className={isSidebar ? 'flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-xs' : 'flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'}>
         <span>{`© ${year} ${productName}`}</span>
         {version && (
           <>
-            <span className="text-[#4b908d]" aria-hidden="true">•</span>
+            <span className={isSidebar ? 'text-[#dff9ff]' : 'text-[#4b908d]'} aria-hidden="true">•</span>
             <span>{`Version ${version}`}</span>
           </>
         )}
       </div>
 
-      {actionableLinks.length > 0 && <nav aria-label="Liens du pied de page" className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      {actionableLinks.length > 0 && <nav aria-label="Liens du pied de page" className={`flex flex-wrap items-center gap-y-2 ${isSidebar ? 'justify-center gap-x-2' : 'gap-x-4'}`}>
         {actionableLinks.map((link, index) => (
           <React.Fragment key={`${link.label}-${index}`}>
             {index > 0 && (
-              <span className="text-[#4b908d]" aria-hidden="true">
+              <span className={isSidebar ? 'text-[#dff9ff]' : 'text-[#4b908d]'} aria-hidden="true">
                 •
               </span>
             )}

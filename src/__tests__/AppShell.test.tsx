@@ -49,6 +49,40 @@ describe('AppShell', () => {
     expect(onNavigate).toHaveBeenCalledWith('/settings', 'settings');
   });
 
+  it('places copyright in the sidebar rather than below the content by default', () => {
+    render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
+
+    const sidebar = screen.getByRole('complementary', { name: 'Navigation principale' });
+    const footer = within(sidebar).getByRole('contentinfo');
+    expect(footer).toHaveTextContent('© 2026 Mairie360');
+    expect(footer).not.toHaveTextContent(/Version/);
+    expect(screen.getByRole('main').parentElement!.querySelector(':scope > footer')).toBeNull();
+  });
+
+  it('keeps supplied footer information and actions in the mobile navigation', () => {
+    const support = jest.fn();
+    render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ productName: 'Ville Connectée', year: 2027, version: '3.0.0', links: [{ label: 'Assistance', onClick: support }, { label: 'Sans destination' }] }}><p>Contenu</p></AppShell>);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
+    const footer = within(drawer).getByRole('contentinfo');
+    expect(footer).toHaveTextContent('© 2027 Ville Connectée');
+    expect(footer).toHaveTextContent('Version 3.0.0');
+    expect(within(drawer).queryByText('Sans destination')).not.toBeInTheDocument();
+    fireEvent.click(within(footer).getByRole('button', { name: 'Assistance' }));
+    expect(support).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Ouvrir la navigation' })).toHaveFocus();
+  });
+
+  it('retains the horizontal footer when explicitly requested', () => {
+    render(<AppShell hrefs={{ projects: '/projects' }} footerPlacement="content"><p>Contenu</p></AppShell>);
+
+    expect(screen.getByRole('main').parentElement!.querySelector(':scope > footer')).toBe(screen.getByRole('contentinfo'));
+    expect(within(screen.getByRole('complementary', { name: 'Navigation principale' })).queryByRole('contentinfo')).toBeNull();
+  });
+
   it('shows safe relative destinations without a router callback', () => {
     render(<AppShell activeItem="admin" isAdmin user={user} hrefs={{ admin: '/', settings: '/settings' }}><p>Contenu</p></AppShell>);
 

@@ -87,6 +87,15 @@ export function Example() {
 
 Interactive components use React hooks and browser APIs. In a Next.js App Router project, render them from a Client Component, as shown above.
 
+`AppShell` places application copyright in the desktop sidebar and mobile
+navigation drawer by default, preserving the content area's full available
+height. `footerProps` still supplies real product information and actionable
+links; no release version is invented. Use `footerPlacement="content"` only
+when a horizontal footer is intentional. The standalone `Footer` component
+keeps its horizontal default; `variant="sidebar"` selects its compact dark
+presentation. `Sidebar` also accepts a `footer` React node outside its scrollable
+navigation. Login authentication screens do not use `AppShell`.
+
 ## Component groups
 
 The public API includes the following main groups:

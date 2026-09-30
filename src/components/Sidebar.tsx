@@ -37,6 +37,8 @@ export interface SidebarProps {
   brandLogoAlt?: string;
   /** Sidebar brand initial */
   brandInitial?: string;
+  /** Application information placed below the independently scrollable navigation. */
+  footer?: React.ReactNode;
   /** Additional CSS classes for the sidebar container */
   className?: string;
 }
@@ -60,6 +62,7 @@ export const Sidebar = ({
   brandLogoSrc = mairie360LogoSrc,
   brandLogoAlt = 'Logo Mairie360',
   brandInitial = 'M',
+  footer,
   className = '',
 }: SidebarProps) => {
   const [logoError, setLogoError] = React.useState(false);
@@ -125,6 +128,7 @@ export const Sidebar = ({
           );
         })}
       </nav>
+      {footer && <div className="shrink-0">{footer}</div>}
     </aside>
   );
 };
