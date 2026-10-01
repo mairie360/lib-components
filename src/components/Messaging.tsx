@@ -38,7 +38,7 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onCreateGroupClick?: () => void;
   onSendMessage?: (payload: MessagingSendMessagePayload) => MessagingSendResult;
   onNewMessageSend?: (payload: NewMessagePayload) => MessagingSendResult;
-  onCreateGroup?: (payload: CreateGroupPayload) => void;
+  onCreateGroup?: (payload: CreateGroupPayload) => MessagingSendResult;
   onConversationDelete?: (conversation: MessagingConversation) => void;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
@@ -240,8 +240,15 @@ export const Messaging = ({
   };
 
   const handleCreateGroup = (payload: CreateGroupPayload) => {
-    onCreateGroup?.(payload);
-    setCreateGroupOpen(false);
+    const result = onCreateGroup?.(payload);
+    if (result instanceof Promise) {
+      return result.then((confirmed) => {
+        if (confirmed !== false) setCreateGroupOpen(false);
+        return confirmed;
+      });
+    }
+    if (result !== false) setCreateGroupOpen(false);
+    return result;
   };
 
   const handleDeleteConversation = (conversationToDelete: MessagingConversation) => {

@@ -99,6 +99,14 @@ Les écrans d’authentification Login n’utilisent pas `AppShell`.
 
 ## Groupes de composants
 
+`Messaging.onCreateGroup` et `CreateGroupModal.onCreateGroup` acceptent un résultat
+`boolean | void`, synchrone ou asynchrone. Retourner `false` ou lever/rejeter une
+erreur conserve le nom, la description et les membres pour réessayer. Un succès
+confirmé (y compris les anciens callbacks `void`) ferme la fenêtre de `Messaging`.
+Pendant l’attente, les champs et les contrôles de fermeture sont désactivés et les
+soumissions répétées sont ignorées. Le front doit retourner le résultat du service,
+sans abandonner sa promesse ni annoncer un succès avant la création effective.
+
 L’API publique comprend les groupes principaux suivants :
 
 - Composants d’interface : `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `DropdownMenu`, `InputManager`, `Select`, `Spinner`, `Title` et `ToolTip`.

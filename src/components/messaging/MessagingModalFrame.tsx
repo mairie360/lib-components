@@ -11,6 +11,7 @@ interface MessagingModalFrameProps {
   titleId: string;
   subtitleId: string;
   className?: string;
+  closeDisabled?: boolean;
   onClose: () => void;
   onSubmit?: React.FormEventHandler<HTMLFormElement>;
 }
@@ -23,6 +24,7 @@ export const MessagingModalFrame = ({
   titleId,
   subtitleId,
   className,
+  closeDisabled = false,
   onClose,
   onSubmit,
 }: MessagingModalFrameProps) => (
@@ -54,6 +56,7 @@ export const MessagingModalFrame = ({
         <button
           type="button"
           aria-label="Fermer"
+          disabled={closeDisabled}
           className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-[#5f6770] transition hover:bg-[#ece8e2] hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
           onClick={onClose}
         >
