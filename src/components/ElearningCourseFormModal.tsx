@@ -231,7 +231,7 @@ export const ElearningCourseFormModal = ({
         onSubmit={handleSubmit}
         role="dialog"
       >
-        <div className="flex min-h-16 items-center justify-between gap-4 bg-[#2f3747] px-5 py-3 text-white sm:px-7">
+        <div className="flex min-h-16 shrink-0 items-center justify-between gap-4 bg-[#2f3747] px-5 py-3 text-white sm:px-7">
           <div>
             <h2 id={titleId} className="text-base font-semibold leading-6 sm:text-lg">
               {title}
@@ -249,7 +249,8 @@ export const ElearningCourseFormModal = ({
           </button>
         </div>
 
-        <fieldset disabled={isSubmitting} className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto border-0 px-5 py-5 sm:px-7 sm:py-6">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6" data-elearning-form-scroll>
+        <fieldset disabled={isSubmitting} className="m-0 min-w-0 space-y-6 border-0 p-0">
           <section aria-labelledby="course-general-heading">
             <h3 id="course-general-heading" className="text-base font-bold text-[#2f3747]">
               Informations générales
@@ -563,8 +564,9 @@ export const ElearningCourseFormModal = ({
             </div>
           </section>
         </fieldset>
+        </div>
 
-        {submissionError ? <p role="alert" className="px-5 py-2 text-sm text-[#c5323a] sm:px-7">{submissionError}</p> : null}
+        {submissionError ? <p role="alert" className="shrink-0 px-5 py-2 text-sm text-[#c5323a] sm:px-7">{submissionError}</p> : null}
         <div className="flex shrink-0 justify-end gap-3 border-t border-[#ddd7cf] bg-[#f8f7f5] px-5 py-4 sm:px-7">
           <button
             className="inline-flex h-10 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#2f3747] transition hover:bg-[#f4f2ef]"

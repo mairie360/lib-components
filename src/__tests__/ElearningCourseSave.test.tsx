@@ -60,6 +60,12 @@ describe.each(['create', 'update'] as const)('confirmed Elearning %s', (mode) =>
     }).mockResolvedValue(true);
     render(<ElearningCatalog courses={[course]} currentUserRole="administrator" onCreateCourse={save} onUpdateCourse={save} />);
     const dialog = openAndFill(mode);
+    const scrollBody = dialog.querySelector('[data-elearning-form-scroll]');
+    const fieldset = dialog.querySelector('fieldset');
+    expect(scrollBody).toHaveClass('min-h-0', 'flex-1', 'overflow-y-auto');
+    expect(fieldset?.parentElement).toBe(scrollBody);
+    expect(fieldset).not.toHaveClass('flex-1', 'overflow-y-auto');
+    expect(within(dialog).getByRole('button', { name: 'Annuler' }).parentElement?.parentElement).toBe(dialog);
     fireEvent.click(within(dialog).getByRole('button', { name: submitLabel }));
     await waitFor(() => expect(within(dialog).getByRole('alert')).toHaveTextContent('Vos saisies sont conservées'));
     expectDraft(dialog);
