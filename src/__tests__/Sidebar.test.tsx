@@ -76,6 +76,15 @@ describe('Sidebar component', () => {
     expect(screen.getByAltText('Logo Ville Connectée')).toHaveAttribute('src', '/ville.png');
   });
 
+  it('places supplied application information outside the scrollable navigation', () => {
+    render(<Sidebar footer={<p>Informations application</p>} />);
+
+    const information = screen.getByText('Informations application');
+    expect(information.closest('aside')).toBe(screen.getByRole('complementary'));
+    expect(information.closest('nav')).toBeNull();
+    expect(information.parentElement).toHaveClass('shrink-0');
+  });
+
   it('renders the brand initial when no logo is provided', () => {
     render(<Sidebar brandLabel="Ville Connectée" brandLogoSrc={null} brandInitial="V" />);
 

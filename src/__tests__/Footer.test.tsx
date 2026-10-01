@@ -40,4 +40,13 @@ describe('Footer component', () => {
     expect(screen.queryByText('Unavailable')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Documentation' })).toBeInTheDocument();
   });
+
+  it('uses a compact dark-sidebar presentation without changing supplied information', () => {
+    render(<Footer variant="sidebar" year={2027} productName="Ville Connectée" links={[{label: 'Documentation', href: '/docs'}]} />);
+
+    expect(screen.getByRole('contentinfo')).toHaveClass('bg-transparent', 'text-[#dff9ff]');
+    expect(screen.getByRole('contentinfo')).not.toHaveClass('min-h-16', 'bg-white');
+    expect(screen.getByText('© 2027 Ville Connectée')).toBeInTheDocument();
+    expect(screen.getByRole('link', {name: 'Documentation'})).toHaveClass('text-[#dff9ff]');
+  });
 });
