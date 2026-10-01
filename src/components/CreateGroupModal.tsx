@@ -3,7 +3,7 @@ import { UsersRound } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { MessagingModalFrame } from './messaging/MessagingModalFrame';
-import type { CreateGroupPayload, MessagingContactId, MessagingConversation } from './messaging/types';
+import type { CreateGroupPayload, MessagingContactId, MessagingConversation, MessagingSendResult } from './messaging/types';
 
 export interface CreateGroupModalProps {
   isOpen: boolean;
@@ -21,7 +21,7 @@ export interface CreateGroupModalProps {
   initialDescription?: string;
   initialMemberIds?: MessagingContactId[];
   onCancel: () => void;
-  onCreateGroup: (payload: CreateGroupPayload) => void;
+  onCreateGroup: (payload: CreateGroupPayload) => MessagingSendResult;
 }
 
 const fieldClassName =
@@ -64,6 +64,9 @@ export const CreateGroupModal = ({
   const [description, setDescription] = React.useState(initialDescription);
   const [memberSearch, setMemberSearch] = React.useState('');
   const [selectedMemberValues, setSelectedMemberValues] = React.useState(() => initialMemberValues);
+  const [isCreating, setIsCreating] = React.useState(false);
+  const [creationFailed, setCreationFailed] = React.useState(false);
+  const creatingRef = React.useRef(false);
   const titleId = React.useId();
   const subtitleId = React.useId();
   const nameId = React.useId();
@@ -71,12 +74,13 @@ export const CreateGroupModal = ({
   const memberSearchId = React.useId();
 
   React.useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen || creatingRef.current) return;
 
     setName(initialName);
     setDescription(initialDescription);
     setMemberSearch('');
     setSelectedMemberValues(initialMemberValues);
+    setCreationFailed(false);
   }, [initialDescription, initialMemberValuesKey, initialName, isOpen]);
 
   if (!isOpen) return null;
@@ -88,9 +92,10 @@ export const CreateGroupModal = ({
         normalizeSearchValue(`${member.name} ${member.department ?? ''}`).includes(normalizedMemberSearch)
       )
     : members;
-  const canSubmit = name.trim().length > 0 && selectedMembers.length > 0;
+  const canSubmit = name.trim().length > 0 && selectedMembers.length > 0 && !isCreating;
 
   const toggleMember = (memberId: MessagingContactId) => {
+    if (creatingRef.current) return;
     const memberValue = String(memberId);
 
     setSelectedMemberValues((currentValues) =>
@@ -102,13 +107,36 @@ export const CreateGroupModal = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!canSubmit) return;
+    if (!canSubmit || creatingRef.current) return;
 
-    onCreateGroup({
-      name: name.trim(),
-      description: description.trim() || undefined,
-      memberIds: selectedMembers.map((member) => member.id),
-    });
+    creatingRef.current = true;
+    setCreationFailed(false);
+    try {
+      const result = onCreateGroup({
+        name: name.trim(),
+        description: description.trim() || undefined,
+        memberIds: selectedMembers.map((member) => member.id),
+      });
+      if (result instanceof Promise) {
+        setIsCreating(true);
+        void result
+          .then((confirmed) => { if (confirmed === false) setCreationFailed(true); })
+          .catch(() => {
+            // The consumer owns service errors; retain the form and offer a retry.
+            setCreationFailed(true);
+          })
+          .finally(() => {
+            creatingRef.current = false;
+            setIsCreating(false);
+          });
+      } else {
+        if (result === false) setCreationFailed(true);
+        creatingRef.current = false;
+      }
+    } catch {
+      setCreationFailed(true);
+      creatingRef.current = false;
+    }
   };
 
   return (
@@ -118,19 +146,25 @@ export const CreateGroupModal = ({
       titleId={titleId}
       subtitleId={subtitleId}
       onClose={onCancel}
+      closeDisabled={isCreating}
       onSubmit={handleSubmit}
       footer={
         <>
-          <button type="button" className={buttonSecondaryClassName} onClick={onCancel}>
+          <button type="button" className={buttonSecondaryClassName} onClick={onCancel} disabled={isCreating}>
             {cancelLabel}
           </button>
           <button type="submit" className={buttonPrimaryClassName} disabled={!canSubmit}>
             <UsersRound className="size-4" strokeWidth={1.8} />
-            <span>{submitLabel}</span>
+            <span>{isCreating ? 'Création en cours…' : submitLabel}</span>
           </button>
         </>
       }
     >
+      {creationFailed && (
+        <p role="alert" className="text-sm text-red-700">
+          Le groupe n’a pas pu être créé. Vos saisies sont conservées ; vous pouvez réessayer.
+        </p>
+      )}
       <div>
         <label htmlFor={nameId} className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">
           {nameLabel}
@@ -144,7 +178,8 @@ export const CreateGroupModal = ({
           className={fieldClassName}
           autoComplete="off"
           required
-          onChange={(event) => setName(event.target.value)}
+          disabled={isCreating}
+          onChange={(event) => { if (!creatingRef.current) setName(event.target.value); }}
         />
       </div>
 
@@ -160,7 +195,8 @@ export const CreateGroupModal = ({
           placeholder={descriptionPlaceholder}
           className={fieldClassName}
           autoComplete="off"
-          onChange={(event) => setDescription(event.target.value)}
+          disabled={isCreating}
+          onChange={(event) => { if (!creatingRef.current) setDescription(event.target.value); }}
         />
       </div>
 
@@ -177,7 +213,8 @@ export const CreateGroupModal = ({
           placeholder="Rechercher un contact..."
           className={fieldClassName}
           autoComplete="off"
-          onChange={(event) => setMemberSearch(event.target.value)}
+          disabled={isCreating}
+          onChange={(event) => { if (!creatingRef.current) setMemberSearch(event.target.value); }}
         />
         <div className="mt-2 max-h-48 overflow-y-auto rounded-md border border-[#d8d2ca] bg-white py-2 pr-1">
           {displayedMembers.length > 0 ? (
@@ -192,6 +229,7 @@ export const CreateGroupModal = ({
                   <input
                     type="checkbox"
                     checked={checked}
+                    disabled={isCreating}
                     className={joinClasses(
                       'size-4 rounded border-[#d8d2ca] text-[#1256a6] focus:ring-[#1256a6]/30',
                       checked ? 'accent-[#1256a6]' : ''

@@ -764,4 +764,81 @@ describe('Messaging components', () => {
       memberIds: ['marie-dubois'],
     });
   });
+
+  it.each(['false', 'rejection', 'throw'])('retains a failed group form (%s), then closes only after confirmed retry', async (failure) => {
+    const onCreateGroup = jest.fn();
+    if (failure === 'false') onCreateGroup.mockReturnValueOnce(false);
+    if (failure === 'rejection') onCreateGroup.mockRejectedValueOnce(new Error('Service unavailable'));
+    if (failure === 'throw') onCreateGroup.mockImplementationOnce(() => { throw new Error('Service unavailable'); });
+    onCreateGroup.mockResolvedValueOnce(true);
+    render(<DemoMessaging onCreateGroup={onCreateGroup} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Créer un groupe' }));
+    fireEvent.change(screen.getByLabelText('Nom du groupe'), { target: { value: '  Groupe conservé  ' } });
+    fireEvent.change(screen.getByLabelText('Description (optionnel)'), { target: { value: '  Description conservée  ' } });
+    fireEvent.click(screen.getByLabelText('Marie Dubois - Finances'));
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le groupe' }));
+
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveTextContent('Vos saisies sont conservées'));
+    expect(screen.getByLabelText('Nom du groupe')).toHaveValue('  Groupe conservé  ');
+    expect(screen.getByLabelText('Description (optionnel)')).toHaveValue('  Description conservée  ');
+    expect(screen.getByLabelText('Marie Dubois - Finances')).toBeChecked();
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Créer le groupe' })).toBeEnabled());
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le groupe' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onCreateGroup).toHaveBeenCalledTimes(2);
+    expect(onCreateGroup.mock.calls[1]).toEqual(onCreateGroup.mock.calls[0]);
+    expect(onCreateGroup.mock.calls[0][0]).toEqual({
+      name: 'Groupe conservé', description: 'Description conservée', memberIds: ['marie-dubois'],
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Créer un groupe' }));
+    expect(screen.getByLabelText('Nom du groupe')).toHaveValue('');
+    expect(screen.getByLabelText('Description (optionnel)')).toHaveValue('');
+    expect(screen.getByLabelText('Marie Dubois - Finances')).not.toBeChecked();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('keeps a pending group open, freezes values and prevents duplicate submissions', async () => {
+    let resolveCreation!: (confirmed: boolean) => void;
+    const onCreateGroup = jest.fn(() => new Promise<boolean>((resolve) => { resolveCreation = resolve; }));
+    render(<DemoMessaging onCreateGroup={onCreateGroup} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Créer un groupe' }));
+    fireEvent.change(screen.getByLabelText('Nom du groupe'), { target: { value: 'Groupe en attente' } });
+    fireEvent.change(screen.getByLabelText('Description (optionnel)'), { target: { value: 'Description stable' } });
+    fireEvent.click(screen.getByLabelText('Marie Dubois - Finances'));
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le groupe' }));
+
+    const dialog = screen.getByRole('dialog');
+    expect(screen.getByRole('button', { name: 'Création en cours…' })).toBeDisabled();
+    expect(within(dialog).getByRole('button', { name: 'Annuler' })).toBeDisabled();
+    expect(within(dialog).getByRole('button', { name: 'Fermer' })).toBeDisabled();
+    expect(screen.getByLabelText('Nom du groupe')).toBeDisabled();
+    expect(screen.getByLabelText('Description (optionnel)')).toBeDisabled();
+    expect(screen.getByRole('searchbox', { name: 'Rechercher un contact' })).toBeDisabled();
+    expect(screen.getByLabelText('Marie Dubois - Finances')).toBeDisabled();
+    fireEvent.submit(dialog.querySelector('form')!);
+    fireEvent.change(screen.getByLabelText('Nom du groupe'), { target: { value: 'Changed while pending' } });
+    fireEvent.change(screen.getByLabelText('Description (optionnel)'), { target: { value: 'Changed' } });
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Rechercher un contact' }), { target: { value: 'Pierre' } });
+    fireEvent.click(screen.getByLabelText('Pierre Martin - Urbanisme'));
+    expect(onCreateGroup).toHaveBeenCalledTimes(1);
+    expect(screen.getByLabelText('Nom du groupe')).toHaveValue('Groupe en attente');
+    expect(screen.getByLabelText('Description (optionnel)')).toHaveValue('Description stable');
+    expect(screen.getByRole('searchbox', { name: 'Rechercher un contact' })).toHaveValue('');
+    expect(screen.getByLabelText('Marie Dubois - Finances')).toBeChecked();
+    expect(screen.getByLabelText('Pierre Martin - Urbanisme')).not.toBeChecked();
+    await act(async () => resolveCreation(true));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each(['synchronous void', 'asynchronous void', 'synchronous true'])('preserves successful group callback compatibility (%s)', async (result) => {
+    const onCreateGroup = jest.fn(() => result === 'asynchronous void' ? Promise.resolve() : result === 'synchronous true' ? true : undefined);
+    render(<DemoMessaging onCreateGroup={onCreateGroup} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Créer un groupe' }));
+    fireEvent.change(screen.getByLabelText('Nom du groupe'), { target: { value: 'Groupe confirmé' } });
+    fireEvent.click(screen.getByLabelText('Marie Dubois - Finances'));
+    fireEvent.click(screen.getByRole('button', { name: 'Créer le groupe' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(onCreateGroup).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText('Groupe confirmé')).not.toBeInTheDocument();
+  });
 });

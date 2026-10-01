@@ -98,6 +98,14 @@ navigation. Login authentication screens do not use `AppShell`.
 
 ## Component groups
 
+`Messaging.onCreateGroup` and `CreateGroupModal.onCreateGroup` accept a synchronous
+or asynchronous `boolean | void` result. Return `false` or reject/throw to retain
+the group name, description and members for retry. A confirmed success (including
+legacy `void` callbacks) closes the `Messaging` dialog. While a promise is pending,
+the form and close controls are disabled and repeated submissions are ignored.
+Consumers must return their service result, not discard its promise, and must not
+return success until the service has actually created the group.
+
 The public API includes the following main groups:
 
 - UI primitives: `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `DropdownMenu`, `InputManager`, `Select`, `Spinner`, `Title`, and `ToolTip`.
