@@ -35,6 +35,8 @@ export interface ElearningCourse extends ElearningCourseCardProps {
 
 export type ElearningUserRole = 'user' | 'administrator';
 
+export type ElearningCourseSaveResult = void | boolean | Promise<void | boolean>;
+
 export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement> {
   title?: string;
   subtitle?: string;
@@ -52,8 +54,8 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   initialCourseId?: string | null;
   onCourseClose?: () => void;
   onCourseAction?: (course: ElearningCourse) => void;
-  onCreateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => void;
-  onUpdateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => void;
+  onCreateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => ElearningCourseSaveResult;
+  onUpdateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => ElearningCourseSaveResult;
   onDeleteCourse?: (course: ElearningCourse) => void;
   onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => void;
   onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => void;
@@ -316,18 +318,20 @@ export const ElearningCatalog = ({
   };
 
   const handleSubmitCourseForm = (values: ElearningCourseFormValues) => {
-    if (!editingCourse) {
-      if (!onCreateCourse) return;
-      const createdCourse = buildCourseFromFormValues(values);
-      onCreateCourse(createdCourse, values);
-      closeCourseForm();
-      return;
+    const saveCourse = editingCourse ? onUpdateCourse : onCreateCourse;
+    if (!saveCourse) return false;
+    const course = buildCourseFromFormValues(values, editingCourse);
+    const result = saveCourse(course, values);
+    if (result && typeof result === 'object' && typeof result.then === 'function') {
+      return result.then((confirmed) => {
+        if (confirmed !== false) closeCourseForm();
+        return confirmed;
+      });
     }
-
-    if (!onUpdateCourse) return;
-    const updatedCourse = buildCourseFromFormValues(values, editingCourse);
-    onUpdateCourse(updatedCourse, values);
-    closeCourseForm();
+    // Existing synchronous callbacks remain supported. Hosts with remote persistence
+    // must return their promise and false when the mutation is refused.
+    if (result !== false) closeCourseForm();
+    return result;
   };
 
   const handleDeleteCourse = (course: ElearningCourse) => {

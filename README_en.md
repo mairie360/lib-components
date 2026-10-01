@@ -113,6 +113,14 @@ The public API includes the following main groups:
 - Calendar: `CalendarModule`, calendar grids, toolbars, sidebars, event fields, and event modals.
 - Messaging: `Messaging`, conversation items, message bubbles, the composer, sidebar, and message modals.
 - E-learning: `ElearningCatalog`, course cards, course details, filters, ratings, badges, and statistics.
+
+  Course administration callbacks `onCreateCourse` / `onUpdateCourse` may return
+  `boolean | void | Promise<boolean | void>`. Return the actual persistence promise
+  and `false` on refusal to retain all form values for retry. Pending saves disable
+  fields, cancellation and repeat submissions; only confirmation closes the form.
+  Synchronous `void` callbacks remain compatible, but cannot report remote failure.
+  Do not return `false` when the mutation succeeded and only catalogue refresh failed:
+  retry that refresh separately without creating/updating the course again (MAIR-378).
 - Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
 - Projects: `ProjectModule` and its project-management views and interactions.
 - User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.

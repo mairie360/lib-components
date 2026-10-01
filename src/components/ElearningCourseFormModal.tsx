@@ -37,7 +37,7 @@ export interface ElearningCourseFormModalProps {
   initialValues: ElearningCourseFormValues;
   statusOptions: ElearningFilterOption[];
   onCancel: () => void;
-  onSubmit: (values: ElearningCourseFormValues) => void;
+  onSubmit: (values: ElearningCourseFormValues) => void | boolean | Promise<void | boolean>;
 }
 
 const fieldClassName =
@@ -111,17 +111,27 @@ export const ElearningCourseFormModal = ({
   onSubmit,
 }: ElearningCourseFormModalProps) => {
   const [values, setValues] = React.useState(initialValues);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submissionError, setSubmissionError] = React.useState<string | null>(null);
+  const submittingRef = React.useRef(false);
+  const wasOpenRef = React.useRef(false);
   const titleId = React.useId();
 
   React.useEffect(() => {
-    if (isOpen) setValues(initialValues);
+    // A catalogue refresh may replace initialValues while a save is pending or
+    // refused. Only a newly opened form may replace the administrator's draft.
+    if (isOpen && !wasOpenRef.current) {
+      setValues(initialValues);
+      setSubmissionError(null);
+    }
+    wasOpenRef.current = isOpen;
   }, [initialValues, isOpen]);
 
   React.useEffect(() => {
     if (!isOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onCancel();
+      if (event.key === 'Escape' && !submittingRef.current) onCancel();
     };
 
     document.addEventListener('keydown', handleEscape);
@@ -186,8 +196,29 @@ export const ElearningCourseFormModal = ({
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (values.chapters.length === 0) return;
-    onSubmit(normalizeValues(values));
+    if (submittingRef.current || values.chapters.length === 0) return;
+    submittingRef.current = true;
+    setIsSubmitting(true);
+    setSubmissionError(null);
+    const refused = () => setSubmissionError('L’enregistrement n’a pas été confirmé. Vos saisies sont conservées ; vous pouvez réessayer.');
+    const settled = () => {
+      submittingRef.current = false;
+      setIsSubmitting(false);
+    };
+    try {
+      const result = onSubmit(normalizeValues(values));
+      if (result && typeof result === 'object' && typeof result.then === 'function') {
+        void result.then((confirmed) => {
+          if (confirmed === false) refused();
+        }).catch(refused).finally(settled);
+      } else {
+        if (result === false) refused();
+        settled();
+      }
+    } catch {
+      refused();
+      settled();
+    }
   };
 
   return (
@@ -195,6 +226,7 @@ export const ElearningCourseFormModal = ({
       <form
         aria-labelledby={titleId}
         aria-modal="true"
+        aria-busy={isSubmitting}
         className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-xl bg-[#f8f7f5] text-[#2f3747] shadow-2xl sm:max-h-[calc(100vh-2.5rem)]"
         onSubmit={handleSubmit}
         role="dialog"
@@ -210,13 +242,14 @@ export const ElearningCourseFormModal = ({
             aria-label="Fermer"
             className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-white/75 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/35"
             onClick={onCancel}
+            disabled={isSubmitting}
             type="button"
           >
             <X className="size-5" strokeWidth={1.8} />
           </button>
         </div>
 
-        <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6">
+        <fieldset disabled={isSubmitting} className="min-h-0 min-w-0 flex-1 space-y-6 overflow-y-auto border-0 px-5 py-5 sm:px-7 sm:py-6">
           <section aria-labelledby="course-general-heading">
             <h3 id="course-general-heading" className="text-base font-bold text-[#2f3747]">
               Informations générales
@@ -529,22 +562,24 @@ export const ElearningCourseFormModal = ({
               ))}
             </div>
           </section>
-        </div>
+        </fieldset>
 
+        {submissionError ? <p role="alert" className="px-5 py-2 text-sm text-[#c5323a] sm:px-7">{submissionError}</p> : null}
         <div className="flex shrink-0 justify-end gap-3 border-t border-[#ddd7cf] bg-[#f8f7f5] px-5 py-4 sm:px-7">
           <button
             className="inline-flex h-10 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#2f3747] transition hover:bg-[#f4f2ef]"
             onClick={onCancel}
+            disabled={isSubmitting}
             type="button"
           >
             Annuler
           </button>
           <button
             className="inline-flex h-10 items-center justify-center rounded-md bg-[#1256a6] px-5 text-sm font-semibold text-white transition hover:bg-[#0f4b91] disabled:cursor-not-allowed disabled:bg-[#9fb2c8]"
-            disabled={values.chapters.length === 0}
+            disabled={isSubmitting || values.chapters.length === 0}
             type="submit"
           >
-            {submitLabel}
+            {isSubmitting ? 'Enregistrement…' : submitLabel}
           </button>
         </div>
       </form>

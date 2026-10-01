@@ -114,6 +114,14 @@ L’API publique comprend les groupes principaux suivants :
 - Calendrier : `CalendarModule`, les grilles, barres d’outils, panneaux latéraux, champs et fenêtres modales d’événements.
 - Messagerie : `Messaging`, les conversations, bulles de messages, l’éditeur, le panneau latéral et les fenêtres modales.
 - Formation en ligne : `ElearningCatalog`, les cartes et détails de formations, les filtres, évaluations, badges et statistiques.
+
+  Les callbacks d’administration `onCreateCourse` / `onUpdateCourse` peuvent retourner
+  `boolean | void | Promise<boolean | void>`. Retourner la promesse réelle de sauvegarde
+  et `false` en cas de refus conserve toutes les saisies pour réessayer. Pendant l’attente,
+  champs, annulation et double soumission sont bloqués ; seule la confirmation ferme le
+  formulaire. Les callbacks synchrones `void` restent compatibles mais ne signalent pas
+  un échec distant. Si la mutation réussit mais que le catalogue ne se recharge pas,
+  réessayer uniquement ce chargement, sans renvoyer la création/modification (MAIR-378).
 - Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
 - Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
 - Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.
