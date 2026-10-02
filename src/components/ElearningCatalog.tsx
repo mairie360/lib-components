@@ -59,6 +59,7 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   onUpdateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => ElearningCourseSaveResult;
   onDeleteCourse?: (course: ElearningCourse) => void;
   onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => ElearningLearnerActionResult;
+  allowRatingEdits?: boolean;
   onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => ElearningLearnerActionResult;
 }
 
@@ -291,6 +292,7 @@ export const ElearningCatalog = ({
   onUpdateCourse,
   onDeleteCourse,
   onCourseRatingSubmit,
+  allowRatingEdits = false,
   onCourseContentComplete,
   className = '',
   ...props
@@ -435,6 +437,7 @@ export const ElearningCatalog = ({
           actionError={startError}
           completionRating={onCourseRatingSubmit || selectedCourseDetails.completionRating?.onSubmit ? {
             ...selectedCourseDetails.completionRating,
+            allowEditingSubmitted: allowRatingEdits,
             onSubmit: (rating) => {
               const summary = incrementElearningRatingDistribution(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution, rating);
               const detailResult = selectedCourseDetails.completionRating?.onSubmit?.(rating);

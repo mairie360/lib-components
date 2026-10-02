@@ -11,6 +11,7 @@ export interface ElearningCourseRatingProps
   max?: number;
   submitted?: boolean;
   confirmOnSubmit?: boolean;
+  allowEditingSubmitted?: boolean;
   disabled?: boolean;
   title?: string;
   helperText?: string;
@@ -31,6 +32,7 @@ export const ElearningCourseRating = ({
   max = 5,
   submitted = false,
   confirmOnSubmit = true,
+  allowEditingSubmitted = false,
   disabled = false,
   title = 'Noter cette formation',
   helperText = 'Votre retour aide à améliorer les prochaines sessions.',
@@ -45,14 +47,18 @@ export const ElearningCourseRating = ({
   const [value, setValue] = React.useState(() => clampRating(initialValue, safeMax));
   const [hoveredValue, setHoveredValue] = React.useState<number | undefined>();
   const [hasSubmitted, setHasSubmitted] = React.useState(submitted);
+  const [editing, setEditing] = React.useState(false);
+  const [confirmedValue, setConfirmedValue] = React.useState(() => clampRating(initialValue, safeMax));
   const [submitting, setSubmitting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const pending = React.useRef(false);
   const displayValue = hoveredValue ?? value ?? 0;
-  const isLocked = disabled || hasSubmitted || submitting;
+  const isEditing = allowEditingSubmitted && editing;
+  const isLocked = disabled || (hasSubmitted && !isEditing) || submitting;
 
   React.useEffect(() => {
     setValue(clampRating(initialValue, safeMax));
+    setConfirmedValue(clampRating(initialValue, safeMax));
   }, [initialValue, safeMax]);
 
   React.useEffect(() => {
@@ -78,6 +84,8 @@ export const ElearningCourseRating = ({
         setError('La note n’a pas été enregistrée. Votre sélection est conservée ; réessayez.');
       } else if (confirmOnSubmit || confirmed === true) {
         setHasSubmitted(true);
+        setConfirmedValue(value);
+        setEditing(false);
       }
     } catch {
       setError('La note n’a pas été enregistrée. Votre sélection est conservée ; réessayez.');
@@ -96,9 +104,11 @@ export const ElearningCourseRating = ({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="text-sm font-bold leading-5 text-[#2f3747]">{title}</h3>
-          <p className="mt-1 text-xs leading-5 text-[#6f6f6f]">{hasSubmitted ? submittedLabel : helperText}</p>
+          <p className="mt-1 text-xs leading-5 text-[#6f6f6f]">{isEditing
+            ? 'Choisissez une nouvelle note puis confirmez.'
+            : hasSubmitted ? submittedLabel : helperText}</p>
         </div>
-        {hasSubmitted && <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#00a651]" />}
+        {hasSubmitted && !isEditing && <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#00a651]" />}
       </div>
 
       <div
@@ -138,8 +148,23 @@ export const ElearningCourseRating = ({
         onClick={handleSubmit}
         className="mt-3 h-9 w-full rounded-md bg-[#1256a6] px-3 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed disabled:bg-[#b9c8d9]"
       >
-        {submitting ? 'Enregistrement…' : hasSubmitted ? 'Note envoyée' : submitLabel}
+        {submitting ? 'Enregistrement…' : isEditing ? 'Enregistrer ma note' : hasSubmitted ? 'Note envoyée' : submitLabel}
       </button>
+      {allowEditingSubmitted && hasSubmitted ? (
+        <button
+          type="button"
+          disabled={disabled || submitting}
+          onClick={() => {
+            setError(null);
+            setHoveredValue(undefined);
+            if (isEditing) setValue(confirmedValue);
+            setEditing(!isEditing);
+          }}
+          className="mt-2 min-h-9 w-full rounded-md border border-[#1256a6] px-3 py-2 text-sm font-semibold text-[#1256a6] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {isEditing ? 'Annuler la modification' : 'Modifier ma note'}
+        </button>
+      ) : null}
       {error ? <p role="alert" className="mt-3 text-sm text-[#a4232c]">{error}</p> : null}
     </section>
   );

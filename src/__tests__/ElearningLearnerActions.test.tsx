@@ -131,3 +131,75 @@ it('supports a synchronous rating host without a pending state or duplicate conf
   expect(screen.getByRole('button', { name: 'Note envoyée' })).toBeDisabled();
   expect(rate).toHaveBeenCalledTimes(1);
 });
+
+it('explicitly edits a confirmed rating and cancels without posting or losing its value', () => {
+  const rate = jest.fn();
+  render(<ElearningCourseRating {...{ allowEditingSubmitted: true }} initialValue={4} submitted onSubmit={rate} />);
+  expect(screen.getByRole('button', { name: 'Donner la note 4 sur 5' })).toBeDisabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Modifier ma note' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Donner la note 2 sur 5' }));
+  expect(screen.getByRole('button', { name: 'Donner la note 2 sur 5' })).toHaveAttribute('aria-pressed', 'true');
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler la modification' }));
+  expect(screen.getByRole('button', { name: 'Donner la note 4 sur 5' })).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.getByRole('button', { name: 'Note envoyée' })).toBeDisabled();
+  expect(rate).not.toHaveBeenCalled();
+});
+
+it.each(['false', 'rejection'] as const)('retains an edited rating after %s, locks repeats, and confirms only a successful retry', async (failure) => {
+  const request = deferred();
+  const rate = jest.fn().mockReturnValueOnce(request.promise).mockResolvedValue(true);
+  render(<ElearningCourseRating {...{ allowEditingSubmitted: true }} initialValue={4} submitted onSubmit={rate} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Modifier ma note' }));
+  const star = screen.getByRole('button', { name: 'Donner la note 5 sur 5' });
+  fireEvent.click(star);
+  fireEvent.click(screen.getByRole('button', { name: 'Enregistrer ma note' }));
+  const pending = screen.getByRole('button', { name: 'Enregistrement…' });
+  expect(pending).toBeDisabled();
+  expect(star).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Annuler la modification' })).toBeDisabled();
+  fireEvent.click(pending);
+  expect(rate).toHaveBeenCalledTimes(1);
+  await act(async () => {
+    if (failure === 'false') request.resolve(false);
+    else request.reject(new Error('Refused'));
+  });
+  expect(screen.getByRole('alert')).toHaveTextContent('n’a pas été enregistrée');
+  expect(star).toHaveAttribute('aria-pressed', 'true');
+  expect(star).toBeEnabled();
+  expect(screen.queryByText('Merci, votre note a bien été enregistrée.')).not.toBeInTheDocument();
+  await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Enregistrer ma note' })));
+  expect(rate).toHaveBeenCalledTimes(2);
+  expect(rate.mock.calls).toEqual([[5], [5]]);
+  expect(screen.getByRole('button', { name: 'Note envoyée' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Modifier ma note' })).toBeEnabled();
+  fireEvent.click(screen.getByRole('button', { name: 'Modifier ma note' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Donner la note 3 sur 5' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler la modification' }));
+  expect(star).toHaveAttribute('aria-pressed', 'true');
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+it('does not offer editing by default and respects the host disabled flag when enabled', () => {
+  const { rerender } = render(<ElearningCourseRating initialValue={4} submitted />);
+  expect(screen.queryByRole('button', { name: 'Modifier ma note' })).not.toBeInTheDocument();
+  rerender(<ElearningCourseRating {...{ allowEditingSubmitted: true }} initialValue={4} submitted disabled />);
+  expect(screen.getByRole('button', { name: 'Modifier ma note' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'Donner la note 4 sur 5' })).toBeDisabled();
+});
+
+it('opts the catalogue into editing without optimistically changing the server rating distribution', async () => {
+  const rate = jest.fn().mockResolvedValue(true);
+  const completed: ElearningCourse = { ...course, progress: 100, ratingDistribution: { 4: 3 }, details: {
+    ...course.details!, progress: 100, completed: true,
+    completionRating: { initialValue: 4, submitted: true },
+  } };
+  render(<ElearningCatalog {...{ allowRatingEdits: true }} courses={[completed]} initialCourseId="course" onCourseRatingSubmit={rate} />);
+  const dialog = screen.getByRole('dialog');
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Modifier ma note' }));
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Donner la note 5 sur 5' }));
+  await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Enregistrer ma note' })));
+  expect(rate).toHaveBeenCalledTimes(1);
+  expect(rate.mock.calls[0][1]).toBe(5);
+  expect(within(dialog).getByText('4 (3 notes)')).toBeInTheDocument();
+  expect(within(dialog).getByRole('button', { name: 'Note envoyée' })).toBeDisabled();
+});
