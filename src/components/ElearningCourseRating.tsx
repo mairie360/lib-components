@@ -3,6 +3,8 @@ import { CircleCheck, Star } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 
+export type ElearningLearnerActionResult = void | boolean | Promise<void | boolean>;
+
 export interface ElearningCourseRatingProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onSubmit'> {
   initialValue?: number;
@@ -15,7 +17,7 @@ export interface ElearningCourseRatingProps
   submitLabel?: string;
   submittedLabel?: string;
   onValueChange?: (rating: number) => void;
-  onSubmit?: (rating: number) => void;
+  onSubmit?: (rating: number) => ElearningLearnerActionResult;
 }
 
 const clampRating = (value: number | undefined, max: number) => {
@@ -43,8 +45,11 @@ export const ElearningCourseRating = ({
   const [value, setValue] = React.useState(() => clampRating(initialValue, safeMax));
   const [hoveredValue, setHoveredValue] = React.useState<number | undefined>();
   const [hasSubmitted, setHasSubmitted] = React.useState(submitted);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const pending = React.useRef(false);
   const displayValue = hoveredValue ?? value ?? 0;
-  const isLocked = disabled || hasSubmitted;
+  const isLocked = disabled || hasSubmitted || submitting;
 
   React.useEffect(() => {
     setValue(clampRating(initialValue, safeMax));
@@ -61,17 +66,32 @@ export const ElearningCourseRating = ({
     onValueChange?.(rating);
   };
 
-  const handleSubmit = () => {
-    if (!value || isLocked) return;
-
-    onSubmit?.(value);
-    if (confirmOnSubmit) setHasSubmitted(true);
+  const handleSubmit = async () => {
+    if (!value || isLocked || pending.current) return;
+    pending.current = true;
+    setSubmitting(true);
+    setError(null);
+    try {
+      const result = onSubmit?.(value);
+      const confirmed = result && typeof result === 'object' ? await result : result;
+      if (confirmed === false) {
+        setError('La note n’a pas été enregistrée. Votre sélection est conservée ; réessayez.');
+      } else if (confirmOnSubmit || confirmed === true) {
+        setHasSubmitted(true);
+      }
+    } catch {
+      setError('La note n’a pas été enregistrée. Votre sélection est conservée ; réessayez.');
+    } finally {
+      pending.current = false;
+      setSubmitting(false);
+    }
   };
 
   return (
     <section
       className={joinClasses('rounded-lg border border-[#d8d2ca] bg-white p-4 text-[#2f3747]', className)}
       {...props}
+      aria-busy={submitting}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -118,8 +138,9 @@ export const ElearningCourseRating = ({
         onClick={handleSubmit}
         className="mt-3 h-9 w-full rounded-md bg-[#1256a6] px-3 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed disabled:bg-[#b9c8d9]"
       >
-        {hasSubmitted ? 'Note envoyée' : submitLabel}
+        {submitting ? 'Enregistrement…' : hasSubmitted ? 'Note envoyée' : submitLabel}
       </button>
+      {error ? <p role="alert" className="mt-3 text-sm text-[#a4232c]">{error}</p> : null}
     </section>
   );
 };

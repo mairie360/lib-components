@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
-import { ElearningCourseRating, type ElearningCourseRatingProps } from './ElearningCourseRating';
+import { ElearningCourseRating, type ElearningCourseRatingProps, type ElearningLearnerActionResult } from './ElearningCourseRating';
 
 export type ElearningCourseContentType = 'video' | 'pdf' | 'document' | 'link' | 'quiz' | 'audio' | 'other';
 
@@ -81,7 +81,7 @@ export interface ElearningCourseDetails {
   chapters: ElearningCourseChapter[];
   actionLabel?: string;
   onAction?: () => void;
-  onContentComplete?: (payload: ElearningCourseContentCompletePayload) => void;
+  onContentComplete?: (payload: ElearningCourseContentCompletePayload) => ElearningLearnerActionResult;
 }
 
 export interface ElearningCourseDetailsModalProps
@@ -92,6 +92,8 @@ export interface ElearningCourseDetailsModalProps
   closeLabel?: string;
   closeOnOutsideClick?: boolean;
   optimisticUpdates?: boolean;
+  busy?: boolean;
+  actionError?: string | null;
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
@@ -243,6 +245,8 @@ export const ElearningCourseDetailsModal = ({
   closeLabel = 'Fermer le détail du cours',
   closeOnOutsideClick = true,
   optimisticUpdates = true,
+  busy = false,
+  actionError,
   title,
   subtitle = 'Détails et contenu du cours',
   description,
@@ -269,6 +273,10 @@ export const ElearningCourseDetailsModal = ({
   const canRateCourse = isCourseCompleted(completed, localProgress, localChapters);
   const [selectedChapterId, setSelectedChapterId] = React.useState(() => getInitialChapter(initialChapters)?.id ?? '');
   const [localRatingDistribution, setLocalRatingDistribution] = React.useState(ratingDistribution);
+  const [submitting, setSubmitting] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const pending = React.useRef(false);
+  const isBusy = busy || submitting;
   const titleId = React.useId();
   const subtitleId = React.useId();
   const averageRating = getElearningRatingAverage(localRatingDistribution);
@@ -313,7 +321,7 @@ export const ElearningCourseDetailsModal = ({
     if (!open) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !busy && !pending.current) {
         onClose?.();
       }
     };
@@ -321,19 +329,52 @@ export const ElearningCourseDetailsModal = ({
     document.addEventListener('keydown', handleKeyDown);
 
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose, open]);
+  }, [busy, onClose, open]);
 
   if (!open) return null;
 
-  const handleRatingSubmit = (newRating: number) => {
-    if (optimisticUpdates) {
-      const nextRatingSummary = incrementElearningRatingDistribution(localRatingDistribution, newRating);
-      setLocalRatingDistribution(nextRatingSummary.ratingDistribution);
+  const runLearnerAction = (run: () => ElearningLearnerActionResult, onConfirmed: () => void): ElearningLearnerActionResult => {
+    if (busy || pending.current) return false;
+    pending.current = true;
+    setSubmitting(true);
+    setError(null);
+    const finish = (confirmed: void | boolean) => {
+      if (confirmed === false) {
+        setError('L’enregistrement a été refusé. Votre progression est conservée ; réessayez.');
+      } else {
+        onConfirmed();
+      }
+      return confirmed;
+    };
+    const fail = () => {
+      setError('L’enregistrement a échoué. Votre progression est conservée ; réessayez.');
+      return false;
+    };
+    const unlock = () => { pending.current = false; setSubmitting(false); };
+    try {
+      const result = run();
+      if (result && typeof result === 'object') return result.then(finish, fail).finally(unlock);
+      const confirmed = finish(result);
+      unlock();
+      return confirmed;
+    } catch {
+      unlock();
+      return fail();
     }
-    completionRating?.onSubmit?.(newRating);
   };
 
+  const handleRatingSubmit = (newRating: number) => runLearnerAction(
+    () => completionRating?.onSubmit?.(newRating),
+    () => {
+      if (optimisticUpdates) {
+        const nextRatingSummary = incrementElearningRatingDistribution(localRatingDistribution, newRating);
+        setLocalRatingDistribution(nextRatingSummary.ratingDistribution);
+      }
+    },
+  );
+
   const handleContentComplete = (chapterId: string, contentId: string) => {
+    if (busy || pending.current) return;
     let completedChapter: ElearningCourseChapter | undefined;
     let completedContent: ElearningCourseContentItem | undefined;
     let wasAlreadyCompleted = false;
@@ -375,20 +416,21 @@ export const ElearningCourseDetailsModal = ({
     }
 
     const progressSummary = getElearningCourseProgressSummary(nextChapters);
-
-    if (optimisticUpdates) {
-      setLocalChapters(nextChapters);
-      setLocalProgress(progressSummary.progress);
-    }
-    onContentComplete?.({
+    const payload: ElearningCourseContentCompletePayload = {
       ...progressSummary,
       chapter: completedChapter,
       content: completedContent,
+    };
+    return runLearnerAction(() => onContentComplete?.(payload), () => {
+      if (optimisticUpdates) {
+        setLocalChapters(nextChapters);
+        setLocalProgress(progressSummary.progress);
+      }
     });
   };
 
   const handleBackdropMouseDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!closeOnOutsideClick || event.target !== event.currentTarget) return;
+    if (busy || pending.current || !closeOnOutsideClick || event.target !== event.currentTarget) return;
 
     onClose?.();
   };
@@ -413,6 +455,7 @@ export const ElearningCourseDetailsModal = ({
           className
         )}
         {...props}
+        aria-busy={isBusy}
       >
         <header className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -428,12 +471,16 @@ export const ElearningCourseDetailsModal = ({
               type="button"
               aria-label={closeLabel}
               onClick={onClose}
+              disabled={isBusy}
               className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#6f6f6f] transition hover:bg-[#ece8e2] hover:text-[#2f3747] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
             >
               <X aria-hidden="true" className="size-5" />
             </button>
           )}
         </header>
+
+        {isBusy ? <p role="status" className="mt-4 text-sm text-[#5f6470]">Enregistrement en cours…</p> : null}
+        {error || actionError ? <p role="alert" className="mt-4 text-sm text-[#a4232c]">{error || actionError}</p> : null}
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,360px)]">
           <div className="min-w-0">
@@ -522,11 +569,16 @@ export const ElearningCourseDetailsModal = ({
                                     ? `${content.title} terminé`
                                     : `Marquer ${content.title} comme terminé`
                                 }
-                                disabled={contentCompleted}
+                                disabled={contentCompleted || isBusy}
                                 onClick={() => handleContentComplete(selectedChapter.id, content.id)}
-                                className="inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]"
+                                className={joinClasses(
+                                  'inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed',
+                                  contentCompleted
+                                    ? 'disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]'
+                                    : 'disabled:border-[#d8d2ca] disabled:bg-[#ece8e2] disabled:text-[#6f6f6f]',
+                                )}
                               >
-                                {contentCompleted ? 'Terminé' : 'Marquer comme terminé'}
+                                {contentCompleted ? 'Terminé' : isBusy ? 'Enregistrement…' : 'Marquer comme terminé'}
                               </button> : null}
                             </div>
                           </div>
@@ -642,6 +694,7 @@ export const ElearningCourseDetailsModal = ({
                 {...completionRating}
                 className={joinClasses('mt-4', completionRating?.className ?? '')}
                 confirmOnSubmit={optimisticUpdates}
+                disabled={isBusy || completionRating.disabled}
                 onSubmit={handleRatingSubmit}
               />
             )}
