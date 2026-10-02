@@ -571,9 +571,14 @@ export const ElearningCourseDetailsModal = ({
                                 }
                                 disabled={contentCompleted || isBusy}
                                 onClick={() => handleContentComplete(selectedChapter.id, content.id)}
-                                className="inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]"
+                                className={joinClasses(
+                                  'inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed',
+                                  contentCompleted
+                                    ? 'disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]'
+                                    : 'disabled:border-[#d8d2ca] disabled:bg-[#ece8e2] disabled:text-[#6f6f6f]',
+                                )}
                               >
-                                {contentCompleted ? 'Terminé' : 'Marquer comme terminé'}
+                                {contentCompleted ? 'Terminé' : isBusy ? 'Enregistrement…' : 'Marquer comme terminé'}
                               </button> : null}
                             </div>
                           </div>
