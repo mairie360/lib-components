@@ -24,6 +24,7 @@ import { ElearningFilterSelect, type ElearningFilterOption } from './ElearningFi
 import { ElearningSearchInput } from './ElearningSearchInput';
 import { ElearningStatCard, type ElearningStatCardProps } from './ElearningStatCard';
 import { joinClasses } from './calendar/style';
+import type { ElearningLearnerActionResult } from './ElearningCourseRating';
 
 export interface ElearningCourse extends ElearningCourseCardProps {
   id: string;
@@ -53,12 +54,12 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   currentUserRole?: ElearningUserRole;
   initialCourseId?: string | null;
   onCourseClose?: () => void;
-  onCourseAction?: (course: ElearningCourse) => void;
+  onCourseAction?: (course: ElearningCourse) => ElearningLearnerActionResult;
   onCreateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => ElearningCourseSaveResult;
   onUpdateCourse?: (course: ElearningCourse, values: ElearningCourseFormValues) => ElearningCourseSaveResult;
   onDeleteCourse?: (course: ElearningCourse) => void;
-  onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => void;
-  onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => void;
+  onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => ElearningLearnerActionResult;
+  onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => ElearningLearnerActionResult;
 }
 
 const defaultStatuses: ElearningFilterOption[] = [
@@ -82,6 +83,12 @@ const levelMeta: Record<Exclude<ElearningCourseLevel, 'none'>, { label: string; 
 
 const normalize = (value: string) =>
   value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+// Preserve synchronous hosts while forwarding the complete remote promise.
+const afterLearnerAction = (result: ElearningLearnerActionResult, next: () => ElearningLearnerActionResult): ElearningLearnerActionResult => {
+  const proceed = (confirmed: void | boolean) => confirmed === false ? false : next();
+  return result && typeof result === 'object' ? result.then(proceed) : proceed(result);
+};
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, Math.round(value)));
 
@@ -294,6 +301,9 @@ export const ElearningCatalog = ({
   const [selectedCourseId, setSelectedCourseId] = React.useState<string | null>(initialCourseId);
   const [editingCourseId, setEditingCourseId] = React.useState<string | null>(null);
   const [courseFormOpen, setCourseFormOpen] = React.useState(false);
+  const [starting, setStarting] = React.useState(false);
+  const [startError, setStartError] = React.useState<string | null>(null);
+  const pendingStart = React.useRef(false);
   const selectedCourse = courses.find((course) => course.id === selectedCourseId);
   const editingCourse = courses.find((course) => course.id === editingCourseId);
 
@@ -338,6 +348,25 @@ export const ElearningCatalog = ({
     onDeleteCourse?.(course);
   };
 
+  const handleOpenCourse = async (course: ElearningCourse) => {
+    if (pendingStart.current) return;
+    pendingStart.current = true;
+    setStarting(true);
+    setStartError(null);
+    setSelectedCourseId(course.id);
+    try {
+      course.onAction?.();
+      const result = onCourseAction?.(course);
+      const confirmed = result && typeof result === 'object' ? await result : result;
+      if (confirmed === false) setStartError('La formation n’a pas pu être démarrée. Fermez le détail puis réessayez.');
+    } catch {
+      setStartError('La formation n’a pas pu être démarrée. Fermez le détail puis réessayez.');
+    } finally {
+      pendingStart.current = false;
+      setStarting(false);
+    }
+  };
+
   return (
     <section className={joinClasses('bg-[#f4f2ef] px-6 py-14 text-[#2f3747]', className)} {...props}>
       <div className="mx-auto max-w-[1130px]">
@@ -367,7 +396,7 @@ export const ElearningCatalog = ({
 
         <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredCourses.map((course) => {
-            const { id, category: _category, statusValue: _statusValue, details, onAction, ratingDistribution, ...cardProps } = course;
+            const { id, category: _category, statusValue: _statusValue, details, onAction: _onAction, ratingDistribution, ...cardProps } = course;
             return (
               <div key={id} className="relative h-full">
                 {canManageCourses ? (
@@ -382,8 +411,9 @@ export const ElearningCatalog = ({
                 ) : null}
                 <ElearningCourseCard
                   {...cardProps}
+                  actionDisabled={starting}
                   rating={getElearningRatingAverage(details?.ratingDistribution ?? ratingDistribution) ?? cardProps.rating}
-                  onAction={() => { onAction?.(); setSelectedCourseId(course.id); onCourseAction?.(course); }}
+                  onAction={() => { void handleOpenCourse(course); }}
                 />
               </div>
             );
@@ -401,17 +431,23 @@ export const ElearningCatalog = ({
           rating={getElearningRatingAverage(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution) ?? selectedCourseDetails.rating}
           ratingDistribution={selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution}
           optimisticUpdates={false}
+          busy={starting}
+          actionError={startError}
           completionRating={onCourseRatingSubmit || selectedCourseDetails.completionRating?.onSubmit ? {
             ...selectedCourseDetails.completionRating,
             onSubmit: (rating) => {
               const summary = incrementElearningRatingDistribution(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution, rating);
-              selectedCourseDetails.completionRating?.onSubmit?.(rating);
-              onCourseRatingSubmit?.(selectedCourse, rating, summary);
+              const detailResult = selectedCourseDetails.completionRating?.onSubmit?.(rating);
+              return onCourseRatingSubmit
+                ? afterLearnerAction(detailResult, () => onCourseRatingSubmit(selectedCourse, rating, summary))
+                : detailResult;
             },
           } : undefined}
           onContentComplete={onCourseContentComplete || selectedCourseDetails.onContentComplete ? (payload) => {
-            selectedCourseDetails.onContentComplete?.(payload);
-            onCourseContentComplete?.(selectedCourse, payload);
+            const detailResult = selectedCourseDetails.onContentComplete?.(payload);
+            return onCourseContentComplete
+              ? afterLearnerAction(detailResult, () => onCourseContentComplete(selectedCourse, payload))
+              : detailResult;
           } : undefined}
           open
           onClose={() => {

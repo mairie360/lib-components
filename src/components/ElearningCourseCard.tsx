@@ -24,6 +24,7 @@ export interface ElearningCourseCardProps extends React.HTMLAttributes<HTMLEleme
   deadline?: string;
   actionLabel?: string;
   onAction?: () => void;
+  actionDisabled?: boolean;
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
@@ -51,6 +52,7 @@ export const ElearningCourseCard = ({
   deadline,
   actionLabel = 'Continuer',
   onAction,
+  actionDisabled = false,
   className = '',
   ...props
 }: ElearningCourseCardProps) => {
@@ -72,6 +74,7 @@ export const ElearningCourseCard = ({
           type="button"
           aria-label={`Ouvrir la formation ${title}`}
           onClick={onAction}
+          disabled={actionDisabled}
           className={joinClasses(
             posterClassName,
             'cursor-pointer transition-colors hover:bg-[#dcebed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1256a6]'
@@ -156,6 +159,7 @@ export const ElearningCourseCard = ({
       <button
         type="button"
         onClick={onAction}
+        disabled={actionDisabled}
         className="mt-4 h-9 w-full rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
       >
         {displayedActionLabel}
