@@ -93,7 +93,7 @@
   "overrides": {
     "esbuild": "0.28.2",
     "get-uri": {
-      "basic-ftp": "6.2.1"
+      "basic-ftp": "6.2.2"
     },
     "postcss": "$postcss",
     "puppeteer-core": "25.12.0",
