@@ -1,0 +1,345 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mairie360/CICD/main/tests/a11y/rgaa.schema.json
+# RGAA 4.1.2 scope of lib-components (MAIR-316), checked by the accessibility_tests job of
+# mairie360/CICD front-libs-cicd.yml on the static Storybook. Format: CICD README, "RGAA scope".
+version: 1
+target: http://storybook:6006
+
+criteria:
+  # 2.x: no frame. 4.x: no media player.
+  # Images (1.4-1.9: no CAPTCHA, chart, image of text or figure caption in the components)
+  - "1.1"
+  - "1.2"
+  - "1.3"
+  # Colours
+  - "3.1"
+  - "3.2"
+  - "3.3"
+  # Tables (AdministrationModule users, ProjectModule table view; 5.1-5.3, 5.8: no complex or layout table)
+  - "5.4"
+  - "5.5"
+  - "5.6"
+  - "5.7"
+  # Links
+  - "6.1"
+  - "6.2"
+  # Scripts (7.2: SortableItem / ItemContainer drag and drop needs a keyboard alternative)
+  - "7.1"
+  - "7.2"
+  - "7.3"
+  - "7.4"
+  - "7.5"
+  # Mandatory elements. 8.1, 8.3-8.6 (doctype, page language, page title) are page-level: the fronts check them on their pages
+  - "8.2"
+  - "8.7"
+  - "8.8"
+  - "8.9"
+  # Structure. 9.1, 9.2 (headings and landmarks of the page) are page-level, checked by the fronts; 9.4: no quotation
+  - "9.3"
+  # Presentation (10.14: no content revealed by CSS only)
+  - "10.1"
+  - "10.2"
+  - "10.3"
+  - "10.4"
+  - "10.5"
+  - "10.6"
+  - "10.7"
+  - "10.8"
+  - "10.9"
+  - "10.10"
+  - "10.11"
+  - "10.12"
+  - "10.13"
+  # Forms
+  - "11.1"
+  - "11.2"
+  - "11.3"
+  - "11.4"
+  - "11.5"
+  - "11.6"
+  - "11.7"
+  - "11.8"
+  - "11.9"
+  - "11.10"
+  - "11.11"
+  - "11.12"
+  - "11.13"
+  # Navigation. 12.1-12.7 (navigation systems, site map, search, landmarks, skip link) are page-level, checked by the fronts; 12.10: no single-key shortcut
+  - "12.8"
+  - "12.9"
+  - "12.11"
+  # Consultation (13.7: no flashing content; 13.12: no device motion)
+  - "13.1"
+  - "13.2"
+  - "13.3"
+  - "13.4"
+  - "13.5"
+  - "13.6"
+  - "13.8"
+  - "13.9"
+  - "13.10"
+  - "13.11"
+
+# One state per story (Storybook id). Opened states (menus, listboxes, tooltips) have steps.
+states:
+  # Components/Administration/AdministrationModule
+  - id: administration-administrationmodule--utilisateurs
+    story: components-administration-administrationmodule--utilisateurs
+  - id: administration-administrationmodule--logs
+    story: components-administration-administrationmodule--logs
+  - id: administration-administrationmodule--systeme
+    story: components-administration-administrationmodule--systeme
+  - id: administration-administrationmodule--audit
+    story: components-administration-administrationmodule--audit
+  - id: administration-administrationmodule--parametres
+    story: components-administration-administrationmodule--parametres
+  - id: administration-administrationmodule--nouvel-utilisateur
+    story: components-administration-administrationmodule--nouvel-utilisateur
+  # Components/Alerts/Alert
+  - id: alerts-alert--default
+    story: components-alerts-alert--default
+  - id: alerts-alert--closable
+    story: components-alerts-alert--closable
+  - id: alerts-alert--success
+    story: components-alerts-alert--success
+  - id: alerts-alert--auto-dismiss
+    story: components-alerts-alert--auto-dismiss
+  # Components/Navigation/AppShell
+  - id: navigation-appshell--default
+    story: components-navigation-appshell--default
+  - id: navigation-appshell--anonymous
+    story: components-navigation-appshell--anonymous
+  - id: navigation-appshell--mobile-keyboard-navigation
+    story: components-navigation-appshell--mobile-keyboard-navigation
+  # Components/Avatar/Avatar
+  - id: avatar-avatar--default
+    story: components-avatar-avatar--default
+  - id: avatar-avatar--with-fallback
+    story: components-avatar-avatar--with-fallback
+  - id: avatar-avatar--custom-class
+    story: components-avatar-avatar--custom-class
+  # Components/Badge/Badge
+  - id: badge-badge--default
+    story: components-badge-badge--default
+  - id: badge-badge--green
+    story: components-badge-badge--green
+  - id: badge-badge--blue
+    story: components-badge-badge--blue
+  - id: badge-badge--red
+    story: components-badge-badge--red
+  - id: badge-badge--dark
+    story: components-badge-badge--dark
+  - id: badge-badge--rounded
+    story: components-badge-badge--rounded
+  # Components/Buttons/Button
+  - id: buttons-button--default
+    story: components-buttons-button--default
+  # Components/Calendar/Composition
+  - id: calendar-composition--month
+    story: components-calendar-composition--month
+  - id: calendar-composition--week
+    story: components-calendar-composition--week
+  - id: calendar-composition--day
+    story: components-calendar-composition--day
+  # Components/Calendar/CalendarModule
+  - id: calendar-calendarmodule--responsable
+    story: components-calendar-calendarmodule--responsable
+  - id: calendar-calendarmodule--maire
+    story: components-calendar-calendarmodule--maire
+  - id: calendar-calendarmodule--agent
+    story: components-calendar-calendarmodule--agent
+  # Components/ConfirmModal/ConfirmModal
+  - id: confirmmodal-confirmmodal--default
+    story: components-confirmmodal-confirmmodal--default
+  # Components/Calendar/CreateEventModal
+  - id: calendar-createeventmodal--default
+    story: components-calendar-createeventmodal--default
+  # Components/Dashboard/DashboardModule
+  - id: dashboard-dashboardmodule--default
+    story: components-dashboard-dashboardmodule--default
+  # Components/DropdownMenu/DropdownMenu
+  - id: dropdownmenu-dropdownmenu--default
+    story: components-dropdownmenu-dropdownmenu--default
+  - id: dropdownmenu-dropdownmenu--with-label
+    story: components-dropdownmenu-dropdownmenu--with-label
+  - id: dropdownmenu-dropdownmenu--with-delete-action
+    story: components-dropdownmenu-dropdownmenu--with-delete-action
+  - id: dropdownmenu-dropdownmenu--with-icons
+    story: components-dropdownmenu-dropdownmenu--with-icons
+  - id: dropdownmenu-dropdownmenu--open
+    description: Menu opened from its trigger
+    story: components-dropdownmenu-dropdownmenu--default
+    steps:
+      # No role="menu" on the opened menu yet (MAIR-473): wait for its first item.
+      - click: { role: button }
+      - wait_for: { text: Option 1, exact: true }
+  # Components/Elearning/Elearning Catalog
+  - id: elearning-elearning-catalog--catalog
+    story: components-elearning-elearning-catalog--catalog
+  - id: elearning-elearning-catalog--course-details-modal
+    story: components-elearning-elearning-catalog--course-details-modal
+  - id: elearning-elearning-catalog--course-rating
+    story: components-elearning-elearning-catalog--course-rating
+  - id: elearning-elearning-catalog--course-card
+    story: components-elearning-elearning-catalog--course-card
+  - id: elearning-elearning-catalog--filter-open-states
+    story: components-elearning-elearning-catalog--filter-open-states
+  - id: elearning-elearning-catalog--stat-cards
+    story: components-elearning-elearning-catalog--stat-cards
+  # Components/Email/EmailModule
+  - id: email-emailmodule--default
+    story: components-email-emailmodule--default
+  # Components/Files/FilesModule
+  - id: files-filesmodule--grille
+    story: components-files-filesmodule--grille
+  - id: files-filesmodule--liste
+    story: components-files-filesmodule--liste
+  # Components/Navigation/Footer
+  - id: navigation-footer--default
+    story: components-navigation-footer--default
+  - id: navigation-footer--with-links
+    story: components-navigation-footer--with-links
+  # Components/Header/Header
+  - id: header-header--admin
+    story: components-header-header--admin
+  - id: header-header--standard-user
+    story: components-header-header--standard-user
+  # Components/Input/InputManager
+  - id: input-inputmanager--textarea
+    story: components-input-inputmanager--textarea
+  - id: input-inputmanager--select-input
+    story: components-input-inputmanager--select-input
+  - id: input-inputmanager--radio
+    story: components-input-inputmanager--radio
+  - id: input-inputmanager--file-input
+    story: components-input-inputmanager--file-input
+  - id: input-inputmanager--date-input
+    story: components-input-inputmanager--date-input
+  - id: input-inputmanager--checkbox
+    story: components-input-inputmanager--checkbox
+  - id: input-inputmanager--number-input
+    story: components-input-inputmanager--number-input
+  - id: input-inputmanager--password-input
+    story: components-input-inputmanager--password-input
+  - id: input-inputmanager--email-input
+    story: components-input-inputmanager--email-input
+  - id: input-inputmanager--telephone-input
+    story: components-input-inputmanager--telephone-input
+  - id: input-inputmanager--search-input
+    story: components-input-inputmanager--search-input
+  - id: input-inputmanager--default-input
+    story: components-input-inputmanager--default-input
+  # Components/Items/Item
+  - id: items-item--default
+    story: components-items-item--default
+  # Components/Items/ItemContainer
+  - id: items-itemcontainer--default
+    story: components-items-itemcontainer--default
+  # Components/Messaging/Messaging
+  - id: messaging-messaging--module-complet
+    story: components-messaging-messaging--module-complet
+  - id: messaging-messaging--mentions-connectees
+    story: components-messaging-messaging--mentions-connectees
+  - id: messaging-messaging--nouveau-message
+    story: components-messaging-messaging--nouveau-message
+  - id: messaging-messaging--creer-groupe
+    story: components-messaging-messaging--creer-groupe
+  # Components/Card/MiniCard
+  - id: card-minicard--default
+    story: components-card-minicard--default
+  # Components/Text/Paragraph
+  - id: text-paragraph--paragraph-with-text
+    story: components-text-paragraph--paragraph-with-text
+  # Components/ProgressBar/ProgressBar
+  - id: progressbar-progressbar--default
+    story: components-progressbar-progressbar--default
+  - id: progressbar-progressbar--full
+    story: components-progressbar-progressbar--full
+  - id: progressbar-progressbar--empty
+    story: components-progressbar-progressbar--empty
+  - id: progressbar-progressbar--custom-class
+    story: components-progressbar-progressbar--custom-class
+  # Components/Projects/ProjectModule
+  - id: projects-projectmodule--kanban
+    story: components-projects-projectmodule--kanban
+  - id: projects-projectmodule--grille
+    story: components-projects-projectmodule--grille
+  - id: projects-projectmodule--table
+    story: components-projects-projectmodule--table
+  - id: projects-projectmodule--nouveau-projet
+    story: components-projects-projectmodule--nouveau-projet
+  # Components/Select/Select
+  - id: select-select--default
+    story: components-select-select--default
+  - id: select-select--with-groups
+    story: components-select-select--with-groups
+  - id: select-select--small-size
+    story: components-select-select--small-size
+  - id: select-select--with-default-value
+    story: components-select-select--with-default-value
+  - id: select-select--long-list
+    story: components-select-select--long-list
+  - id: select-select--open
+    description: Listbox opened
+    story: components-select-select--default
+    steps:
+      # No role="listbox" on the opened list yet (MAIR-473): wait for its first option.
+      - click: { role: button, name: Sélectionner une option }
+      - wait_for: { text: Option 1, exact: true }
+  - id: select-select--with-groups-open
+    description: Grouped options opened
+    story: components-select-select--with-groups
+    steps:
+      - click: { role: button, name: Sélectionner un fruit }
+      - wait_for: { selector: "[data-slot=select-content]" }
+  # Components/Settings/SettingsModule
+  - id: settings-settingsmodule--profil
+    story: components-settings-settingsmodule--profil
+  - id: settings-settingsmodule--securite
+    story: components-settings-settingsmodule--securite
+  - id: settings-settingsmodule--notifications
+    story: components-settings-settingsmodule--notifications
+  - id: settings-settingsmodule--apparence
+    story: components-settings-settingsmodule--apparence
+  - id: settings-settingsmodule--general
+    story: components-settings-settingsmodule--general
+  - id: settings-settingsmodule--systeme
+    story: components-settings-settingsmodule--systeme
+  # Components/Navigation/Sidebar
+  - id: navigation-sidebar--admin
+    story: components-navigation-sidebar--admin
+  - id: navigation-sidebar--standard-user
+    story: components-navigation-sidebar--standard-user
+  # Components/Items/SortableItem
+  - id: items-sortableitem--default
+    story: components-items-sortableitem--default
+  - id: items-sortableitem--multiple-items
+    story: components-items-sortableitem--multiple-items
+  # Components/Feedback/Spinner
+  - id: feedback-spinner--default
+    story: components-feedback-spinner--default
+  - id: feedback-spinner--small-gray
+    story: components-feedback-spinner--small-gray
+  - id: feedback-spinner--large-indigo
+    story: components-feedback-spinner--large-indigo
+  # Components/Text/Title
+  - id: text-title--title-without-subtitle
+    story: components-text-title--title-without-subtitle
+  - id: text-title--title-with-subtitle
+    story: components-text-title--title-with-subtitle
+  # Components/Feedback/ToolTip
+  - id: feedback-tooltip--default
+    story: components-feedback-tooltip--default
+  - id: feedback-tooltip--with-icon
+    story: components-feedback-tooltip--with-icon
+  - id: feedback-tooltip--shown
+    description: Tooltip shown on hover
+    story: components-feedback-tooltip--default
+    steps:
+      - hover: { role: button, name: Survolez-moi }
+      - wait_for: { text: Info bulle par défaut }
+  # Components/UserProfile/UserProfile
+  - id: userprofile-userprofile--consultation
+    story: components-userprofile-userprofile--consultation
+  # Components/UserProfile/UserProfilePage
+  - id: userprofile-userprofilepage--consultation
+    story: components-userprofile-userprofilepage--consultation
