@@ -56,6 +56,7 @@ lhci-reports
 
 # Ignore the dist directory
 /dist/
-# RGAA engine (mairie360/CICD tests/a11y): local clone and report of accessibility runs
+# RGAA engine (mairie360/CICD tests/a11y): local clone, report and AI verdict cache of accessibility runs
 /cicd-repo/
 /rgaa-report/
+/.rgaa-ai-cache/
