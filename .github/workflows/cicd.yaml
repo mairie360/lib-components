@@ -13,9 +13,12 @@ permissions:
 
 jobs:
   CICD:
-    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v4.0.3
+    # TEMPORARY (MAIR-316 / MAIR-320): RGAA engine of the CICD branch under review, to test the
+    # accessibility job and its AI pre-audit on this PR. Set back to the CICD release before merging.
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@mair-320-rgaa-ai-preaudit
     with:
-      cicd_version: v4.0.1
+      cicd_version: mair-320-rgaa-ai-preaudit
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
