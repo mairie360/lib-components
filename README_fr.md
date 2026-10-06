@@ -122,6 +122,13 @@ L’API publique comprend les groupes principaux suivants :
   formulaire. Les callbacks synchrones `void` restent compatibles mais ne signalent pas
   un échec distant. Si la mutation réussit mais que le catalogue ne se recharge pas,
   réessayer uniquement ce chargement, sans renvoyer la création/modification (MAIR-378).
+  Le sélecteur de statut auteur conserve la valeur exacte du brouillon même si les
+  choix de filtre du catalogue ne la contiennent pas. Une valeur courante absente
+  est représentée par une option désactivée, uniquement pour l’affichage : aucune
+  transition métier sélectionnable ni option de filtre n’est ajoutée. Les libellés,
+  l’ordre et les états désactivés reçus restent inchangés. Actualiser les choix ne
+  réinitialise pas le brouillon et ne sélectionne pas silencieusement le premier
+  statut (MAIR-475).
 - Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
 - Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
 - Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.

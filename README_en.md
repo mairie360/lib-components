@@ -121,6 +121,12 @@ The public API includes the following main groups:
   Synchronous `void` callbacks remain compatible, but cannot report remote failure.
   Do not return `false` when the mutation succeeded and only catalogue refresh failed:
   retry that refresh separately without creating/updating the course again (MAIR-378).
+  Author status selects preserve the exact draft value even when catalogue filter
+  choices omit it. A missing current value is displayed through a disabled
+  presentation-only option; it does not add a selectable business transition or
+  alter catalogue filters. Received labels, order and disabled states are retained.
+  Refreshing choices does not reset the draft or silently select the first option
+  (MAIR-475).
 - Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
 - Projects: `ProjectModule` and its project-management views and interactions.
 - User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.
