@@ -21,6 +21,7 @@
     "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "local-storybook": "npx serve ./storybook-static -l 8080",
@@ -92,6 +93,7 @@
   },
   "overrides": {
     "esbuild": "0.28.2",
+    "handlebars": "4.7.10",
     "next": {
       "sharp": "^0.35.5"
     },

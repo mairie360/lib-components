@@ -1,8 +1,21 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import sharp from 'sharp';
+import Handlebars from 'handlebars';
 
 const readJson = (name: string) => JSON.parse(readFileSync(resolve(process.cwd(), name), 'utf8'));
+
+it('installs the patched template compiler used by the test tooling', () => {
+  const lock = readJson('package-lock.json');
+  expect(lock.packages['node_modules/handlebars'].version).toBe(Handlebars.VERSION);
+  const [major, minor, patch] = Handlebars.VERSION.split('.').map(Number);
+  expect(major > 4 || (major === 4 && (minor > 7 || (minor === 7 && patch >= 10)))).toBe(true);
+});
+
+it('still renders and escapes a bounded ordinary template', () => {
+  const template = Handlebars.compile('Bonjour {{name}}');
+  expect(template({ name: '<mairie>' })).toBe('Bonjour &lt;mairie&gt;');
+});
 
 it('locks the patched Next image tooling without weakening the global PostCSS rule', () => {
   const manifest = readJson('package.json');

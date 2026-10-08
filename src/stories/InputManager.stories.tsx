@@ -31,7 +31,7 @@ export default meta;
 type Story = StoryObj<typeof InputManager>;
 
 const Template = (args: InputProps) => {
-  const [value, setValue] = useState(args.value || "");
+  const [value, setValue] = useState<InputProps["value"]>(args.value ?? "");
 
   const handleChange = (e: InputChangeEvent) => {
     const finalValue = e.target instanceof HTMLInputElement && e.target.type === "checkbox"
@@ -155,7 +155,7 @@ export const TelephoneInput: Story = {
   render: (args) => <Template {...args} />,
   args: {
     label: "Téléphone",
-    type: "telephone",
+    type: "tel",
     name: "phone",
     value: "+33123456789",
   },

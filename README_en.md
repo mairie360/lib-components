@@ -146,6 +146,12 @@ The public API includes the following main groups:
   Synchronous `void` callbacks remain compatible, but cannot report remote failure.
   Do not return `false` when the mutation succeeded and only catalogue refresh failed:
   retry that refresh separately without creating/updating the course again (MAIR-378).
+  Author status selects preserve the exact draft value even when catalogue filter
+  choices omit it. A missing current value is displayed through a disabled
+  presentation-only option; it does not add a selectable business transition or
+  alter catalogue filters. Received labels, order and disabled states are retained.
+  Refreshing choices does not reset the draft or silently select the first option
+  (MAIR-475).
 - Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
 - Projects: `ProjectModule` and its project-management views and interactions.
 - User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.
@@ -206,3 +212,6 @@ tsup.config.ts            # JavaScript and declaration bundle configuration
 ## CI and publishing
 
 GitHub Actions runs the shared Mairie360 frontend-library workflow for pushes, pull requests, and manual executions. The package metadata publishes `dist` to GitHub Packages using the `@mairie360/lib-components` package name.
+## Full library type validation — 8 October 2026
+
+`npm run typecheck` validates component sources, tests and Storybook examples without exclusions. The existing quality workflow invokes this script. HTML attribute types now match the existing Paragraph/Title passthrough; stories use the installed renderer types and valid input values. Eight inherited diagnostics were reproduced before correction and the full check now passes. No runtime typography, layout, API/BFF or RGAA configuration changes.

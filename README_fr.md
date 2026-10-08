@@ -148,6 +148,13 @@ L’API publique comprend les groupes principaux suivants :
   formulaire. Les callbacks synchrones `void` restent compatibles mais ne signalent pas
   un échec distant. Si la mutation réussit mais que le catalogue ne se recharge pas,
   réessayer uniquement ce chargement, sans renvoyer la création/modification (MAIR-378).
+  Le sélecteur de statut auteur conserve la valeur exacte du brouillon même si les
+  choix de filtre du catalogue ne la contiennent pas. Une valeur courante absente
+  est représentée par une option désactivée, uniquement pour l’affichage : aucune
+  transition métier sélectionnable ni option de filtre n’est ajoutée. Les libellés,
+  l’ordre et les états désactivés reçus restent inchangés. Actualiser les choix ne
+  réinitialise pas le brouillon et ne sélectionne pas silencieusement le premier
+  statut (MAIR-475).
 - Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
 - Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
 - Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.
@@ -208,3 +215,6 @@ tsup.config.ts            # Configuration de la compilation JavaScript et des ty
 ## CI et publication
 
 GitHub Actions exécute le workflow partagé des bibliothèques frontend Mairie360 lors des pushs, des pull requests et des lancements manuels. Les métadonnées du package publient `dist` sur GitHub Packages sous le nom `@mairie360/lib-components`.
+## Vérification complète des types — 8 octobre 2026
+
+`npm run typecheck` contrôle les composants, tests et exemples Storybook sans exclusion. Le workflow qualité existant appelle ce script. Les types HTML reflètent la transmission déjà présente dans Paragraph/Title ; les exemples utilisent le renderer installé et des valeurs d’entrée valides. Huit diagnostics hérités ont été reproduits avant correction ; la vérification complète passe désormais. Aucun changement du rendu typographique, de l’agencement, des API/BFF ou de la configuration RGAA.

@@ -46,6 +46,15 @@ const textareaClassName =
   'min-h-24 w-full resize-y rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#7a8797] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
 const labelClassName = 'mb-1.5 block text-sm font-semibold text-[#334155]';
 
+const currentStatusLabel = (statusValue: string) => {
+  switch (statusValue) {
+    case 'not-started': return 'Non commencé (statut actuel)';
+    case 'in-progress': return 'En cours (statut actuel)';
+    case 'completed': return 'Terminé (statut actuel)';
+    default: return statusValue.trim() ? `Statut actuel : ${statusValue}` : 'Statut non renseigné';
+  }
+};
+
 const contentTypes: Array<{ label: string; value: ElearningCourseContentType }> = [
   { label: 'Vidéo', value: 'video' },
   { label: 'PDF', value: 'pdf' },
@@ -139,6 +148,11 @@ export const ElearningCourseFormModal = ({
   }, [isOpen, onCancel]);
 
   if (!isOpen) return null;
+
+  // Catalogue filter choices need not include the current author draft. Keep
+  // that exact value visible without inventing another editable transition.
+  const authorStatuses = statusOptions.filter((option) => option.value !== 'all');
+  const hasCurrentStatus = authorStatuses.some((option) => option.value === values.statusValue);
 
   const updateValue = <Key extends keyof ElearningCourseFormValues>(
     key: Key,
@@ -347,11 +361,19 @@ export const ElearningCourseFormModal = ({
                 <select
                   id="elearning-course-status"
                   className={fieldClassName}
-                  onChange={(event) => updateValue('statusValue', event.target.value)}
+                  onChange={(event) => {
+                    const nextStatus = event.target.value;
+                    if (!submittingRef.current && authorStatuses.some((option) => option.value === nextStatus && !option.disabled)) {
+                      updateValue('statusValue', nextStatus);
+                    }
+                  }}
                   value={values.statusValue}
                 >
-                  {statusOptions.filter((option) => option.value !== 'all').map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
+                  {!hasCurrentStatus ? (
+                    <option disabled value={values.statusValue}>{currentStatusLabel(values.statusValue)}</option>
+                  ) : null}
+                  {authorStatuses.map((option) => (
+                    <option disabled={option.disabled} key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
               </div>
