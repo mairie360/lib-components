@@ -1,6 +1,6 @@
 import React from "react";
 
-export interface TitleProps {
+export interface TitleProps extends React.HTMLAttributes<HTMLHeadingElement> {
     /** Texte du titre */
     title: string;
     /** Texte du sous-titre */

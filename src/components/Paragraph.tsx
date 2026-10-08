@@ -1,6 +1,6 @@
 import React from "react";
 
-export interface ParagraphProps {
+export interface ParagraphProps extends React.HTMLAttributes<HTMLParagraphElement> {
     /** Texte du paragraphe */
     text: string;
     /** Gestionnaire de clic facultatif */
