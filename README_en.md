@@ -212,3 +212,6 @@ tsup.config.ts            # JavaScript and declaration bundle configuration
 ## CI and publishing
 
 GitHub Actions runs the shared Mairie360 frontend-library workflow for pushes, pull requests, and manual executions. The package metadata publishes `dist` to GitHub Packages using the `@mairie360/lib-components` package name.
+## Full library type validation — 8 October 2026
+
+`npm run typecheck` validates component sources, tests and Storybook examples without exclusions. The existing quality workflow invokes this script. HTML attribute types now match the existing Paragraph/Title passthrough; stories use the installed renderer types and valid input values. Eight inherited diagnostics were reproduced before correction and the full check now passes. No runtime typography, layout, API/BFF or RGAA configuration changes.

@@ -215,3 +215,6 @@ tsup.config.ts            # Configuration de la compilation JavaScript et des ty
 ## CI et publication
 
 GitHub Actions exécute le workflow partagé des bibliothèques frontend Mairie360 lors des pushs, des pull requests et des lancements manuels. Les métadonnées du package publient `dist` sur GitHub Packages sous le nom `@mairie360/lib-components`.
+## Vérification complète des types — 8 octobre 2026
+
+`npm run typecheck` contrôle les composants, tests et exemples Storybook sans exclusion. Le workflow qualité existant appelle ce script. Les types HTML reflètent la transmission déjà présente dans Paragraph/Title ; les exemples utilisent le renderer installé et des valeurs d’entrée valides. Huit diagnostics hérités ont été reproduits avant correction ; la vérification complète passe désormais. Aucun changement du rendu typographique, de l’agencement, des API/BFF ou de la configuration RGAA.
