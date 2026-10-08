@@ -27,6 +27,14 @@ export interface MessagingComposerProps extends React.HTMLAttributes<HTMLFormEle
 
 const systemEmojiOptions = ['👍', '👏', '😊', '🎉', '✅', '🙏', '📎', '📌'];
 
+const revokeDraftUrl = (url: string) => {
+  try {
+    if (typeof URL !== 'undefined') URL.revokeObjectURL?.(url);
+  } catch {
+    // Cleanup must never turn an acknowledged send into a retry.
+  }
+};
+
 const normalizeMentionValue = (value: string) =>
   value
     .normalize('NFD')
@@ -91,6 +99,17 @@ export const MessagingComposer = ({
   const [emojiOpen, setEmojiOpen] = React.useState(false);
   const [isSending, setIsSending] = React.useState(false);
   const sendingRef = React.useRef(false);
+  const mountedRef = React.useRef(true);
+  const ownedUrlsRef = React.useRef(new Set<string>());
+  React.useEffect(() => {
+    mountedRef.current = true;
+    const urls = ownedUrlsRef.current;
+    return () => {
+      mountedRef.current = false;
+      urls.forEach(revokeDraftUrl);
+      urls.clear();
+    };
+  }, []);
   const currentValue = value ?? internalValue;
   const isBusy = disabled || isSending;
   const canSend = (currentValue.trim().length > 0 || attachments.length > 0) && !isBusy && !!onSendMessage;
@@ -132,6 +151,9 @@ export const MessagingComposer = ({
     const messageBusinessLinks = businessLinks.filter((reference) => currentValue.includes(`#${reference.title}`));
 
     const clearDraft = () => {
+      if (!mountedRef.current) return;
+      ownedUrlsRef.current.forEach(revokeDraftUrl);
+      ownedUrlsRef.current.clear();
       if (value === undefined) setInternalValue('');
       setAttachments([]);
       setMentions([]);
@@ -154,7 +176,7 @@ export const MessagingComposer = ({
           })
           .finally(() => {
             sendingRef.current = false;
-            setIsSending(false);
+            if (mountedRef.current) setIsSending(false);
           });
       } else {
         if (result !== false) clearDraft();
@@ -175,16 +197,18 @@ export const MessagingComposer = ({
     const files = Array.from(event.target.files ?? []);
     if (files.length === 0) return;
 
-    const nextAttachments = files.map((file, index) => ({
-      id: `${file.name}-${file.lastModified}-${index}`,
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      url:
-        typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function'
-          ? URL.createObjectURL(file)
-          : undefined,
-    }));
+    const nextAttachments = files.map((file, index) => {
+      const url = typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function'
+        ? URL.createObjectURL(file) : undefined;
+      if (url) ownedUrlsRef.current.add(url);
+      return {
+        id: `${file.name}-${file.lastModified}-${index}`,
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        url,
+      };
+    });
 
     setAttachments((currentAttachments) => [...currentAttachments, ...nextAttachments]);
     onAttach?.(files, nextAttachments);
@@ -192,25 +216,22 @@ export const MessagingComposer = ({
   };
 
   const removeAttachment = (attachmentId: MessagingAttachment['id']) => {
-    setAttachments((currentAttachments) => {
-      const removedAttachment = currentAttachments.find((attachment) => attachment.id === attachmentId);
-
-      if (removedAttachment?.url?.startsWith('blob:') && typeof URL !== 'undefined') {
-        URL.revokeObjectURL?.(removedAttachment.url);
-      }
-
-      return currentAttachments.filter((attachment) => attachment.id !== attachmentId);
-    });
+    const removedAttachment = attachments.find((attachment) => attachment.id === attachmentId);
+    if (removedAttachment?.url && ownedUrlsRef.current.delete(removedAttachment.url)) {
+      revokeDraftUrl(removedAttachment.url);
+    }
+    setAttachments(currentAttachments => currentAttachments.filter(attachment => attachment.id !== attachmentId));
   };
 
   const appendEmoji = (emoji: string) => {
+    if (isBusy) return;
     updateValue(`${currentValue}${emoji}`);
     setEmojiOpen(false);
     onEmoji?.(emoji);
   };
 
   const selectMention = (mention: MessagingMention) => {
-    if (!mentionMatch) return;
+    if (isBusy || !mentionMatch) return;
 
     const nextValue = `${currentValue.slice(0, mentionMatch.start)}@${mention.name} `;
     updateValue(nextValue);
@@ -224,7 +245,7 @@ export const MessagingComposer = ({
   };
 
   const selectBusinessReference = (reference: MessagingBusinessReference) => {
-    if (!businessReferenceMatch) return;
+    if (isBusy || !businessReferenceMatch) return;
 
     const nextValue = `${currentValue.slice(0, businessReferenceMatch.start)}#${reference.title} `;
     updateValue(nextValue);
@@ -293,6 +314,7 @@ export const MessagingComposer = ({
                     <button
                       key={mention.id}
                       type="button"
+                      disabled={isBusy}
                       className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
                       onClick={() => selectMention(mention)}
                     >
@@ -312,6 +334,7 @@ export const MessagingComposer = ({
                       key={reference.id}
                       type="button"
                       title={reference.title}
+                      disabled={isBusy}
                       className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
                       onClick={() => selectBusinessReference(reference)}
                     >
@@ -406,7 +429,7 @@ export const MessagingComposer = ({
             type="button"
             aria-label={emojiLabel}
             title={emojiLabel}
-            disabled={disabled || !onSendMessage}
+            disabled={isBusy || !onSendMessage}
             className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
             onClick={() => setEmojiOpen((open) => !open)}
           >
@@ -425,6 +448,7 @@ export const MessagingComposer = ({
                   key={emoji}
                   type="button"
                   aria-label={`Ajouter ${emoji}`}
+                  disabled={isBusy}
                   className="flex size-8 items-center justify-center rounded-md transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
                   style={{
                     fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',

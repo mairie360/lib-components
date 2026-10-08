@@ -99,6 +99,32 @@ Les écrans d’authentification Login n’utilisent pas `AppShell`.
 
 ## Groupes de composants
 
+### Brouillons par conversation — MAIR-461
+
+Messaging conserve des éditeurs en mémoire uniquement pour les conversations
+visitées ; les IDs numériques et textuels sont équivalents. Les éditeurs inactifs
+sont cachés et désactivés. Changer de fil conserve texte, pièces jointes, mentions
+et références métier uniquement dans leur conversation d’origine. Supprimer une
+conversation ou changer de compte efface ses brouillons et libère leurs URLs.
+Retourner le véritable résultat d’envoi : la confirmation efface uniquement le
+brouillon d’origine ; refus/rejet le conserve. Une réponse tardive après changement
+de compte ou suppression du fil ne peut pas effacer un nouveau brouillon. Pendant
+l’attente, texte, ajout/retrait de pièces jointes, suggestions utilisateur/métier
+et réactions sont figés. Deux envois indépendants peuvent se terminer dans n’importe
+quel ordre sans croiser leurs brouillons. Ces garanties de callbacks ne certifient
+ni persistance BFF ni droits réels du consommateur.
+
+Le candidat conserve les dépendances déjà mises à jour dans main et son workflow
+réutilisable v4.2.0 ; seule l’entrée de version des actions correspondantes est
+alignée. Un override Next/sharp ciblé utilise l’outillage d’image corrigé (0.35.5,
+librsvg 2.63.2). Aucun contrôle sécurité/RGAA ou politique npm n’est désactivé.
+Les verrous compatibles d’outillage compression1.8.2 et proxy-addr2.0.8 retirent
+leurs alertes high/critical, sans modifier les services backend ni les dépendances
+runtime de la bibliothèque. L’audit inchangé reste obligatoire ; les alertes
+braces/sprintf-js ne sont ni masquées ni contournées par un downgrade majeur.
+Publication réelle du paquet puis pin/intégration du consommateur Messages restent
+obligatoires avant livraison : un build local n’est pas une version publiée.
+
 `Messaging.onCreateGroup` et `CreateGroupModal.onCreateGroup` acceptent un résultat
 `boolean | void`, synchrone ou asynchrone. Retourner `false` ou lever/rejeter une
 erreur conserve le nom, la description et les membres pour réessayer. Un succès

@@ -98,6 +98,31 @@ navigation. Login authentication screens do not use `AppShell`.
 
 ## Component groups
 
+### Conversation drafts — MAIR-461
+
+Messaging retains in-memory composers only for visited conversation IDs. Numeric
+and string IDs are equivalent. Inactive composers are hidden and disabled;
+switching threads preserves text, attachments, mentions and business references
+only for their originating conversation. Removing a conversation or changing
+the current account clears its drafts and releases owned attachment URLs.
+Return the real send result: a confirmation clears only the originating draft;
+a refusal/rejection preserves it. Late settlements after account changes or
+conversation removal cannot clear a replacement draft. Pending sends freeze
+text, attachment removal/addition, mention/business suggestions and emoji actions.
+Two independent sends may settle in either order without crossing their drafts.
+These callback guarantees do not certify the consumer's BFF persistence or rights.
+
+The delivery candidate retains the current main dependency updates and its
+v4.2.0 reusable workflow, aligning only the matching action-version input.
+A scoped Next/sharp override uses the patched image tooling (0.35.5, librsvg
+2.63.2); no security/RGAA check or npm policy is disabled. Package publication
+also requires the unchanged audit. Compatible tooling locks compression1.8.2
+and proxy-addr2.0.8 remove their high/critical findings without changing backend
+services or library runtime dependencies. Remaining braces/sprintf-js findings
+are not waived or hidden by a forced breaking tooling downgrade. Publication
+and the subsequent Messages consumer pin/integration must succeed before this
+feature is considered delivered; local library builds are not published versions.
+
 `Messaging.onCreateGroup` and `CreateGroupModal.onCreateGroup` accept a synchronous
 or asynchronous `boolean | void` result. Return `false` or reject/throw to retain
 the group name, description and members for retry. A confirmed success (including
