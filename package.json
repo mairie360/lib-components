@@ -92,6 +92,9 @@
   },
   "overrides": {
     "esbuild": "0.28.2",
+    "next": {
+      "sharp": "^0.35.5"
+    },
     "get-uri": {
       "basic-ftp": "6.2.2"
     },
