@@ -167,4 +167,10 @@ describe('SettingsModule', () => {
     expect(screen.queryByRole('button', { name: 'Vider le cache' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Télécharger les logs' })).not.toBeInTheDocument();
   });
+
+  it('says who sees the phone number (MAIR-292)', () => {
+    render(<SettingsModule {...fixtureProps} />);
+
+    expect(screen.getByLabelText('Téléphone')).toHaveAccessibleDescription('Visible par tous les agents de la mairie (usage professionnel).');
+  });
 });
