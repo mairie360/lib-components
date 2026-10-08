@@ -159,4 +159,87 @@ describe('Messaging conversation drafts', () => {
     expect(input()).toHaveValue('@Ag');
     expect(screen.getByRole('button', { name: /@Agent/ })).toBeEnabled();
   });
+
+  it('freezes attachment removal and business suggestions without losing a refused draft', async () => {
+    let resolve!: (value: boolean) => void;
+    const pending = new Promise<boolean>(yes => { resolve = yes; });
+    const send = jest.fn(() => pending);
+    render(<Messaging {...props} onSendMessage={send} />);
+    edit('#Pr');
+    attach();
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    expect(screen.getByRole('button', { name: /#Projet/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Retirer draft.txt' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Joindre un fichier' })).toBeDisabled();
+    select('Fil B');
+    edit('Separate B');
+    await act(async () => { resolve(false); await pending; });
+    expect(input()).toHaveValue('Separate B');
+    select('Fil A');
+    expect(input()).toHaveValue('#Pr');
+    expect(screen.getByRole('button', { name: 'Retirer draft.txt' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: /#Projet/ })).toBeEnabled();
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(revoke).not.toHaveBeenCalled();
+  });
+
+  it('settles two independent sends in reverse order without crossing drafts', async () => {
+    let resolveA!: (value: boolean) => void;
+    let resolveB!: (value: boolean) => void;
+    const pendingA = new Promise<boolean>(yes => { resolveA = yes; });
+    const pendingB = new Promise<boolean>(yes => { resolveB = yes; });
+    const send = jest.fn().mockReturnValueOnce(pendingA).mockReturnValueOnce(pendingB);
+    render(<Messaging {...props} onSendMessage={send} />);
+    edit('Pending A'); attach('a.txt');
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    select('Fil B'); edit('Pending B'); attach('b.txt');
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    await act(async () => { resolveB(true); await pendingB; });
+    expect(input()).toHaveValue('');
+    expect(revoke.mock.calls).toEqual([['blob:draft-2']]);
+    select('Fil A');
+    expect(input()).toHaveValue('Pending A');
+    expect(input()).toBeDisabled();
+    await act(async () => { resolveA(false); await pendingA; });
+    expect(input()).toHaveValue('Pending A');
+    expect(input()).toBeEnabled();
+    expect(within(visibleComposer()).getByText('a.txt')).toBeVisible();
+    expect(send.mock.calls.map(call => call[0].conversationId)).toEqual([4, 5]);
+    expect(revoke.mock.calls).toEqual([['blob:draft-2']]);
+  });
+
+  it('ignores an old account send confirmation after a new account creates a draft', async () => {
+    let resolve!: (value: boolean) => void;
+    const pending = new Promise<boolean>(yes => { resolve = yes; });
+    const send = jest.fn(() => pending);
+    const { rerender } = render(<Messaging {...props} onSendMessage={send} />);
+    edit('Old private A'); attach('old.txt');
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    rerender(<Messaging {...props} currentUserId="user-2" onSendMessage={send} />);
+    edit('New private A'); attach('new.txt');
+    await act(async () => { resolve(true); await pending; });
+    expect(input()).toHaveValue('New private A');
+    expect(within(visibleComposer()).getByText('new.txt')).toBeVisible();
+    expect(input()).toBeEnabled();
+    expect(revoke.mock.calls).toEqual([['blob:draft-1']]);
+  });
+
+  it('cannot clear a recreated conversation draft when its removed predecessor settles', async () => {
+    let resolve!: (value: boolean) => void;
+    const pending = new Promise<boolean>(yes => { resolve = yes; });
+    const send = jest.fn(() => pending);
+    const { rerender } = render(<Messaging {...props} onSendMessage={send} />);
+    edit('Removed pending A'); attach('removed.txt');
+    fireEvent.click(screen.getByRole('button', { name: 'Envoyer' }));
+    rerender(<Messaging {...props} conversations={[conversations[1]]} onSendMessage={send} />);
+    edit('B remains');
+    rerender(<Messaging {...props} onSendMessage={send} />);
+    select('Fil A'); edit('Recreated A'); attach('recreated.txt');
+    await act(async () => { resolve(true); await pending; });
+    expect(input()).toHaveValue('Recreated A');
+    expect(within(visibleComposer()).getByText('recreated.txt')).toBeVisible();
+    expect(revoke.mock.calls).toEqual([['blob:draft-1']]);
+    select('Fil B');
+    expect(input()).toHaveValue('B remains');
+  });
 });
