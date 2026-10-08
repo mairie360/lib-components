@@ -93,6 +93,7 @@
   },
   "overrides": {
     "esbuild": "0.28.2",
+    "handlebars": "4.7.10",
     "next": {
       "sharp": "^0.35.5"
     },
