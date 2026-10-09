@@ -8,6 +8,7 @@ import { MessagingComposer } from './MessagingComposer';
 import { MessagingMessageBubble } from './MessagingMessageBubble';
 import { MessagingSidebar } from './MessagingSidebar';
 import { NewMessageModal } from './NewMessageModal';
+import { lastVisibleMessagingMessageId } from './messaging/visible-message';
 import type {
   CreateGroupPayload,
   MessagingAttachment,
@@ -40,6 +41,7 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onNewMessageSend?: (payload: NewMessagePayload) => MessagingSendResult;
   onCreateGroup?: (payload: CreateGroupPayload) => MessagingSendResult;
   onConversationDelete?: (conversation: MessagingConversation) => void;
+  onReadVisibleMessages?: (conversation: MessagingConversation, lastVisibleMessage: MessagingMessage | null) => MessagingSendResult;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
   onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
@@ -195,6 +197,7 @@ export const Messaging = ({
   onNewMessageSend,
   onCreateGroup,
   onConversationDelete,
+  onReadVisibleMessages,
   onAttach,
   onEmoji,
   onBusinessReferenceClick,
@@ -221,6 +224,13 @@ export const Messaging = ({
       : firstConversationId);
   const activeConversation =
     displayedConversations.find((conversation) => messagingIdsMatch(conversation.id, resolvedActiveId)) ?? null;
+  const activeIdRef = React.useRef(resolvedActiveId);
+  React.useLayoutEffect(() => { activeIdRef.current = resolvedActiveId; }, [resolvedActiveId]);
+  const messageRegionRef = React.useRef<HTMLDivElement>(null);
+  const readRequestRef = React.useRef<symbol | null>(null);
+  const [readPending, setReadPending] = React.useState(false);
+  const [readFailure, setReadFailure] = React.useState<{ conversationId: MessagingContactId; message: string } | null>(null);
+  React.useEffect(() => () => { readRequestRef.current = null; }, []);
   const displayedMessages = mergeMessagesById(messages ?? emptyMessages, incomingMessages);
   const visibleMessages = displayedMessages
     .filter(
@@ -236,6 +246,37 @@ export const Messaging = ({
     0
   );
   const firstUnreadConversation = displayedConversations.find((conversation) => (conversation.unreadCount ?? 0) > 0);
+
+  const handleReadVisibleMessages = async (conversation: MessagingConversation) => {
+    if (!onReadVisibleMessages || readRequestRef.current ||
+        !messagingIdsMatch(activeIdRef.current, conversation.id)) return;
+    const request = Symbol('visible-message-read');
+    readRequestRef.current = request;
+    setReadPending(true);
+    setReadFailure(null);
+    try {
+      // Let the action menu close before inspecting the actual clipped message region.
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+      if (readRequestRef.current !== request ||
+          !messagingIdsMatch(activeIdRef.current, conversation.id)) return;
+      const id = lastVisibleMessagingMessageId(messageRegionRef.current);
+      const lastMessage = id === null ? null : visibleMessages.find(message => String(message.id) === id) ?? null;
+      const accepted = await onReadVisibleMessages(conversation, lastMessage);
+      if (accepted === false && readRequestRef.current === request &&
+          messagingIdsMatch(activeIdRef.current, conversation.id)) {
+        setReadFailure({ conversationId: conversation.id, message: 'Les messages affichés n’ont pas pu être marqués comme lus. Réessayez.' });
+      }
+    } catch {
+      if (readRequestRef.current === request && messagingIdsMatch(activeIdRef.current, conversation.id)) {
+        setReadFailure({ conversationId: conversation.id, message: 'Les messages affichés n’ont pas pu être marqués comme lus. Réessayez.' });
+      }
+    } finally {
+      if (readRequestRef.current === request) {
+        readRequestRef.current = null;
+        setReadPending(false);
+      }
+    }
+  };
 
   const handleConversationSelect = (conversation: MessagingConversation) => {
     if (activeConversationId === undefined) {
@@ -339,12 +380,19 @@ export const Messaging = ({
 
       <div className="flex min-h-0 flex-col bg-white">
         <MessagingChatHeader
+          key={activeConversation ? String(activeConversation.id) : 'no-conversation'}
           conversation={activeConversation}
           onCall={onCall}
           onVideoCall={onVideoCall}
           onMoreActions={onMoreActions}
           onDeleteConversation={onConversationDelete ? handleDeleteConversation : undefined}
+          onReadVisibleMessages={onReadVisibleMessages ? conversation => void handleReadVisibleMessages(conversation) : undefined}
+          readPending={readPending}
         />
+
+        {readFailure && messagingIdsMatch(readFailure.conversationId, resolvedActiveId) && (
+          <p role="alert" className="border-b border-[#d8d2ca] px-4 py-2 text-sm text-[#b3261e] sm:px-5">{readFailure.message}</p>
+        )}
 
         {unreadNotificationCount > 0 && (
           <div
@@ -369,13 +417,14 @@ export const Messaging = ({
           </div>
         )}
 
-        <div className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5 sm:px-5">
+        <div ref={messageRegionRef} className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5 sm:px-5">
           {activeConversation ? (
             visibleMessages.length > 0 ? (
               visibleMessages.map((message) => (
                 <MessagingMessageBubble
                   key={message.id}
                   message={message}
+                  data-messaging-message-id={String(message.id)}
                   mentionOptions={displayedMentionOptions}
                   businessReferenceOptions={businessReferences}
                   onBusinessReferenceClick={onBusinessReferenceClick}

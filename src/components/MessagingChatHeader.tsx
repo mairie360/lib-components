@@ -1,5 +1,5 @@
 import React from 'react';
-import { MoreVertical, Phone, Trash2, Video } from 'lucide-react';
+import { CheckCheck, MoreVertical, Phone, Trash2, Video } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import { MessagingContactAvatar } from './MessagingContactAvatar';
@@ -15,6 +15,8 @@ export interface MessagingChatHeaderProps extends React.HTMLAttributes<HTMLDivEl
   onVideoCall?: (conversation: MessagingConversation) => void;
   onMoreActions?: (conversation: MessagingConversation) => void;
   onDeleteConversation?: (conversation: MessagingConversation) => void;
+  onReadVisibleMessages?: (conversation: MessagingConversation) => void;
+  readPending?: boolean;
 }
 
 const presenceLabel = {
@@ -33,6 +35,8 @@ export const MessagingChatHeader = ({
   onVideoCall,
   onMoreActions,
   onDeleteConversation,
+  onReadVisibleMessages,
+  readPending = false,
   className = '',
   ...props
 }: MessagingChatHeaderProps) => {
@@ -115,7 +119,7 @@ export const MessagingChatHeader = ({
             <Video className="size-4" strokeWidth={1.8} />
           </button>
         )}
-        {(onMoreActions || onDeleteConversation) && (
+        {(onMoreActions || onDeleteConversation || onReadVisibleMessages) && (
           <div ref={actionsRef} className="relative">
             <button
               type="button"
@@ -124,15 +128,29 @@ export const MessagingChatHeader = ({
               aria-expanded={actionsOpen}
               className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
               onClick={() => {
-                if (onDeleteConversation) setActionsOpen((open) => !open);
+                if (onDeleteConversation || onReadVisibleMessages) setActionsOpen((open) => !open);
                 onMoreActions?.(conversation);
               }}
             >
               <MoreVertical className="size-4" strokeWidth={1.8} />
             </button>
-            {actionsOpen && onDeleteConversation && (
+            {actionsOpen && (onDeleteConversation || onReadVisibleMessages) && (
               <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
-                <button
+                {onReadVisibleMessages && (
+                  <button
+                    type="button"
+                    disabled={readPending}
+                    className="flex w-full items-center gap-2 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                    onClick={() => {
+                      setActionsOpen(false);
+                      onReadVisibleMessages(conversation);
+                    }}
+                  >
+                    <CheckCheck className="size-4 shrink-0" strokeWidth={1.8} />
+                    <span>Marquer les messages affichés comme lus</span>
+                  </button>
+                )}
+                {onDeleteConversation && <button
                   type="button"
                   className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[#d8292f] transition hover:bg-[#fff2f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8292f]/25"
                   onClick={() => {
@@ -142,7 +160,7 @@ export const MessagingChatHeader = ({
                 >
                   <Trash2 className="size-4 shrink-0" strokeWidth={1.8} />
                   <span>{deleteConversationLabel}</span>
-                </button>
+                </button>}
               </div>
             )}
           </div>
