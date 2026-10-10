@@ -92,7 +92,7 @@
     "typescript": "^5",
     "vitest": "^4.1.11",
     "wait-on": "^9.0.0",
-    "ajv": "6.15.0"
+    "ajv": "8.20.0"
   },
   "overrides": {
     "esbuild": "0.28.2",
