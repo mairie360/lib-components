@@ -1,7 +1,7 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ["src/index.tsx"],
+  entry: { index: "src/index.tsx", next: "src/next.ts" },
   format: ["esm", "cjs"],
   dts: true,
   sourcemap: true,
@@ -25,6 +25,8 @@ export default defineConfig({
     "url",
     "buffer",
     "crypto",
-    "axios"
+    "axios",
+    "next/server.js",
+    "node:crypto"
   ]
 });
