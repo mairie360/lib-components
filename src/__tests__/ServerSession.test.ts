@@ -260,6 +260,37 @@ describe('explicit session logout', () => {
     const result = await createSessionLogoutHandler(config())(request(token, '/api/auth/logout', { Cookie: `accessToken=${jwt(-10)}; refreshToken=${token}` }));
     expect(result.status).toBe(200); expect(calls).toBe(2); expect(result.cookies.get('refreshToken')?.maxAge).toBe(0);
   });
+  it.each(['refusal', 'malformed', 'network'])('retains the rotated pair when logout fails after renewal: %s', async failure => {
+    const token = refresh(), rotated = refresh(), access = jwt();
+    jest.spyOn(global, 'fetch').mockImplementation(async input => {
+      if (String(input).endsWith('/auth/refresh')) return cookieReply(access, rotated);
+      if (failure === 'network') throw new TypeError('network');
+      return failure === 'refusal'
+        ? Response.json({ message: 'Unavailable' }, { status: 503 })
+        : Response.json({ message: 42 });
+    });
+    const result = await createSessionLogoutHandler(config())(request(token, '/api/auth/logout', { Cookie: `accessToken=${jwt(-10)}; refreshToken=${token}` }));
+    expect(result.status).toBe(failure === 'refusal' ? 503 : 502);
+    expect(result.cookies.get('accessToken')?.value).toBe(access);
+    expect(result.cookies.get('refreshToken')?.value).toBe(rotated);
+    expect(result.cookies.get('accessToken')?.maxAge).toBeGreaterThan(0);
+    expect(result.cookies.get('refreshToken')?.path).toBe('/api');
+    expect(result.cookies.get('refreshToken')?.maxAge).toBeUndefined();
+    expect(JSON.stringify(await result.json())).not.toContain(rotated);
+  });
+  it('retains the rotated refresh when the new short access JWT expires during a failed logout', async () => {
+    const token = refresh(), rotated = refresh(), access = jwt(10), now = Date.now();
+    jest.spyOn(global, 'fetch').mockImplementation(async input => {
+      if (String(input).endsWith('/auth/refresh')) return cookieReply(access, rotated);
+      jest.spyOn(Date, 'now').mockReturnValue(now + 20000);
+      return Response.json({ message: 'Unavailable' }, { status: 503 });
+    });
+    const result = await createSessionLogoutHandler(config())(request(token, '/api/auth/logout', { Cookie: `accessToken=${jwt(-10)}; refreshToken=${token}` }));
+    expect(result.status).toBe(503);
+    expect(result.cookies.get('accessToken')).toBeUndefined();
+    expect(result.cookies.get('refreshToken')).toMatchObject({ value: rotated, httpOnly: true, secure: true, sameSite: 'strict', path: '/api', domain: '.dev.test' });
+    expect(result.cookies.get('refreshToken')?.maxAge).toBeUndefined();
+  });
   it('rejects invalid SSO receipts and malformed/network responses without a false local success', async () => {
     const mocked = jest.spyOn(global, 'fetch').mockResolvedValueOnce(Response.json(protocolBody('LogoutResponse', { message: 'Signed out', session_revoked: true, logout_url: 'https://foreign.test/realms/x/protocol/openid-connect/logout?client_id=x' }))).mockRejectedValueOnce(new TypeError('network'));
     const handler = createSessionLogoutHandler(config());
