@@ -101,14 +101,14 @@
       "sharp": "^0.35.5"
     },
     "get-uri": {
-      "basic-ftp": "6.2.2"
+      "basic-ftp": "6.2.3"
     },
     "postcss": "$postcss",
     "puppeteer-core": "25.13.0",
     "qs": "6.16.0",
     "storybook": "$storybook",
     "tmp": "0.2.7",
-    "uuid": "14.0.2"
+    "uuid": "14.0.3"
   },
   "exports": {
     ".": {
