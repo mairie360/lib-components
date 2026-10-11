@@ -94,6 +94,9 @@ export interface ElearningCourseDetailsModalProps
   optimisticUpdates?: boolean;
   busy?: boolean;
   actionError?: string | null;
+  onContentDownload?: (content: ElearningCourseContentItem) => ElearningLearnerActionResult;
+  canCompleteContent?: (content: ElearningCourseContentItem) => boolean;
+  reviewContent?: React.ReactNode;
 }
 
 const clampProgress = (value: number) => Math.min(100, Math.max(0, value));
@@ -262,6 +265,9 @@ export const ElearningCourseDetailsModal = ({
   actionLabel: _actionLabel,
   onAction: _onAction,
   onContentComplete,
+  onContentDownload,
+  canCompleteContent,
+  reviewContent,
   className = '',
   ...props
 }: ElearningCourseDetailsModalProps) => {
@@ -274,6 +280,7 @@ export const ElearningCourseDetailsModal = ({
   const [selectedChapterId, setSelectedChapterId] = React.useState(() => getInitialChapter(initialChapters)?.id ?? '');
   const [localRatingDistribution, setLocalRatingDistribution] = React.useState(ratingDistribution);
   const [submitting, setSubmitting] = React.useState(false);
+  const [downloadError, setDownloadError] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
   const pending = React.useRef(false);
   const isBusy = busy || submitting;
@@ -375,6 +382,8 @@ export const ElearningCourseDetailsModal = ({
 
   const handleContentComplete = (chapterId: string, contentId: string) => {
     if (busy || pending.current) return;
+    const original = localChapters.find(chapter => chapter.id === chapterId)?.contents?.find(content => content.id === contentId);
+    if (original && canCompleteContent && !canCompleteContent(original)) return;
     let completedChapter: ElearningCourseChapter | undefined;
     let completedContent: ElearningCourseContentItem | undefined;
     let wasAlreadyCompleted = false;
@@ -553,7 +562,13 @@ export const ElearningCourseDetailsModal = ({
                               </div>
                             </div>
                             <div className="flex shrink-0 flex-wrap items-center gap-2">
-                              {content.href && (
+                              {onContentDownload ? <button type="button" disabled={isBusy} className="rounded-md border px-2 py-1 text-xs font-semibold text-[#1256a6] disabled:opacity-50" onClick={async () => {
+                                if (busy || pending.current) return;
+                                pending.current = true; setSubmitting(true); setDownloadError('');
+                                try { if (await onContentDownload(content) === false) throw new Error('Le téléchargement n’a pas été confirmé.'); }
+                                catch (reason) { setDownloadError(reason instanceof Error ? reason.message : 'Le téléchargement a échoué.'); }
+                                finally { pending.current = false; setSubmitting(false); }
+                              }}>{isBusy ? 'Téléchargement…' : 'Télécharger le support'}</button> : content.href && (
                                 <a
                                   href={content.href}
                                   className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
@@ -569,7 +584,7 @@ export const ElearningCourseDetailsModal = ({
                                     ? `${content.title} terminé`
                                     : `Marquer ${content.title} comme terminé`
                                 }
-                                disabled={contentCompleted || isBusy}
+                                disabled={contentCompleted || isBusy || Boolean(canCompleteContent && !canCompleteContent(content))}
                                 onClick={() => handleContentComplete(selectedChapter.id, content.id)}
                                 className={joinClasses(
                                   'inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed',
@@ -689,6 +704,8 @@ export const ElearningCourseDetailsModal = ({
               </div>
             )}
 
+            {downloadError && <p role="alert" className="mt-3 text-sm text-red-700">{downloadError}</p>}
+            {reviewContent}
             {canRateCourse && completionRating?.onSubmit && (
               <ElearningCourseRating
                 {...completionRating}

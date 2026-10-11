@@ -60,6 +60,9 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   onDeleteCourse?: (course: ElearningCourse) => void;
   onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => ElearningLearnerActionResult;
   allowRatingEdits?: boolean;
+  renderCourseReview?: (course: ElearningCourse) => React.ReactNode;
+  onCourseContentDownload?: (course: ElearningCourse, content: import('./ElearningCourseDetailsModal').ElearningCourseContentItem) => ElearningLearnerActionResult;
+  canCompleteCourseContent?: (course: ElearningCourse, content: import('./ElearningCourseDetailsModal').ElearningCourseContentItem) => boolean;
   onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => ElearningLearnerActionResult;
 }
 
@@ -294,6 +297,9 @@ export const ElearningCatalog = ({
   onCourseRatingSubmit,
   allowRatingEdits = false,
   onCourseContentComplete,
+  onCourseContentDownload,
+  canCompleteCourseContent,
+  renderCourseReview,
   className = '',
   ...props
 }: ElearningCatalogProps) => {
@@ -432,6 +438,9 @@ export const ElearningCatalog = ({
           {...selectedCourseDetails}
           rating={getElearningRatingAverage(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution) ?? selectedCourseDetails.rating}
           ratingDistribution={selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution}
+          onContentDownload={onCourseContentDownload ? content => onCourseContentDownload(selectedCourse, content) : undefined}
+          canCompleteContent={canCompleteCourseContent ? content => canCompleteCourseContent(selectedCourse, content) : undefined}
+          reviewContent={renderCourseReview?.(selectedCourse)}
           optimisticUpdates={false}
           busy={starting}
           actionError={startError}

@@ -3,6 +3,7 @@ import { Briefcase, CalendarDays, FileText, ListTodo } from 'lucide-react';
 
 import { joinClasses } from './calendar/style';
 import type {
+  MessagingAttachment,
   MessagingBusinessReference,
   MessagingMention,
   MessagingMessage,
@@ -12,6 +13,7 @@ export interface MessagingMessageBubbleProps extends React.HTMLAttributes<HTMLDi
   message: MessagingMessage;
   mentionOptions?: MessagingMention[];
   businessReferenceOptions?: MessagingBusinessReference[];
+  onAttachmentDownload?: (attachment: MessagingAttachment, message: MessagingMessage) => Promise<void>;
   onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
 }
 
@@ -67,9 +69,13 @@ export const MessagingMessageBubble = ({
   mentionOptions = [],
   businessReferenceOptions = [],
   onBusinessReferenceClick,
+  onAttachmentDownload,
   className = '',
   ...props
 }: MessagingMessageBubbleProps) => {
+  const [downloadError, setDownloadError] = React.useState('');
+  const [downloadPending, setDownloadPending] = React.useState(false);
+  const downloadRef = React.useRef(false);
   const outgoing = message.direction === 'outgoing';
   const hasAttachments = !!message.attachments?.length;
   const businessReferences = [message.context, ...(message.businessLinks ?? [])].filter(
@@ -119,6 +125,7 @@ export const MessagingMessageBubble = ({
         )}
       >
         <div>{mentionedContent}</div>
+        {downloadError && <p role="alert" className="mt-2">{downloadError}</p>}
         {hasBusinessReferences && (
           <div className="mt-3 flex flex-wrap gap-2">
             {businessReferences.map((reference) =>
@@ -154,7 +161,13 @@ export const MessagingMessageBubble = ({
         {hasAttachments && (
           <div className="mt-3 space-y-2">
             {message.attachments?.map((attachment) =>
-              attachment.url ? (
+              onAttachmentDownload ? <button key={attachment.id} type="button" className={attachmentClassName} disabled={downloadPending} onClick={async () => {
+                if (downloadRef.current) return;
+                downloadRef.current = true; setDownloadPending(true); setDownloadError('');
+                try { await onAttachmentDownload(attachment, message); }
+                catch (reason) { setDownloadError(reason instanceof Error ? reason.message : 'Le fichier n’a pas pu être téléchargé.'); }
+                finally { downloadRef.current = false; setDownloadPending(false); }
+              }}><FileText className="size-4 shrink-0" /><span className="min-w-0 truncate">{attachment.name}</span><span>{downloadPending ? 'Téléchargement…' : 'Télécharger'}</span></button> : attachment.url ? (
                 <a
                   key={attachment.id}
                   href={attachment.url}

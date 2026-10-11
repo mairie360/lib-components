@@ -42,6 +42,7 @@ export interface MessagingProps extends React.HTMLAttributes<HTMLElement> {
   onCreateGroup?: (payload: CreateGroupPayload) => MessagingSendResult;
   onConversationDelete?: (conversation: MessagingConversation) => void;
   onReadVisibleMessages?: (conversation: MessagingConversation, lastVisibleMessage: MessagingMessage | null) => MessagingSendResult;
+  onAttachmentDownload?: (attachment: MessagingAttachment, message: MessagingMessage) => Promise<void>;
   onAttach?: (files: File[], attachments: MessagingAttachment[]) => void;
   onEmoji?: (emoji: string) => void;
   onBusinessReferenceClick?: (reference: MessagingBusinessReference) => void;
@@ -199,6 +200,7 @@ export const Messaging = ({
   onConversationDelete,
   onReadVisibleMessages,
   onAttach,
+  onAttachmentDownload,
   onEmoji,
   onBusinessReferenceClick,
   onCall,
@@ -422,6 +424,7 @@ export const Messaging = ({
             visibleMessages.length > 0 ? (
               visibleMessages.map((message) => (
                 <MessagingMessageBubble
+                  onAttachmentDownload={onAttachmentDownload}
                   key={message.id}
                   message={message}
                   data-messaging-message-id={String(message.id)}

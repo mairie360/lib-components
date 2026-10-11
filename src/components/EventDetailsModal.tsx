@@ -80,6 +80,7 @@ const DetailRow = ({
 
 export const EventDetailsModal = ({
   isOpen,
+  extraContent,
   event,
   people = [],
   categories = defaultEventCategories,
@@ -256,6 +257,7 @@ export const EventDetailsModal = ({
             )}
           </div>
 
+          {extraContent}
           <div className="grid gap-3 sm:grid-cols-2">
             <DetailRow
               icon={<CalendarDays className="h-4 w-4" strokeWidth={1.8} />}
