@@ -3,6 +3,7 @@ import React from 'react';
 import { Footer, type FooterProps } from './Footer';
 import { Header, type HeaderProps } from './Header';
 import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } from './Sidebar';
+import { NotificationCenter, type NotificationSource } from './NotificationCenter';
 import { joinClasses } from './calendar/style';
 
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
@@ -16,6 +17,7 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   onNavigate?: (href: string, itemId: string) => void;
   /** Compatibility callback for pages that already navigate by item id. */
   onPageChange?: (itemId: string) => void;
+  notificationsSource?: NotificationSource;
   headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen' | 'menuButtonRef' | 'onPageChange' | 'onLogout' | 'profileHref'>;
   sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin' | 'items' | 'onItemSelect' | 'footer'> & {
     items?: SidebarItem[];
@@ -44,6 +46,7 @@ export const AppShell = ({
   onNavigate,
   onPageChange,
   headerProps,
+  notificationsSource,
   sidebarProps,
   footerProps,
   footerPlacement = 'sidebar',
@@ -51,6 +54,12 @@ export const AppShell = ({
   className = '',
   ...props
 }: AppShellProps) => {
+  const accountKey = JSON.stringify(user ?? {});
+  const [notificationsOwner, setNotificationsOwner] = React.useState<string | null>(null);
+  const [notificationReceipt, setNotificationReceipt] = React.useState<{ owner: string; count: number } | null>(null);
+  const notificationsOpen = notificationsOwner === accountKey;
+  const notificationCount = notificationReceipt?.owner === accountKey ? notificationReceipt.count : undefined;
+  const receiveNotificationCount = React.useCallback((count: number) => setNotificationReceipt({ owner:accountKey,count }), [accountKey]);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const menuButtonRef = React.useRef<HTMLButtonElement>(null);
   const drawerRef = React.useRef<HTMLDivElement>(null);
@@ -140,6 +149,7 @@ export const AppShell = ({
 
   return (
     <div className={joinClasses('h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]', className)} {...props}>
+      {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
       <div className="flex h-screen">
         <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>
 
@@ -167,9 +177,11 @@ export const AppShell = ({
           </div>
         )}
 
-        <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen}>
+        <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen || notificationsOpen}>
           <Header
             {...headerProps}
+            notificationCount={notificationCount ?? headerProps?.notificationCount}
+            onNotificationsClick={headerProps?.onNotificationsClick ?? (() => setNotificationsOwner(accountKey))}
             user={user}
             isAdmin={isAdmin}
             setSidebarOpen={setSidebarOpen}
