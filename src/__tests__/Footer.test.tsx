@@ -25,6 +25,20 @@ describe('Footer component', () => {
     expect(screen.getByRole('link', { name: 'Documentation' })).toHaveAttribute('href', '/docs');
   });
 
+  it('links to the legal notice and the privacy policy after the other links (MAIR-292)', () => {
+    render(
+      <Footer
+        links={[{ label: 'Documentation', href: '/docs' }]}
+        legalLinks={{ legalNotice: 'https://login.example.fr/mentions-legales', privacyPolicy: 'https://login.example.fr/confidentialite' }}
+      />,
+    );
+
+    const links = screen.getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual(['Documentation', 'Mentions légales', 'Politique de confidentialité']);
+    expect(screen.getByRole('link', { name: 'Mentions légales' })).toHaveAttribute('href', 'https://login.example.fr/mentions-legales');
+    expect(screen.getByRole('link', { name: 'Politique de confidentialité' })).toHaveAttribute('href', 'https://login.example.fr/confidentialite');
+  });
+
   it('calls link onClick handlers', () => {
     const onSupportClick = jest.fn();
     render(<Footer links={[{ label: 'Support technique', onClick: onSupportClick }]} />);

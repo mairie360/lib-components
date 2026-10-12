@@ -6,6 +6,12 @@ export type FooterLink = {
   onClick?: () => void;
 };
 
+/** Addresses of the legal notice and of the privacy policy of the instance (MAIR-292). */
+export type FooterLegalLinks = {
+  legalNotice: string;
+  privacyPolicy: string;
+};
+
 export interface FooterProps {
   /** Product or application name */
   productName?: string;
@@ -15,6 +21,12 @@ export interface FooterProps {
   version?: string;
   /** Links displayed on the right side */
   links?: FooterLink[];
+  /**
+   * Legal notice and privacy policy links (GDPR, MAIR-292), shown after `links` on every page.
+   * The fronts pass the addresses of the login front's pages (`<LOGIN_FRONT_URL>/mentions-legales`
+   * and `/confidentialite`).
+   */
+  legalLinks?: FooterLegalLinks;
   /** Compact application information on the dark sidebar, or the standalone horizontal footer. */
   variant?: 'horizontal' | 'sidebar';
   /** Additional CSS classes for the footer container */
@@ -26,10 +38,19 @@ export const Footer = ({
   year = new Date().getFullYear(),
   version,
   links = [],
+  legalLinks,
   variant = 'horizontal',
   className = '',
 }: FooterProps) => {
-  const actionableLinks = links.filter((link) => Boolean(link.href || link.onClick));
+  const actionableLinks = [
+    ...links,
+    ...(legalLinks
+      ? [
+          { label: 'Mentions légales', href: legalLinks.legalNotice },
+          { label: 'Politique de confidentialité', href: legalLinks.privacyPolicy },
+        ]
+      : []),
+  ].filter((link) => Boolean(link.href || link.onClick));
   const isSidebar = variant === 'sidebar';
   const renderLink = (link: FooterLink) => {
     const className = isSidebar

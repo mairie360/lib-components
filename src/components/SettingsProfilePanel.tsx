@@ -107,16 +107,23 @@ export const SettingsProfilePanel = ({
                 onChange={(event) => update('email', event.target.value)}
               />
             </label>
-            <label className="text-sm font-semibold text-[#172033]">
-              Téléphone
-              <input
-                type="tel"
-                className={`${settingsFieldClassName} mt-1 font-normal`}
-                value={draft.phone}
-                disabled={!onSave}
-                onChange={(event) => update('phone', event.target.value)}
-              />
-            </label>
+            <div>
+              <label className="block text-sm font-semibold text-[#172033]">
+                Téléphone
+                <input
+                  type="tel"
+                  className={`${settingsFieldClassName} mt-1 font-normal`}
+                  value={draft.phone}
+                  disabled={!onSave}
+                  aria-describedby="settings-profile-phone-visibility"
+                  onChange={(event) => update('phone', event.target.value)}
+                />
+              </label>
+              {/* GDPR (MAIR-292): who sees the number, decided with the mairie (professional use). */}
+              <p id="settings-profile-phone-visibility" className="mt-1 text-xs text-[#4c5258]">
+                Visible par tous les agents de la mairie (usage professionnel).
+              </p>
+            </div>
             <label className="text-sm font-semibold text-[#172033]">
               Service
               {serviceOptions.length > 0 ? (
