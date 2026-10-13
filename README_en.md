@@ -215,3 +215,11 @@ GitHub Actions runs the shared Mairie360 frontend-library workflow for pushes, p
 ## Full library type validation — 8 October 2026
 
 `npm run typecheck` validates component sources, tests and Storybook examples without exclusions. The existing quality workflow invokes this script. HTML attribute types now match the existing Paragraph/Title passthrough; stories use the installed renderer types and valid input values. Eight inherited diagnostics were reproduced before correction and the full check now passes. No runtime typography, layout, API/BFF or RGAA configuration changes.
+
+
+Shared frame accessibility
+
+AppShell offers “Aller au contenu” as its first keyboard stop and focuses main. The sidebar Footer keeps its visual placement without creating a nested contentinfo landmark; the horizontal variant retains footer semantics. These targeted fixes are not a complete RGAA audit.
+
+
+Shared MAIR-547 theme and [QA/release limitations](docs/qa/design-qa.md).

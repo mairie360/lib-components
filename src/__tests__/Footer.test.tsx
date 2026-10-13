@@ -44,8 +44,11 @@ describe('Footer component', () => {
   it('uses a compact dark-sidebar presentation without changing supplied information', () => {
     render(<Footer variant="sidebar" year={2027} productName="Ville Connectée" links={[{label: 'Documentation', href: '/docs'}]} />);
 
-    expect(screen.getByRole('contentinfo')).toHaveClass('bg-transparent', 'text-[#dff9ff]');
-    expect(screen.getByRole('contentinfo')).not.toHaveClass('min-h-16', 'bg-white');
+    const sidebarFooter = screen.getByText('© 2027 Ville Connectée').parentElement!.parentElement!;
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+    expect(sidebarFooter.tagName).toBe('DIV');
+    expect(sidebarFooter).toHaveClass('bg-transparent', 'text-[#dff9ff]');
+    expect(sidebarFooter).not.toHaveClass('min-h-16', 'bg-white');
     expect(screen.getByText('© 2027 Ville Connectée')).toBeInTheDocument();
     expect(screen.getByRole('link', {name: 'Documentation'})).toHaveClass('text-[#dff9ff]');
   });

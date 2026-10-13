@@ -31,6 +31,7 @@ export const Footer = ({
 }: FooterProps) => {
   const actionableLinks = links.filter((link) => Boolean(link.href || link.onClick));
   const isSidebar = variant === 'sidebar';
+  const FooterContainer = isSidebar ? 'div' : 'footer';
   const renderLink = (link: FooterLink) => {
     const className = isSidebar
       ? 'rounded-sm text-xs font-medium text-[#dff9ff] transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
@@ -52,8 +53,8 @@ export const Footer = ({
   };
 
   return (
-    <footer
-      role="contentinfo"
+    <FooterContainer
+      role={isSidebar ? undefined : 'contentinfo'}
       className={`${isSidebar
         ? 'flex w-full flex-col items-center gap-3 border-t border-[#4b908d]/45 bg-transparent px-4 py-5 text-[#dff9ff]'
         : 'flex min-h-16 w-full flex-col gap-3 border-t border-[#b9d6d5] bg-white px-6 py-4 text-[#4c5258] shadow-[0_-1px_5px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:justify-between sm:gap-6'} ${className}`}
@@ -80,6 +81,6 @@ export const Footer = ({
           </React.Fragment>
         ))}
       </nav>}
-    </footer>
+    </FooterContainer>
   );
 };

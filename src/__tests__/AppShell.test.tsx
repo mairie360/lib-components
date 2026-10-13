@@ -1,12 +1,36 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import userEvent from '@testing-library/user-event';
 
 import { AppShell } from '../components/AppShell';
 
 const user = { name: 'Marie Martin', email: 'marie@example.fr', role: 'user' };
 
 describe('AppShell', () => {
+  it('offers the first keyboard stop to skip navigation and focus the main content', async () => {
+    const keyboard = userEvent.setup();
+    render(<AppShell hrefs={{ projects: '/projects' }}><h1>Mes projets</h1><button>Action du contenu</button></AppShell>);
+    await keyboard.tab();
+    const skip = screen.getByRole('link', { name: 'Aller au contenu' });
+    expect(skip).toHaveFocus();
+    const main = screen.getByRole('main');
+    expect(skip).toHaveAttribute('href', `#${main.id}`);
+    await keyboard.keyboard('{Enter}');
+    expect(main).toHaveFocus();
+    await keyboard.tab();
+    expect(screen.getByRole('button', { name: 'Action du contenu' })).toHaveFocus();
+  });
+
+  it('does not make the skip link a way out of a modal navigation drawer', () => {
+    render(<AppShell hrefs={{ projects: '/projects' }}><p>Contenu</p></AppShell>);
+    const skip = screen.getByRole('link', { name: 'Aller au contenu' });
+    fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
+    expect(skip.parentElement).toHaveAttribute('inert');
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(skip.parentElement).not.toHaveAttribute('inert');
+  });
+
   it('keeps desktop and mobile navigation available without a fictitious account', () => {
     const onNavigate = jest.fn();
     render(<AppShell hrefs={{ projects: '/projects', settings: '/settings' }} onNavigate={onNavigate}><p>Contenu</p></AppShell>);
@@ -27,7 +51,7 @@ describe('AppShell', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('complementary', { name: 'Navigation principale' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveTextContent('Mes projets');
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Projets' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'E-mails' })).not.toBeInTheDocument();
@@ -53,7 +77,9 @@ describe('AppShell', () => {
     render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
 
     const sidebar = screen.getByRole('complementary', { name: 'Navigation principale' });
-    const footer = within(sidebar).getByRole('contentinfo');
+    const footer = within(sidebar).getByText('© 2026 Mairie360').parentElement!.parentElement!;
+    expect(footer.tagName).toBe('DIV');
+    expect(within(sidebar).queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(footer).toHaveTextContent('© 2026 Mairie360');
     expect(footer).not.toHaveTextContent(/Version/);
     expect(screen.getByRole('main').parentElement!.querySelector(':scope > footer')).toBeNull();
@@ -65,7 +91,8 @@ describe('AppShell', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
     const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
-    const footer = within(drawer).getByRole('contentinfo');
+    const footer = within(drawer).getByText('© 2027 Ville Connectée').parentElement!.parentElement!;
+    expect(within(drawer).queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(footer).toHaveTextContent('© 2027 Ville Connectée');
     expect(footer).toHaveTextContent('Version 3.0.0');
     expect(within(drawer).queryByText('Sans destination')).not.toBeInTheDocument();

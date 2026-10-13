@@ -61,6 +61,8 @@ export const AppShell = ({
   const notificationCount = notificationReceipt?.owner === accountKey ? notificationReceipt.count : undefined;
   const receiveNotificationCount = React.useCallback((count: number) => setNotificationReceipt({ owner:accountKey,count }), [accountKey]);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const mainId = React.useId();
+  const mainRef = React.useRef<HTMLElement>(null);
   const menuButtonRef = React.useRef<HTMLButtonElement>(null);
   const drawerRef = React.useRef<HTMLDivElement>(null);
   const closeButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -149,6 +151,15 @@ export const AppShell = ({
 
   return (
     <div className={joinClasses('h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]', className)} {...props}>
+      <div inert={sidebarOpen || notificationsOpen}>
+        <a
+          href={`#${mainId}`}
+          onClick={() => mainRef.current?.focus()}
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:p-3 focus:font-semibold focus:text-[#1256a6] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1256a6]"
+        >
+          Aller au contenu
+        </a>
+      </div>
       {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
       <div className="flex h-screen">
         <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>
@@ -193,7 +204,7 @@ export const AppShell = ({
             showSettings={canNavigate('settings')}
             showAdministration={canNavigate('admin')}
           />
-          <main className="min-h-0 flex-1 overflow-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <main id={mainId} ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-auto px-4 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1256a6] sm:px-6 lg:px-8 lg:py-8">
             {children}
           </main>
           {footerPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}

@@ -218,3 +218,11 @@ GitHub Actions exécute le workflow partagé des bibliothèques frontend Mairie3
 ## Vérification complète des types — 8 octobre 2026
 
 `npm run typecheck` contrôle les composants, tests et exemples Storybook sans exclusion. Le workflow qualité existant appelle ce script. Les types HTML reflètent la transmission déjà présente dans Paragraph/Title ; les exemples utilisent le renderer installé et des valeurs d’entrée valides. Huit diagnostics hérités ont été reproduits avant correction ; la vérification complète passe désormais. Aucun changement du rendu typographique, de l’agencement, des API/BFF ou de la configuration RGAA.
+
+
+Accessibilité du cadre commun
+
+AppShell propose « Aller au contenu » comme premier arrêt clavier et place le focus sur main. Footer en variante sidebar conserve son emplacement visuel sans créer de landmark contentinfo imbriqué ; la variante horizontale conserve son rôle de pied de page. Ces corrections ciblées ne constituent pas un audit RGAA complet.
+
+
+Thème commun MAIR-547 et [recette/limites de livraison](docs/qa/design-qa.md).
