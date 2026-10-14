@@ -31,6 +31,7 @@ export { DashboardQuickActions } from './components/DashboardQuickActions';
 export { DashboardRecentProjects } from './components/DashboardRecentProjects';
 export { DashboardUpcomingEvents } from './components/DashboardUpcomingEvents';
 export { DaySchedule } from './components/DaySchedule';
+export { DesktopNavigation } from './components/DesktopNavigation';
 export { DropdownMenu } from './components/DropdownMenu';
 export { ElearningAdminStats } from './components/ElearningAdminStats';
 export { ElearningBadge } from './components/ElearningBadge';

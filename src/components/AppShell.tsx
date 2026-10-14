@@ -1,12 +1,18 @@
 import React from 'react';
 
 import { Footer, type FooterProps } from './Footer';
+import { DesktopNavigation } from './DesktopNavigation';
+import { configureSidebarCookieDomain } from '../utils/sidebar-preference';
 import { Header, type HeaderProps } from './Header';
 import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } from './Sidebar';
 import { NotificationCenter, type NotificationSource } from './NotificationCenter';
 import { joinClasses } from './calendar/style';
 
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
+  /** Opt into the shared desktop collapse and municipal theme layout. */
+  collapsibleSidebar?: boolean;
+  /** Validated shared preference scope; no authentication cookie is changed. */
+  sidebarCookieDomain?: string;
   activeItem?: string;
   isAdmin?: boolean;
   user?: HeaderProps['user'];
@@ -38,6 +44,7 @@ const safeHref = (href: string | undefined) => {
 };
 
 export const AppShell = ({
+  collapsibleSidebar = false, sidebarCookieDomain,
   activeItem = 'dashboard',
   isAdmin = false,
   user,
@@ -61,6 +68,19 @@ export const AppShell = ({
   const notificationCount = notificationReceipt?.owner === accountKey ? notificationReceipt.count : undefined;
   const receiveNotificationCount = React.useCallback((count: number) => setNotificationReceipt({ owner:accountKey,count }), [accountKey]);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [collapsed, setCollapsed] = React.useState(false);
+  const [footerHeight, setFooterHeight] = React.useState(76);
+  const shellRef = React.useRef<HTMLDivElement>(null);
+  configureSidebarCookieDomain(sidebarCookieDomain);
+  React.useEffect(() => {
+    if (!collapsibleSidebar || typeof ResizeObserver === 'undefined') return;
+    const footer = shellRef.current?.querySelector('footer.app-accessible-footer');
+    if (!footer) return;
+    const measure = () => setFooterHeight(Math.ceil(footer.getBoundingClientRect().height));
+    const observer = new ResizeObserver(measure); observer.observe(footer); measure();
+    return () => observer.disconnect();
+  }, [collapsibleSidebar]);
+  const effectiveFooterPlacement = collapsibleSidebar ? 'content' : footerPlacement;
   const mainId = React.useId();
   const mainRef = React.useRef<HTMLElement>(null);
   const menuButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -144,13 +164,14 @@ export const AppShell = ({
       isAdmin={isAdmin}
       items={visibleItems}
       onItemSelect={handleSidebarItemSelect}
-      footer={footerPlacement === 'sidebar' ? <Footer {...footerProps} variant="sidebar" /> : undefined}
-      className={joinClasses('h-full', sidebarClassName)}
+      footer={effectiveFooterPlacement === 'sidebar' ? <Footer {...footerProps} variant="sidebar" /> : undefined}
+      className={joinClasses('h-full', collapsibleSidebar ? 'app-published-sidebar' : undefined, sidebarClassName)}
     />
   );
 
   return (
-    <div className={joinClasses('h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]', className)} {...props}>
+    <div {...props} ref={shellRef} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]', collapsibleSidebar ? 'app-shell-frame' : undefined, className)} style={collapsibleSidebar ? { ...props.style, '--app-footer-height': `${footerHeight}px` } as React.CSSProperties : props.style}>
+      {collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
       <div inert={sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}
@@ -207,7 +228,7 @@ export const AppShell = ({
           <main id={mainId} ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-auto px-4 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1256a6] sm:px-6 lg:px-8 lg:py-8">
             {children}
           </main>
-          {footerPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}
+          {effectiveFooterPlacement === 'content' && <Footer {...footerProps} className={joinClasses(collapsibleSidebar ? "app-accessible-footer" : undefined, footerProps?.className)} variant="horizontal" />}
         </div>
       </div>
     </div>
