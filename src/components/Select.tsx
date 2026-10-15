@@ -5,6 +5,7 @@ interface SelectContextValue {
   onValueChange?: (value: string) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
+  triggerRef?: React.RefObject<HTMLButtonElement | null>;
 }
 
 const SelectContext = React.createContext<SelectContextValue>({
@@ -22,6 +23,7 @@ interface SelectProps {
 function Select({ children, value: controlledValue, onValueChange, defaultValue }: SelectProps) {
   const [internalValue, setInternalValue] = React.useState(defaultValue || "");
   const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   const value = controlledValue !== undefined ? controlledValue : internalValue;
 
@@ -36,7 +38,7 @@ function Select({ children, value: controlledValue, onValueChange, defaultValue 
   );
 
   return (
-    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen }}>
+    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen, triggerRef }}>
       <div data-slot="select" className="relative inline-block w-full">
         {children}
       </div>
@@ -56,7 +58,7 @@ function SelectTrigger({
   placeholder,
   ...props
 }: SelectTriggerProps) {
-  const { open, setOpen } = React.useContext(SelectContext);
+  const { open, setOpen, triggerRef } = React.useContext(SelectContext);
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
@@ -66,6 +68,10 @@ function SelectTrigger({
 
   return (
     <button
+      {...props}
+      ref={triggerRef}
+      aria-haspopup="listbox"
+      aria-expanded={open}
       data-slot="select-trigger"
       data-size={size}
       type="button"
@@ -73,7 +79,13 @@ function SelectTrigger({
         size === "default" ? "h-9" : "h-8"
       } ${className}`}
       onClick={handleClick}
-      {...props}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (!event.defaultPrevented && ["ArrowDown", "ArrowUp"].includes(event.key)) {
+          event.preventDefault();
+          setOpen(true);
+        }
+      }}
     >
       {children}
       <svg
@@ -123,11 +135,14 @@ function SelectContent({
   position = "popper",
   ...props
 }: SelectContentProps) {
-  const { open, setOpen } = React.useContext(SelectContext);
+  const { open, setOpen, triggerRef } = React.useContext(SelectContext);
   const contentRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!open) return;
+    const options = contentRef.current?.querySelectorAll<HTMLElement>('[role="option"]');
+    const selected = contentRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    (selected ?? options?.[0])?.focus();
 
     const handleClickOutside = (event: MouseEvent) => {
       if (contentRef.current && !contentRef.current.contains(event.target as Node)) {
@@ -138,6 +153,7 @@ function SelectContent({
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         setOpen(false);
+        triggerRef?.current?.focus();
       }
     };
 
@@ -148,16 +164,28 @@ function SelectContent({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [open, setOpen]);
+  }, [open, setOpen, triggerRef]);
 
   if (!open) return null;
 
   return (
     <div
       ref={contentRef}
+      role="listbox"
+      aria-label="Options"
       data-slot="select-content"
       className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[#e3e0dc] bg-white shadow-md text-black p-1 ${className}`}
       {...props}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (event.defaultPrevented || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const options = Array.from(contentRef.current?.querySelectorAll<HTMLElement>('[role="option"]') ?? []);
+        const index = options.indexOf(document.activeElement as HTMLElement);
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
+          : (index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+        options[next]?.focus();
+      }}
     >
       {children}
     </div>
@@ -198,7 +226,7 @@ function SelectItemsProvider({ children }: { children: React.ReactNode }) {
 }
 
 function SelectItem({ className = "", value, children, ...props }: SelectItemProps) {
-  const { value: selectedValue, onValueChange, setOpen } = React.useContext(SelectContext);
+  const { value: selectedValue, onValueChange, setOpen, triggerRef } = React.useContext(SelectContext);
   const { registerItem } = React.useContext(SelectItemsContext);
 
   React.useEffect(() => {
@@ -210,14 +238,28 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
   const handleClick = () => {
     onValueChange?.(value);
     setOpen(false);
+    triggerRef?.current?.focus();
   };
 
   return (
     <div
+      role="option"
+      tabIndex={-1}
+      aria-selected={isSelected}
       data-slot="select-item"
       className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-gray-100 ${className}`}
-      onClick={handleClick}
       {...props}
+      onClick={event => {
+        props.onClick?.(event);
+        if (!event.defaultPrevented) handleClick();
+      }}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (!event.defaultPrevented && ["Enter", " "].includes(event.key)) {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
     >
       {isSelected && (
         <span className="absolute right-2 flex size-3.5 items-center justify-center">

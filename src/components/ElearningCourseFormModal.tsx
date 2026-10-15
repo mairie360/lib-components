@@ -208,7 +208,7 @@ export const ElearningCourseFormModal = ({
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (submittingRef.current || values.chapters.length === 0) return;
     submittingRef.current = true;
@@ -236,14 +236,17 @@ export const ElearningCourseFormModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-3 sm:p-5">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-3 sm:p-5"
+      role="dialog"
+      aria-labelledby={titleId}
+      aria-modal="true"
+      aria-busy={isSubmitting}
+      onSubmit={handleSubmit}
+    >
       <form
-        aria-labelledby={titleId}
-        aria-modal="true"
         aria-busy={isSubmitting}
         className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-xl bg-[#f8f7f5] text-[#2f3747] shadow-2xl sm:max-h-[calc(100vh-2.5rem)]"
-        onSubmit={handleSubmit}
-        role="dialog"
       >
         <div className="flex min-h-16 shrink-0 items-center justify-between gap-4 bg-[#2f3747] px-5 py-3 text-white sm:px-7">
           <div>

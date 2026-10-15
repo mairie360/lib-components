@@ -63,9 +63,11 @@ function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTrigge
 
   return (
     <button
-      data-slot="dropdown-menu-trigger"
-      onClick={handleClick}
       {...props}
+      type="button"
+      data-slot="dropdown-menu-trigger"
+      aria-expanded={open}
+      onClick={handleClick}
     >
       {children}
     </button>
@@ -195,6 +197,7 @@ function DropdownMenuItem({
           "data-variant": variant,
           className: `${itemClassName}${childClassName}`,
           onClick: (e: React.MouseEvent<HTMLElement>) => {
+            if (disabled) { e.preventDefault(); return; }
             child.props.onClick?.(e);
             handleClick(e);
           },

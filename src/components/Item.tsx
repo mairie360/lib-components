@@ -38,20 +38,6 @@ export const Item: React.FC<ItemProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMainClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (
-        (e.target as HTMLElement).closest("button") ||
-        (e.target as HTMLElement).closest("[role='button']")
-      ) {
-        return;
-      }
-      setShowActions(false);
-      onClick?.();
-    },
-    [onClick]
-  );
-
   const handleEdit = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
@@ -82,23 +68,28 @@ export const Item: React.FC<ItemProps> = ({
         ref={itemRef}
         className="relative mx-auto flex flex-col justify-between rounded-2xl border border-gray-600 bg-[#0f1117] px-4 py-3 text-white shadow-md transition hover:border-white cursor-pointer"
         style={{ width, height }}
-        onClick={handleMainClick}
-        role="button"
-        tabIndex={0}
+        role="group"
+        aria-label={title || "Élément"}
       >
+        <button type="button" aria-label={title ? `Ouvrir ${title}` : 'Ouvrir l’élément'}
+          className="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+          onClick={() => { setShowActions(false); onClick?.(); }} />
         {/* Toggle Actions */}
-        <div
+        <button
+          type="button"
+          aria-label="Afficher plus d’options"
+          aria-expanded={showActions}
           className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition"
           onClick={(e) => {
             e.stopPropagation();
             setShowActions((prev) => !prev);
           }}
         >
-          <MoreHorizontal size={20} className="text-white" />
-        </div>
+          <MoreHorizontal size={20} className="text-white" aria-hidden="true" />
+        </button>
 
         {/* Content */}
-        <div>
+        <div className="pointer-events-none relative">
           {title && <h2 className="text-sm font-semibold truncate">{title}</h2>}
           {description && (
             <p className="text-xs text-gray-400 line-clamp-2">{description}</p>

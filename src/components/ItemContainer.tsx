@@ -85,9 +85,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        (menuRef.current && !menuRef.current.contains(event.target as Node)) &&
-        (editMenuRef.current && !editMenuRef.current.contains(event.target as Node)) &&
-        (addMenuRef.current && !addMenuRef.current.contains(event.target as Node))
+        [menuRef, editMenuRef, addMenuRef].every(ref => !ref.current || !ref.current.contains(event.target as Node))
       ) {
         setShowMenu(false);
         setShowEditMenu(false);

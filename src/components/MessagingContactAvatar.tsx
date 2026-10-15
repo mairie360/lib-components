@@ -59,6 +59,7 @@ export const MessagingContactAvatar = ({
     </div>
     {presence && (
       <span
+        role="img"
         aria-label={presence === 'online' ? 'En ligne' : presence === 'away' ? 'Absent' : 'Hors ligne'}
         className={joinClasses(
           'absolute bottom-0 right-0 block size-3 rounded-full border-2 border-white',

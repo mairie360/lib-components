@@ -288,6 +288,7 @@ export const MessagingComposer = ({
     >
       <input
         ref={fileInputRef}
+        hidden
         type="file"
         className="hidden"
         multiple
@@ -299,6 +300,7 @@ export const MessagingComposer = ({
         <div className="relative min-w-0 flex-1">
           <input
             ref={textInputRef}
+            aria-label="Écrire un message"
             type="text"
             value={currentValue}
             placeholder={placeholder}

@@ -268,7 +268,8 @@ export const InputManager = ({
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             className="absolute inset-y-0 right-2 pr-2 flex items-center hover:text-blue-500 focus:outline-none"
-            tabIndex={-1}
+            aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            aria-pressed={showPassword}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>

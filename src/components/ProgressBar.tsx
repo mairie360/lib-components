@@ -19,6 +19,11 @@ function ProgressBar({
         <span className="text-sm font-medium text-gray-600">{value}%</span>
       </div>
       <div
+        role="progressbar"
+        aria-label="Progression"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={value}
         data-slot="progress"
         className={`relative h-2 w-full overflow-hidden rounded-full ${className}`}
         style={{ backgroundColor: "#cfdbed" }}

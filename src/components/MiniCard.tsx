@@ -60,26 +60,20 @@ export const MiniCard: React.FC<MiniCardProps> = ({
     onClick?.();
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleCardClick();
-    }
-  };
-
   return (
     <>
       <div className="w-full flex justify-center">
         <div
           ref={cardRef}
-          role="button"
-          tabIndex={0}
+          role="group"
           aria-label={`Carte projet : ${title}`}
           className="relative flex flex-col items-center text-center rounded-2xl border border-gray-700 bg-[#0f1117] p-6 shadow-md hover:shadow-lg hover:border-white/30 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
           style={{ width, height }}
-          onClick={handleCardClick}
-          onKeyDown={handleKeyDown}
+
         >
+          <button type="button" aria-label={`Carte projet : ${title}`}
+            className="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            onClick={handleCardClick} />
           {/* Options button */}
           <button
             aria-label="Afficher plus d’options"
@@ -93,8 +87,8 @@ export const MiniCard: React.FC<MiniCardProps> = ({
           </button>
 
           {/* Title & Description */}
-          <h3 className="text-lg font-bold mb-2 text-white">{title}</h3>
-          <p className="text-sm text-gray-400 mb-4">{description}</p>
+          <h3 className="relative pointer-events-none text-lg font-bold mb-2 text-white">{title}</h3>
+          <p className="relative pointer-events-none text-sm text-gray-400 mb-4">{description}</p>
 
           {/* Action menu */}
           {showActions && (
@@ -117,7 +111,7 @@ export const MiniCard: React.FC<MiniCardProps> = ({
           )}
 
           {/* CTA Button */}
-          <div className="mt-6">
+          <div className="relative mt-6">
             <Button label={label} primary onClick={onOpen} />
           </div>
         </div>

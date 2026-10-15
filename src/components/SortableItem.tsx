@@ -38,19 +38,22 @@ export const SortableItem = ({
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
-      <div
+    <div ref={setNodeRef} style={style}>
+      <button
+        type="button"
+        {...attributes}
         {...listeners}
+        aria-label={`Déplacer ${title}`}
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 10,
+          top: 4,
+          left: 4,
+          width: 20,
+          height: 28,
+          zIndex: 20,
           cursor: isDragging ? "grabbing" : "grab",
         }}
-      />
+      ><span aria-hidden="true">⠿</span></button>
       <Item
         title={title}
         description={description}
