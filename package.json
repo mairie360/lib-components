@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/generate-exports.js",
+    "prebuild": "node scripts/check-ui-colors.mjs && node scripts/generate-exports.js",
     "build": "tsup && tsup --config tsup.server.config.ts && npm run build:css",
     "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",

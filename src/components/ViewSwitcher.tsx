@@ -15,7 +15,7 @@ export const ViewSwitcher = <T extends string>({
   <div
     role="tablist"
     aria-label={ariaLabel}
-    className={joinClasses('inline-flex rounded-lg bg-[#e4e0dc] p-1 text-sm font-medium text-[#172033]', className)}
+    className={joinClasses('inline-flex rounded-lg bg-[var(--mairie-surface-raised)] p-1 text-sm font-medium text-[var(--mairie-text)]', className)}
   >
     {options.map((option) => {
       const selected = option.value === value;
@@ -27,8 +27,8 @@ export const ViewSwitcher = <T extends string>({
           role="tab"
           aria-selected={selected}
           className={joinClasses(
-            'h-7 rounded-md px-4 leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30',
-            selected ? 'bg-white shadow-sm' : 'hover:bg-white/55'
+            'h-7 rounded-md px-4 leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30',
+            selected ? 'bg-[var(--mairie-surface)] shadow-sm' : 'hover:bg-[var(--mairie-surface)]/55'
           )}
           onClick={() => onChange?.(option.value)}
         >

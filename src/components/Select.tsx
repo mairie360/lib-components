@@ -75,7 +75,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       type="button"
-      className={`flex w-full items-center justify-between gap-2 rounded-md border border-[#e3e0dc] bg-white px-3 py-2 text-sm text-black whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50 disabled:cursor-not-allowed disabled:opacity-50 ${
+      className={`flex w-full items-center justify-between gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 py-2 text-sm text-[var(--mairie-text)] whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/50 disabled:cursor-not-allowed disabled:opacity-50 ${
         size === "default" ? "h-9" : "h-8"
       } ${className}`}
       onClick={handleClick}
@@ -174,7 +174,7 @@ function SelectContent({
       role="listbox"
       aria-label="Options"
       data-slot="select-content"
-      className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[#e3e0dc] bg-white shadow-md text-black p-1 ${className}`}
+      className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] shadow-md text-[var(--mairie-text)] p-1 ${className}`}
       {...props}
       onBlur={event => {
         props.onBlur?.(event);
@@ -252,7 +252,7 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
       tabIndex={-1}
       aria-selected={isSelected}
       data-slot="select-item"
-      className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent,#1256a6)] ${className}`}
+      className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] ${className}`}
       {...props}
       onClick={event => {
         props.onClick?.(event);
@@ -297,7 +297,7 @@ function SelectLabel({ className = "", ...props }: SelectLabelProps) {
   return (
     <div
       data-slot="select-label"
-      className={`px-2 py-1.5 text-xs text-gray-500 ${className}`}
+      className={`px-2 py-1.5 text-xs text-[var(--mairie-muted)] ${className}`}
       {...props}
     />
   );
@@ -309,7 +309,7 @@ function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
   return (
     <div
       data-slot="select-separator"
-      className={`-mx-1 my-1 h-px bg-gray-200 pointer-events-none ${className}`}
+      className={`-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)] pointer-events-none ${className}`}
       {...props}
     />
   );

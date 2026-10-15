@@ -33,10 +33,10 @@ export const DaySchedule = ({
 
   return (
     <div className={joinClasses('space-y-4', className)} {...props}>
-      <div className="rounded-md border border-[#d8d2ca] bg-white py-5 text-center text-[#172033]">
-        <div className="text-sm leading-5 text-[#6c7278]">{weekDayLabel}</div>
+      <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] py-5 text-center text-[var(--mairie-text)]">
+        <div className="text-sm leading-5 text-[var(--mairie-muted)]">{weekDayLabel}</div>
         <div className="text-2xl font-bold leading-8">{parsedDate.getDate()}</div>
-        <div className="text-sm leading-5 text-[#6c7278]">{formatMonthYear(parsedDate)}</div>
+        <div className="text-sm leading-5 text-[var(--mairie-muted)]">{formatMonthYear(parsedDate)}</div>
       </div>
 
       <div className="grid grid-cols-[4rem_minmax(0,1fr)] gap-2">
@@ -44,7 +44,7 @@ export const DaySchedule = ({
           {hours.map((hour, index) => (
             <div
               key={hour}
-              className="absolute right-0 text-right text-sm leading-5 text-[#6c7278]"
+              className="absolute right-0 text-right text-sm leading-5 text-[var(--mairie-muted)]"
               style={{ top: index * calendarHourHeight + 6 }}
             >
               {hour}
@@ -58,7 +58,7 @@ export const DaySchedule = ({
               key={`${dateKey(parsedDate)}-${hour}`}
               type="button"
               aria-label={`${formatFullDate(parsedDate)} à ${hour}`}
-              className="absolute left-0 right-0 rounded-md border border-[#d8d2ca] bg-white transition-colors hover:border-[#b9d6d5] hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+              className="absolute left-0 right-0 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] transition-colors hover:border-[var(--mairie-border)] hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
               style={{ top: index * calendarHourHeight, height: calendarHourHeight - 4 }}
               onClick={() => onSelectSlot?.(parsedDate, hour)}
             />
@@ -76,8 +76,8 @@ export const DaySchedule = ({
                 onClick={onEventClick}
                 className={joinClasses(
                   'absolute z-10 shadow-sm',
-                  !range.isStart && 'rounded-l-sm border-l-4 border-l-[#2563eb]',
-                  !range.isEnd && 'rounded-r-sm border-r-4 border-r-[#2563eb]'
+                  !range.isStart && 'rounded-l-sm border-l-4 border-l-[var(--mairie-accent)]',
+                  !range.isEnd && 'rounded-r-sm border-r-4 border-r-[var(--mairie-accent)]'
                 )}
                 style={{
                   top,

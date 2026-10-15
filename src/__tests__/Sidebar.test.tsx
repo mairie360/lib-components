@@ -25,15 +25,15 @@ describe('Sidebar component', () => {
     render(<Sidebar isAdmin />);
 
     const administration = screen.getByRole('button', { name: 'Administration' });
-    expect(administration).toHaveClass('bg-[#b4232f]', 'border-[#db5260]', 'hover:bg-[#951c28]', 'focus-visible:outline-[#ffccd1]');
-    expect(screen.getByRole('button', { name: 'Projets' })).not.toHaveClass('bg-[#b4232f]');
+    expect(administration).toHaveClass('bg-[var(--mairie-navigation-admin-background)]', 'border-[var(--mairie-navigation-admin-border)]', 'hover:bg-[var(--mairie-navigation-admin-hover-background)]', 'focus-visible:outline-[var(--mairie-navigation-admin-focus)]');
+    expect(screen.getByRole('button', { name: 'Projets' })).not.toHaveClass('bg-[var(--mairie-navigation-admin-background)]');
   });
 
   it('keeps the Administration row red when it is active', () => {
     render(<Sidebar isAdmin activeItem="admin" />);
 
     expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[#891827]', 'border-[#ffb0b7]');
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]', 'border-[var(--mairie-navigation-admin-active-border)]');
   });
 
   it('hides Administration when the user is not an administrator', () => {

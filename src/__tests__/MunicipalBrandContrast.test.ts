@@ -6,7 +6,11 @@ let stylesheet: HTMLStyleElement;
 beforeAll(async () => {
   const source = readFileSync(resolve(process.cwd(), 'src/styles/municipal-theme.css'), 'utf8');
   stylesheet = document.createElement('style');
-  stylesheet.textContent = (await compile(source)).build([]);
+  // JSDOM does not resolve CSS variables in colour declarations. Resolve the
+  // fixed brand backing from its central token before inspecting dimensions.
+  const onAction = /--mairie-on-action:\s*(#[\da-f]+);/i.exec(source)?.[1];
+  expect(onAction).toBe('#ffffff');
+  stylesheet.textContent = (await compile(source)).build([]).replaceAll('var(--mairie-on-action)', onAction!);
   document.head.appendChild(stylesheet);
 });
 afterAll(() => stylesheet.remove());

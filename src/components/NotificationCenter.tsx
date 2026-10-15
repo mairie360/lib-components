@@ -88,8 +88,8 @@ export function NotificationCenter({ source, onClose, onUnreadCount }: {
 
   const visible = items.filter(item => (filter === 'all' || item.category === filter) && (!unreadOnly || !item.read));
   const unread = items.filter(item => !item.read);
-  return <div className="fixed inset-0 z-[70] flex justify-end bg-black/35" onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
-    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="notification-center-title" className="h-full w-full max-w-[440px] overflow-y-auto bg-white p-5 text-[#172033] shadow-xl" onKeyDown={event => {
+  return <div className="fixed inset-0 z-[70] flex justify-end bg-[var(--mairie-overlay-background)]/35" onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+    <div ref={dialog} role="dialog" aria-modal="true" aria-labelledby="notification-center-title" className="h-full w-full max-w-[440px] overflow-y-auto bg-[var(--mairie-surface)] p-5 text-[var(--mairie-text)] shadow-xl" onKeyDown={event => {
       if (event.key === 'Escape') { event.stopPropagation(); onClose(); }
       if (event.key !== 'Tab') return;
       const controls = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button:not([disabled]), select, input, a[href]'));

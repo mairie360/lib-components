@@ -54,10 +54,10 @@ export const DashboardModule = ({
   className = '',
   ...props
 }: DashboardModuleProps) => (
-  <section className={joinDashboardClasses('space-y-6 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
+  <section className={joinDashboardClasses('space-y-6 bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)} {...props}>
     <header>
-      <h1 className="text-[28px] font-bold leading-tight text-[#172033]">Tableau de Bord</h1>
-      <p className="mt-1 text-base text-[#475569]">
+      <h1 className="text-[28px] font-bold leading-tight text-[var(--mairie-text)]">Tableau de Bord</h1>
+      <p className="mt-1 text-base text-[var(--mairie-muted)]">
         {userFirstName ? `Bienvenue ${userFirstName}, voici un aperçu de vos activités` : 'Voici un aperçu de vos activités'}
       </p>
     </header>

@@ -15,8 +15,8 @@ function ProgressBar({
   return (
     <div className="w-full">
       <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-medium text-gray-600">Progression</span>
-        <span className="text-sm font-medium text-gray-600">{value}%</span>
+        <span className="text-sm font-medium text-[var(--mairie-muted)]">Progression</span>
+        <span className="text-sm font-medium text-[var(--mairie-muted)]">{value}%</span>
       </div>
       <div
         role="progressbar"
@@ -26,7 +26,7 @@ function ProgressBar({
         aria-valuenow={value}
         data-slot="progress"
         className={`relative h-2 w-full overflow-hidden rounded-full ${className}`}
-        style={{ backgroundColor: "#cfdbed" }}
+        style={{ backgroundColor: "var(--mairie-border)" }}
         {...props}
       >
         <div
@@ -34,7 +34,7 @@ function ProgressBar({
           className="h-full w-full flex-1 transition-all"
           style={{ 
             transform: `translateX(-${100 - value}%)`,
-            backgroundColor: "#1256a6"
+            backgroundColor: "var(--mairie-accent)"
           }}
         />
       </div>

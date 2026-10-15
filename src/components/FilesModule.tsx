@@ -102,17 +102,17 @@ export const FilesModule = ({
   };
 
   return (
-    <section className={joinFileClasses('space-y-6 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
+    <section className={joinFileClasses('space-y-6 bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)} {...props}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div><h1 className="text-[28px] font-bold leading-tight">Gestion des Fichiers</h1><p className="mt-1 text-base text-[#687385]">Organisez et partagez vos documents</p></div>
-        {canUpload && <button type="button" className="inline-flex items-center justify-center gap-2 self-start rounded-md bg-[#155bb5] px-4 py-2 text-sm font-semibold text-white" onClick={() => setUploadOpen(true)}><Upload className="size-4" />Télécharger un fichier</button>}
+        <div><h1 className="text-[28px] font-bold leading-tight">Gestion des Fichiers</h1><p className="mt-1 text-base text-[var(--mairie-muted)]">Organisez et partagez vos documents</p></div>
+        {canUpload && <button type="button" className="inline-flex items-center justify-center gap-2 self-start rounded-md bg-[var(--mairie-action-background)] px-4 py-2 text-sm font-semibold text-[var(--mairie-on-action)]" onClick={() => setUploadOpen(true)}><Upload className="size-4" />Télécharger un fichier</button>}
       </div>
       <FilesToolbar search={search} type={type} sort={sort} view={view} onSearchChange={changeSearch} onTypeChange={changeType} onSortChange={changeSort} onViewChange={changeView} />
-      {status && <p role="status" className="rounded-md border border-[#b9d6d5] bg-white px-4 py-3 text-sm text-[#285c59]">{status}</p>}
+      {status && <p role="status" className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-3 text-sm text-[var(--mairie-teal-text)]">{status}</p>}
       <div data-testid="files-results" className={view === 'grid' ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-6' : 'space-y-3'}>
         {visibleFiles.map((file) => <FileCard key={file.id} file={file} view={view} onAction={handleAction} />)}
       </div>
-      {visibleFiles.length === 0 && <div className="rounded-lg border border-dashed border-[#d8d2ca] bg-white px-6 py-16 text-center text-sm text-[#687385]">Aucun fichier ne correspond à vos critères.</div>}
+      {visibleFiles.length === 0 && <div className="rounded-lg border border-dashed border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-16 text-center text-sm text-[var(--mairie-muted)]">Aucun fichier ne correspond à vos critères.</div>}
       <FileUploadModal isOpen={uploadOpen} categories={categories} existingNames={resolvedFiles.map((file) => file.name)} onCancel={() => setUploadOpen(false)} onUpload={uploadFile} />
       <ConfirmModal isOpen={pendingDelete !== null} title="Supprimer ce fichier ?" message={pendingDelete ? `Le fichier ${pendingDelete.name} sera supprimé définitivement.` : ''} onCancel={() => setPendingDelete(null)} onConfirm={confirmDelete} />
     </section>

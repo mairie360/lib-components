@@ -16,7 +16,7 @@ export interface ParagraphProps extends React.HTMLAttributes<HTMLParagraphElemen
 export const Paragraph = ({
     text,
     onClick,
-    textColor = "text-gray-500",
+    textColor = "text-[var(--mairie-muted)]",
     fontSize = "text-base",
     fontWeight = "font-normal",
     ...props

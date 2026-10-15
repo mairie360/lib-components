@@ -27,9 +27,9 @@ export const UpcomingEventsPanel = ({
               role={onEventClick ? 'button' : undefined}
               tabIndex={onEventClick ? 0 : undefined}
               className={joinClasses(
-                'rounded-md border border-[#ece7e0] bg-[#fbfaf9] p-3',
+                'rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] p-3',
                 onEventClick &&
-                  'cursor-pointer transition-colors hover:border-[#cbd5e1] hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25'
+                  'cursor-pointer transition-colors hover:border-[var(--mairie-border)] hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25'
               )}
               onClick={() => onEventClick?.(event)}
               onKeyDown={(keyEvent) => {
@@ -40,16 +40,16 @@ export const UpcomingEventsPanel = ({
                 }
               }}
             >
-              <div className="text-sm font-semibold leading-5 text-[#172033]">{event.title}</div>
-              <div className="mt-1 text-xs leading-5 text-[#6c7278]">
+              <div className="text-sm font-semibold leading-5 text-[var(--mairie-text)]">{event.title}</div>
+              <div className="mt-1 text-xs leading-5 text-[var(--mairie-muted)]">
                 {formatFullDate(event.date)}
                 {getEventTimeLabel(event) && ` · ${getEventTimeLabel(event)}`}
               </div>
               {event.description && (
-                <div className="mt-2 text-sm leading-5 text-[#5f6770]">{event.description}</div>
+                <div className="mt-2 text-sm leading-5 text-[var(--mairie-muted)]">{event.description}</div>
               )}
               {event.assignees && event.assignees.length > 0 && (
-                <div className="mt-2 flex items-center gap-1.5 text-xs leading-5 text-[#6c7278]">
+                <div className="mt-2 flex items-center gap-1.5 text-xs leading-5 text-[var(--mairie-muted)]">
                   <Users className="h-3.5 w-3.5 shrink-0" strokeWidth={1.8} />
                   <span className="truncate">{event.assignees.map((assignee) => assignee.name).join(', ')}</span>
                 </div>
@@ -58,7 +58,7 @@ export const UpcomingEventsPanel = ({
           ))}
         </div>
       ) : (
-        showEmptyState && <p className="text-sm leading-6 text-[#6c7278]">{emptyLabel}</p>
+        showEmptyState && <p className="text-sm leading-6 text-[var(--mairie-muted)]">{emptyLabel}</p>
       )}
     </div>
   </Card>

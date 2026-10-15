@@ -85,11 +85,11 @@ export const ElearningFilterSelect = ({
         aria-haspopup="listbox"
         aria-controls={open ? listboxId : undefined}
         onClick={() => setOpen((current) => !current)}
-        className="flex h-9 w-full items-center gap-3 rounded-md border border-[#d8d2ca] bg-white px-3 text-left text-sm text-[#2f3747] outline-none transition hover:border-[#c9c2ba] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+        className="flex h-9 w-full items-center gap-3 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-left text-sm text-[var(--mairie-text)] outline-none transition hover:border-[var(--mairie-border)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
       >
-        {LeadingIcon && <LeadingIcon aria-hidden="true" className="size-4 shrink-0 text-[#5f6470]" />}
+        {LeadingIcon && <LeadingIcon aria-hidden="true" className="size-4 shrink-0 text-[var(--mairie-muted)]" />}
         <span className="min-w-0 flex-1 truncate">{selectedOption?.label ?? placeholder}</span>
-        <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[#9a9a9a]" />
+        <ChevronDown aria-hidden="true" className="size-4 shrink-0 text-[var(--mairie-muted)]" />
       </button>
 
       {open && (
@@ -97,7 +97,7 @@ export const ElearningFilterSelect = ({
           id={listboxId}
           role="listbox"
           className={joinClasses(
-            'absolute left-0 top-[calc(100%+6px)] z-50 w-full overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#2f3747] shadow-lg',
+            'absolute left-0 top-[calc(100%+6px)] z-50 w-full overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-sm text-[var(--mairie-text)] shadow-lg',
             menuClassName
           )}
         >
@@ -114,13 +114,13 @@ export const ElearningFilterSelect = ({
                 onClick={() => selectValue(option.value)}
                 className={joinClasses(
                   'flex h-9 w-full items-center justify-between gap-3 rounded px-2 text-left outline-none transition',
-                  selected && 'bg-[#d8eded] text-[#397f7c]',
-                  !selected && !option.disabled && 'hover:bg-[#f4f2ef]',
-                  option.disabled && 'cursor-not-allowed text-[#9a9a9a]'
+                  selected && 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-teal-text)]',
+                  !selected && !option.disabled && 'hover:bg-[var(--mairie-surface-raised)]',
+                  option.disabled && 'cursor-not-allowed text-[var(--mairie-muted)]'
                 )}
               >
                 <span className="truncate">{option.label}</span>
-                {selected && <Check aria-hidden="true" className="size-4 shrink-0 text-[#397f7c]" />}
+                {selected && <Check aria-hidden="true" className="size-4 shrink-0 text-[var(--mairie-teal-text)]" />}
               </button>
             );
           })}

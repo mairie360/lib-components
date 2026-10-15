@@ -134,16 +134,16 @@ export const EventAssigneeSelect = ({
   const dropdown = open ? (
     <div
       ref={dropdownRef}
-      className="fixed z-[70] flex flex-col overflow-hidden rounded-md border border-[#cbd5e1] bg-white shadow-lg"
+      className="fixed z-[70] flex flex-col overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] shadow-lg"
       style={dropdownStyle}
     >
-      <div className="relative shrink-0 border-b border-[#e2e8f0] p-2">
-        <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748b]" strokeWidth={1.8} />
+      <div className="relative shrink-0 border-b border-[var(--mairie-border)] p-2">
+        <Search className="absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--mairie-muted)]" strokeWidth={1.8} />
         <input
           type="search"
           value={search}
           placeholder={searchPlaceholder}
-          className="h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] pl-9 pr-3 text-sm text-[#172033] shadow-sm outline-none placeholder:text-[#64748b] focus:border-[#94a3b8] focus:ring-2 focus:ring-[#3b82f6]/20"
+          className="h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] pl-9 pr-3 text-sm text-[var(--mairie-text)] shadow-sm outline-none placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-border)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
           onChange={(event) => setSearch(event.target.value)}
         />
       </div>
@@ -159,7 +159,7 @@ export const EventAssigneeSelect = ({
                 type="button"
                 role="option"
                 aria-selected={selected}
-                className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm text-[#172033] hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/20"
+                className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left text-sm text-[var(--mairie-text)] hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/20"
                 onClick={() => togglePerson(person)}
               >
                 {person.avatarUrl ? (
@@ -169,22 +169,22 @@ export const EventAssigneeSelect = ({
                     className="h-7 w-7 shrink-0 rounded-md object-cover"
                   />
                 ) : (
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[#2563eb] text-[11px] font-semibold text-white">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--mairie-action-background)] text-[11px] font-semibold text-[var(--mairie-on-action)]">
                     {getInitials(person.name)}
                   </span>
                 )}
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-medium">{person.name}</span>
                   {(person.role || person.email) && (
-                    <span className="block truncate text-xs text-[#64748b]">{person.role || person.email}</span>
+                    <span className="block truncate text-xs text-[var(--mairie-muted)]">{person.role || person.email}</span>
                   )}
                 </span>
-                {selected && <Check className="h-4 w-4 shrink-0 text-[#2faa55]" strokeWidth={2} />}
+                {selected && <Check className="h-4 w-4 shrink-0 text-[var(--mairie-success-text)]" strokeWidth={2} />}
               </button>
             );
           })
         ) : (
-          <div className="px-3 py-2 text-sm text-[#64748b]">{emptyLabel}</div>
+          <div className="px-3 py-2 text-sm text-[var(--mairie-muted)]">{emptyLabel}</div>
         )}
       </div>
     </div>
@@ -192,20 +192,20 @@ export const EventAssigneeSelect = ({
 
   return (
     <div ref={rootRef} className={joinClasses('relative', className)} {...props}>
-      <label className="mb-1 block text-sm font-semibold text-[#334155]">{label}</label>
+      <label className="mb-1 block text-sm font-semibold text-[var(--mairie-text)]">{label}</label>
 
       <button
         ref={buttonRef}
         type="button"
-        className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-left text-sm text-[#172033] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 text-left text-sm text-[var(--mairie-text)] shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-60"
         aria-haspopup="listbox"
         aria-expanded={open}
         disabled={disabled}
         onClick={() => setOpen((currentOpen) => !currentOpen)}
       >
         <span className="flex min-w-0 items-center gap-2">
-          <Users className="h-4 w-4 shrink-0 text-[#64748b]" strokeWidth={1.8} />
-          <span className={joinClasses('truncate', selectedPeople.length === 0 && 'text-[#64748b]')}>
+          <Users className="h-4 w-4 shrink-0 text-[var(--mairie-muted)]" strokeWidth={1.8} />
+          <span className={joinClasses('truncate', selectedPeople.length === 0 && 'text-[var(--mairie-muted)]')}>
             {selectedPeople.length > 0
               ? `${selectedPeople.length} personne${selectedPeople.length > 1 ? 's' : ''} sélectionnée${
                   selectedPeople.length > 1 ? 's' : ''
@@ -213,7 +213,7 @@ export const EventAssigneeSelect = ({
               : placeholder}
           </span>
         </span>
-        <ChevronDown className="h-4 w-4 shrink-0 text-[#64748b]" strokeWidth={1.8} />
+        <ChevronDown className="h-4 w-4 shrink-0 text-[var(--mairie-muted)]" strokeWidth={1.8} />
       </button>
 
       {selectedPeople.length > 0 && (
@@ -221,13 +221,13 @@ export const EventAssigneeSelect = ({
           {selectedPeople.map((person) => (
             <span
               key={person.id}
-              className="inline-flex max-w-full items-center gap-1 rounded-md bg-[#eaf7ee] px-2 py-1 text-xs font-semibold text-[#257444]"
+              className="inline-flex max-w-full items-center gap-1 rounded-md bg-[var(--mairie-success-surface)] px-2 py-1 text-xs font-semibold text-[var(--mairie-success-text)]"
             >
               <span className="truncate">{person.name}</span>
               <button
                 type="button"
                 aria-label={`Retirer ${person.name}`}
-                className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm hover:bg-[#2faa55]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa55]/35"
+                className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-sm hover:bg-[var(--mairie-success-action-background)]/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
                 onClick={() => removePerson(person)}
               >
                 <X className="h-3 w-3" strokeWidth={2} />

@@ -25,13 +25,13 @@ export interface CreateGroupModalProps {
 }
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#6b7280] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 
 const buttonSecondaryClassName =
-  'inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25';
+  'inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] shadow-sm transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25';
 
 const buttonPrimaryClassName =
-  'inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:bg-[#b7cce3]';
+  'inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]';
 
 const emptyMemberIds: MessagingContactId[] = [];
 const normalizeSearchValue = (value: string) =>
@@ -161,12 +161,12 @@ export const CreateGroupModal = ({
       }
     >
       {creationFailed && (
-        <p role="alert" className="text-sm text-red-700">
+        <p role="alert" className="text-sm text-[var(--mairie-error-text)]">
           Le groupe n’a pas pu être créé. Vos saisies sont conservées ; vous pouvez réessayer.
         </p>
       )}
       <div>
-        <label htmlFor={nameId} className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">
+        <label htmlFor={nameId} className="mb-1 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
           {nameLabel}
         </label>
         <input
@@ -184,7 +184,7 @@ export const CreateGroupModal = ({
       </div>
 
       <div>
-        <label htmlFor={descriptionId} className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">
+        <label htmlFor={descriptionId} className="mb-1 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
           {descriptionLabel}
         </label>
         <input
@@ -201,7 +201,7 @@ export const CreateGroupModal = ({
       </div>
 
       <fieldset>
-        <legend className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">{membersLabel}</legend>
+        <legend className="mb-1 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">{membersLabel}</legend>
         <label htmlFor={memberSearchId} className="sr-only">
           Rechercher un contact
         </label>
@@ -216,7 +216,7 @@ export const CreateGroupModal = ({
           disabled={isCreating}
           onChange={(event) => { if (!creatingRef.current) setMemberSearch(event.target.value); }}
         />
-        <div className="mt-2 max-h-48 overflow-y-auto rounded-md border border-[#d8d2ca] bg-white py-2 pr-1">
+        <div className="mt-2 max-h-48 overflow-y-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] py-2 pr-1">
           {displayedMembers.length > 0 ? (
             displayedMembers.map((member) => {
               const checked = selectedMemberValues.includes(String(member.id));
@@ -224,15 +224,15 @@ export const CreateGroupModal = ({
               return (
                 <label
                   key={member.id}
-                  className="flex min-h-11 cursor-pointer items-center gap-3 px-5 text-sm text-[#2f3747] transition hover:bg-[#fbfaf9]"
+                  className="flex min-h-11 cursor-pointer items-center gap-3 px-5 text-sm text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)]"
                 >
                   <input
                     type="checkbox"
                     checked={checked}
                     disabled={isCreating}
                     className={joinClasses(
-                      'size-4 rounded border-[#d8d2ca] text-[#1256a6] focus:ring-[#1256a6]/30',
-                      checked ? 'accent-[#1256a6]' : ''
+                      'size-4 rounded border-[var(--mairie-border)] text-[var(--mairie-accent)] focus:ring-[var(--mairie-accent)]/30',
+                      checked ? 'accent-[var(--mairie-accent)]' : ''
                     )}
                     onChange={() => toggleMember(member.id)}
                   />
@@ -244,7 +244,7 @@ export const CreateGroupModal = ({
               );
             })
           ) : (
-            <p className="px-5 py-2 text-sm text-[#5f6770]">Aucun contact trouvé.</p>
+            <p className="px-5 py-2 text-sm text-[var(--mairie-muted)]">Aucun contact trouvé.</p>
           )}
         </div>
       </fieldset>

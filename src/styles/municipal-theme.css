@@ -1,9 +1,45 @@
 /* MAIR-544/547: approved municipal visual direction.
  * Shared source: lib-components/src/styles/municipal-theme.css.
- * Frontends keep an identical copy while consuming the published UI 0.8.0.
+ * Candidate source: consumers retain their validated copies until audited adoption.
  * Scope is opt-in: add mairie-ui to the document body.
  */
+
 :root {
+  --mairie-rating-active: var(--mairie-warning-text);
+  --mairie-rating-inactive: var(--mairie-control-border);
+  --mairie-presence-online: var(--mairie-success-text);
+  --mairie-presence-away: var(--mairie-warning-text);
+  --mairie-presence-offline: var(--mairie-muted);
+  --mairie-file-pdf: var(--mairie-error-text);
+  --mairie-file-document: var(--mairie-accent);
+  --mairie-file-spreadsheet: var(--mairie-success-text);
+  --mairie-file-image: var(--mairie-purple-text);
+  --mairie-error-action-background: #a40e26;
+  --mairie-error-action-hover-background: #891827;
+  --mairie-overlay-background: #000000;
+  --mairie-navigation-background: #262b2d;
+  --mairie-navigation-text: #dff9ff;
+  --mairie-navigation-border: #405154;
+  --mairie-navigation-control-border: #6c8585;
+  --mairie-navigation-control-background: #334345;
+  --mairie-navigation-hover-background: #334d4a;
+  --mairie-navigation-active-background: #1c63b7;
+  --mairie-navigation-active-border: #2677cf;
+  --mairie-navigation-admin-background: #b4232f;
+  --mairie-navigation-admin-hover-background: #951c28;
+  --mairie-navigation-admin-border: #db5260;
+  --mairie-navigation-admin-active-background: #891827;
+  --mairie-navigation-admin-active-border: #ffb0b7;
+  --mairie-navigation-admin-focus: #ffccd1;
+  --mairie-navigation-shadow: 4px 0 16px rgb(12 28 48 / 10%);
+  --mairie-navigation-admin-shadow: inset 3px 0 0 var(--mairie-navigation-admin-focus), 0 2px 6px rgb(0 0 0 / 20%);
+  --mairie-preview-light-background: var(--mairie-on-action);
+  --mairie-preview-light-text: #162033;
+  --mairie-preview-dark-background: #172033;
+  --mairie-preview-dark-text: var(--mairie-on-action);
+  --mairie-action-background: #1256a6;
+  --mairie-action-hover-background: #0f4b91;
+  --mairie-on-action: #ffffff;
   --mairie-background: #f1f7fc;
   --mairie-surface: #ffffff;
   --mairie-surface-raised: #f3f7fc;
@@ -30,6 +66,7 @@
   --mairie-shadow: 0 2px 12px rgb(23 32 51 / 5%);
 }
 html[data-theme="dark"] {
+  --mairie-teal-text: var(--mairie-accent);
   --mairie-background: #101b2d;
   --mairie-surface: #17263a;
   --mairie-surface-raised: #203149;
@@ -90,8 +127,8 @@ body.mairie-ui :is(button, a, input, select, textarea, summary, [tabindex]):focu
 }
 body.mairie-ui [aria-label="Navigation principale"] {
   width: 270px;
-  background: #262b2d;
-  box-shadow: 4px 0 16px rgb(12 28 48 / 10%);
+  background: var(--mairie-navigation-background);
+  box-shadow: var(--mairie-navigation-shadow);
 }
 body.mairie-ui [aria-label="Navigation principale"] > div:first-child { height: 78px; }
 body.mairie-ui [aria-label="Navigation principale"] nav button {
@@ -100,26 +137,26 @@ body.mairie-ui [aria-label="Navigation principale"] nav button {
   font-size: 17px;
   flex-shrink: 0;
 }
-body.mairie-ui [aria-label="Navigation principale"] :focus-visible { outline-color: #dff9ff; }
+body.mairie-ui [aria-label="Navigation principale"] :focus-visible { outline-color: var(--mairie-navigation-text); }
 body.mairie-ui [aria-label="Navigation mobile"] [aria-label="Navigation principale"] { width: 260px; }
 body.mairie-ui :is(.projects-shell, .calendar-scroll-shell, .messages-app-root, .elearning-shell, .settings-shell, .dashboard-app-shell, .administration-shell) > .flex > .flex > header {
   min-height: 78px;
   background: var(--mairie-surface);
   border-color: var(--mairie-border);
 }
-body.mairie-ui .app-accessible-footer { width: 270px; background: #262b2d; }
+body.mairie-ui .app-accessible-footer { width: 270px; background: var(--mairie-navigation-background); }
 body.mairie-ui .projects-shell > .flex > .flex > main,
 body.mairie-ui .elearning-shell > .flex > .flex > main,
 body.mairie-ui .messages-app-root > .flex > .flex > main { background: var(--mairie-background); }
 body.mairie-ui .projects-shell main > div > div { padding: 32px; }
 body.mairie-ui .elearning-catalog-shell { background: var(--mairie-background); }
-body.mairie-ui .elearning-catalog-shell article > button:first-child { background: #edf5ff; }
+body.mairie-ui .elearning-catalog-shell article > button:first-child { background: var(--mairie-accent-surface); }
 body.mairie-ui .messages-module-frame > .messages-module { box-shadow: var(--mairie-shadow); }
 body.mairie-ui .calendar-title-bar h1 { color: var(--mairie-text); }
 body.mairie-ui .calendar-title-bar p { color: var(--mairie-muted); }
 body.mairie-ui .administration-console h2 { font-size: 23px; line-height: 1.3; font-weight: 700; }
-body.mairie-ui main [class~="bg-[#00a844]"] { background: #13733f; }
-body.mairie-ui main [class~="text-[#dc2626]"] { color: #991b1b; }
+body.mairie-ui main [class~="bg-[#00a844]"] { background: var(--mairie-success-action-background); }
+body.mairie-ui main [class~="text-[#dc2626]"] { color: var(--mairie-error-text); }
 body.mairie-ui .login-page > section,
 body.mairie-ui .login-page > div > section { border-radius: var(--mairie-radius); border: 1px solid var(--mairie-border); box-shadow: var(--mairie-shadow); }
 @media (max-width: 1023px) {
@@ -143,7 +180,7 @@ body.mairie-ui .login-page > div > section { border-radius: var(--mairie-radius)
 .app-skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; transform: translateY(-180%); padding: 12px 18px; border-radius: 8px; background: var(--mairie-surface); color: var(--mairie-accent); font-weight: 650; }
 .app-skip-link:focus { transform: none; }
 .app-main-content { min-width: 0; }
-.app-accessible-footer { position: fixed; left: 0; bottom: 0; z-index: 20; width: 270px; min-height: 76px; justify-content: center; border-color: #405154; background: #262b2d; color: #dff9ff; padding: 16px; box-shadow: none; }
+.app-accessible-footer { position: fixed; left: 0; bottom: 0; z-index: 20; width: 270px; min-height: 76px; justify-content: center; border-color: var(--mairie-navigation-border); background: var(--mairie-navigation-background); color: var(--mairie-navigation-text); padding: 16px; box-shadow: none; }
 .app-accessible-footer > div { font-size: 12px; justify-content: center; }
 .messages-app-root main > .app-main-content { display: flex; flex: 1; min-height: 0; height: 100%; }
 @media (max-width: 1023px) { .app-accessible-footer { position: static; width: 100%; min-height: 48px; padding: 12px; background: var(--mairie-surface); color: var(--mairie-muted); border-color: var(--mairie-border); } }
@@ -170,27 +207,27 @@ body.mairie-ui .app-accessible-footer > div { font-size: 14px; }
   .app-shell-frame { padding-left: 270px; }
   .app-shell-frame[data-sidebar-collapsed="true"] { padding-left: 82px; }
   body.mairie-ui .app-published-sidebar { display: none; }
-  body.mairie-ui .app-desktop-navigation { position: fixed; inset: 0 auto 0 0; z-index: 25; display: flex; width: 270px; min-height: 0; flex-direction: column; background: #262b2d; color: #dff9ff; }
+  body.mairie-ui .app-desktop-navigation { position: fixed; inset: 0 auto 0 0; z-index: 25; display: flex; width: 270px; min-height: 0; flex-direction: column; background: var(--mairie-navigation-background); color: var(--mairie-navigation-text); }
   body.mairie-ui .app-desktop-navigation[data-collapsed="true"] { width: 82px; }
-  .app-navigation-brand { display: flex; align-items: center; gap: 10px; height: 78px; flex-shrink: 0; padding: 18px; border-bottom: 1px solid #405154; }
+  .app-navigation-brand { display: flex; align-items: center; gap: 10px; height: 78px; flex-shrink: 0; padding: 18px; border-bottom: 1px solid var(--mairie-navigation-border); }
   .app-navigation-brand img, .app-navigation-initial { width: 40px; height: 40px; flex-shrink: 0; object-fit: contain; border-radius: 8px; }
   .app-navigation-brand > span { font-size: 20px; font-weight: 650; }
-  .app-navigation-initial { display: grid; place-items: center; background: #1256a6; }
-  .app-navigation-toggle { position: absolute; top: 22px; right: 8px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #6c8585; border-radius: 7px; color: #dff9ff; background: #334345; }
+  .app-navigation-initial { display: grid; place-items: center; background: var(--mairie-action-background); }
+  .app-navigation-toggle { position: absolute; top: 22px; right: 8px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 7px; color: var(--mairie-navigation-text); background: var(--mairie-navigation-control-background); }
   [data-collapsed="true"] .app-navigation-toggle { position: static; align-self: center; flex-shrink: 0; margin-top: 12px; }
   body.mairie-ui .app-desktop-navigation > nav { display: flex; min-height: 0; flex-direction: column; gap: 8px; padding: 22px 14px; max-height: calc(100dvh - 78px - var(--app-footer-height, 76px)); overflow-y: auto; }
   body.mairie-ui .app-desktop-navigation[data-collapsed="true"] > nav { padding-top: 12px; max-height: calc(100dvh - 124px - var(--app-footer-height, 76px)); }
-  .app-desktop-navigation nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid transparent; color: #dff9ff; text-align: left; }
+  .app-desktop-navigation nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid transparent; color: var(--mairie-navigation-text); text-align: left; }
   .app-desktop-navigation nav button svg { flex-shrink: 0; }
   .app-navigation-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-  .app-desktop-navigation nav button:hover { background: #334d4a; }
-  .app-desktop-navigation nav button[aria-current="page"] { background: #1c63b7; border-color: #2677cf; color: white; }
-  .app-desktop-navigation nav button[data-admin="true"] { background: #b4232f; border-color: #db5260; color: white; }
-  .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: #891827; border-color: #ffb0b7; }
+  .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); }
+  .app-desktop-navigation nav button[aria-current="page"] { background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-on-action); }
+  .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-on-action); }
+  .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
   [data-collapsed="true"] nav button { justify-content: center; }
-  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: white; background: #b4232f; }
+  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-on-action); background: var(--mairie-navigation-admin-background); }
   [data-collapsed="true"] .app-navigation-badge { position: absolute; top: 0; right: 0; }
-  .app-navigation-tooltip { position: fixed; left: 68px; z-index: 100; max-width: min(260px, calc(100vw - 110px)); padding: 10px 14px; border: 1px solid #6c8585; border-radius: 8px; color: white; background: #262b2d; box-shadow: 0 4px 16px #0003; font-size: 16px; }
+  .app-navigation-tooltip { position: fixed; left: 68px; z-index: 100; max-width: min(260px, calc(100vw - 110px)); padding: 10px 14px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 8px; color: var(--mairie-on-action); background: var(--mairie-navigation-background); box-shadow: var(--mairie-shadow); font-size: 16px; }
   .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer { width: 82px; padding: 10px 5px; }
   .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer > div { display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: center; overflow-wrap: anywhere; }
 }
@@ -290,17 +327,17 @@ html[data-theme="dark"] body.mairie-ui :is(input:not([type="checkbox"]):not([typ
 }
 
 /* Preview drafts remain local and show system mode independently of the saved theme. */
-body.mairie-ui .mairie-appearance-preview { background: #fff; color: #162033; }
-body.mairie-ui .mairie-appearance-preview[data-preview-theme="dark"] { background: #172033; color: #fff; }
+body.mairie-ui .mairie-appearance-preview { background: var(--mairie-preview-light-background); color: var(--mairie-preview-light-text); }
+body.mairie-ui .mairie-appearance-preview[data-preview-theme="dark"] { background: var(--mairie-preview-dark-background); color: var(--mairie-preview-dark-text); }
 @media (prefers-color-scheme: dark) {
-  body.mairie-ui .mairie-appearance-preview[data-preview-theme="system"] { background: #172033; color: #fff; }
+  body.mairie-ui .mairie-appearance-preview[data-preview-theme="system"] { background: var(--mairie-preview-dark-background); color: var(--mairie-preview-dark-text); }
 }
 
 /* Preserve the original brand colours on dark surfaces without enlarging headers. */
 html[data-theme="dark"] body.mairie-ui :is(img[src*="mairie360-logo"], img[alt="Logo Mairie360"][src*="logo.png"]) {
   box-sizing: border-box;
   max-width: 100%;
-  background-color: #fff;
+  background-color: var(--mairie-on-action);
   padding: 2px;
   border-radius: 8px;
 }

@@ -14,13 +14,13 @@ export const ElearningStatCard = ({
   label,
   value,
   icon: Icon,
-  iconColor = '#1256a6',
+  iconColor = 'var(--mairie-accent)',
   className = '',
   ...props
 }: ElearningStatCardProps) => (
   <div
     className={joinClasses(
-      'flex min-h-[94px] items-center rounded-lg border border-[#d8d2ca] bg-white px-5 text-[#2f3747]',
+      'flex min-h-[94px] items-center rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-5 text-[var(--mairie-text)]',
       className
     )}
     {...props}

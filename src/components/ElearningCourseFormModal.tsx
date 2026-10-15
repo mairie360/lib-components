@@ -41,10 +41,10 @@ export interface ElearningCourseFormModalProps {
 }
 
 const fieldClassName =
-  'h-10 w-full rounded-md border border-[#cbd5e1] bg-white px-3 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#7a8797] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-10 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm text-[var(--mairie-text)] shadow-sm outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 const textareaClassName =
-  'min-h-24 w-full resize-y rounded-md border border-[#cbd5e1] bg-white px-3 py-2 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#7a8797] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
-const labelClassName = 'mb-1.5 block text-sm font-semibold text-[#334155]';
+  'min-h-24 w-full resize-y rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 py-2 text-sm text-[var(--mairie-text)] shadow-sm outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
+const labelClassName = 'mb-1.5 block text-sm font-semibold text-[var(--mairie-text)]';
 
 const currentStatusLabel = (statusValue: string) => {
   switch (statusValue) {
@@ -237,7 +237,7 @@ export const ElearningCourseFormModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-3 sm:p-5"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/35 p-3 sm:p-5"
       role="dialog"
       aria-labelledby={titleId}
       aria-modal="true"
@@ -246,18 +246,18 @@ export const ElearningCourseFormModal = ({
     >
       <form
         aria-busy={isSubmitting}
-        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-xl bg-[#f8f7f5] text-[#2f3747] shadow-2xl sm:max-h-[calc(100vh-2.5rem)]"
+        className="flex max-h-[calc(100vh-1.5rem)] w-full max-w-[980px] flex-col overflow-hidden rounded-xl bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] shadow-2xl sm:max-h-[calc(100vh-2.5rem)]"
       >
-        <div className="flex min-h-16 shrink-0 items-center justify-between gap-4 bg-[#2f3747] px-5 py-3 text-white sm:px-7">
+        <div className="flex min-h-16 shrink-0 items-center justify-between gap-4 bg-[var(--mairie-navigation-background)] px-5 py-3 text-[var(--mairie-on-action)] sm:px-7">
           <div>
             <h2 id={titleId} className="text-base font-semibold leading-6 sm:text-lg">
               {title}
             </h2>
-            <p className="text-xs text-white/65">Informations, présentation et contenu pédagogique</p>
+            <p className="text-xs text-[var(--mairie-on-action)]/65">Informations, présentation et contenu pédagogique</p>
           </div>
           <button
             aria-label="Fermer"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-white/75 transition hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/35"
+            className="inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--mairie-on-action)]/75 transition hover:bg-[var(--mairie-surface)]/10 hover:text-[var(--mairie-on-action)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-surface)]/35"
             onClick={onCancel}
             disabled={isSubmitting}
             type="button"
@@ -269,7 +269,7 @@ export const ElearningCourseFormModal = ({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-7 sm:py-6" data-elearning-form-scroll>
         <fieldset disabled={isSubmitting} className="m-0 min-w-0 space-y-6 border-0 p-0">
           <section aria-labelledby="course-general-heading">
-            <h3 id="course-general-heading" className="text-base font-bold text-[#2f3747]">
+            <h3 id="course-general-heading" className="text-base font-bold text-[var(--mairie-text)]">
               Informations générales
             </h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -356,8 +356,8 @@ export const ElearningCourseFormModal = ({
             </div>
           </section>
 
-          <section aria-labelledby="course-presentation-heading" className="border-t border-[#ddd7cf] pt-5">
-            <h3 id="course-presentation-heading" className="text-base font-bold text-[#2f3747]">Présentation</h3>
+          <section aria-labelledby="course-presentation-heading" className="border-t border-[var(--mairie-border)] pt-5">
+            <h3 id="course-presentation-heading" className="text-base font-bold text-[var(--mairie-text)]">Présentation</h3>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div>
                 <label htmlFor="elearning-course-status" className={labelClassName}>Statut</label>
@@ -410,17 +410,17 @@ export const ElearningCourseFormModal = ({
             </div>
           </section>
 
-          <section aria-labelledby="course-structure-heading" className="border-t border-[#ddd7cf] pt-5">
+          <section aria-labelledby="course-structure-heading" className="border-t border-[var(--mairie-border)] pt-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h3 id="course-structure-heading" className="flex items-center gap-2 text-base font-bold text-[#2f3747]">
-                  <Layers3 className="size-5 text-[#1256a6]" />
+                <h3 id="course-structure-heading" className="flex items-center gap-2 text-base font-bold text-[var(--mairie-text)]">
+                  <Layers3 className="size-5 text-[var(--mairie-accent)]" />
                   Programme de la formation
                 </h3>
-                <p className="mt-1 text-sm text-[#6f6f6f]">Ajoutez les chapitres et leurs ressources pédagogiques.</p>
+                <p className="mt-1 text-sm text-[var(--mairie-muted)]">Ajoutez les chapitres et leurs ressources pédagogiques.</p>
               </div>
               <button
-                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#1256a6] bg-white px-3 text-sm font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb]"
+                className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[var(--mairie-accent)] bg-[var(--mairie-surface)] px-3 text-sm font-semibold text-[var(--mairie-accent)] transition hover:bg-[var(--mairie-accent-surface)]"
                 onClick={() => updateValue('chapters', [...values.chapters, createEmptyCourseChapter()])}
                 type="button"
               >
@@ -430,12 +430,12 @@ export const ElearningCourseFormModal = ({
 
             <div className="mt-4 space-y-4">
               {values.chapters.map((chapter, chapterIndex) => (
-                <article key={chapter.id} className="rounded-lg border border-[#cbd5e1] bg-white p-4 shadow-sm sm:p-5">
+                <article key={chapter.id} className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4 shadow-sm sm:p-5">
                   <div className="flex items-center justify-between gap-3">
-                    <h4 className="font-bold text-[#2f3747]">Chapitre {chapterIndex + 1}</h4>
+                    <h4 className="font-bold text-[var(--mairie-text)]">Chapitre {chapterIndex + 1}</h4>
                     <button
                       aria-label={`Supprimer le chapitre ${chapterIndex + 1}`}
-                      className="inline-flex size-8 items-center justify-center rounded-md text-[#c5323a] hover:bg-[#fff1f2] disabled:cursor-not-allowed disabled:opacity-40"
+                      className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-error-text)] hover:bg-[var(--mairie-error-surface)] disabled:cursor-not-allowed disabled:opacity-40"
                       disabled={values.chapters.length === 1}
                       onClick={() => removeChapter(chapter.id)}
                       type="button"
@@ -479,11 +479,11 @@ export const ElearningCourseFormModal = ({
                     </div>
                   </div>
 
-                  <div className="mt-4 rounded-md bg-[#f6f8fb] p-3 sm:p-4">
+                  <div className="mt-4 rounded-md bg-[var(--mairie-surface-raised)] p-3 sm:p-4">
                     <div className="flex items-center justify-between gap-3">
-                      <h5 className="text-sm font-bold text-[#334155]">Ressources du chapitre</h5>
+                      <h5 className="text-sm font-bold text-[var(--mairie-text)]">Ressources du chapitre</h5>
                       <button
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-[#1256a6] hover:bg-[#e9f1fb]"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-xs font-semibold text-[var(--mairie-accent)] hover:bg-[var(--mairie-accent-surface)]"
                         onClick={() => updateChapter(chapter.id, { contents: [...chapter.contents, createEmptyCourseContent()] })}
                         type="button"
                       >
@@ -495,12 +495,12 @@ export const ElearningCourseFormModal = ({
                       {chapter.contents.map((content, contentIndex) => {
                         const resourceValue = content.href ?? content.fileName ?? '';
                         return (
-                          <div key={content.id} className="rounded-md border border-[#d8e0e8] bg-white p-3">
+                          <div key={content.id} className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-3">
                             <div className="flex items-center justify-between gap-3">
-                              <p className="text-xs font-bold uppercase tracking-wide text-[#64748b]">Ressource {contentIndex + 1}</p>
+                              <p className="text-xs font-bold uppercase tracking-wide text-[var(--mairie-muted)]">Ressource {contentIndex + 1}</p>
                               <button
                                 aria-label={`Supprimer la ressource ${contentIndex + 1} du chapitre ${chapterIndex + 1}`}
-                                className="inline-flex size-7 items-center justify-center rounded text-[#c5323a] hover:bg-[#fff1f2] disabled:opacity-40"
+                                className="inline-flex size-7 items-center justify-center rounded text-[var(--mairie-error-text)] hover:bg-[var(--mairie-error-surface)] disabled:opacity-40"
                                 disabled={chapter.contents.length === 1}
                                 onClick={() => removeContent(chapter.id, content.id)}
                                 type="button"
@@ -570,10 +570,10 @@ export const ElearningCourseFormModal = ({
                                 />
                               </div>
                             </div>
-                            <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[#475569]">
+                            <label className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-[var(--mairie-muted)]">
                               <input
                                 checked={content.required !== false}
-                                className="size-4 rounded border-[#94a3b8] text-[#1256a6]"
+                                className="size-4 rounded border-[var(--mairie-border)] text-[var(--mairie-accent)]"
                                 onChange={(event) => updateContent(chapter.id, content.id, { required: event.target.checked })}
                                 type="checkbox"
                               />
@@ -591,10 +591,10 @@ export const ElearningCourseFormModal = ({
         </fieldset>
         </div>
 
-        {submissionError ? <p role="alert" className="shrink-0 px-5 py-2 text-sm text-[#c5323a] sm:px-7">{submissionError}</p> : null}
-        <div className="flex shrink-0 justify-end gap-3 border-t border-[#ddd7cf] bg-[#f8f7f5] px-5 py-4 sm:px-7">
+        {submissionError ? <p role="alert" className="shrink-0 px-5 py-2 text-sm text-[var(--mairie-error-text)] sm:px-7">{submissionError}</p> : null}
+        <div className="flex shrink-0 justify-end gap-3 border-t border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-5 py-4 sm:px-7">
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#2f3747] transition hover:bg-[#f4f2ef]"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)]"
             onClick={onCancel}
             disabled={isSubmitting}
             type="button"
@@ -602,7 +602,7 @@ export const ElearningCourseFormModal = ({
             Annuler
           </button>
           <button
-            className="inline-flex h-10 items-center justify-center rounded-md bg-[#1256a6] px-5 text-sm font-semibold text-white transition hover:bg-[#0f4b91] disabled:cursor-not-allowed disabled:bg-[#9fb2c8]"
+            className="inline-flex h-10 items-center justify-center rounded-md bg-[var(--mairie-action-background)] px-5 text-sm font-semibold text-[var(--mairie-on-action)] transition hover:bg-[var(--mairie-action-hover-background)] disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]"
             disabled={isSubmitting || values.chapters.length === 0}
             type="submit"
           >

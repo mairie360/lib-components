@@ -34,8 +34,8 @@ export const Footer = ({
   const FooterContainer = isSidebar ? 'div' : 'footer';
   const renderLink = (link: FooterLink) => {
     const className = isSidebar
-      ? 'rounded-sm text-xs font-medium text-[#dff9ff] transition-colors hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white'
-      : 'text-sm font-medium text-[#4c5258] transition-colors hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4b908d]/30 rounded-sm';
+      ? 'rounded-sm text-xs font-medium text-[var(--mairie-navigation-text)] transition-colors hover:text-[var(--mairie-on-action)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-on-action)]'
+      : 'text-sm font-medium text-[var(--mairie-muted)] transition-colors hover:text-[var(--mairie-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30 rounded-sm';
 
     if (link.href) {
       return (
@@ -56,14 +56,14 @@ export const Footer = ({
     <FooterContainer
       role={isSidebar ? undefined : 'contentinfo'}
       className={`${isSidebar
-        ? 'flex w-full flex-col items-center gap-3 border-t border-[#4b908d]/45 bg-transparent px-4 py-5 text-[#dff9ff]'
-        : 'flex min-h-16 w-full flex-col gap-3 border-t border-[#b9d6d5] bg-white px-6 py-4 text-[#4c5258] shadow-[0_-1px_5px_rgba(0,0,0,0.08)] sm:flex-row sm:items-center sm:justify-between sm:gap-6'} ${className}`}
+        ? 'flex w-full flex-col items-center gap-3 border-t border-[var(--mairie-navigation-border)]/45 bg-transparent px-4 py-5 text-[var(--mairie-navigation-text)]'
+        : 'flex min-h-16 w-full flex-col gap-3 border-t border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-4 text-[var(--mairie-muted)] shadow-[var(--mairie-shadow)] sm:flex-row sm:items-center sm:justify-between sm:gap-6'} ${className}`}
     >
       <div className={isSidebar ? 'flex flex-wrap items-center justify-center gap-x-1 gap-y-1 text-xs' : 'flex flex-wrap items-center gap-x-4 gap-y-2 text-sm'}>
         <span>{`© ${year} ${productName}`}</span>
         {version && (
           <>
-            <span className={isSidebar ? 'text-[#dff9ff]' : 'text-[#4b908d]'} aria-hidden="true">•</span>
+            <span className={isSidebar ? 'text-[var(--mairie-navigation-text)]' : 'text-[var(--mairie-navigation-border)]'} aria-hidden="true">•</span>
             <span>{`Version ${version}`}</span>
           </>
         )}
@@ -73,7 +73,7 @@ export const Footer = ({
         {actionableLinks.map((link, index) => (
           <React.Fragment key={`${link.label}-${index}`}>
             {index > 0 && (
-              <span className={isSidebar ? 'text-[#dff9ff]' : 'text-[#4b908d]'} aria-hidden="true">
+              <span className={isSidebar ? 'text-[var(--mairie-navigation-text)]' : 'text-[var(--mairie-navigation-border)]'} aria-hidden="true">
                 •
               </span>
             )}

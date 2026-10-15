@@ -71,20 +71,20 @@ export const AdministrationSelect = ({
         aria-expanded={open}
         disabled={disabled}
         className={joinClasses(
-          'flex h-9 w-full items-center justify-between gap-3 rounded-md border border-[#d8d2ca] bg-white px-3 text-sm font-normal leading-5 text-[#172033] outline-none transition hover:bg-[#fbfaf9] focus-visible:border-[#1256a6] focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-60',
+          'flex h-9 w-full items-center justify-between gap-3 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm font-normal leading-5 text-[var(--mairie-text)] outline-none transition hover:bg-[var(--mairie-surface-raised)] focus-visible:border-[var(--mairie-accent)] focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25 disabled:cursor-not-allowed disabled:opacity-60',
           triggerClassName
         )}
         onClick={() => setOpen((currentOpen) => !currentOpen)}
       >
         <span className="min-w-0 truncate">{selectedOption?.label}</span>
-        <ChevronDown className="size-4 shrink-0 text-[#8b8d91]" strokeWidth={1.8} />
+        <ChevronDown className="size-4 shrink-0 text-[var(--mairie-muted)]" strokeWidth={1.8} />
       </button>
 
       {open && (
         <div
           role="listbox"
           className={joinClasses(
-            'absolute left-0 z-50 mt-1 w-full min-w-[180px] overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-[#172033] shadow-[0_4px_12px_rgba(0,0,0,0.16)]',
+            'absolute left-0 z-50 mt-1 w-full min-w-[180px] overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-[var(--mairie-text)] shadow-[var(--mairie-shadow)]',
             menuClassName
           )}
         >
@@ -98,8 +98,8 @@ export const AdministrationSelect = ({
                 role="option"
                 aria-selected={isSelected}
                 className={joinClasses(
-                  'flex h-8 w-full items-center justify-between gap-3 rounded-sm px-2 text-left text-sm leading-5 transition hover:bg-[#eef3f2]',
-                  isSelected && 'bg-[#d8eeee] text-[#2d6d69]'
+                  'flex h-8 w-full items-center justify-between gap-3 rounded-sm px-2 text-left text-sm leading-5 transition hover:bg-[var(--mairie-surface-raised)]',
+                  isSelected && 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-teal-text)]'
                 )}
                 onClick={() => handleOptionClick(option.value)}
               >

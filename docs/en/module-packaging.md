@@ -55,3 +55,15 @@ node scripts/measure-ui-package.mjs --entry-mode=modules --label=candidate-modul
 ```
 
 Four scenarios import a button, feedback primitives, settings, and a settings/dashboard/shell composition. Reports sum every emitted JavaScript file and transitive chunk in raw, gzip and Brotli bytes, and preserve graph metadata. React and Next peers remain external. These figures exclude styles, the Next runtime and real application routes; they are neither browser initial JavaScript measurements nor LCP evidence. No numerical improvement is claimed before all three measurements and application validation run.
+
+### Candidate semantic colours (MAIR-526)
+
+Components and general styles use municipal semantic roles: `text`/`muted`, `surface`/`surface-raised`, `control-background`/`control-border`, and `accent`/`accent-surface`. Success, warning, error and purple families retain labels and icons. Decorative palettes, learning levels, file types and presence indicators reuse these families without making colour the only information.
+
+Blue actions use stable `action-background`, `action-hover-background` and `on-action` roles in both themes. Destructive and positive actions have dedicated roles. Item, MiniCard and ItemContainer use common card surfaces; navigation, branding, theme previews and media retain contextual roles. Legacy colours in compatibility **selectors** reference existing consumer classes; they are not colour declarations.
+
+`node scripts/check-ui-colors.mjs` checks all runtime source, including files outside components, before each build. `node --test --test-concurrency=1 scripts/ui-color-policy.check.mjs scripts/check-semantic-components.cjs` tests the guard and compiles actual rendered component classes for cards, actions, focus, selected/unselected ratings, avatar initials, tooltips and calendar close controls in both themes. These targeted checks do not certify application-wide accessibility or screen-reader announcements.
+
+Only approved central theme definitions and six contractual ItemContainer values are exempt: `bg-green-500`, `bg-blue-500`, `bg-yellow-500`, `bg-red-500`, `bg-purple-500`, and the `bg-green-500` default. `onStatusColorChange` receives the exact same values. Caller-supplied colours (`status.color`, `backgroundColor`, `colorClassName`, etc.) remain consumer data; their values and contrast are not normalized. Fixtures, stories and demo data are unchanged.
+
+Commit `7b94765` remains historical evidence. Changed sources require a new build and tarball verification. The eight consumers retain their previously validated CSS copies; this candidate migration is not consumer delivery. MAIR-439 audit findings continue to block publication and adoption.

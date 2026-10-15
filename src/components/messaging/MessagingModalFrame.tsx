@@ -29,7 +29,7 @@ export const MessagingModalFrame = ({
   onSubmit,
 }: MessagingModalFrameProps) => (
   <div
-    className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
+    className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/35 p-4"
     role="dialog"
     aria-modal="true"
     aria-labelledby={titleId}
@@ -37,18 +37,18 @@ export const MessagingModalFrame = ({
   >
     <form
       className={joinClasses(
-        'flex max-h-[calc(100vh-2rem)] w-full max-w-[512px] flex-col overflow-hidden rounded-md border border-[#d8d2ca] bg-[#f5f3f0] text-[#172033] shadow-xl',
+        'flex max-h-[calc(100vh-2rem)] w-full max-w-[512px] flex-col overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-background)] text-[var(--mairie-text)] shadow-xl',
         className
       )}
       onSubmit={onSubmit}
     >
       <div className="flex items-start justify-between gap-5 px-6 pb-2 pt-5">
         <div className="min-w-0">
-          <h2 id={titleId} className="text-lg font-bold leading-7 text-[#172033]">
+          <h2 id={titleId} className="text-lg font-bold leading-7 text-[var(--mairie-text)]">
             {title}
           </h2>
           {subtitle && (
-            <p id={subtitleId} className="mt-0.5 text-sm leading-5 text-[#5f6770]">
+            <p id={subtitleId} className="mt-0.5 text-sm leading-5 text-[var(--mairie-muted)]">
               {subtitle}
             </p>
           )}
@@ -57,7 +57,7 @@ export const MessagingModalFrame = ({
           type="button"
           aria-label="Fermer"
           disabled={closeDisabled}
-          className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-[#5f6770] transition hover:bg-[#ece8e2] hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          className="inline-flex size-8 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
           onClick={onClose}
         >
           <X className="size-5" strokeWidth={1.8} />

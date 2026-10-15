@@ -10,8 +10,8 @@ export const StatsPanel = ({ stats, title = 'Statistiques', className = '', ...p
     <dl className="space-y-4 px-6 pb-6 pt-7">
       {stats.map((stat, index) => (
         <div key={index} className="flex items-center justify-between gap-4 text-sm leading-5">
-          <dt className="text-[#172033]">{stat.label}</dt>
-          <dd className="text-right font-bold text-[#172033]">{stat.value}</dd>
+          <dt className="text-[var(--mairie-text)]">{stat.label}</dt>
+          <dd className="text-right font-bold text-[var(--mairie-text)]">{stat.value}</dd>
         </div>
       ))}
     </dl>

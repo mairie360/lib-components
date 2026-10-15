@@ -35,7 +35,7 @@ export const AdministrationTabs = ({
     role="tablist"
     aria-label="Sections d'administration"
     className={joinClasses(
-      'grid gap-1 rounded-lg bg-[#ebe9e6] p-1 text-sm font-semibold text-[#2f3747] shadow-none sm:grid-cols-5',
+      'grid gap-1 rounded-lg bg-[var(--mairie-surface-raised)] p-1 text-sm font-semibold text-[var(--mairie-text)] shadow-none sm:grid-cols-5',
       className
     )}
     {...props}
@@ -51,10 +51,10 @@ export const AdministrationTabs = ({
           role="tab"
           aria-selected={isActive}
           className={joinClasses(
-            'inline-flex h-8 min-w-0 items-center justify-center gap-2 rounded-md px-3 text-sm leading-5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/50',
+            'inline-flex h-8 min-w-0 items-center justify-center gap-2 rounded-md px-3 text-sm leading-5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/50',
             isActive
-              ? 'bg-white text-[#172033] shadow-[0_1px_2px_rgba(0,0,0,0.08)]'
-              : 'text-[#2f3747] hover:bg-white/60'
+              ? 'bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-[var(--mairie-shadow)]'
+              : 'text-[var(--mairie-text)] hover:bg-[var(--mairie-surface)]/60'
           )}
           onClick={() => onValueChange?.(item.id)}
         >

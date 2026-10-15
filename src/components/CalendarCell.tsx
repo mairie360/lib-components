@@ -16,11 +16,11 @@ export const CalendarCell = ({
   <button
     type={type}
     className={joinClasses(
-      'min-h-16 w-full rounded-md border bg-white p-2 text-left text-sm leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30',
+      'min-h-16 w-full rounded-md border bg-[var(--mairie-surface)] p-2 text-left text-sm leading-5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30',
       selected
-        ? 'border-[#0f6fdc] bg-[#e8f2ff] text-[#0b4f99]'
-        : 'border-[#d8d2ca] text-[#172033] hover:border-[#b9d6d5] hover:bg-[#fbfaf9]',
-      muted && 'text-[#808891]',
+        ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]'
+        : 'border-[var(--mairie-border)] text-[var(--mairie-text)] hover:border-[var(--mairie-border)] hover:bg-[var(--mairie-surface-raised)]',
+      muted && 'text-[var(--mairie-muted)]',
       className
     )}
     {...props}

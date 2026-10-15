@@ -48,9 +48,9 @@ const getDefaultValues = (
 };
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition-colors placeholder:text-[#64748b] focus:border-[#94a3b8] focus:ring-2 focus:ring-[#3b82f6]/20';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 text-sm text-[var(--mairie-text)] shadow-sm outline-none transition-colors placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-border)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 
-const labelClassName = 'mb-1 block text-sm font-semibold text-[#334155]';
+const labelClassName = 'mb-1 block text-sm font-semibold text-[var(--mairie-text)]';
 
 const timeOptions = Array.from({ length: 96 }, (_, index) => {
   const totalMinutes = index * 15;
@@ -160,17 +160,17 @@ export const CreateEventModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/20 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
       aria-describedby={subtitleId}
     >
       <form
-        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[var(--mairie-background)] text-[var(--mairie-text)] shadow-xl"
         onSubmit={handleSubmit}
       >
-        <div className="flex min-h-14 items-center justify-between gap-4 bg-[#2b2b2b] px-5 py-3 text-white">
+        <div className="flex min-h-14 items-center justify-between gap-4 bg-[var(--mairie-navigation-background)] px-5 py-3 text-[var(--mairie-on-action)]">
           <div className="min-w-0">
             <h2 id={titleId} className="truncate text-base font-semibold leading-6">
               {title}
@@ -179,7 +179,7 @@ export const CreateEventModal = ({
           <button
             type="button"
             aria-label="Fermer"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#cbd5e1] transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--mairie-navigation-text)] transition-colors hover:bg-[var(--mairie-on-action)]/10 hover:text-[var(--mairie-on-action)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-navigation-text)]/35"
             onClick={onCancel}
           >
             <X className="h-5 w-5" strokeWidth={1.8} />
@@ -188,7 +188,7 @@ export const CreateEventModal = ({
 
         <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-6 py-5">
           {subtitle && (
-            <p id={subtitleId} className="text-sm leading-5 text-[#64748b]">
+            <p id={subtitleId} className="text-sm leading-5 text-[var(--mairie-muted)]">
               {subtitle}
             </p>
           )}
@@ -264,7 +264,7 @@ export const CreateEventModal = ({
           </div>
 
           {canCreateRecurringEvents && (
-            <div className="rounded-md border border-[#d8d2ca] bg-[#fbfaf9] p-3">
+            <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] p-3">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label htmlFor="event-recurrence" className={labelClassName}>
@@ -311,10 +311,10 @@ export const CreateEventModal = ({
                           key={day.value}
                           type="button"
                           className={joinClasses(
-                            'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25',
+                            'h-8 rounded-md border text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25',
                             selected
-                              ? 'border-[#2563eb] bg-[#e9f2ff] text-[#2563eb]'
-                              : 'border-[#cbd5e1] bg-[#f8fafc] text-[#334155] hover:bg-white'
+                              ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]'
+                              : 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] hover:bg-[var(--mairie-surface)]'
                           )}
                           onClick={() => toggleRecurrenceDay(day.value)}
                         >
@@ -405,17 +405,17 @@ export const CreateEventModal = ({
           />
         </div>
 
-        <div className="shrink-0 flex justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
+        <div className="shrink-0 flex justify-end gap-3 bg-[var(--mairie-background)] px-6 py-3">
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25"
+            className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] shadow-sm transition-colors hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
             onClick={onCancel}
           >
             {cancelLabel}
           </button>
           <button
             type="submit"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[#2faa55] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#27984b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa55]/35"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mairie-success-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition-colors hover:bg-[var(--mairie-success-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
           >
             {submitLabel}
           </button>

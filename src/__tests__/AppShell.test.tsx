@@ -115,7 +115,7 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: /Administration/ })).toHaveClass('bg-[#891827]');
+    expect(screen.getByRole('button', { name: /Administration/ })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]');
   });
 
   it('uses the same highlighted Administration row in the mobile drawer', () => {
@@ -123,7 +123,7 @@ describe('AppShell', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
     const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
-    expect(within(drawer).getByRole('button', { name: 'Administration' })).toHaveClass('bg-[#b4232f]', 'focus-visible:outline-[#ffccd1]');
+    expect(within(drawer).getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-background)]', 'focus-visible:outline-[var(--mairie-navigation-admin-focus)]');
   });
 
   it('uses the safe Settings destination when the configured profile URL is unsafe', () => {

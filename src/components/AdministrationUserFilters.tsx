@@ -32,7 +32,7 @@ export const AdministrationUserFilters = ({
 }: AdministrationUserFiltersProps) => (
   <div
     className={joinClasses(
-      'rounded-lg border border-[#e3e0dc] bg-white px-6 py-6 text-[#172033]',
+      'rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6 text-[var(--mairie-text)]',
       className
     )}
     {...props}
@@ -40,12 +40,12 @@ export const AdministrationUserFilters = ({
     <div className="grid gap-3 lg:grid-cols-[minmax(220px,1fr)_180px_180px_auto]">
       <label className="relative min-w-0">
         <span className="sr-only">Rechercher un utilisateur</span>
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[#94a3b8]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-[var(--mairie-muted)]" />
         <input
           type="search"
           value={searchValue}
           placeholder="Rechercher un utilisateur..."
-          className="h-9 w-full rounded-md border border-[#d8d2ca] bg-white pl-10 pr-3 text-sm text-[#172033] outline-none transition placeholder:text-[#667085] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+          className="h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] pl-10 pr-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
           onChange={(event) => onSearchChange?.(event.target.value)}
         />
       </label>
@@ -67,7 +67,7 @@ export const AdministrationUserFilters = ({
       <button
         type="button"
         disabled={!onNewUserClick}
-        className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] transition hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:opacity-50"
         onClick={onNewUserClick}
       >
         <UserPlus className="size-4" strokeWidth={1.9} />

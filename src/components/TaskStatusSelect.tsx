@@ -7,11 +7,11 @@ export type TaskStatusSelectProps = { statuses: readonly TaskStatusDefinition[];
 export function TaskStatusSelect({ statuses, value, label, disabled, onChange }: TaskStatusSelectProps) {
   const id = React.useId();
   const known = statuses.some(status => status.id === value);
-  return <label htmlFor={id} className="block min-w-0 text-sm font-medium" style={{ color: 'var(--mairie-text, #24292f)' }}>
+  return <label htmlFor={id} className="block min-w-0 text-sm font-medium" style={{ color: 'var(--mairie-text)' }}>
     <span>{label}</span>
     <select id={id} value={value} disabled={disabled || statuses.length === 0 || !known} onChange={event => {
       if (statuses.some(status => status.id === event.target.value)) onChange(event.target.value);
-    }} className="mairie-status-select mt-1 min-h-11 w-full max-w-full rounded-md border px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60" style={{ backgroundColor: 'var(--mairie-control-background, #fff)', color: 'var(--mairie-text, #24292f)', borderColor: 'var(--mairie-control-border, #788ba7)', outlineColor: 'var(--mairie-accent, #1256a6)' }}>
+    }} className="mairie-status-select mt-1 min-h-11 w-full max-w-full rounded-md border px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-60" style={{ backgroundColor: 'var(--mairie-control-background)', color: 'var(--mairie-text)', borderColor: 'var(--mairie-control-border)', outlineColor: 'var(--mairie-accent)' }}>
       {!known && <option value={value}>Statut indisponible</option>}
       {statuses.map(status => <option key={status.id} value={status.id}>{status.name}</option>)}
     </select>

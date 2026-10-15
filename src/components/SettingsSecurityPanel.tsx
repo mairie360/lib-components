@@ -56,7 +56,7 @@ export const SettingsSecurityPanel = ({
             ['Nouveau mot de passe', 'next'],
             ['Confirmer le mot de passe', 'confirmation'],
           ].map(([label, field]) => (
-            <label key={field} className="block text-sm font-semibold text-[#172033]">
+            <label key={field} className="block text-sm font-semibold text-[var(--mairie-text)]">
               {label}
               <input
                 type="password"
@@ -68,10 +68,10 @@ export const SettingsSecurityPanel = ({
             </label>
           ))}
           <div className="flex flex-wrap items-center gap-3">
-            <button type="submit" className="h-9 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4a90]">
+            <button type="submit" className="h-9 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)]">
               Changer le mot de passe
             </button>
-            {feedback && <span role={feedback.includes('correspondent') || feedback.includes('obligatoires') ? 'alert' : 'status'} className="text-sm text-[#667085]">{feedback}</span>}
+            {feedback && <span role={feedback.includes('correspondent') || feedback.includes('obligatoires') ? 'alert' : 'status'} className="text-sm text-[var(--mairie-muted)]">{feedback}</span>}
           </div>
         </form>
       </SettingsSection>}
@@ -98,25 +98,25 @@ export const SettingsSecurityPanel = ({
       <SettingsSection title="Sessions actives">
         <div className="space-y-3">
           {sessions?.map((session) => (
-            <article key={session.id} className="flex items-center justify-between gap-4 rounded-md border border-[#e3e0dc] bg-[#fbfcfd] px-4 py-3">
+            <article key={session.id} className="flex items-center justify-between gap-4 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-3">
               <div className="min-w-0">
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#172033]">
-                  <span className={`size-2 rounded-full ${session.current ? 'bg-[#00c853]' : 'bg-[#98a2b3]'}`} />
+                <div className="flex items-center gap-2 text-sm font-semibold text-[var(--mairie-text)]">
+                  <span className={`size-2 rounded-full ${session.current ? 'bg-[var(--mairie-success-action-background)]' : 'bg-[var(--mairie-border)]'}`} />
                   {session.label}
                 </div>
-                <p className="ml-4 text-sm text-[#667085]">{session.description}</p>
+                <p className="ml-4 text-sm text-[var(--mairie-muted)]">{session.description}</p>
               </div>
               {session.current ? (
-                <span className="rounded-md bg-[#4b9693] px-2.5 py-1 text-xs font-semibold text-white">Actuelle</span>
+                <span className="rounded-md bg-[var(--mairie-success-action-background)] px-2.5 py-1 text-xs font-semibold text-[var(--mairie-on-action)]">Actuelle</span>
               ) : onDisconnectSession ? (
-                <button type="button" className="h-8 rounded-md border border-[#d8d2ca] px-3 text-sm font-semibold text-[#d92d20]" onClick={() => onDisconnectSession?.(session)}>
+                <button type="button" className="h-8 rounded-md border border-[var(--mairie-border)] px-3 text-sm font-semibold text-[var(--mairie-error-text)]" onClick={() => onDisconnectSession?.(session)}>
                   Déconnecter
                 </button>
               ) : null}
             </article>
           ))}
-          {sessions === undefined && <p className="text-sm text-[#667085]">Données de session indisponibles.</p>}
-          {sessions?.length === 0 && <p className="text-sm text-[#667085]">Aucune session à afficher.</p>}
+          {sessions === undefined && <p className="text-sm text-[var(--mairie-muted)]">Données de session indisponibles.</p>}
+          {sessions?.length === 0 && <p className="text-sm text-[var(--mairie-muted)]">Aucune session à afficher.</p>}
         </div>
       </SettingsSection>
     </div>

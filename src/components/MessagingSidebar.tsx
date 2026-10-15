@@ -66,7 +66,7 @@ export const MessagingSidebar = ({
   return (
     <aside
       className={joinClasses(
-        'flex min-h-0 flex-col border-b border-[#d8d2ca] bg-[#f5f3f0] p-4 text-[#172033] lg:border-b-0 lg:border-r',
+        'flex min-h-0 flex-col border-b border-[var(--mairie-border)] bg-[var(--mairie-background)] p-4 text-[var(--mairie-text)] lg:border-b-0 lg:border-r',
         className
       )}
       {...props}
@@ -80,7 +80,7 @@ export const MessagingSidebar = ({
                 type="button"
                 aria-label={newMessageLabel}
                 title={newMessageLabel}
-                className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                className="inline-flex size-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                 onClick={onNewMessageClick}
               >
                 <MessageSquare className="size-4" strokeWidth={1.8} />
@@ -91,7 +91,7 @@ export const MessagingSidebar = ({
                 type="button"
                 aria-label={createGroupLabel}
                 title={createGroupLabel}
-                className="inline-flex size-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white text-[#172033] transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                className="inline-flex size-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                 onClick={onCreateGroupClick}
               >
                 <UsersRound className="size-4" strokeWidth={1.8} />
@@ -103,12 +103,12 @@ export const MessagingSidebar = ({
 
       <label className="relative mt-4 block">
         <span className="sr-only">{searchPlaceholder}</span>
-        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#6b7280]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
         <input
           type="search"
           value={currentSearch}
           placeholder={searchPlaceholder}
-          className="h-9 w-full rounded-md border border-[#d8d2ca] bg-white pl-10 pr-3 text-sm text-[#172033] outline-none transition placeholder:text-[#6b7280] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+          className="h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] pl-10 pr-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
           onChange={handleSearchChange}
         />
       </label>
@@ -124,7 +124,7 @@ export const MessagingSidebar = ({
             />
           ))
         ) : (
-          <div className="rounded-lg border border-dashed border-[#d8d2ca] bg-white p-4 text-center text-sm text-[#5f6770]">
+          <div className="rounded-lg border border-dashed border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4 text-center text-sm text-[var(--mairie-muted)]">
             {emptyLabel}
           </div>
         )}

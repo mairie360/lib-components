@@ -191,12 +191,12 @@ export const AdministrationModule = ({
 
   return (
     <section
-      className={joinClasses('space-y-6 bg-[#f5f3f0] text-[#172033]', className)}
+      className={joinClasses('space-y-6 bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)}
       {...props}
     >
       <div>
-        <h1 className="text-[32px] font-bold leading-tight text-[#0b1220]">{title}</h1>
-        {subtitle && <p className="mt-1 text-base leading-6 text-[#334155]">{subtitle}</p>}
+        <h1 className="text-[32px] font-bold leading-tight text-[var(--mairie-text)]">{title}</h1>
+        {subtitle && <p className="mt-1 text-base leading-6 text-[var(--mairie-text)]">{subtitle}</p>}
       </div>
 
       <AdministrationMetricCards stats={stats} />

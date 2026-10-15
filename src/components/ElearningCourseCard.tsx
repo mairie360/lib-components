@@ -58,13 +58,13 @@ export const ElearningCourseCard = ({
 }: ElearningCourseCardProps) => {
   const normalizedProgress = typeof progress === 'number' ? clampProgress(progress) : undefined;
   const displayedActionLabel = getProgressActionLabel(normalizedProgress, actionLabel);
-  const posterClassName = 'flex aspect-video w-full items-center justify-center rounded-md bg-[#e9f2f5]';
-  const posterIcon = <Play aria-hidden="true" className="size-12 text-[#4b908d]" strokeWidth={2.2} />;
+  const posterClassName = 'flex aspect-video w-full items-center justify-center rounded-md bg-[var(--mairie-surface-raised)]';
+  const posterIcon = <Play aria-hidden="true" className="size-12 text-[var(--mairie-teal-text)]" strokeWidth={2.2} />;
 
   return (
     <article
       className={joinClasses(
-        'flex h-full flex-col rounded-lg border border-[#d8d2ca] bg-white p-6 text-[#2f3747] shadow-sm',
+        'flex h-full flex-col rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-6 text-[var(--mairie-text)] shadow-sm',
         className
       )}
       {...props}
@@ -77,7 +77,7 @@ export const ElearningCourseCard = ({
           disabled={actionDisabled}
           className={joinClasses(
             posterClassName,
-            'cursor-pointer transition-colors hover:bg-[#dcebed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1256a6]'
+            'cursor-pointer transition-colors hover:bg-[var(--mairie-surface-raised)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]'
           )}
         >
           {posterIcon}
@@ -87,7 +87,7 @@ export const ElearningCourseCard = ({
       )}
 
       <div className="mt-4 flex items-start justify-between gap-3">
-        <h3 className="min-w-0 text-base font-semibold leading-6 text-[#172033]">{title}</h3>
+        <h3 className="min-w-0 text-base font-semibold leading-6 text-[var(--mairie-text)]">{title}</h3>
         {titleBadge && (
           <ElearningBadge
             label={titleBadge.label}
@@ -97,19 +97,19 @@ export const ElearningCourseCard = ({
         )}
       </div>
 
-      <p className="mt-3 min-h-12 text-sm leading-5 text-[#5f6470]">{description}</p>
+      <p className="mt-3 min-h-12 text-sm leading-5 text-[var(--mairie-muted)]">{description}</p>
 
-      <div className="mt-5 flex items-center justify-between gap-4 text-sm text-[#5f6470]">
+      <div className="mt-5 flex items-center justify-between gap-4 text-sm text-[var(--mairie-muted)]">
         {instructor ? <span className="truncate">Par {instructor}</span> : <span aria-hidden="true" />}
         {rating !== undefined && (
-          <span className="flex shrink-0 items-center gap-1 text-[#2f3747]">
-            <Star aria-hidden="true" className="size-4 fill-[#f4b000] text-[#f4b000]" />
+          <span className="flex shrink-0 items-center gap-1 text-[var(--mairie-text)]">
+            <Star aria-hidden="true" className="size-4 fill-[var(--mairie-rating-active)] text-[var(--mairie-rating-active)]" />
             {rating}
           </span>
         )}
       </div>
 
-      <div className="mt-4 grid grid-cols-3 gap-3 text-sm text-[#5f6470]">
+      <div className="mt-4 grid grid-cols-3 gap-3 text-sm text-[var(--mairie-muted)]">
         {duration && (
           <span className="flex min-w-0 items-center gap-1.5">
             <Clock3 aria-hidden="true" className="size-4 shrink-0" />
@@ -141,26 +141,26 @@ export const ElearningCourseCard = ({
 
       {normalizedProgress !== undefined && (
         <div className="mt-4">
-          <div className="mb-2 flex items-center justify-between text-sm text-[#2f3747]">
+          <div className="mb-2 flex items-center justify-between text-sm text-[var(--mairie-text)]">
             <span>Progression</span>
             <span>{normalizedProgress}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-[#cfdbed]">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]">
             <div
-              className="h-full rounded-full bg-[#1256a6] transition-[width]"
+              className="h-full rounded-full bg-[var(--mairie-action-background)] transition-[width]"
               style={{ width: `${normalizedProgress}%` }}
             />
           </div>
         </div>
       )}
 
-      {deadline && <p className="mt-4 text-sm text-[#ff3b1f]">Échéance : {deadline}</p>}
+      {deadline && <p className="mt-4 text-sm text-[var(--mairie-error-text)]">Échéance : {deadline}</p>}
 
       <button
         type="button"
         onClick={onAction}
         disabled={actionDisabled}
-        className="mt-4 h-9 w-full rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+        className="mt-4 h-9 w-full rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] transition hover:bg-[var(--mairie-action-hover-background)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30"
       >
         {displayedActionLabel}
       </button>

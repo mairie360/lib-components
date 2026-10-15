@@ -280,7 +280,7 @@ export const MessagingComposer = ({
   return (
     <form
       className={joinClasses(
-        'border-t border-[#d8d2ca] bg-white px-4 py-4 text-[#172033] sm:px-5',
+        'border-t border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-4 text-[var(--mairie-text)] sm:px-5',
         className
       )}
       onSubmit={handleSubmit}
@@ -305,27 +305,27 @@ export const MessagingComposer = ({
             value={currentValue}
             placeholder={placeholder}
             disabled={isBusy || !onSendMessage}
-            className="h-10 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#5f6770] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:bg-[#f5f3f0]"
+            className="h-10 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:bg-[var(--mairie-background)]"
             onChange={handleChange}
             onKeyDown={handleInputKeyDown}
           />
           {(mentionSuggestionsOpen || businessReferenceSuggestionsOpen) && (
-            <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 max-h-72 w-full max-w-[440px] overflow-y-auto rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+            <div className="absolute bottom-[calc(100%+8px)] left-0 z-30 max-h-72 w-full max-w-[440px] overflow-y-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-sm text-[var(--mairie-text)] shadow-lg">
               {mentionSuggestionsOpen
                 ? mentionSuggestions.map((mention) => (
                     <button
                       key={mention.id}
                       type="button"
                       disabled={isBusy}
-                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                       onClick={() => selectMention(mention)}
                     >
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1256a6] text-white">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)]">
                         <AtSign className="size-4" strokeWidth={1.8} />
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">@{mention.name}</span>
-                        <span className="block truncate text-xs text-[#5f6770]">
+                        <span className="block truncate text-xs text-[var(--mairie-muted)]">
                           {mention.kind === 'group' ? 'Groupe' : mention.description || 'Contact'}
                         </span>
                       </span>
@@ -337,15 +337,15 @@ export const MessagingComposer = ({
                       type="button"
                       title={reference.title}
                       disabled={isBusy}
-                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                      className="flex min-h-11 w-full items-center gap-3 rounded px-3 py-2 text-left transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                       onClick={() => selectBusinessReference(reference)}
                     >
-                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#1d7a63] text-white">
+                      <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[var(--mairie-success-action-background)] text-[var(--mairie-on-action)]">
                         {getBusinessReferenceIcon(reference)}
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">#{reference.title}</span>
-                        <span className="block truncate text-xs text-[#5f6770]">
+                        <span className="block truncate text-xs text-[var(--mairie-muted)]">
                           {getBusinessReferenceKindLabel(reference)}
                           {reference.description ? ` · ${reference.description}` : ''}
                         </span>
@@ -360,7 +360,7 @@ export const MessagingComposer = ({
           aria-label={sendLabel}
           title={sendLabel}
           disabled={!canSend}
-          className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-[#1256a6] text-white shadow-sm transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:bg-[#b7cce3]"
+          className="inline-flex size-9 shrink-0 items-center justify-center rounded-md bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)] shadow-sm transition hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]"
         >
           <Send className="size-4" strokeWidth={1.8} />
         </button>
@@ -370,7 +370,7 @@ export const MessagingComposer = ({
           {attachments.map((attachment) => (
             <span
               key={attachment.id}
-              className="inline-flex max-w-full items-center gap-2 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-2.5 py-1.5 text-xs font-semibold text-[#2f3747]"
+              className="inline-flex max-w-full items-center gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-2.5 py-1.5 text-xs font-semibold text-[var(--mairie-text)]"
             >
               <FileText className="size-3.5 shrink-0" strokeWidth={1.8} />
               <span className="max-w-[180px] truncate">{attachment.name}</span>
@@ -378,7 +378,7 @@ export const MessagingComposer = ({
                 type="button"
                 aria-label={`Retirer ${attachment.name}`}
                 disabled={isBusy}
-                className="inline-flex size-5 items-center justify-center rounded text-[#5f6770] transition hover:bg-[#ece8e2] hover:text-[#172033] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                className="inline-flex size-5 items-center justify-center rounded text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                 onClick={() => removeAttachment(attachment.id)}
               >
                 <X className="size-3.5" strokeWidth={1.8} />
@@ -393,7 +393,7 @@ export const MessagingComposer = ({
           aria-label={attachLabel}
           title={attachLabel}
           disabled={isBusy || !onSendMessage}
-          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
           onClick={handleAttachClick}
         >
           <Paperclip className="size-4" strokeWidth={1.8} />
@@ -403,7 +403,7 @@ export const MessagingComposer = ({
           aria-label="Mentionner un utilisateur"
           title="Mentionner un utilisateur"
           disabled={isBusy || !onSendMessage}
-          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
           onClick={() => {
             if (disabled) return;
             updateValue(appendTrigger(currentValue, '@'));
@@ -417,7 +417,7 @@ export const MessagingComposer = ({
           aria-label="Mentionner un élément métier"
           title="Mentionner un élément métier"
           disabled={isBusy || !onSendMessage}
-          className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+          className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
           onClick={() => {
             if (disabled) return;
             updateValue(appendTrigger(currentValue, '#'));
@@ -432,14 +432,14 @@ export const MessagingComposer = ({
             aria-label={emojiLabel}
             title={emojiLabel}
             disabled={isBusy || !onSendMessage}
-            className="inline-flex size-8 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+            className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
             onClick={() => setEmojiOpen((open) => !open)}
           >
             <Smile className="size-4" strokeWidth={1.8} />
           </button>
           {emojiOpen && (
             <div
-              className="absolute bottom-[calc(100%+8px)] left-0 z-20 grid gap-1 rounded-md border border-[#d8d2ca] bg-white p-2 shadow-lg"
+              className="absolute bottom-[calc(100%+8px)] left-0 z-20 grid gap-1 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-2 shadow-lg"
               style={{
                 gridTemplateColumns: 'repeat(4, 2rem)',
                 width: '9.25rem',
@@ -451,7 +451,7 @@ export const MessagingComposer = ({
                   type="button"
                   aria-label={`Ajouter ${emoji}`}
                   disabled={isBusy}
-                  className="flex size-8 items-center justify-center rounded-md transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                  className="flex size-8 items-center justify-center rounded-md transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                   style={{
                     fontFamily: '"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif',
                     fontSize: '1.25rem',

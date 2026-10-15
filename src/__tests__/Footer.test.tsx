@@ -47,9 +47,9 @@ describe('Footer component', () => {
     const sidebarFooter = screen.getByText('© 2027 Ville Connectée').parentElement!.parentElement!;
     expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(sidebarFooter.tagName).toBe('DIV');
-    expect(sidebarFooter).toHaveClass('bg-transparent', 'text-[#dff9ff]');
+    expect(sidebarFooter).toHaveClass('bg-transparent', 'text-[var(--mairie-navigation-text)]');
     expect(sidebarFooter).not.toHaveClass('min-h-16', 'bg-white');
     expect(screen.getByText('© 2027 Ville Connectée')).toBeInTheDocument();
-    expect(screen.getByRole('link', {name: 'Documentation'})).toHaveClass('text-[#dff9ff]');
+    expect(screen.getByRole('link', {name: 'Documentation'})).toHaveClass('text-[var(--mairie-navigation-text)]');
   });
 });

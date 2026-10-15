@@ -170,13 +170,13 @@ export const AppShell = ({
   );
 
   return (
-    <div {...props} ref={shellRef} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[#f5f3f0] font-sans text-[#172033]', collapsibleSidebar ? 'app-shell-frame' : undefined, className)} style={collapsibleSidebar ? { ...props.style, '--app-footer-height': `${footerHeight}px` } as React.CSSProperties : props.style}>
+    <div {...props} ref={shellRef} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[var(--mairie-background)] font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame' : undefined, className)} style={collapsibleSidebar ? { ...props.style, '--app-footer-height': `${footerHeight}px` } as React.CSSProperties : props.style}>
       {collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
       <div inert={sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}
           onClick={() => mainRef.current?.focus()}
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-white focus:p-3 focus:font-semibold focus:text-[#1256a6] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[#1256a6]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded-md focus:bg-[var(--mairie-surface)] focus:p-3 focus:font-semibold focus:text-[var(--mairie-accent)] focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--mairie-accent)]"
         >
           Aller au contenu
         </a>
@@ -191,7 +191,7 @@ export const AppShell = ({
               type="button"
               tabIndex={-1}
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full bg-black/35"
+              className="absolute inset-0 h-full w-full bg-[var(--mairie-overlay-background)]/35"
               onClick={() => setSidebarOpen(false)}
             />
             <div className="relative h-full w-[260px] max-w-[82vw] shadow-2xl">
@@ -199,7 +199,7 @@ export const AppShell = ({
                 ref={closeButtonRef}
                 type="button"
                 aria-label="Fermer la navigation"
-                className="absolute right-3 top-3 z-10 rounded-md p-2 text-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+                className="absolute right-3 top-3 z-10 rounded-md p-2 text-[var(--mairie-on-action)] hover:bg-[var(--mairie-surface)]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-on-action)]"
                 onClick={() => setSidebarOpen(false)}
               >
                 ×
@@ -225,7 +225,7 @@ export const AppShell = ({
             showSettings={canNavigate('settings')}
             showAdministration={canNavigate('admin')}
           />
-          <main id={mainId} ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-auto px-4 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#1256a6] sm:px-6 lg:px-8 lg:py-8">
+          <main id={mainId} ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-auto px-4 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)] sm:px-6 lg:px-8 lg:py-8">
             {children}
           </main>
           {effectiveFooterPlacement === 'content' && <Footer {...footerProps} className={joinClasses(collapsibleSidebar ? "app-accessible-footer" : undefined, footerProps?.className)} variant="horizontal" />}

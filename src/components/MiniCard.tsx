@@ -67,28 +67,28 @@ export const MiniCard: React.FC<MiniCardProps> = ({
           ref={cardRef}
           role="group"
           aria-label={`Carte projet : ${title}`}
-          className="relative flex flex-col items-center text-center rounded-2xl border border-gray-700 bg-[#0f1117] p-6 shadow-md hover:shadow-lg hover:border-white/30 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/50"
+          className="relative flex flex-col items-center text-center rounded-2xl border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-6 shadow-md hover:shadow-lg hover:border-[var(--mairie-surface)]/30 transition cursor-pointer focus:outline-none focus:ring-2 focus:ring-[var(--mairie-surface)]/50"
           style={{ width, height }}
 
         >
           <button type="button" aria-label={`Carte projet : ${title}`}
-            className="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
             onClick={handleCardClick} />
           {/* Options button */}
           <button
             aria-label="Afficher plus d’options"
-            className="absolute top-3 right-3 rounded-full p-1 hover:bg-white/10 transition"
+            className="absolute top-3 right-3 rounded-full p-1 hover:bg-[var(--mairie-surface-raised)] transition"
             onClick={(e) => {
               e.stopPropagation();
               setShowActions((prev) => !prev);
             }}
           >
-            <MoreHorizontal size={20} className="text-white" />
+            <MoreHorizontal size={20} className="text-[var(--mairie-text)]" />
           </button>
 
           {/* Title & Description */}
-          <h3 className="relative pointer-events-none text-lg font-bold mb-2 text-white">{title}</h3>
-          <p className="relative pointer-events-none text-sm text-gray-400 mb-4">{description}</p>
+          <h3 className="relative pointer-events-none text-lg font-bold mb-2 text-[var(--mairie-text)]">{title}</h3>
+          <p className="relative pointer-events-none text-sm text-[var(--mairie-muted)] mb-4">{description}</p>
 
           {/* Action menu */}
           {showActions && (
@@ -96,14 +96,14 @@ export const MiniCard: React.FC<MiniCardProps> = ({
               <button
                 onClick={handleAction(onEdit)}
                 aria-label="Modifier"
-                className="p-2 rounded-md bg-blue-600 hover:bg-blue-700 transition"
+                className="p-2 rounded-md text-[var(--mairie-on-action)] bg-[var(--mairie-action-background)] hover:bg-[var(--mairie-action-hover-background)] transition"
               >
                 <Pencil size={16} />
               </button>
               <button
                 onClick={handleDeleteClick}
                 aria-label="Supprimer"
-                className="p-2 rounded-md bg-red-600 hover:bg-red-700 transition"
+                className="p-2 rounded-md text-[var(--mairie-on-action)] bg-[var(--mairie-error-action-background)] hover:bg-[var(--mairie-error-action-hover-background)] transition"
               >
                 <Trash2 size={16} />
               </button>
