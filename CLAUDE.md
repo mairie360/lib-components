@@ -21,7 +21,7 @@ npm run build-storybook                  # static Storybook in storybook-static/
 npm run lighthouse                       # build Storybook + Lighthouse; fails if any story's a11y score < 0.76
 ```
 
-CI runs the shared reusable workflow `mairie360/CICD/.github/workflows/front-libs-cicd.yml` (see `.github/workflows/cicd.yaml`); its steps are not defined in this repo.
+CI runs the shared reusable workflow `mairie360/CICD/.github/workflows/front-libs-cicd.yml` (see `.github/workflows/cicd.yaml`); its steps are not defined in this repo. It runs on pull requests, manual dispatch and pushes to `main` only; the workflow token is read-only by default and only the `CICD` job gets `contents`/`packages`/`pages`/`id-token: write`, the cap the reusable `package` and `storybook` jobs need (MAIR-436, pinned by `src/__tests__/WorkflowPermissions.test.ts`).
 
 ## Architecture
 
