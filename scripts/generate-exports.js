@@ -24,6 +24,8 @@ exports.push("export { mairie360LogoSrc } from './assets/logo';");
 exports.push("export { defaultSidebarItems } from './components/Sidebar';");
 exports.push("export type { NotificationItem, NotificationSource } from './components/NotificationCenter';");
 exports.push("export type { AppShellProps } from './components/AppShell';");
+exports.push("export type { TaskStatusDefinition, TaskStatusSelectProps } from './components/TaskStatusSelect';");
+exports.push("export type { TaskStatusKanbanTask, TaskStatusKanbanProps } from './components/TaskStatusKanban';");
 
 fs.writeFileSync(outputFile, exports.join('\n') + '\n', 'utf8');
 
