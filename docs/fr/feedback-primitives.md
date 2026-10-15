@@ -47,3 +47,7 @@ Les notifications sont **persistantes par défaut**. Un délai en millisecondes 
 Préférez la persistance pour les informations importantes. Si vous activez les délais, donnez aux utilisateurs la possibilité de les désactiver dans l’application et un temps de lecture adapté. Une notification ne remplace pas une erreur liée au champ ni une confirmation durable nécessaire à la tâche.
 
 `Toast` est également disponible seul en mode contrôlé : `<Toast message="Reçu du serveur" onClose={dismiss} />`. Sans `onClose`, aucun bouton de fermeture n’est affiché. Le libellé de fermeture par défaut est « Fermer la notification » ; fournissez `closeLabel` pour une autre langue.
+
+Le provider monte deux régions d’annonce vides avant la première notification. Les ajouts y conservent chaque message et son titre, même pour des messages identiques reçus ensemble ; les cartes visuelles restent navigables sans doubler l’annonce. Les textes cachés disparaissent avec la notification : aucun historique supplémentaire ne s’accumule. Les tests DOM vérifient cette structure ; ils ne remplacent pas une recette avec lecteur d’écran.
+
+Référence de structure : [W3C, technique ARIA22 et sa procédure de test](https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA22#tests).

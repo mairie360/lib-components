@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Toast, type ToastProps } from './Toast';
+import { Toast, ToastAnnouncementContext, type ToastProps } from './Toast';
 
 export interface ToastOptions extends Pick<ToastProps, 'message' | 'title' | 'variant' | 'closeLabel'> {
   /** Persistent by default. Errors always remain until dismissed. */
@@ -44,7 +44,7 @@ function TimedToast({ entry, inactive, closeLabel, close, register }: {
 export function ToastProvider({ children, regionLabel, closeLabel = 'Fermer la notification', defaultDuration = null }: ToastProviderProps) {
   const prefix = useId(); const sequence = useRef(0);
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [windowActive, setWindowActive] = useState(true);
+  const [windowActive, setWindowActive] = useState(() => typeof document === 'undefined' || document.hasFocus());
   const [visible, setVisible] = useState(true);
   const nodes = useRef(new Map<string, HTMLDivElement>());
   const entriesRef = useRef(entries);
@@ -76,7 +76,12 @@ export function ToastProvider({ children, regionLabel, closeLabel = 'Fermer la n
   }, [defaultDuration, prefix]);
   const dismiss = useCallback((id: string) => close(id, 'programmatic'), [close]);
   const value = useMemo(() => ({ notify, dismiss }), [notify, dismiss]);
-  return <Context.Provider value={value}>{children}{entries.length > 0 && <section aria-label={regionLabel} className="fixed inset-x-4 bottom-4 z-50 max-h-[80vh] overflow-y-auto sm:left-auto sm:w-96"><ol className="space-y-3">{entries.map(entry => <li key={entry.id}><TimedToast entry={entry} inactive={!windowActive || !visible} closeLabel={closeLabel} close={close} register={register} /></li>)}</ol></section>}</Context.Provider>;
+  return <Context.Provider value={value}>{children}
+    {/* Mounted before any receipt. Additions announce complete messages; removing a
+        toast also removes its hidden text, without keeping a second history. */}
+    <div className="sr-only" role="status" aria-live="polite" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => entry.options.variant !== 'error').map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
+    <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => entry.options.variant === 'error').map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
+    <ToastAnnouncementContext.Provider value={false}>{entries.length > 0 && <section aria-label={regionLabel} className="fixed inset-x-4 bottom-4 z-50 max-h-[80vh] overflow-y-auto sm:left-auto sm:w-96"><ol className="space-y-3">{entries.map(entry => <li key={entry.id}><TimedToast entry={entry} inactive={!windowActive || !visible} closeLabel={closeLabel} close={close} register={register} /></li>)}</ol></section>}</ToastAnnouncementContext.Provider></Context.Provider>;
 }
 
 export function useToast(): ToastContextValue {

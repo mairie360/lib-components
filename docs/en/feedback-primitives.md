@@ -47,3 +47,7 @@ Notifications are **persistent by default**. A positive, finite duration in mill
 Prefer persistent important feedback. When enabling timeouts, offer an application setting to disable them and allow enough reading time. A toast does not replace a field error or a durable confirmation required for the task.
 
 `Toast` also works as a controlled component: `<Toast message="Server receipt" onClose={dismiss} closeLabel="Dismiss notification" />`. Without `onClose` no close button is rendered. The default close label is French, “Fermer la notification”; supply `closeLabel` for another language.
+
+The provider mounts two empty announcement regions before the first notification. Additions retain each complete message and title, including identical messages received together; visual cards remain navigable without a second live announcement. Hidden text is removed with its notification, so there is no separate growing history. DOM tests verify this structure; they do not replace screen-reader validation.
+
+Structural reference: [W3C ARIA22 technique and test procedure](https://www.w3.org/WAI/WCAG22/Techniques/aria/ARIA22#tests).
