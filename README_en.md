@@ -223,3 +223,5 @@ AppShell offers “Aller au contenu” as its first keyboard stop and focuses ma
 
 
 Shared MAIR-547 theme and [QA/release limitations](docs/qa/design-qa.md).
+
+[UI module entries: candidate, compatibility and measurement protocol](docs/en/module-packaging.md).

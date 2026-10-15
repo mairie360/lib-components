@@ -226,3 +226,5 @@ AppShell propose « Aller au contenu » comme premier arrêt clavier et place le
 
 
 Thème commun MAIR-547 et [recette/limites de livraison](docs/qa/design-qa.md).
+
+[Entrées UI par module : candidat, compatibilité et protocole de mesure](docs/fr/module-packaging.md).

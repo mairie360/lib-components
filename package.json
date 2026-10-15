@@ -17,7 +17,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "prebuild": "node scripts/generate-exports.js",
-    "build": "tsup && npm run build:css",
+    "build": "tsup && tsup --config tsup.server.config.ts && npm run build:css",
     "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",
     "lint": "eslint .",
@@ -114,20 +114,124 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./next": {
-      "types": "./dist/next.d.ts",
-      "import": "./dist/next.js",
-      "require": "./dist/next.cjs"
+      "import": {
+        "types": "./dist/next.d.ts",
+        "default": "./dist/next.js"
+      },
+      "require": {
+        "types": "./dist/next.d.cts",
+        "default": "./dist/next.cjs"
+      }
     },
+    "./primitives": {
+      "import": {
+        "types": "./dist/primitives.d.ts",
+        "default": "./dist/primitives.js"
+      },
+      "require": {
+        "types": "./dist/primitives.d.cts",
+        "default": "./dist/primitives.cjs"
+      }
+    },
+    "./settings": {
+      "import": {
+        "types": "./dist/settings.d.ts",
+        "default": "./dist/settings.js"
+      },
+      "require": {
+        "types": "./dist/settings.d.cts",
+        "default": "./dist/settings.cjs"
+      }
+    },
+    "./dashboard": {
+      "import": {
+        "types": "./dist/dashboard.d.ts",
+        "default": "./dist/dashboard.js"
+      },
+      "require": {
+        "types": "./dist/dashboard.d.cts",
+        "default": "./dist/dashboard.cjs"
+      }
+    },
+    "./projects": {
+      "import": {
+        "types": "./dist/projects.d.ts",
+        "default": "./dist/projects.js"
+      },
+      "require": {
+        "types": "./dist/projects.d.cts",
+        "default": "./dist/projects.cjs"
+      }
+    },
+    "./messages": {
+      "import": {
+        "types": "./dist/messages.d.ts",
+        "default": "./dist/messages.js"
+      },
+      "require": {
+        "types": "./dist/messages.d.cts",
+        "default": "./dist/messages.cjs"
+      }
+    },
+    "./calendar": {
+      "import": {
+        "types": "./dist/calendar.d.ts",
+        "default": "./dist/calendar.js"
+      },
+      "require": {
+        "types": "./dist/calendar.d.cts",
+        "default": "./dist/calendar.cjs"
+      }
+    },
+    "./admin": {
+      "import": {
+        "types": "./dist/admin.d.ts",
+        "default": "./dist/admin.js"
+      },
+      "require": {
+        "types": "./dist/admin.d.cts",
+        "default": "./dist/admin.cjs"
+      }
+    },
+    "./elearning": {
+      "import": {
+        "types": "./dist/elearning.d.ts",
+        "default": "./dist/elearning.js"
+      },
+      "require": {
+        "types": "./dist/elearning.d.cts",
+        "default": "./dist/elearning.cjs"
+      }
+    },
+    "./shell": {
+      "import": {
+        "types": "./dist/shell.d.ts",
+        "default": "./dist/shell.js"
+      },
+      "require": {
+        "types": "./dist/shell.d.cts",
+        "default": "./dist/shell.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
     "./*": "./*"
   },
   "peerDependenciesMeta": {
     "next": {
       "optional": true
     }
-  }
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
 }
