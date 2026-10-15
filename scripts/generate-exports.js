@@ -27,6 +27,12 @@ exports.push("export type { AppShellProps } from './components/AppShell';");
 exports.push("export type { TaskStatusDefinition, TaskStatusSelectProps } from './components/TaskStatusSelect';");
 exports.push("export type { TaskStatusKanbanTask, TaskStatusKanbanProps } from './components/TaskStatusKanban';");
 
+exports.push("export type { SkeletonProps } from './components/Skeleton';");
+exports.push("export type { EmptyStateProps } from './components/EmptyState';");
+exports.push("export type { ToastProps, ToastVariant } from './components/Toast';");
+exports.push("export { useToast } from './components/ToastProvider';");
+exports.push("export type { ToastOptions, ToastContextValue, ToastProviderProps } from './components/ToastProvider';");
+
 fs.writeFileSync(outputFile, exports.join('\n') + '\n', 'utf8');
 
 console.log(`✅ Fichier index.tsx généré avec ${files.length} composants (sans fichiers "stories").`);
