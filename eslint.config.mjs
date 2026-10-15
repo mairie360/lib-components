@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
     // failing CI until those components are migrated.
     files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     rules: {
+      "no-await-in-loop": "error",
       "react-hooks/set-state-in-effect": "warn",
     },
   },

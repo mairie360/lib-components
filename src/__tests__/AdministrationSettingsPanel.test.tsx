@@ -14,9 +14,10 @@ it('distinguishes unavailable settings, an empty action list and a read-only con
 });
 it('emits edited switches and bounded integer changes without silently changing another setting', async () => {
   const user = userEvent.setup(); const onSettingsChange = jest.fn(); render(<AdministrationSettingsPanel settings={settings} onSettingsChange={onSettingsChange} />);
-  for (const [label, field] of [['Authentification à deux facteurs', 'twoFactorEnabled'], ['Mode maintenance', 'maintenanceMode'], ['Inscription publique', 'publicRegistration'], ['Notifications email', 'emailNotifications']]) {
+  await [['Authentification à deux facteurs', 'twoFactorEnabled'], ['Mode maintenance', 'maintenanceMode'], ['Inscription publique', 'publicRegistration'], ['Notifications email', 'emailNotifications']].reduce(async (previous, [label, field]) => {
+    await previous;
     await user.click(screen.getByRole('switch', { name: label })); expect(onSettingsChange).toHaveBeenLastCalledWith({ ...settings, [field]: true });
-  }
+  }, Promise.resolve());
   onSettingsChange.mockClear(); const hours = screen.getByRole('spinbutton', { name: "Délai d'expiration de session (heures)" });
   for (const value of ['', '0', '721', '1.5', '-1']) fireEvent.change(hours, { target: { value } }); expect(onSettingsChange).not.toHaveBeenCalled();
   fireEvent.change(hours, { target: { value: '48' } }); expect(onSettingsChange).toHaveBeenLastCalledWith({ ...settings, sessionExpirationHours: 48 });
