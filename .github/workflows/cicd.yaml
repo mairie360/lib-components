@@ -1,18 +1,26 @@
 name: Lib Components CICD
 
 on:
+  # MAIR-436: branch pushes are covered by their pull_request run; only main
+  # (which publishes) runs on push, so a PR branch no longer runs the pipeline twice.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
+# MAIR-436: read-only token by default; write scopes are granted to the release job only.
 permissions:
-  contents: write
-  packages: write
-  pages: write
-  id-token: write
+  contents: read
 
 jobs:
   CICD:
+    # A reusable workflow cannot exceed its caller job's scopes: `package` (release tag +
+    # GitHub Packages) and `storybook` (GitHub Pages deployment) need them.
+    permissions:
+      contents: write
+      packages: write
+      pages: write
+      id-token: write
     uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v4.2.0
     with:
       cicd_version: v4.2.0
