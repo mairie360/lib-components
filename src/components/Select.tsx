@@ -145,13 +145,13 @@ function SelectContent({
     (selected ?? options?.[0])?.focus();
 
     const handleClickOutside = (event: MouseEvent) => {
-      if (contentRef.current && !contentRef.current.contains(event.target as Node)) {
+      if (contentRef.current && !contentRef.current.contains(event.target as Node) && !triggerRef?.current?.contains(event.target as Node)) {
         setOpen(false);
       }
     };
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && contentRef.current?.contains(event.target as Node)) {
         setOpen(false);
         triggerRef?.current?.focus();
       }
@@ -176,6 +176,11 @@ function SelectContent({
       data-slot="select-content"
       className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[#e3e0dc] bg-white shadow-md text-black p-1 ${className}`}
       {...props}
+      onBlur={event => {
+        props.onBlur?.(event);
+        const next = event.relatedTarget as Node | null;
+        if (!event.currentTarget.contains(next) && next !== triggerRef?.current) setOpen(false);
+      }}
       onKeyDown={event => {
         props.onKeyDown?.(event);
         if (event.defaultPrevented || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
@@ -247,7 +252,7 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
       tabIndex={-1}
       aria-selected={isSelected}
       data-slot="select-item"
-      className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-gray-100 ${className}`}
+      className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent,#1256a6)] ${className}`}
       {...props}
       onClick={event => {
         props.onClick?.(event);

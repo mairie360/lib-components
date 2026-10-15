@@ -22,3 +22,10 @@ it('selects by pointer, and a custom trigger listener still opens the menu', asy
   const user = userEvent.setup(); const onClick = jest.fn(); render(<Select><SelectTrigger aria-label="Choix" onClick={onClick}><SelectValue /></SelectTrigger><SelectContent><SelectItem value="yes">Oui</SelectItem></SelectContent></Select>);
   await user.click(screen.getByRole('button', { name: 'Choix' })); expect(onClick).toHaveBeenCalledTimes(1); await user.click(screen.getByRole('option', { name: 'Oui' })); expect(screen.getByRole('button', { name: 'Choix' })).toHaveTextContent('Oui');
 });
+
+it('closes the list on Tab and never steals the following control focus on a later Escape', async () => {
+  const user = userEvent.setup(); render(<><Options /><button>Après la sélection</button></>);
+  await user.click(screen.getByRole('button', { name: 'Service' })); expect(screen.getByRole('option', { name: 'Accueil' })).toHaveFocus();
+  await user.tab(); expect(screen.getByRole('button', { name: 'Après la sélection' })).toHaveFocus(); expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  await user.keyboard('{Escape}'); expect(screen.getByRole('button', { name: 'Après la sélection' })).toHaveFocus();
+});

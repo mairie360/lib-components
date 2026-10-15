@@ -6,6 +6,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -14,6 +15,7 @@ import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 
 type ItemData = {
@@ -108,7 +110,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
     setShowMenu(false);
   };
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -345,7 +347,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
       </DndContext>
 
       {/* Bouton + menu ajout item */}
-      <div className="mt-4 relative">
+      <div className="mt-4 relative" ref={addMenuRef}>
         <button
           onClick={() => {
             setShowAddMenu((v) => !v);
@@ -361,7 +363,6 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
 
         {showAddMenu && (
           <div
-            ref={addMenuRef}
             className="absolute bottom-full mb-2 right-0 w-full bg-[#1c1f26] rounded-md shadow-lg p-4 flex flex-col gap-3 z-50 border border-gray-700"
             role="dialog"
             aria-modal="true"

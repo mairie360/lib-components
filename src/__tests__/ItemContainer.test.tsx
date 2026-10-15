@@ -50,3 +50,16 @@ it('exports the received items as a real JSON download and releases its temporar
     expect(JSON.parse(text)).toEqual([{ id: 'a', title: 'Conseil' }, { id: 'b', title: 'Budget', description: 'À préparer' }]);
   } finally { URL.createObjectURL = createObjectURL; URL.revokeObjectURL = revokeObjectURL; click.mockRestore(); }
 });
+
+it('opens and closes the add panel through two pointer clicks on its trigger', async () => {
+  const user = userEvent.setup(); render(<ItemContainer title="À faire" items={items} />);
+  const trigger = screen.getByRole('button', { name: 'Ajouter un élément' });
+  await user.click(trigger); expect(screen.getByRole('dialog', { name: 'Ajouter un nouvel élément' })).toBeVisible(); expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await user.click(trigger); expect(screen.queryByRole('dialog')).not.toBeInTheDocument(); expect(trigger).toHaveAttribute('aria-expanded', 'false');
+});
+it('starts and cancels an actual keyboard drag through its parent board sensors', async () => {
+  const user = userEvent.setup(); render(<ItemContainer title="À faire" items={items} />);
+  const handle = screen.getByRole('button', { name: 'Déplacer Conseil' }); handle.focus(); await user.keyboard(' ');
+  expect(handle).toHaveAttribute('aria-pressed', 'true'); expect(screen.getByRole('status')).toHaveTextContent(/draggable item a/i);
+  await user.keyboard('{Escape}'); expect(handle).not.toHaveAttribute('aria-pressed', 'true'); expect(screen.getByRole('status')).toHaveTextContent(/cancelled/i); expect(handle).toHaveFocus();
+});
