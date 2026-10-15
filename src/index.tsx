@@ -99,3 +99,8 @@ export { mairie360LogoSrc } from './assets/logo';
 export { defaultSidebarItems } from './components/Sidebar';
 export type { NotificationItem, NotificationSource } from './components/NotificationCenter';
 export type { AppShellProps } from './components/AppShell';
+
+export { TaskStatusSelect } from "./components/TaskStatusSelect";
+export type { TaskStatusDefinition, TaskStatusSelectProps } from "./components/TaskStatusSelect";
+export { TaskStatusKanban } from "./components/TaskStatusKanban";
+export type { TaskStatusKanbanTask, TaskStatusKanbanProps } from "./components/TaskStatusKanban";
