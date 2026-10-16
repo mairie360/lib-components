@@ -104,7 +104,7 @@ export const MonthGrid = ({
     <div className={joinClasses('space-y-3', className)} {...props}>
       <div className="grid grid-cols-7 gap-1.5">
         {dayLabels.map((label) => (
-          <div key={label} className="px-2 text-center text-sm font-medium leading-6 text-[#5f6770]">
+          <div key={label} className="px-2 text-center text-sm font-medium leading-6 text-[var(--mairie-muted)]">
             {label}
           </div>
         ))}
@@ -141,7 +141,7 @@ export const MonthGrid = ({
                     aria-hidden={!date}
                     className={joinClasses(
                       'h-10 px-2 pt-2 text-sm font-medium leading-5',
-                      date && isSameDay(date, selected) ? 'text-[#0b4f99]' : 'text-[#172033]'
+                      date && isSameDay(date, selected) ? 'text-[var(--mairie-accent)]' : 'text-[var(--mairie-text)]'
                     )}
                   >
                     {date?.getDate()}

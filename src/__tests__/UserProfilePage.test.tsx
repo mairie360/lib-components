@@ -30,7 +30,7 @@ describe('UserProfilePage component', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('complementary', { name: 'Navigation principale' })).toBeInTheDocument();
     expect(screen.getByRole('main')).toBeInTheDocument();
-    expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.getByText('Gérez vos préférences et paramètres de compte')).toBeInTheDocument();
     expect(screen.getByText('Informations personnelles')).toBeInTheDocument();

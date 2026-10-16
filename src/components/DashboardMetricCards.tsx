@@ -8,11 +8,11 @@ export interface DashboardMetricCardsProps extends React.HTMLAttributes<HTMLDivE
 }
 
 const toneStyles: Record<DashboardTone, string> = {
-  blue: 'text-[#0b5fff] bg-[#eaf2ff]',
-  green: 'text-[#00a844] bg-[#e6f9ee]',
-  purple: 'text-[#8b16ff] bg-[#f3e8ff]',
-  orange: 'text-[#f4511e] bg-[#fff0e8]',
-  red: 'text-[#dc2626] bg-[#fee2e2]',
+  blue: 'text-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)]',
+  green: 'text-[var(--mairie-success-text)] bg-[var(--mairie-success-surface)]',
+  purple: 'text-[var(--mairie-purple-text)] bg-[var(--mairie-purple-surface)]',
+  orange: 'text-[var(--mairie-warning-text)] bg-[var(--mairie-warning-surface)]',
+  red: 'text-[var(--mairie-error-text)] bg-[var(--mairie-error-surface)]',
 };
 
 export const DashboardMetricCards = ({
@@ -24,15 +24,15 @@ export const DashboardMetricCards = ({
     {metrics.map((metric) => {
       const Icon = metric.icon;
       return (
-        <article key={metric.id} className="rounded-lg border border-[#dfd9d1] bg-white px-6 py-6">
+        <article key={metric.id} className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6">
           <div className="flex items-start justify-between gap-4">
             <dl>
-              <dt className="text-sm text-[#475569]">{metric.label}</dt>
-              <dd className="mt-1 text-2xl font-bold text-[#111827]">{metric.value}</dd>
+              <dt className="text-sm text-[var(--mairie-muted)]">{metric.label}</dt>
+              <dd className="mt-1 text-2xl font-bold text-[var(--mairie-text)]">{metric.value}</dd>
               {metric.trend && (
                 <dd className={joinDashboardClasses(
                   'mt-1 text-xs font-medium',
-                  metric.trendTone === 'negative' ? 'text-[#ef4444]' : metric.trendTone === 'neutral' ? 'text-[#64748b]' : 'text-[#00a844]'
+                  metric.trendTone === 'negative' ? 'text-[var(--mairie-error-text)]' : metric.trendTone === 'neutral' ? 'text-[var(--mairie-muted)]' : 'text-[var(--mairie-success-text)]'
                 )}>{metric.trend}</dd>
               )}
             </dl>

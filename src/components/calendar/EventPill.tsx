@@ -36,8 +36,8 @@ export const EventPill = ({ event, onClick, className, style, showTime = true }:
     <div
       className={joinClasses(
         'min-w-0 overflow-hidden rounded-md px-2 py-1 text-xs font-medium leading-4',
-        onClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/35',
-        event.colorClassName || 'bg-[#e9f2ff] text-[#1256a6]',
+        onClick && 'cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35',
+        event.colorClassName || 'bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]',
         event.className,
         className
       )}

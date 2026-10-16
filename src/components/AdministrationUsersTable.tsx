@@ -24,9 +24,9 @@ const roleLabels: Record<AdministrationRole, string> = {
 };
 
 const roleClassNames: Record<AdministrationRole, string> = {
-  admin: 'bg-[#f3ddff] text-[#8b1fc3]',
-  manager: 'bg-[#dbeafe] text-[#1d4ed8]',
-  user: 'bg-[#f3f4f6] text-[#172033]',
+  admin: 'bg-[var(--mairie-purple-surface)] text-[var(--mairie-purple-text)]',
+  manager: 'bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]',
+  user: 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)]',
 };
 
 const statusLabels: Record<AdministrationStatus, string> = {
@@ -36,9 +36,9 @@ const statusLabels: Record<AdministrationStatus, string> = {
 };
 
 const statusClassNames: Record<AdministrationStatus, string> = {
-  active: 'bg-[#dcfce7] text-[#15803d]',
-  inactive: 'bg-[#f3f4f6] text-[#475569]',
-  suspended: 'bg-[#fef3c7] text-[#b45309]',
+  active: 'bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]',
+  inactive: 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
+  suspended: 'bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)]',
 };
 
 const getInitials = (name: string) =>
@@ -112,15 +112,15 @@ export const AdministrationUsersTable = ({
   return (
     <div
       className={joinClasses(
-        'overflow-hidden rounded-lg border border-[#e3e0dc] bg-white text-[#172033]',
+        'overflow-hidden rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]',
         className
       )}
       {...props}
     >
       <div className="overflow-x-auto">
         <table className="min-w-[980px] w-full border-collapse text-left">
-          <thead className="bg-[#fbfcfd] text-xs font-bold uppercase tracking-normal text-[#667085]">
-            <tr className="border-b border-[#e3e0dc]">
+          <thead className="bg-[var(--mairie-surface-raised)] text-xs font-bold uppercase tracking-normal text-[var(--mairie-muted)]">
+            <tr className="border-b border-[var(--mairie-border)]">
               <th scope="col" className="px-6 py-4">
                 Utilisateur
               </th>
@@ -141,20 +141,20 @@ export const AdministrationUsersTable = ({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#e3e0dc] text-sm">
+          <tbody className="divide-y divide-[var(--mairie-border)] text-sm">
             {(users ?? []).map((user) => {
               const isMenuOpen = openMenuUserId === user.id;
 
               return (
-                <tr key={user.id} className="bg-white transition hover:bg-[#fbfaf9]">
+                <tr key={user.id} className="bg-[var(--mairie-surface)] transition hover:bg-[var(--mairie-surface-raised)]">
                   <td className="px-6 py-4">
                     <div className="flex min-w-0 items-center gap-4">
-                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#1256a6] text-sm font-semibold text-white">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[var(--mairie-action-background)] text-sm font-semibold text-[var(--mairie-on-action)]">
                         {getInitials(user.name)}
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate text-base font-semibold leading-6 text-[#0b1220]">{user.name}</div>
-                        <div className="flex min-w-0 items-center gap-1.5 text-sm leading-5 text-[#667085]">
+                        <div className="truncate text-base font-semibold leading-6 text-[var(--mairie-text)]">{user.name}</div>
+                        <div className="flex min-w-0 items-center gap-1.5 text-sm leading-5 text-[var(--mairie-muted)]">
                           <Mail className="size-3.5 shrink-0" strokeWidth={1.8} />
                           <span className="truncate">{user.email}</span>
                         </div>
@@ -162,8 +162,8 @@ export const AdministrationUsersTable = ({
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="font-medium leading-5 text-[#172033]">{user.service}</div>
-                    <div className="mt-0.5 flex items-center gap-1.5 text-sm leading-5 text-[#667085]">
+                    <div className="font-medium leading-5 text-[var(--mairie-text)]">{user.service}</div>
+                    <div className="mt-0.5 flex items-center gap-1.5 text-sm leading-5 text-[var(--mairie-muted)]">
                       <Phone className="size-3.5 shrink-0" strokeWidth={1.8} />
                       <span>{user.phone}</span>
                     </div>
@@ -189,7 +189,7 @@ export const AdministrationUsersTable = ({
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center gap-1.5 text-sm leading-5 text-[#667085]">
+                    <div className="flex items-center gap-1.5 text-sm leading-5 text-[var(--mairie-muted)]">
                       <CalendarDays className="size-3.5 shrink-0" strokeWidth={1.8} />
                       <span>{user.lastConnection}</span>
                     </div>
@@ -201,7 +201,7 @@ export const AdministrationUsersTable = ({
                         aria-label={`Actions pour ${user.name}`}
                         aria-haspopup="menu"
                         aria-expanded={isMenuOpen}
-                        className="inline-flex size-8 items-center justify-center rounded-md text-[#172033] transition hover:bg-[#f1f5f9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+                        className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
                         onClick={() => handleMenuToggle(user)}
                       >
                         <MoreVertical className="size-5" strokeWidth={2} />
@@ -210,13 +210,13 @@ export const AdministrationUsersTable = ({
                       {isMenuOpen && (
                         <div
                           role="menu"
-                          className="absolute right-0 top-9 z-30 w-48 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-left shadow-[0_8px_18px_rgba(0,0,0,0.16)]"
+                          className="absolute right-0 top-9 z-30 w-48 overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-left shadow-[var(--mairie-shadow)]"
                         >
                           <button
                             type="button"
                             role="menuitem"
                             disabled={!onToggleUserStatus && !onUserAction}
-                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#172033] hover:bg-[#f1f5f9]"
+                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[var(--mairie-text)] hover:bg-[var(--mairie-surface-raised)]"
                             onClick={() => handleMenuAction(user, 'toggle-status')}
                           >
                             <RotateCcw className="size-4" strokeWidth={1.8} />
@@ -226,7 +226,7 @@ export const AdministrationUsersTable = ({
                             type="button"
                             role="menuitem"
                             disabled={!onEditUser}
-                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#172033] hover:bg-[#f1f5f9]"
+                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[var(--mairie-text)] hover:bg-[var(--mairie-surface-raised)]"
                             onClick={() => handleMenuAction(user, 'edit')}
                           >
                             <Pencil className="size-4" strokeWidth={1.8} />
@@ -236,7 +236,7 @@ export const AdministrationUsersTable = ({
                             type="button"
                             role="menuitem"
                             disabled={!onDeleteUser && !onUserAction}
-                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[#dc2626] hover:bg-[#fee2e2]"
+                            className="flex h-9 w-full items-center gap-2 rounded px-2 text-sm font-medium text-[var(--mairie-error-text)] hover:bg-[var(--mairie-error-surface)]"
                             onClick={() => handleMenuAction(user, 'delete')}
                           >
                             <Trash2 className="size-4" strokeWidth={1.8} />
@@ -251,7 +251,7 @@ export const AdministrationUsersTable = ({
             })}
             {(users?.length ?? 0) === 0 && (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-sm text-[#667085]">
+                <td colSpan={6} className="px-6 py-12 text-center text-sm text-[var(--mairie-muted)]">
                   {users ? 'Aucun utilisateur ne correspond aux filtres.' : 'Utilisateurs indisponibles.'}
                 </td>
               </tr>

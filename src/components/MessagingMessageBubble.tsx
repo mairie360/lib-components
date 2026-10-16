@@ -99,16 +99,16 @@ export const MessagingMessageBubble = ({
   const referenceClassName = joinClasses(
     'inline-flex max-w-full items-center gap-2 rounded-md border px-2.5 py-1.5 text-xs font-semibold transition',
     outgoing
-      ? 'border-white/35 bg-white/10 text-white'
-      : 'border-[#b9d6d5] bg-[#eef7f6] text-[#245651]'
+      ? 'border-[var(--mairie-surface)]/35 bg-[var(--mairie-surface)]/10 text-[var(--mairie-on-action)]'
+      : 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-teal-text)]'
   );
   const actionableReferenceClassName = joinClasses(
     referenceClassName,
-    outgoing ? 'hover:bg-white/15' : 'hover:bg-[#e4f2f1]'
+    outgoing ? 'hover:bg-[var(--mairie-surface)]/15' : 'hover:bg-[var(--mairie-accent-surface)]'
   );
   const attachmentClassName = joinClasses(
     'flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-semibold transition',
-    outgoing ? 'border-white/35 bg-white/10 text-white' : 'border-[#d8d2ca] bg-[#fbfaf9] text-[#2f3747]'
+    outgoing ? 'border-[var(--mairie-surface)]/35 bg-[var(--mairie-surface)]/10 text-[var(--mairie-on-action)]' : 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)]'
   );
 
   return (
@@ -118,10 +118,10 @@ export const MessagingMessageBubble = ({
     >
       <div
         className={joinClasses(
-          'max-w-[min(560px,82%)] rounded-md px-4 py-3 text-sm leading-5 shadow-[0_1px_2px_rgba(0,0,0,0.14)]',
+          'max-w-[min(560px,82%)] rounded-md px-4 py-3 text-sm leading-5 shadow-[var(--mairie-shadow)]',
           outgoing
-            ? 'bg-[#1256a6] text-white'
-            : 'border border-[#d8d2ca] bg-white text-[#172033]'
+            ? 'bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)]'
+            : 'border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]'
         )}
       >
         <div>{mentionedContent}</div>
@@ -176,7 +176,7 @@ export const MessagingMessageBubble = ({
                   rel="noreferrer"
                   className={joinClasses(
                     attachmentClassName,
-                    outgoing ? 'hover:bg-white/15' : 'hover:bg-[#f5f3f0]'
+                    outgoing ? 'hover:bg-[var(--mairie-surface)]/15' : 'hover:bg-[var(--mairie-background)]'
                   )}
                 >
                   <FileText className="size-4 shrink-0" strokeWidth={1.8} />
@@ -193,7 +193,7 @@ export const MessagingMessageBubble = ({
         )}
       </div>
       {message.sentAt && (
-        <span className={joinClasses('mt-1 text-xs leading-5 text-[#5f6770]', outgoing ? 'mr-1' : 'ml-1')}>
+        <span className={joinClasses('mt-1 text-xs leading-5 text-[var(--mairie-muted)]', outgoing ? 'mr-1' : 'ml-1')}>
           {message.sentAt}
         </span>
       )}

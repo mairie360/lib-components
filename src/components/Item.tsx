@@ -38,20 +38,6 @@ export const Item: React.FC<ItemProps> = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleMainClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (
-        (e.target as HTMLElement).closest("button") ||
-        (e.target as HTMLElement).closest("[role='button']")
-      ) {
-        return;
-      }
-      setShowActions(false);
-      onClick?.();
-    },
-    [onClick]
-  );
-
   const handleEdit = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation();
@@ -80,28 +66,33 @@ export const Item: React.FC<ItemProps> = ({
       <div
         key={id}
         ref={itemRef}
-        className="relative mx-auto flex flex-col justify-between rounded-2xl border border-gray-600 bg-[#0f1117] px-4 py-3 text-white shadow-md transition hover:border-white cursor-pointer"
+        className="relative mx-auto flex flex-col justify-between rounded-2xl border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-3 text-[var(--mairie-text)] shadow-md transition hover:border-[var(--mairie-surface)] cursor-pointer"
         style={{ width, height }}
-        onClick={handleMainClick}
-        role="button"
-        tabIndex={0}
+        role="group"
+        aria-label={title || "Élément"}
       >
+        <button type="button" aria-label={title ? `Ouvrir ${title}` : 'Ouvrir l’élément'}
+          className="absolute inset-0 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
+          onClick={() => { setShowActions(false); onClick?.(); }} />
         {/* Toggle Actions */}
-        <div
-          className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full hover:bg-white/10 transition"
+        <button
+          type="button"
+          aria-label="Afficher plus d’options"
+          aria-expanded={showActions}
+          className="absolute top-2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full hover:bg-[var(--mairie-surface-raised)] transition"
           onClick={(e) => {
             e.stopPropagation();
             setShowActions((prev) => !prev);
           }}
         >
-          <MoreHorizontal size={20} className="text-white" />
-        </div>
+          <MoreHorizontal size={20} className="text-[var(--mairie-text)]" aria-hidden="true" />
+        </button>
 
         {/* Content */}
-        <div>
+        <div className="pointer-events-none relative">
           {title && <h2 className="text-sm font-semibold truncate">{title}</h2>}
           {description && (
-            <p className="text-xs text-gray-400 line-clamp-2">{description}</p>
+            <p className="text-xs text-[var(--mairie-muted)] line-clamp-2">{description}</p>
           )}
         </div>
 
@@ -111,11 +102,11 @@ export const Item: React.FC<ItemProps> = ({
             <button
               onClick={handleEdit}
               onPointerDown={(e) => e.stopPropagation()}
-              className="group relative flex items-center rounded-xl bg-blue-600 p-2 text-white hover:bg-blue-700 transition active:scale-95"
+              className="group relative flex items-center rounded-xl bg-[var(--mairie-action-background)] p-2 text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)] transition active:scale-95"
               aria-label="Modifier"
             >
               <Pencil size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-10">
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-[var(--mairie-surface)] text-[var(--mairie-text)] text-xs px-2 py-1 rounded-md shadow-md z-10">
                 Modifier
               </span>
             </button>
@@ -123,11 +114,11 @@ export const Item: React.FC<ItemProps> = ({
             <button
               onClick={handleDeleteClick}
               onPointerDown={(e) => e.stopPropagation()}
-              className="group relative flex items-center rounded-xl bg-red-600 p-2 text-white hover:bg-red-700 transition active:scale-95"
+              className="group relative flex items-center rounded-xl bg-[var(--mairie-error-action-background)] p-2 text-[var(--mairie-on-action)] hover:bg-[var(--mairie-error-action-hover-background)] transition active:scale-95"
               aria-label="Supprimer"
             >
               <Trash2 size={18} />
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-white text-black text-xs px-2 py-1 rounded-md shadow-md z-10">
+              <span className="absolute -top-8 left-1/2 -translate-x-1/2 scale-0 group-hover:scale-100 transition bg-[var(--mairie-surface)] text-[var(--mairie-text)] text-xs px-2 py-1 rounded-md shadow-md z-10">
                 Supprimer
               </span>
             </button>

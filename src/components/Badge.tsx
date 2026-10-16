@@ -17,11 +17,11 @@ export const Badge = ({
   rounded = false,
 }: BadgeProps) => {
   const variantClasses = {
-    default: 'bg-gray-200 text-gray-800',
-    green: 'bg-[#4b908d] text-white',
-    blue: 'bg-[#1256a6] text-white',
-    red: 'bg-[#c63c31] text-white',
-    dark: 'bg-[#2d2d2d] text-white',
+    default: 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)]',
+    green: 'bg-[var(--mairie-success-action-background)] text-[var(--mairie-on-action)]',
+    blue: 'bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)]',
+    red: 'bg-[var(--mairie-error-action-background)] text-[var(--mairie-on-action)]',
+    dark: 'bg-[var(--mairie-navigation-background)] text-[var(--mairie-on-action)]',
   };
 
   return (

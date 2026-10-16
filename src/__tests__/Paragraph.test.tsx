@@ -11,7 +11,7 @@ describe('Paragraph component', () => {
   it('applies default classes', () => {
     render(<Paragraph text="Default styles" />);
     const p = screen.getByText('Default styles');
-    expect(p).toHaveClass('text-gray-500');
+    expect(p).toHaveClass('text-[var(--mairie-muted)]');
     expect(p).toHaveClass('text-base');
     expect(p).toHaveClass('font-normal');
   });

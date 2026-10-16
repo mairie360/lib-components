@@ -11,7 +11,7 @@ export interface SpinnerProps {
 
 export const Spinner = ({
   size = 'w-6 h-6',
-  color = 'text-blue-500',
+  color = 'text-[var(--mairie-accent)]',
   border = 'border-4',
 }: SpinnerProps) => {
   return (

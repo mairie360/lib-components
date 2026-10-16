@@ -1,0 +1,6 @@
+import React from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { FilesToolbar } from '../components/FilesToolbar';
+import { axe } from 'jest-axe';
+it('delegates search, type, sort and display choices independently', async () => { const onSearchChange = jest.fn(); const onTypeChange = jest.fn(); const onSortChange = jest.fn(); const onViewChange = jest.fn(); const { container } = render(<FilesToolbar search="" type="all" sort="name" view="grid" onSearchChange={onSearchChange} onTypeChange={onTypeChange} onSortChange={onSortChange} onViewChange={onViewChange} />); fireEvent.change(screen.getByLabelText('Rechercher des fichiers'), { target: { value: 'Conseil' } }); expect(onSearchChange).toHaveBeenCalledWith('Conseil'); await userEvent.selectOptions(screen.getByLabelText('Filtrer par type'), 'pdf'); expect(onTypeChange).toHaveBeenCalledWith('pdf'); await userEvent.selectOptions(screen.getByLabelText('Trier les fichiers'), 'size'); expect(onSortChange).toHaveBeenCalledWith('size'); await userEvent.click(screen.getByRole('button', { name: 'Liste' })); expect(onViewChange).toHaveBeenCalledWith('list'); expect((await axe(container)).violations).toEqual([]); });

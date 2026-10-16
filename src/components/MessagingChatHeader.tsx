@@ -62,10 +62,10 @@ export const MessagingChatHeader = ({
   if (!conversation) {
     return (
       <div
-        className={joinClasses('flex min-h-[78px] items-center border-b border-[#d8d2ca] bg-white px-4', className)}
+        className={joinClasses('flex min-h-[78px] items-center border-b border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4', className)}
         {...props}
       >
-        <p className="text-sm text-[#5f6770]">Sélectionnez une conversation</p>
+        <p className="text-sm text-[var(--mairie-muted)]">Sélectionnez une conversation</p>
       </div>
     );
   }
@@ -77,7 +77,7 @@ export const MessagingChatHeader = ({
   return (
     <div
       className={joinClasses(
-        'flex min-h-[78px] items-center justify-between gap-4 border-b border-[#d8d2ca] bg-white px-4 text-[#172033] shadow-[0_1px_3px_rgba(0,0,0,0.12)] sm:px-5',
+        'flex min-h-[78px] items-center justify-between gap-4 border-b border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-[var(--mairie-text)] shadow-[var(--mairie-shadow)] sm:px-5',
         className
       )}
       {...props}
@@ -92,7 +92,7 @@ export const MessagingChatHeader = ({
         />
         <div className="min-w-0">
           <h3 className="truncate text-base font-semibold leading-6">{conversation.name}</h3>
-          {meta && <p className="truncate text-sm leading-5 text-[#5f6770]">{meta}</p>}
+          {meta && <p className="truncate text-sm leading-5 text-[var(--mairie-muted)]">{meta}</p>}
         </div>
       </div>
 
@@ -102,7 +102,7 @@ export const MessagingChatHeader = ({
             type="button"
             aria-label={callLabel}
             title={callLabel}
-            className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+            className="inline-flex size-9 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
             onClick={() => onCall(conversation)}
           >
             <Phone className="size-4" strokeWidth={1.8} />
@@ -113,7 +113,7 @@ export const MessagingChatHeader = ({
             type="button"
             aria-label={videoCallLabel}
             title={videoCallLabel}
-            className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+            className="inline-flex size-9 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
             onClick={() => onVideoCall(conversation)}
           >
             <Video className="size-4" strokeWidth={1.8} />
@@ -126,7 +126,7 @@ export const MessagingChatHeader = ({
               aria-label={moreActionsLabel}
               title={moreActionsLabel}
               aria-expanded={actionsOpen}
-              className="inline-flex size-9 items-center justify-center rounded-md text-[#2f3747] transition hover:bg-[#f5f3f0] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+              className="inline-flex size-9 items-center justify-center rounded-md text-[var(--mairie-text)] transition hover:bg-[var(--mairie-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
               onClick={() => {
                 if (onDeleteConversation || onReadVisibleMessages) setActionsOpen((open) => !open);
                 onMoreActions?.(conversation);
@@ -135,12 +135,12 @@ export const MessagingChatHeader = ({
               <MoreVertical className="size-4" strokeWidth={1.8} />
             </button>
             {actionsOpen && (onDeleteConversation || onReadVisibleMessages) && (
-              <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-lg">
+              <div className="absolute right-0 top-[calc(100%+8px)] z-30 w-56 overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-sm text-[var(--mairie-text)] shadow-lg">
                 {onReadVisibleMessages && (
                   <button
                     type="button"
                     disabled={readPending}
-                    className="flex w-full items-center gap-2 rounded px-3 py-2 text-left transition hover:bg-[#f5f3f0] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                    className="flex w-full items-center gap-2 rounded px-3 py-2 text-left transition hover:bg-[var(--mairie-background)] disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                     onClick={() => {
                       setActionsOpen(false);
                       onReadVisibleMessages(conversation);
@@ -152,7 +152,7 @@ export const MessagingChatHeader = ({
                 )}
                 {onDeleteConversation && <button
                   type="button"
-                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[#d8292f] transition hover:bg-[#fff2f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#d8292f]/25"
+                  className="flex w-full items-center gap-2 rounded px-3 py-2 text-left text-[var(--mairie-error-text)] transition hover:bg-[var(--mairie-error-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
                   onClick={() => {
                     setActionsOpen(false);
                     onDeleteConversation(conversation);

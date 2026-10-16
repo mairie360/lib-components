@@ -33,14 +33,14 @@ export const ElearningSearchInput = ({
     <div className={joinClasses('relative w-full', className)}>
       <Search
         aria-hidden="true"
-        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#5f6470]"
+        className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--mairie-muted)]"
       />
       <input
         type="search"
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-10 text-sm text-[#2f3747] outline-none transition focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+        className="h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-10 text-sm text-[var(--mairie-text)] outline-none transition focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
         {...props}
       />
     </div>

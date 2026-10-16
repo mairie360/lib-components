@@ -42,17 +42,17 @@ export const Alert = ({
   }, [autoDismiss, onClose]);
 
   const typeClasses = {
-    success: 'bg-green-100 text-green-800 border-green-300',
-    error: 'bg-red-100 text-red-800 border-red-300',
-    warning: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    info: 'bg-blue-100 text-blue-800 border-blue-300',
+    success: 'bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)] border-[var(--mairie-success-text)]',
+    error: 'bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)] border-[var(--mairie-error-text)]',
+    warning: 'bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)] border-[var(--mairie-warning-text)]',
+    info: 'bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)] border-[var(--mairie-accent)]',
   };
 
   const icons = {
-    success: <CheckCircle className="w-5 h-5 text-green-600" />,
-    error: <XCircle className="w-5 h-5 text-red-600" />,
-    warning: <AlertTriangle className="w-5 h-5 text-yellow-600" />,
-    info: <Info className="w-5 h-5 text-blue-600" />,
+    success: <CheckCircle className="w-5 h-5 text-[var(--mairie-success-text)]" />,
+    error: <XCircle className="w-5 h-5 text-[var(--mairie-error-text)]" />,
+    warning: <AlertTriangle className="w-5 h-5 text-[var(--mairie-warning-text)]" />,
+    info: <Info className="w-5 h-5 text-[var(--mairie-accent)]" />,
   };
 
   return (
@@ -68,7 +68,7 @@ export const Alert = ({
       {closable && onClose && (
         <button
           onClick={onClose}
-          className="text-xl text-gray-500 hover:text-black"
+          className="text-xl text-[var(--mairie-muted)] hover:text-[var(--mairie-text)]"
           aria-label="Fermer l’alerte"
         >
           <X className="w-4 h-4" />

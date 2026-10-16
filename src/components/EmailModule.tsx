@@ -155,9 +155,9 @@ export const EmailModule = ({ messages, folders = defaultEmailFolders, currentUs
   const resumeDraft = (message: EmailMessage) => openCompose('draft', { to: message.recipients.filter(Boolean).join('; '), subject: message.subject === '(Sans objet)' ? '' : message.subject, body: message.body, attachments: message.attachments ?? [] }, message);
 
   return (
-    <section className={joinEmailClasses('bg-[#f5f3f0] text-[#172033]', className)} {...props}>
-      {status && <p role="status" className="border border-[#b9d6d5] bg-white px-4 py-2 text-sm text-[#285c59]">{status}</p>}
-      <div className="grid min-h-[472px] overflow-hidden rounded-lg border border-[#e0dbd4] lg:grid-cols-[255px_385px_minmax(0,1fr)]">
+    <section className={joinEmailClasses('bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)} {...props}>
+      {status && <p role="status" className="border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-2 text-sm text-[var(--mairie-teal-text)]">{status}</p>}
+      <div className="grid min-h-[472px] overflow-hidden rounded-lg border border-[var(--mairie-border)] lg:grid-cols-[255px_385px_minmax(0,1fr)]">
         <EmailFolders folders={resolvedFolders} activeFolder={activeFolder} search={search} onSearchChange={setSearch} onSelect={(folder) => { setActiveFolder(folder); setSelectedId(undefined); }} onCompose={() => openCompose('new')} />
         <EmailMessageList title={folderTitle} messages={folderMessages} selectedId={selectedMessage?.id} onSelect={selectMessage} onToggleFavorite={toggleFavorite} />
         <EmailReader message={selectedMessage} onComposeFromMessage={composeFromMessage} onArchive={(message) => moveMessage(message, 'archived', 'archive')} onTrash={(message) => moveMessage(message, 'trash', 'trash')} onRestore={(message) => moveMessage(message, message.originalFolder ?? 'inbox', 'restore')} onDeletePermanently={setPendingPermanentDelete} onResumeDraft={resumeDraft} onOpenAttachment={onOpenAttachment} />

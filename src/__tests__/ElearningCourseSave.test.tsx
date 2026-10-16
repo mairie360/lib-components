@@ -65,7 +65,7 @@ describe.each(['create', 'update'] as const)('confirmed Elearning %s', (mode) =>
     expect(scrollBody).toHaveClass('min-h-0', 'flex-1', 'overflow-y-auto');
     expect(fieldset?.parentElement).toBe(scrollBody);
     expect(fieldset).not.toHaveClass('flex-1', 'overflow-y-auto');
-    expect(within(dialog).getByRole('button', { name: 'Annuler' }).parentElement?.parentElement).toBe(dialog);
+    expect(within(dialog).getByRole('button', { name: 'Annuler' }).parentElement?.parentElement).toBe(within(dialog).getByRole('button', { name: 'Annuler' }).closest('form'));
     fireEvent.click(within(dialog).getByRole('button', { name: submitLabel }));
     await waitFor(() => expect(within(dialog).getByRole('alert')).toHaveTextContent('Vos saisies sont conservées'));
     expectDraft(dialog);
