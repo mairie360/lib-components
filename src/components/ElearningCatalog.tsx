@@ -4,6 +4,7 @@ import { Award, BookOpen, Filter, Pencil, Percent, Plus, Trash2, Users } from 'l
 import { ElearningAdminStats, type ElearningAdminStatsData } from './ElearningAdminStats';
 import type { ElearningBadgeVariant } from './ElearningBadge';
 import { ElearningCourseCard, type ElearningCourseCardProps } from './ElearningCourseCard';
+import { EmptyState } from './EmptyState';
 import {
   createEmptyCourseChapter,
   ElearningCourseFormModal,
@@ -429,7 +430,13 @@ export const ElearningCatalog = ({
         </div>
 
         {filteredCourses.length === 0 ? (
-          <div className="mt-6 rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-8 text-center text-sm text-[var(--mairie-muted)]">{emptyLabel}</div>
+          <EmptyState className="mt-6" title={emptyLabel} icon={<BookOpen className="size-8" />}
+            action={search.trim() || category !== 'all' || status !== 'all' ? (
+              <button type="button" className="rounded-full bg-[var(--mairie-action-background)] px-4 py-2 text-sm font-semibold text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
+                onClick={() => { setSearch(''); setCategory('all'); setStatus('all'); }}>
+                Réinitialiser les filtres
+              </button>
+            ) : undefined} />
         ) : null}
       </div>
 

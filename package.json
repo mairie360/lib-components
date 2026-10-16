@@ -16,7 +16,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/check-ui-colors.mjs && node scripts/generate-exports.js",
+    "prebuild": "node scripts/check-tooling-patches.cjs && node scripts/check-ui-colors.mjs && node scripts/generate-exports.js",
     "build": "tsup && tsup --config tsup.server.config.ts && npm run build:css",
     "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",
@@ -52,6 +52,8 @@
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
+    "braces": "file:./vendor/braces",
+    "sprintf-js": "file:./vendor/sprintf-js",
     "@chromatic-com/storybook": "^5.2.1",
     "@lhci/cli": "^0.15.0",
     "@storybook/addon-docs": "^10.4.6",
@@ -75,12 +77,12 @@
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.4.0",
+    "eslint-config-next": "16.4.1",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
     "jest-axe": "11.0.0",
     "jest-environment-jsdom": "^30.0.4",
-    "next": "16.4.0",
+    "next": "16.4.1",
     "playwright": "^1.52.0",
     "postcss": "^8.5.3",
     "postcss-cli": "^12.0.0",
@@ -97,6 +99,8 @@
     "ajv": "6.15.0"
   },
   "overrides": {
+    "braces": "$braces",
+    "sprintf-js": "$sprintf-js",
     "esbuild": "0.28.2",
     "handlebars": "4.7.10",
     "next": {
@@ -106,8 +110,8 @@
       "basic-ftp": "6.2.3"
     },
     "postcss": "$postcss",
-    "puppeteer-core": "25.13.0",
-    "qs": "6.16.0",
+    "puppeteer-core": "25.14.0",
+    "qs": "6.16.1",
     "storybook": "$storybook",
     "tmp": "0.2.7",
     "uuid": "14.0.3"

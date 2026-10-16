@@ -24,7 +24,9 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    files: ["**/*.cjs"],
+    // These hash-verified upstream packages explicitly declare CommonJS and
+    // retain their original require/module.exports API, like our .cjs scripts.
+    files: ["**/*.cjs", "vendor/braces/**/*.js", "vendor/sprintf-js/**/*.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },
