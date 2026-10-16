@@ -11,6 +11,10 @@ import { joinClasses } from './calendar/style';
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
   /** Opt into the shared desktop collapse and municipal theme layout. */
   collapsibleSidebar?: boolean;
+  /** Desktop navigation rendered after the shared skip link, replacing the built-in navigation when provided. */
+  desktopNavigation?: React.ReactNode;
+  /** Disable the shared skip link while a consumer-managed modal is open, without disabling main content. */
+  skipLinkInactive?: boolean;
   /** Validated shared preference scope; no authentication cookie is changed. */
   sidebarCookieDomain?: string;
   activeItem?: string;
@@ -45,6 +49,8 @@ const safeHref = (href: string | undefined) => {
 
 export const AppShell = ({
   collapsibleSidebar = false, sidebarCookieDomain,
+  desktopNavigation,
+  skipLinkInactive = false,
   activeItem = 'dashboard',
   isAdmin = false,
   user,
@@ -171,8 +177,7 @@ export const AppShell = ({
 
   return (
     <div {...props} ref={shellRef} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[var(--mairie-background)] font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame' : undefined, className)} style={collapsibleSidebar ? { ...props.style, '--app-footer-height': `${footerHeight}px` } as React.CSSProperties : props.style}>
-      {collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
-      <div inert={sidebarOpen || notificationsOpen}>
+      <div inert={skipLinkInactive || sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}
           onClick={() => mainRef.current?.focus()}
@@ -181,6 +186,7 @@ export const AppShell = ({
           Aller au contenu
         </a>
       </div>
+      {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
       {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
       <div className="flex h-screen">
         <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>
