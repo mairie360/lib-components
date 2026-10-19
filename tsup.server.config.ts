@@ -28,6 +28,9 @@ export default defineConfig([
     splitting: false,
     minify: false,
     banner: { js: '"use client";' },
+    // The tsconfig keeps `jsx: preserve` for Next.js; without this esbuild would emit classic
+    // `React.createElement` calls with no React import (0.10.0 shipped that way).
+    esbuildOptions(options) { options.jsx = 'automatic'; },
     external,
   },
 ]);
