@@ -43,7 +43,8 @@ describe('published session cookie protocol', () => {
     setSessionCookies(response, session, { secure: true, domain: '.dev.test' });
     expect(response.cookies.get('accessToken')).toMatchObject({ value: access, httpOnly: true, secure: true, sameSite: 'strict', path: '/', domain: '.dev.test' });
     expect(response.cookies.get('refreshToken')).toMatchObject({ value: rotated, httpOnly: true, secure: true, sameSite: 'strict', path: '/api', domain: '.dev.test' });
-    expect(response.cookies.get('refreshToken')?.maxAge).toBeUndefined();
+    // MAIR-523: the refresh cookie lives as long as the 30-day session.
+    expect(response.cookies.get('refreshToken')?.maxAge).toBe(30 * 24 * 60 * 60);
     expect(response.cookies.get('unrelated')).toBeUndefined();
     expect(JSON.stringify(await response.json())).not.toContain(access);
     clearSessionCookies(response, { secure: true, domain: '.dev.test' });
@@ -98,14 +99,15 @@ describe('Login owns refresh for every frontend', () => {
         await gate; return cookieReply(renewed, rotated);
       }
       expect(url.pathname).toBe('/me');
-      const headers = new Headers(init?.headers), front = headers.get('x-test-front')!;
+      // The proxy forwards only allow-listed request headers (MAIR-126): x-request-id identifies each front.
+      const headers = new Headers(init?.headers), front = headers.get('x-request-id')!;
       business.set(front, (business.get(front) ?? 0) + 1);
       expect(headers.get('cookie')).toBeNull();
       return headers.get('authorization') === `Bearer ${renewed}` ? Response.json(replies) : Response.json({ error: { code: 'UNAUTHENTICATED', message: 'Expired', details: [] } }, { status: 401 });
     });
     const pending = frontOrigins.map(front => {
       const options: SessionProxyConfig = { baseUrl: () => 'http://user.test', paths: { '/me': contract.paths['/me'] }, loginUrl: () => origin, frontUrl: () => front };
-      return proxyPublishedBffRequest(new NextRequest(front + '/api/bff/me', { headers: { Cookie: `accessToken=old; refreshToken=${token}; unrelated=private`, 'X-Test-Front': front, Authorization: 'Bearer stale-browser-storage' } }), ['me'], options);
+      return proxyPublishedBffRequest(new NextRequest(front + '/api/bff/me', { headers: { Cookie: `accessToken=old; refreshToken=${token}; unrelated=private`, 'X-Request-Id': front, Authorization: 'Bearer stale-browser-storage' } }), ['me'], options);
     });
     try { await started; expect(userCalls).toBe(1); } finally { release(); }
     const responses = await Promise.all(pending);
@@ -277,7 +279,7 @@ describe('explicit session logout', () => {
     expect(result.cookies.get('refreshToken')?.value).toBe(rotated);
     expect(result.cookies.get('accessToken')?.maxAge).toBeGreaterThan(0);
     expect(result.cookies.get('refreshToken')?.path).toBe('/api');
-    expect(result.cookies.get('refreshToken')?.maxAge).toBeUndefined();
+    expect(result.cookies.get('refreshToken')?.maxAge).toBe(30 * 24 * 60 * 60);
     expect(JSON.stringify(await result.json())).not.toContain(rotated);
   });
   it('retains the rotated refresh when the new short access JWT expires during a failed logout', async () => {
@@ -291,7 +293,7 @@ describe('explicit session logout', () => {
     expect(result.status).toBe(503);
     expect(result.cookies.get('accessToken')).toBeUndefined();
     expect(result.cookies.get('refreshToken')).toMatchObject({ value: rotated, httpOnly: true, secure: true, sameSite: 'strict', path: '/api', domain: '.dev.test' });
-    expect(result.cookies.get('refreshToken')?.maxAge).toBeUndefined();
+    expect(result.cookies.get('refreshToken')?.maxAge).toBe(30 * 24 * 60 * 60);
   });
   it('rejects invalid SSO receipts and malformed/network responses without a false local success', async () => {
     const mocked = jest.spyOn(global, 'fetch').mockResolvedValueOnce(Response.json(protocolBody('LogoutResponse', { message: 'Signed out', session_revoked: true, logout_url: 'https://foreign.test/realms/x/protocol/openid-connect/logout?client_id=x' }))).mockRejectedValueOnce(new TypeError('network'));

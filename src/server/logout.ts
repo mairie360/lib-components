@@ -38,7 +38,7 @@ export function createSessionLogoutHandler(config: SessionServerConfig) {
         // Even when the short access JWT expires during the logout attempt,
         // preserve the valid rotated refresh so the next explicit retry can renew.
         response.cookies.set('refreshToken', rotatedSession.refreshToken, {
-          httpOnly: true, secure: options.secure, sameSite: 'strict', path: '/api',
+          httpOnly: true, secure: options.secure, sameSite: 'strict', path: '/api', maxAge: 30 * 86400,
           ...(options.domain ? { domain: options.domain } : {}),
         });
       }
