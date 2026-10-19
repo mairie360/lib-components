@@ -18,14 +18,14 @@ export interface ElearningBadgeProps extends React.HTMLAttributes<HTMLSpanElemen
 }
 
 const badgeClasses: Record<ElearningBadgeVariant, string> = {
-  default: 'border-[#d8d2ca] bg-white text-[#2f3747]',
-  beginner: 'border-[#00a651] bg-white text-[#00a651]',
-  intermediate: 'border-[#ff6b1a] bg-white text-[#ff6b1a]',
-  advanced: 'border-[#ff1f3d] bg-white text-[#ff1f3d]',
-  inProgress: 'border-[#4b908d] bg-[#4b908d] text-white',
-  completed: 'border-[#00a651] bg-[#00a651] text-white',
-  mandatory: 'border-[#c5323a] bg-[#c5323a] text-white',
-  notStarted: 'border-[#d8d2ca] bg-[#f4f2ef] text-[#5f6470]',
+  default: 'border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]',
+  beginner: 'border-[var(--mairie-success-text)] bg-[var(--mairie-surface)] text-[var(--mairie-success-text)]',
+  intermediate: 'border-[var(--mairie-warning-text)] bg-[var(--mairie-surface)] text-[var(--mairie-warning-text)]',
+  advanced: 'border-[var(--mairie-error-text)] bg-[var(--mairie-surface)] text-[var(--mairie-error-text)]',
+  inProgress: 'border-[var(--mairie-accent)] bg-[var(--mairie-success-action-background)] text-[var(--mairie-on-action)]',
+  completed: 'border-[var(--mairie-success-text)] bg-[var(--mairie-success-action-background)] text-[var(--mairie-on-action)]',
+  mandatory: 'border-[var(--mairie-error-text)] bg-[var(--mairie-error-action-background)] text-[var(--mairie-on-action)]',
+  notStarted: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
 };
 
 export const ElearningBadge = ({

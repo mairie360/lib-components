@@ -72,7 +72,7 @@ export const SettingsModule = ({
 }: SettingsModuleProps) => {
   const [internalTab, setInternalTab] = React.useState<SettingsTabId>(defaultActiveTab);
   const resolvedTab = activeTab ?? internalTab;
-  const unavailable = <p role="status" className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6 text-sm text-[#667085]">Données indisponibles pour cette rubrique.</p>;
+  const unavailable = <p role="status" className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6 text-sm text-[var(--mairie-muted)]">Données indisponibles pour cette rubrique.</p>;
 
   const changeTab = (tab: SettingsTabId) => {
     if (activeTab === undefined) setInternalTab(tab);
@@ -80,10 +80,10 @@ export const SettingsModule = ({
   };
 
   return (
-    <section className={`space-y-6 bg-[#f5f3f0] text-[#172033] ${className}`} {...props}>
+    <section className={`space-y-6 bg-[var(--mairie-background)] text-[var(--mairie-text)] ${className}`} {...props}>
       <div>
-        <h1 className="text-[32px] font-bold leading-tight text-[#0b1220]">Paramètres</h1>
-        <p className="mt-1 text-base text-[#667085]">Gérez vos préférences et paramètres de compte</p>
+        <h1 className="text-[32px] font-bold leading-tight text-[var(--mairie-text)]">Paramètres</h1>
+        <p className="mt-1 text-base text-[var(--mairie-muted)]">Gérez vos préférences et paramètres de compte</p>
       </div>
       <SettingsTabs value={resolvedTab} onValueChange={changeTab} />
       <div role="tabpanel" aria-label={resolvedTab}>

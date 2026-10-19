@@ -4,6 +4,7 @@ import { Award, BookOpen, Filter, Pencil, Percent, Plus, Trash2, Users } from 'l
 import { ElearningAdminStats, type ElearningAdminStatsData } from './ElearningAdminStats';
 import type { ElearningBadgeVariant } from './ElearningBadge';
 import { ElearningCourseCard, type ElearningCourseCardProps } from './ElearningCourseCard';
+import { EmptyState } from './EmptyState';
 import {
   createEmptyCourseChapter,
   ElearningCourseFormModal,
@@ -60,6 +61,9 @@ export interface ElearningCatalogProps extends React.HTMLAttributes<HTMLElement>
   onDeleteCourse?: (course: ElearningCourse) => void;
   onCourseRatingSubmit?: (course: ElearningCourse, rating: number, summary: ElearningCourseRatingSummary) => ElearningLearnerActionResult;
   allowRatingEdits?: boolean;
+  renderCourseReview?: (course: ElearningCourse) => React.ReactNode;
+  onCourseContentDownload?: (course: ElearningCourse, content: import('./ElearningCourseDetailsModal').ElearningCourseContentItem) => ElearningLearnerActionResult;
+  canCompleteCourseContent?: (course: ElearningCourse, content: import('./ElearningCourseDetailsModal').ElearningCourseContentItem) => boolean;
   onCourseContentComplete?: (course: ElearningCourse, payload: ElearningCourseContentCompletePayload) => ElearningLearnerActionResult;
 }
 
@@ -167,10 +171,10 @@ const buildDefaultStats = (courses: ElearningCourse[], certificationCount = 0): 
     : 0;
 
   return [
-    { label: 'Formations disponibles', value: totalCourses, icon: BookOpen, iconColor: '#1b57ff' },
-    { label: 'Participation', value: getPercentage(participatingCourses, totalCourses), icon: Users, iconColor: '#00a651' },
-    { label: 'Complétion', value: `${averageProgress}%`, icon: Percent, iconColor: '#8b2cff' },
-    { label: 'Certifications', value: certificationCount, icon: Award, iconColor: '#f4b000' },
+    { label: 'Formations disponibles', value: totalCourses, icon: BookOpen, iconColor: 'var(--mairie-accent)' },
+    { label: 'Participation', value: getPercentage(participatingCourses, totalCourses), icon: Users, iconColor: 'var(--mairie-success-text)' },
+    { label: 'Complétion', value: `${averageProgress}%`, icon: Percent, iconColor: 'var(--mairie-purple-text)' },
+    { label: 'Certifications', value: certificationCount, icon: Award, iconColor: 'var(--mairie-warning-text)' },
   ];
 };
 
@@ -294,6 +298,9 @@ export const ElearningCatalog = ({
   onCourseRatingSubmit,
   allowRatingEdits = false,
   onCourseContentComplete,
+  onCourseContentDownload,
+  canCompleteCourseContent,
+  renderCourseReview,
   className = '',
   ...props
 }: ElearningCatalogProps) => {
@@ -370,15 +377,15 @@ export const ElearningCatalog = ({
   };
 
   return (
-    <section className={joinClasses('bg-[#f4f2ef] px-6 py-14 text-[#2f3747]', className)} {...props}>
+    <section className={joinClasses('bg-[var(--mairie-surface-raised)] px-6 py-14 text-[var(--mairie-text)]', className)} {...props}>
       <div className="mx-auto max-w-[1130px]">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-2xl font-bold leading-8">{title}</h2>
-            <p className="text-base leading-6 text-[#5f6470]">{subtitle}</p>
+            <p className="text-base leading-6 text-[var(--mairie-muted)]">{subtitle}</p>
           </div>
           {canManageCourses && onCreateCourse ? (
-            <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4b91]" onClick={() => { setEditingCourseId(null); setCourseFormOpen(true); }}>
+            <button type="button" className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)]" onClick={() => { setEditingCourseId(null); setCourseFormOpen(true); }}>
               <Plus className="size-4" /> Nouvelle formation
             </button>
           ) : null}
@@ -403,10 +410,10 @@ export const ElearningCatalog = ({
               <div key={id} className="relative h-full">
                 {canManageCourses ? (
                   <div className="absolute right-3 top-3 z-10 flex gap-2">
-                    {onUpdateCourse ? <button type="button" aria-label={`Modifier ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#1256a6] shadow-sm hover:bg-[#e9f1fb]" onClick={() => { setEditingCourseId(course.id); setCourseFormOpen(true); }}>
+                    {onUpdateCourse ? <button type="button" aria-label={`Modifier ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-[var(--mairie-surface)]/95 text-[var(--mairie-accent)] shadow-sm hover:bg-[var(--mairie-accent-surface)]" onClick={() => { setEditingCourseId(course.id); setCourseFormOpen(true); }}>
                       <Pencil className="size-4" />
                     </button> : null}
-                    {onDeleteCourse ? <button type="button" aria-label={`Supprimer ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-white/95 text-[#c5323a] shadow-sm hover:bg-[#fff1f2]" onClick={() => handleDeleteCourse(course)}>
+                    {onDeleteCourse ? <button type="button" aria-label={`Supprimer ${course.title}`} className="inline-flex size-8 items-center justify-center rounded-md bg-[var(--mairie-surface)]/95 text-[var(--mairie-error-text)] shadow-sm hover:bg-[var(--mairie-error-surface)]" onClick={() => handleDeleteCourse(course)}>
                       <Trash2 className="size-4" />
                     </button> : null}
                   </div>
@@ -423,7 +430,13 @@ export const ElearningCatalog = ({
         </div>
 
         {filteredCourses.length === 0 ? (
-          <div className="mt-6 rounded-lg border border-[#d8d2ca] bg-white p-8 text-center text-sm text-[#5f6470]">{emptyLabel}</div>
+          <EmptyState className="mt-6" title={emptyLabel} icon={<BookOpen className="size-8" />}
+            action={search.trim() || category !== 'all' || status !== 'all' ? (
+              <button type="button" className="rounded-full bg-[var(--mairie-action-background)] px-4 py-2 text-sm font-semibold text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
+                onClick={() => { setSearch(''); setCategory('all'); setStatus('all'); }}>
+                Réinitialiser les filtres
+              </button>
+            ) : undefined} />
         ) : null}
       </div>
 
@@ -432,6 +445,9 @@ export const ElearningCatalog = ({
           {...selectedCourseDetails}
           rating={getElearningRatingAverage(selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution) ?? selectedCourseDetails.rating}
           ratingDistribution={selectedCourseDetails.ratingDistribution ?? selectedCourse.ratingDistribution}
+          onContentDownload={onCourseContentDownload ? content => onCourseContentDownload(selectedCourse, content) : undefined}
+          canCompleteContent={canCompleteCourseContent ? content => canCompleteCourseContent(selectedCourse, content) : undefined}
+          reviewContent={renderCourseReview?.(selectedCourse)}
           optimisticUpdates={false}
           busy={starting}
           actionError={startError}

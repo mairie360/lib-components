@@ -10,20 +10,20 @@ export interface AdministrationMetricCardsProps extends React.HTMLAttributes<HTM
 
 const toneClasses = {
   blue: {
-    iconWrap: 'bg-[#dbeafe] text-[#0b5fff]',
-    indicator: 'text-[#16a34a]',
+    iconWrap: 'bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]',
+    indicator: 'text-[var(--mairie-success-text)]',
   },
   green: {
-    iconWrap: 'bg-[#d1fae5] text-[#00b44a]',
-    indicator: 'text-[#16a34a]',
+    iconWrap: 'bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]',
+    indicator: 'text-[var(--mairie-success-text)]',
   },
   yellow: {
-    iconWrap: 'bg-[#fff4b8] text-[#f59e0b]',
-    indicator: 'text-[#f59e0b]',
+    iconWrap: 'bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)]',
+    indicator: 'text-[var(--mairie-warning-text)]',
   },
   red: {
-    iconWrap: 'bg-[#ffd8dc] text-[#ff1f2d]',
-    indicator: 'text-[#ff1f2d]',
+    iconWrap: 'bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]',
+    indicator: 'text-[var(--mairie-error-text)]',
   },
 };
 
@@ -55,7 +55,7 @@ export const AdministrationMetricCards = ({
       return (
         <article
           key={stat.id}
-          className="min-h-[132px] rounded-lg border border-[#e3e0dc] bg-white px-6 py-6 text-[#172033] shadow-none"
+          className="min-h-[132px] rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6 text-[var(--mairie-text)] shadow-none"
         >
           <div className="flex items-start justify-between gap-5">
             <div className={joinClasses('flex size-12 items-center justify-center rounded-md', tone.iconWrap)}>
@@ -67,13 +67,13 @@ export const AdministrationMetricCards = ({
               </div>
             )}
           </div>
-          <div className="mt-5 text-2xl font-bold leading-none text-[#0b1220]">{stat.value}</div>
-          <div className="mt-1 text-sm leading-5 text-[#334155]">{stat.label}</div>
+          <div className="mt-5 text-2xl font-bold leading-none text-[var(--mairie-text)]">{stat.value}</div>
+          <div className="mt-1 text-sm leading-5 text-[var(--mairie-text)]">{stat.label}</div>
         </article>
       );
     })}
     {(stats?.length ?? 0) === 0 && (
-      <p className="rounded-lg border border-[#e3e0dc] bg-white px-6 py-6 text-sm text-[#667085]">
+      <p className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6 text-sm text-[var(--mairie-muted)]">
         {stats ? 'Aucun indicateur à afficher.' : 'Indicateurs indisponibles.'}
       </p>
     )}

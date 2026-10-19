@@ -28,16 +28,16 @@ export const CalendarToolbar = ({
       <button
         type="button"
         aria-label={previousLabel}
-        className="inline-flex h-8 w-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] text-[#172033] transition-colors hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+        className="inline-flex h-8 w-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] transition-colors hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
         onClick={onPrevious}
       >
         <ChevronLeft className="h-4 w-4" />
       </button>
-      <h2 className="min-w-0 text-xl font-bold leading-7 text-[#172033]">{title}</h2>
+      <h2 className="min-w-0 text-xl font-bold leading-7 text-[var(--mairie-text)]">{title}</h2>
       <button
         type="button"
         aria-label={nextLabel}
-        className="inline-flex h-8 w-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] text-[#172033] transition-colors hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+        className="inline-flex h-8 w-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] transition-colors hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
         onClick={onNext}
       >
         <ChevronRight className="h-4 w-4" />

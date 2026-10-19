@@ -203,6 +203,7 @@ export interface CreateEventModalProps {
 }
 
 export interface EventDetailsModalProps {
+  extraContent?: React.ReactNode;
   isOpen: boolean;
   event?: CalendarEvent | null;
   people?: CalendarAssignee[];

@@ -19,7 +19,7 @@ export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
         {children}
       </div>
       {visible && (
-        <div className="absolute bottom-full mb-2 p-2 bg-gray-700 text-white text-sm rounded shadow-lg">
+        <div className="absolute bottom-full mb-2 p-2 bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] text-sm rounded shadow-lg">
           {text}
         </div>
       )}

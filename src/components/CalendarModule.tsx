@@ -73,7 +73,7 @@ export interface CalendarModuleProps extends Omit<React.HTMLAttributes<HTMLEleme
 }
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 text-sm text-[var(--mairie-text)] shadow-sm outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 
 const idsMatch = (firstId: CalendarAssigneeId, secondId: CalendarAssigneeId) =>
   String(firstId) === String(secondId);
@@ -98,8 +98,8 @@ const getEventTitle = (event: CalendarEvent) =>
 
 const getDefaultEventColorClassName = (event: CalendarEvent) => {
   if (event.colorClassName) return event.colorClassName;
-  if (event.approvalStatus === 'pending') return 'bg-[#fff7ed] text-[#9a3412]';
-  if (event.approvalStatus === 'rejected') return 'bg-[#fee2e2] text-[#dc2626]';
+  if (event.approvalStatus === 'pending') return 'bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)]';
+  if (event.approvalStatus === 'rejected') return 'bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]';
   return undefined;
 };
 
@@ -333,11 +333,11 @@ export const CalendarModule = ({
   };
 
   return (
-    <section className={joinClasses('space-y-7 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
+    <section className={joinClasses('space-y-7 bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)} {...props}>
       {statusMessage && (
         <div
           role="status"
-          className="flex items-center justify-between gap-4 rounded-md border border-[#bfdbfe] bg-[#dbeafe] px-5 py-4 text-sm font-medium text-[#0046d5] shadow-sm"
+          className="flex items-center justify-between gap-4 rounded-md border border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] px-5 py-4 text-sm font-medium text-[var(--mairie-accent)] shadow-sm"
         >
           <span className="inline-flex min-w-0 items-center gap-3">
             <AlertCircle className="size-5 shrink-0" strokeWidth={1.8} />
@@ -346,7 +346,7 @@ export const CalendarModule = ({
           <button
             type="button"
             aria-label="Fermer le message"
-            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-[#475569] transition hover:bg-white/55 hover:text-[#0f172a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+            className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface)]/55 hover:text-[var(--mairie-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
             onClick={() => setStatusMessage(null)}
           >
             <X className="size-4" strokeWidth={1.8} />
@@ -361,22 +361,22 @@ export const CalendarModule = ({
         onAction={canCreateEvents ? handleNewEventClick : undefined}
       />
 
-      <div className="border-t border-[#d8d2ca]" />
+      <div className="border-t border-[var(--mairie-border)]" />
 
-      <div className="grid gap-3 rounded-md border border-[#d8d2ca] bg-white p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
+      <div className="grid gap-3 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] md:items-end">
         <div>
           <CalendarDateField
             id="calendar-date-filter"
             label="Filtrer par date"
             value={dateFilter}
             inputClassName={fieldClassName}
-            labelClassName="mb-1 block text-sm font-semibold text-[#334155]"
+            labelClassName="mb-1 block text-sm font-semibold text-[var(--mairie-text)]"
             onChange={setDateFilter}
           />
         </div>
 
         <div>
-          <label htmlFor="calendar-category-filter" className="mb-1 block text-sm font-semibold text-[#334155]">
+          <label htmlFor="calendar-category-filter" className="mb-1 block text-sm font-semibold text-[var(--mairie-text)]">
             Filtrer par type
           </label>
           <select
@@ -395,7 +395,7 @@ export const CalendarModule = ({
         </div>
 
         <div>
-          <label htmlFor="calendar-service-filter" className="mb-1 block text-sm font-semibold text-[#334155]">
+          <label htmlFor="calendar-service-filter" className="mb-1 block text-sm font-semibold text-[var(--mairie-text)]">
             Filtrer par service
           </label>
           <select
@@ -416,7 +416,7 @@ export const CalendarModule = ({
         <button
           type="button"
           disabled={!hasActiveFilters}
-          className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] transition hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 text-sm font-semibold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={resetFilters}
         >
           Réinitialiser
@@ -435,7 +435,7 @@ export const CalendarModule = ({
             />
 
             {visibleEvents.length === 0 && (
-              <div className="mt-6 rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 py-3 text-sm text-[#64748b]">
+              <div className="mt-6 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-3 text-sm text-[var(--mairie-muted)]">
                 {hasActiveFilters ? 'Aucun événement ne correspond aux filtres.' : 'Aucun événement à afficher.'}
               </div>
             )}

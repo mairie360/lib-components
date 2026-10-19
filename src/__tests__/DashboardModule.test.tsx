@@ -147,7 +147,7 @@ describe('DashboardModule', () => {
     );
     expect(actions[0].className).toBe(actions[1].className);
     expect(actions[1].className).toBe(actions[2].className);
-    expect(actions[0]).toHaveClass('border-[#d8d2ca]', 'bg-[#fbfaf9]', 'text-[#243041]');
+    expect(actions[0]).toHaveClass('border-[var(--mairie-border)]', 'bg-[var(--mairie-surface-raised)]', 'text-[var(--mairie-text)]');
 
     actions.forEach((action) => fireEvent.click(action));
     expect(onViewAllProjects).toHaveBeenCalledTimes(1);

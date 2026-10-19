@@ -9,8 +9,8 @@ export interface AdministrationAuditPanelProps extends React.HTMLAttributes<HTML
 }
 
 const outcomeStyles: Record<AdministrationAuditEntry['outcome'], string> = {
-  success: 'bg-[#dcfce7] text-[#00b44a]',
-  danger: 'bg-[#fee2e2] text-[#ff1f2d]',
+  success: 'bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]',
+  danger: 'bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]',
 };
 
 export const AdministrationAuditPanel = ({
@@ -20,13 +20,13 @@ export const AdministrationAuditPanel = ({
 }: AdministrationAuditPanelProps) => (
   <section
     className={joinClasses(
-      'rounded-lg border border-[#d8d2ca] bg-white px-6 py-6 text-[#172033]',
+      'rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6 text-[var(--mairie-text)]',
       className
     )}
     {...props}
   >
-    <h2 className="text-base font-bold leading-6 text-[#172033]">Journal d’audit</h2>
-    <p className="mt-1 text-base leading-6 text-[#667085]">
+    <h2 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Journal d’audit</h2>
+    <p className="mt-1 text-base leading-6 text-[var(--mairie-muted)]">
       Historique de toutes les actions sensibles effectuées dans le système
     </p>
 
@@ -37,7 +37,7 @@ export const AdministrationAuditPanel = ({
         return (
           <article
             key={entry.id}
-            className="flex gap-4 rounded-md border border-[#e3e0dc] bg-white px-4 py-4"
+            className="flex gap-4 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-4"
           >
             <div
               className={joinClasses(
@@ -49,20 +49,20 @@ export const AdministrationAuditPanel = ({
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-sm font-bold leading-5 text-[#172033]">{entry.action}</h3>
-                <span className="rounded-md border border-[#d8d2ca] bg-white px-2 py-0.5 text-xs font-semibold leading-none text-[#4c5258]">
+                <h3 className="text-sm font-bold leading-5 text-[var(--mairie-text)]">{entry.action}</h3>
+                <span className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-2 py-0.5 text-xs font-semibold leading-none text-[var(--mairie-muted)]">
                   {entry.actor}
                 </span>
               </div>
-              <p className="mt-1 text-sm leading-5 text-[#334155]">{entry.subject}</p>
-              <p className="mt-3 text-xs leading-4 text-[#667085]">{entry.description}</p>
-              <p className="mt-3 text-xs leading-4 text-[#94a3b8]">{entry.timestamp}</p>
+              <p className="mt-1 text-sm leading-5 text-[var(--mairie-text)]">{entry.subject}</p>
+              <p className="mt-3 text-xs leading-4 text-[var(--mairie-muted)]">{entry.description}</p>
+              <p className="mt-3 text-xs leading-4 text-[var(--mairie-muted)]">{entry.timestamp}</p>
             </div>
           </article>
         );
       })}
       {(entries?.length ?? 0) === 0 && (
-        <p className="rounded-md border border-[#e3e0dc] px-4 py-10 text-center text-sm text-[#667085]">
+        <p className="rounded-md border border-[var(--mairie-border)] px-4 py-10 text-center text-sm text-[var(--mairie-muted)]">
           {entries ? 'Aucune action à afficher.' : 'Journal d’audit indisponible.'}
         </p>
       )}

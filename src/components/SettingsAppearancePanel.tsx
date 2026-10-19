@@ -44,10 +44,10 @@ export const SettingsAppearancePanel = ({
                 role="radio"
                 aria-checked={selected}
                 disabled={!onChange}
-                className={`flex h-12 items-center gap-3 rounded-md border px-4 text-sm font-semibold ${selected ? 'border-[#1256a6] bg-[#edf5ff]' : 'border-[#d8d2ca] bg-white'}`}
+                className={`flex h-12 items-center gap-3 rounded-md border px-4 text-sm font-semibold ${selected ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)]' : 'border-[var(--mairie-border)] bg-[var(--mairie-surface)]'}`}
                 onClick={() => update('theme', theme.value)}
               >
-                <span className={`size-4 rounded-full border p-[3px] ${selected ? 'border-[#1256a6] bg-[#1256a6] bg-clip-content' : 'border-[#c7c1ba]'}`} />
+                <span className={`size-4 rounded-full border p-[3px] ${selected ? 'border-[var(--mairie-accent)] bg-[var(--mairie-action-background)] bg-clip-content' : 'border-[var(--mairie-border)]'}`} />
                 <Icon className="size-4" />
                 {theme.label}
               </button>
@@ -59,7 +59,7 @@ export const SettingsAppearancePanel = ({
       <SettingsSection title="Personnalisation">
         <div className="space-y-5">
           <SettingsSelect id="settings-font" label="Police de caractères" value={appearance.fontFamily} options={fontOptions} disabled={!onChange} onChange={(value) => update('fontFamily', value)} />
-          <label htmlFor="settings-font-size" className="block text-sm font-semibold text-[#172033]">
+          <label htmlFor="settings-font-size" className="block text-sm font-semibold text-[var(--mairie-text)]">
             Taille de police
             <input
               id="settings-font-size"
@@ -69,10 +69,10 @@ export const SettingsAppearancePanel = ({
               step={1}
               value={appearance.fontSize}
               disabled={!onChange}
-              className="mt-2 block w-full accent-[#1256a6]"
+              className="mt-2 block w-full accent-[var(--mairie-accent)]"
               onChange={(event) => update('fontSize', Number(event.target.value))}
             />
-            <span className="mt-1 flex justify-between text-xs font-normal text-[#667085]"><span>Petit</span><span>Normal</span><span>Grand</span></span>
+            <span className="mt-1 flex justify-between text-xs font-normal text-[var(--mairie-muted)]"><span>Petit</span><span>Normal</span><span>Grand</span></span>
           </label>
           <SettingsSelect id="settings-density" label="Compacité de l'interface" value={appearance.density} options={densityOptions} disabled={!onChange} onChange={(value) => update('density', value)} />
         </div>

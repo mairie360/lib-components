@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { ElearningCatalog, type ElearningCourse } from '../components/ElearningCatalog';
 import { ElearningCourseDetailsModal } from '../components/ElearningCourseDetailsModal';
 import { ElearningCourseRating } from '../components/ElearningCourseRating';
@@ -202,4 +202,17 @@ it('opts the catalogue into editing without optimistically changing the server r
   expect(rate.mock.calls[0][1]).toBe(5);
   expect(within(dialog).getByText('4 (3 notes)')).toBeInTheDocument();
   expect(within(dialog).getByRole('button', { name: 'Note envoyée' })).toBeDisabled();
+});
+
+it('downloads by confirmed resource identity without completing it or requiring a public URL', async () => {
+  const download=jest.fn().mockRejectedValueOnce(new Error('Support indisponible')).mockResolvedValueOnce(true);
+  const complete=jest.fn();
+  render(<ElearningCourseDetailsModal open {...course.details!} onContentDownload={download} onContentComplete={complete} canCompleteContent={() => false} />);
+  const mark=screen.getByRole('button',{ name:'Marquer Ressource serveur comme terminé' });
+  expect(mark).toBeDisabled(); fireEvent.click(mark); expect(complete).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button',{ name:'Télécharger le support' }));
+  await screen.findByText('Support indisponible'); expect(screen.getByText('0%')).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button',{ name:'Télécharger le support' }));
+  await waitFor(() => expect(download).toHaveBeenCalledTimes(2));
+  expect(complete).not.toHaveBeenCalled(); expect(download.mock.calls[0][0].id).toBe('content');
 });

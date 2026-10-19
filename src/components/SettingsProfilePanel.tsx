@@ -57,7 +57,7 @@ export const SettingsProfilePanel = ({
     <div className={className} {...props}>
       <SettingsSection title="Informations personnelles">
         <form className="space-y-6" onSubmit={submit}>
-          <div className="flex flex-wrap items-center gap-4 border-b border-[#e3e0dc] pb-6">
+          <div className="flex flex-wrap items-center gap-4 border-b border-[var(--mairie-border)] pb-6">
             {draft.avatarUrl ? (
               <img
                 src={draft.avatarUrl}
@@ -65,12 +65,12 @@ export const SettingsProfilePanel = ({
                 className="size-20 rounded-full object-cover"
               />
             ) : (
-              <div className="grid size-20 place-items-center rounded-full bg-[#ebe9e6] text-lg font-medium text-[#344054]">
+              <div className="grid size-20 place-items-center rounded-full bg-[var(--mairie-surface-raised)] text-lg font-medium text-[var(--mairie-text)]">
                 {draft.initials}
               </div>
             )}
             {onPhotoChange && <div>
-              <label className="inline-flex h-9 cursor-pointer items-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] px-4 text-sm font-semibold text-[#172033] hover:bg-white">
+              <label className="inline-flex h-9 cursor-pointer items-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 text-sm font-semibold text-[var(--mairie-text)] hover:bg-[var(--mairie-surface)]">
                 Changer la photo
                 <input
                   type="file"
@@ -80,13 +80,13 @@ export const SettingsProfilePanel = ({
                   onChange={handlePhoto}
                 />
               </label>
-              <p className="mt-2 text-sm text-[#667085]">Formats acceptés: JPG, PNG. Taille max: 2MB</p>
-              {photoError && <p role="alert" className="mt-1 text-sm text-[#b42318]">{photoError}</p>}
+              <p className="mt-2 text-sm text-[var(--mairie-muted)]">Formats acceptés: JPG, PNG. Taille max: 2MB</p>
+              {photoError && <p role="alert" className="mt-1 text-sm text-[var(--mairie-error-text)]">{photoError}</p>}
             </div>}
           </div>
 
           <div className="grid gap-4 lg:grid-cols-2">
-            <label className="text-sm font-semibold text-[#172033]">
+            <label className="text-sm font-semibold text-[var(--mairie-text)]">
               Nom complet
               <input
                 className={`${settingsFieldClassName} mt-1 font-normal`}
@@ -96,7 +96,7 @@ export const SettingsProfilePanel = ({
                 onChange={(event) => update('fullName', event.target.value)}
               />
             </label>
-            <label className="text-sm font-semibold text-[#172033]">
+            <label className="text-sm font-semibold text-[var(--mairie-text)]">
               Adresse e-mail
               <input
                 type="email"
@@ -107,7 +107,7 @@ export const SettingsProfilePanel = ({
                 onChange={(event) => update('email', event.target.value)}
               />
             </label>
-            <label className="text-sm font-semibold text-[#172033]">
+            <label className="text-sm font-semibold text-[var(--mairie-text)]">
               Téléphone
               <input
                 type="tel"
@@ -117,7 +117,7 @@ export const SettingsProfilePanel = ({
                 onChange={(event) => update('phone', event.target.value)}
               />
             </label>
-            <label className="text-sm font-semibold text-[#172033]">
+            <label className="text-sm font-semibold text-[var(--mairie-text)]">
               Service
               {serviceOptions.length > 0 ? (
                 <select
@@ -133,7 +133,7 @@ export const SettingsProfilePanel = ({
                 <input className={`${settingsFieldClassName} mt-1 font-normal`} value={draft.service} placeholder="Non renseigné" readOnly />
               )}
             </label>
-            <label className="text-sm font-semibold text-[#172033]">
+            <label className="text-sm font-semibold text-[var(--mairie-text)]">
               Poste
               <input
                 className={`${settingsFieldClassName} mt-1 font-normal`}
@@ -144,10 +144,10 @@ export const SettingsProfilePanel = ({
             </label>
           </div>
 
-          <label className="block text-sm font-semibold text-[#172033]">
+          <label className="block text-sm font-semibold text-[var(--mairie-text)]">
             Biographie
             <textarea
-              className="mt-1 min-h-24 w-full rounded-md border border-[#d8d2ca] bg-white px-3 py-2 font-normal outline-none focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+              className="mt-1 min-h-24 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 py-2 font-normal outline-none focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
               value={draft.biography}
               disabled={!onSave}
               onChange={(event) => update('biography', event.target.value)}
@@ -155,7 +155,7 @@ export const SettingsProfilePanel = ({
           </label>
 
           <div className="flex flex-wrap items-center gap-3">
-            {onSave && <button type="submit" className="inline-flex h-9 items-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white hover:bg-[#0f4a90]">
+            {onSave && <button type="submit" className="inline-flex h-9 items-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)]">
               <Save className="size-4" />
               Enregistrer les modifications
             </button>}

@@ -1,0 +1,7 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { EmailReader } from '../components/EmailReader';
+import { defaultEmailMessages } from '../components/email/defaultData';
+import { axe } from 'jest-axe';
+it('delegates replies and archive/trash actions for the displayed message only', async () => { const message = defaultEmailMessages[0]; const onComposeFromMessage = jest.fn(); const onArchive = jest.fn(); const onTrash = jest.fn(); const { container, rerender } = render(<EmailReader message={message} onComposeFromMessage={onComposeFromMessage} onArchive={onArchive} onTrash={onTrash} onRestore={jest.fn()} onDeletePermanently={jest.fn()} onResumeDraft={jest.fn()} />); await userEvent.click(screen.getByRole('button', { name: 'Répondre' })); expect(onComposeFromMessage).toHaveBeenCalledWith('reply', message); await userEvent.click(screen.getByRole('button', { name: 'Archiver' })); expect(onArchive).toHaveBeenCalledWith(message); await userEvent.click(screen.getByRole('button', { name: 'Mettre à la corbeille' })); expect(onTrash).toHaveBeenCalledWith(message); expect((await axe(container)).violations).toEqual([]); rerender(<EmailReader onComposeFromMessage={onComposeFromMessage} onArchive={onArchive} onTrash={onTrash} onRestore={jest.fn()} onDeletePermanently={jest.fn()} onResumeDraft={jest.fn()} />); expect(screen.getByText('Sélectionnez un e-mail pour le lire.')).toBeVisible(); });
