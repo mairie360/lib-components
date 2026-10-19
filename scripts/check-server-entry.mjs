@@ -28,7 +28,8 @@ const kitEntries = {
   browser: { exports: ['createSessionFetch', 'sessionFetch'], allowed: [] },
   shared: { exports: ['buildContentSecurityPolicy', 'createNonce', 'publicOrigin', 'serviceBase'], allowed: [] },
   theme: { exports: ['parseAppearanceCookie', 'startAppearanceSync', 'APPEARANCE_COOKIE'], allowed: [] },
-  react: { exports: ['InstanceProvider', 'useInstanceRole', 'useModalFocusScope'], allowed: ['react', 'react/jsx-runtime'] },
+  // The react entry shares the module state of the published shared/theme entries (MAIR-126, #456).
+  react: { exports: ['InstanceProvider', 'useInstanceRole', 'useModalFocusScope'], allowed: ['react', 'react/jsx-runtime', '@mairie360/lib-components/shared', '@mairie360/lib-components/theme'] },
 };
 const importedModules = source => [...source.matchAll(/(?:^|\n)\s*import\s+(?:[^'"]*?\s+from\s+)?['"]([^'"]+)['"]|require\(['"]([^'"]+)['"]\)/g)].map(match => match[1] ?? match[2]);
 for (const [name, expected] of Object.entries(kitEntries)) {
@@ -36,7 +37,8 @@ for (const [name, expected] of Object.entries(kitEntries)) {
     const source = readFileSync(new URL(`../dist/${file}`, import.meta.url), 'utf8');
     const modules = [...new Set(importedModules(source))];
     assert.deepEqual(modules.filter(module => !expected.allowed.includes(module)), [], `dist/${file} must only import ${expected.allowed.join(', ') || 'nothing'}`);
-    assert.doesNotMatch(source, /lib-components|from ['"]\.\/(?:index|primitives|shell|chunk-)/, `dist/${file} must not reach the UI entries`);
+    const ownCode = expected.allowed.reduce((text, module) => text.replaceAll(`"${module}"`, '""'), source);
+    assert.doesNotMatch(ownCode, /lib-components|from ['"]\.\/(?:index|primitives|shell|chunk-)/, `dist/${file} must not reach the UI entries`);
   }
   const loaded = [await import(`../dist/${name}.js`), require(`../dist/${name}.cjs`)];
   for (const entry of loaded) for (const exported of expected.exports) assert.notEqual(entry[exported], undefined, `${name} exports ${exported}`);
