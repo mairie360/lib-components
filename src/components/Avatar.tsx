@@ -37,8 +37,8 @@ function Avatar({
       ) : (
         <div
           data-slot="avatar-fallback"
-          className="flex size-full items-center justify-center rounded-full"
-          style={{ backgroundColor: "#1256a6" }}
+          className="flex size-full items-center justify-center rounded-full text-[var(--mairie-on-action)]"
+          style={{ backgroundColor: "var(--mairie-action-background)" }}
         >
           {fallback}
         </div>

@@ -39,20 +39,20 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
       aria-labelledby={titleId}
       aria-describedby={messageId}
     >
-      <div className="rounded-xl p-6 w-full max-w-sm shadow-lg border-2 bg-[#f5f3f0]">
-        <h2 id={titleId} className="text-lg font-bold mb-4 text-gray-900">{title}</h2>
-        <div className="h-px w-full bg-[#d1cfc9] mb-4" />
-        <p id={messageId} className="mb-6 text-sm text-gray-600">{message}</p>
+      <div className="rounded-xl p-6 w-full max-w-sm shadow-lg border-2 bg-[var(--mairie-background)]">
+        <h2 id={titleId} className="text-lg font-bold mb-4 text-[var(--mairie-text)]">{title}</h2>
+        <div className="h-px w-full bg-[var(--mairie-surface-raised)] mb-4" />
+        <p id={messageId} className="mb-6 text-sm text-[var(--mairie-muted)]">{message}</p>
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-md bg-gray-600 hover:bg-gray-500 transition"
+            className="px-4 py-2 rounded-md bg-[var(--mairie-surface-raised)] hover:bg-[var(--mairie-surface-raised)] transition"
           >
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="btn btn-error bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+            className="btn btn-error bg-[var(--mairie-error-action-background)] px-4 py-2 text-[var(--mairie-on-action)] hover:bg-[var(--mairie-error-action-hover-background)]"
           >
             {confirmLabel}
           </button>

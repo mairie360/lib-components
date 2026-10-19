@@ -109,12 +109,12 @@ describe('Login owns refresh for every frontend', () => {
     });
     try { await started; expect(userCalls).toBe(1); } finally { release(); }
     const responses = await Promise.all(pending);
-    for (const response of responses) {
+    await Promise.all(responses.map(async response => {
       expect(response.status).toBe(200); expect(await response.json()).toEqual(replies);
       expect(response.headers.getSetCookie()).toHaveLength(2);
       expect(response.headers.getSetCookie().join(';')).toContain('Path=/api');
       expect(response.headers.get('cache-control')).toBe('no-store');
-    }
+    }));
     expect([...business.values()]).toEqual(Array(8).fill(2));
     expect(userCalls).toBe(1); expect(fetchMock).toHaveBeenCalledTimes(25);
     forgetUserSession('http://user.test', rotated);
@@ -148,10 +148,11 @@ describe('Login owns refresh for every frontend', () => {
     const reused = refresh();
     mocked.mockResolvedValueOnce(Response.json({ message: 42 }))
       .mockResolvedValueOnce(cookieReply(jwt(), reused)).mockRejectedValueOnce(new TypeError('network unavailable'));
-    for (const token of [refresh(), reused, refresh()]) {
+    await [refresh(), reused, refresh()].reduce(async (previous, token) => {
+      await previous;
       const response = await createSessionRefreshHandler(config())(request(token));
       expect(response.status).toBe(502); expect(response.headers.getSetCookie()).toEqual([]);
-    }
+    }, Promise.resolve());
   });
   it('invalidates both the old and rotated handover keys on logout', async () => {
     const old = refresh(), rotated = refresh();
@@ -170,10 +171,10 @@ describe('published paths and one retry', () => {
   const options = (): SessionProxyConfig => ({ baseUrl: () => 'http://user.test', paths: { '/me': contract.paths['/me'] }, loginUrl: () => origin, frontUrl: () => origin });
   it('refuses metadata, traversal, undeclared method and foreign origin before network', async () => {
     const mocked = jest.spyOn(global, 'fetch');
-    for (const path of [['openapi.json'], ['swagger.json'], ['..'], ['nested/part'], ['\\unsafe']]) {
+    await Promise.all([['openapi.json'], ['swagger.json'], ['..'], ['nested/part'], ['\\unsafe']].map(async path => {
       const response = await proxyPublishedBffRequest(new NextRequest(origin + '/api/bff/test'), path, options());
       expect([400, 404]).toContain(response.status);
-    }
+    }));
     expect((await proxyPublishedBffRequest(new NextRequest(origin + '/api/bff/me', { method: 'POST' }), ['me'], options())).status).toBe(405);
     expect((await proxyPublishedBffRequest(new NextRequest(origin + '/api/bff/me', { headers: { Origin: 'https://foreign.test' } }), ['me'], options())).status).toBe(403);
     expect(mocked).not.toHaveBeenCalled();
@@ -242,10 +243,11 @@ describe('explicit session logout', () => {
   it('retains local session on an upstream refusal or malformed success', async () => {
     const mocked = jest.spyOn(global, 'fetch').mockResolvedValueOnce(Response.json({ error: { message: 'Unavailable' } }, { status: 503 })).mockResolvedValueOnce(Response.json({ message: 42 }));
     const handler = createSessionLogoutHandler(config());
-    for (const status of [503, 502]) {
+    await [503, 502].reduce(async (previous, status) => {
+      await previous;
       const response = await handler(request(refresh(), '/api/auth/logout', { Cookie: `accessToken=${jwt()}` }));
       expect(response.status).toBe(status); expect(response.headers.getSetCookie()).toEqual([]);
-    }
+    }, Promise.resolve());
     expect(mocked).toHaveBeenCalledTimes(2);
   });
   it('renews an expired bearer before revocation and removes both handover keys', async () => {
@@ -294,10 +296,11 @@ describe('explicit session logout', () => {
   it('rejects invalid SSO receipts and malformed/network responses without a false local success', async () => {
     const mocked = jest.spyOn(global, 'fetch').mockResolvedValueOnce(Response.json(protocolBody('LogoutResponse', { message: 'Signed out', session_revoked: true, logout_url: 'https://foreign.test/realms/x/protocol/openid-connect/logout?client_id=x' }))).mockRejectedValueOnce(new TypeError('network'));
     const handler = createSessionLogoutHandler(config());
-    for (let i = 0; i < 2; ++i) {
+    await [0, 1].reduce(async previous => {
+      await previous;
       const response = await handler(request(refresh(), '/api/auth/logout', { Cookie: `accessToken=${jwt()}` }));
       expect(response.status).toBe(502); expect(response.headers.getSetCookie()).toEqual([]);
-    }
+    }, Promise.resolve());
     expect(mocked).toHaveBeenCalledTimes(2);
     expect(sessionLogoutUrl('https://auth.dev.test/realms/x/protocol/openid-connect/logout?client_id=x&client_id=y', '.dev.test', frontOrigins)).toBeUndefined();
     expect(sessionLogoutUrl('https://auth.dev.test/realms/x/protocol/openid-connect/logout?client_id=x&post_logout_redirect_uri=javascript%3Aalert(1)', '.dev.test', [...frontOrigins, 'invalid'])).toBeUndefined();

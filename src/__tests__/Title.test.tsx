@@ -26,7 +26,7 @@ describe('Title component', () => {
 
     expect(title).toHaveClass('text-2xl');
     expect(title).toHaveClass('font-bold');
-    expect(subtitle).toHaveClass('text-gray-500');
+    expect(subtitle).toHaveClass('text-[var(--mairie-muted)]');
     expect(subtitle).toHaveClass('text-sm');
     expect(subtitle).toHaveClass('font-normal');
   });

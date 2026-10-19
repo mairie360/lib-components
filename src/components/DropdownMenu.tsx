@@ -63,9 +63,11 @@ function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTrigge
 
   return (
     <button
-      data-slot="dropdown-menu-trigger"
-      onClick={handleClick}
       {...props}
+      type="button"
+      data-slot="dropdown-menu-trigger"
+      aria-expanded={open}
+      onClick={handleClick}
     >
       {children}
     </button>
@@ -119,7 +121,7 @@ function DropdownMenuContent({
     <div
       ref={contentRef}
       data-slot="dropdown-menu-content"
-      className={`absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-[#e3e0dc] bg-white p-1 shadow-md text-black ${className}`}
+      className={`absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 shadow-md text-[var(--mairie-text)] ${className}`}
       style={{
         top: side === "bottom" ? `calc(100% + ${sideOffset}px)` : undefined,
         bottom: side === "top" ? `calc(100% + ${sideOffset}px)` : undefined,
@@ -169,15 +171,15 @@ function DropdownMenuItem({
   };
 
   const isDeleteItem = typeof children === "string" && children.includes("Supprimer");
-  const itemClassName = `relative flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none select-none text-black ${
+  const itemClassName = `relative flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none select-none text-[var(--mairie-text)] ${
     disabled 
       ? "pointer-events-none opacity-50" 
       : isDeleteItem 
-        ? "hover:bg-red-200" 
-        : "hover:bg-gray-100"
-  } ${variant === "destructive" ? "text-red-600" : ""} ${
+        ? "hover:bg-[var(--mairie-error-surface)]"
+        : "hover:bg-[var(--mairie-surface-raised)]"
+  } ${variant === "destructive" ? "text-[var(--mairie-error-text)]" : ""} ${
     inset ? "pl-8" : ""
-  } ${isDeleteItem ? "text-red-600" : ""} ${className}`;
+  } ${isDeleteItem ? "text-[var(--mairie-error-text)]" : ""} ${className}`;
 
   if (asChild && React.isValidElement<DropdownMenuItemChildProps>(children)) {
     const child = children;
@@ -186,7 +188,7 @@ function DropdownMenuItem({
     return (
       <>
         {isDeleteItem && (
-          <div className="-mx-1 my-1 h-px bg-gray-200" />
+          <div className="-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)]" />
         )}
         {React.cloneElement(child, {
           ...props,
@@ -195,6 +197,7 @@ function DropdownMenuItem({
           "data-variant": variant,
           className: `${itemClassName}${childClassName}`,
           onClick: (e: React.MouseEvent<HTMLElement>) => {
+            if (disabled) { e.preventDefault(); return; }
             child.props.onClick?.(e);
             handleClick(e);
           },
@@ -206,7 +209,7 @@ function DropdownMenuItem({
   return (
     <>
       {isDeleteItem && (
-        <div className="-mx-1 my-1 h-px bg-gray-200" />
+        <div className="-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)]" />
       )}
       <div
         data-slot="dropdown-menu-item"
@@ -253,7 +256,7 @@ function DropdownMenuSeparator({
   return (
     <div
       data-slot="dropdown-menu-separator"
-      className={`-mx-1 my-1 h-px bg-gray-200 ${className}`}
+      className={`-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)] ${className}`}
       {...props}
     />
   );
@@ -278,7 +281,7 @@ function DropdownMenuShortcut({
   return (
     <span
       data-slot="dropdown-menu-shortcut"
-      className={`ml-auto text-xs tracking-widest text-black ${className}`}
+      className={`ml-auto text-xs tracking-widest text-[var(--mairie-text)] ${className}`}
       {...props}
     />
   );
@@ -301,7 +304,7 @@ function DropdownMenuCheckboxItem({
     <div
       data-slot="dropdown-menu-checkbox-item"
       className={`relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none ${
-        disabled ? "pointer-events-none opacity-50" : "hover:bg-gray-100"
+        disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${className}`}
       onClick={onClick}
       {...props}
@@ -380,7 +383,7 @@ function DropdownMenuRadioItem({
     <div
       data-slot="dropdown-menu-radio-item"
       className={`relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-none select-none ${
-        disabled ? "pointer-events-none opacity-50" : "hover:bg-gray-100"
+        disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${className}`}
       onClick={handleClick}
       {...props}
@@ -428,7 +431,7 @@ function DropdownMenuSubTrigger({
       data-slot="dropdown-menu-sub-trigger"
       data-inset={inset}
       className={`flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none ${
-        disabled ? "pointer-events-none opacity-50" : "hover:bg-gray-100"
+        disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${inset ? "pl-8" : ""} ${className}`}
       {...props}
     >
@@ -463,7 +466,7 @@ function DropdownMenuSubContent({
   return (
     <div
       data-slot="dropdown-menu-sub-content"
-      className={`z-50 min-w-[8rem] overflow-hidden rounded-md border border-[#e3e0dc] bg-white p-1 shadow-lg ${className}`}
+      className={`z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 shadow-lg ${className}`}
       {...props}
     >
       {children}

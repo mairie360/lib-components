@@ -451,7 +451,7 @@ export const ElearningCourseDetailsModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/35 p-4"
       onMouseDown={handleBackdropMouseDown}
     >
       <div
@@ -460,7 +460,7 @@ export const ElearningCourseDetailsModal = ({
         aria-labelledby={titleId}
         aria-describedby={subtitleId}
         className={joinClasses(
-          'max-h-[calc(100vh-2rem)] w-full max-w-[960px] overflow-y-auto rounded-lg border border-[#d8d2ca] bg-[#f8f7f5] p-6 text-[#2f3747] shadow-2xl',
+          'max-h-[calc(100vh-2rem)] w-full max-w-[960px] overflow-y-auto rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] p-6 text-[var(--mairie-text)] shadow-2xl',
           className
         )}
         {...props}
@@ -468,10 +468,10 @@ export const ElearningCourseDetailsModal = ({
       >
         <header className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <h2 id={titleId} className="text-xl font-bold leading-7 text-[#2f3747]">
+            <h2 id={titleId} className="text-xl font-bold leading-7 text-[var(--mairie-text)]">
               {title}
             </h2>
-            <p id={subtitleId} className="mt-1 text-sm leading-5 text-[#6f6f6f]">
+            <p id={subtitleId} className="mt-1 text-sm leading-5 text-[var(--mairie-muted)]">
               {subtitle}
             </p>
           </div>
@@ -481,19 +481,19 @@ export const ElearningCourseDetailsModal = ({
               aria-label={closeLabel}
               onClick={onClose}
               disabled={isBusy}
-              className="flex size-8 shrink-0 items-center justify-center rounded-md text-[#6f6f6f] transition hover:bg-[#ece8e2] hover:text-[#2f3747] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+              className="flex size-8 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30"
             >
               <X aria-hidden="true" className="size-5" />
             </button>
           )}
         </header>
 
-        {isBusy ? <p role="status" className="mt-4 text-sm text-[#5f6470]">Enregistrement en cours…</p> : null}
-        {error || actionError ? <p role="alert" className="mt-4 text-sm text-[#a4232c]">{error || actionError}</p> : null}
+        {isBusy ? <p role="status" className="mt-4 text-sm text-[var(--mairie-muted)]">Enregistrement en cours…</p> : null}
+        {error || actionError ? <p role="alert" className="mt-4 text-sm text-[var(--mairie-error-text)]">{error || actionError}</p> : null}
 
         <div className="mt-5 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,360px)]">
           <div className="min-w-0">
-            <div className="rounded-md bg-black p-5 text-white">
+            <div className="rounded-md bg-[var(--mairie-overlay-background)] p-5 text-[var(--mairie-on-action)]">
               <div className="flex aspect-video w-full items-center justify-center rounded">
                 <div className="text-center">
                   <PrimaryContentIcon aria-hidden="true" className="mx-auto size-16" strokeWidth={2.4} />
@@ -511,12 +511,12 @@ export const ElearningCourseDetailsModal = ({
               <section className="mt-5">
                 <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
-                    <h3 className="break-words text-base font-bold leading-6 text-[#2f3747]">
+                    <h3 className="break-words text-base font-bold leading-6 text-[var(--mairie-text)]">
                       {selectedChapter.title}
                     </h3>
-                    <p className="mt-1 text-sm leading-5 text-[#6f6f6f]">{selectedChapter.duration}</p>
+                    <p className="mt-1 text-sm leading-5 text-[var(--mairie-muted)]">{selectedChapter.duration}</p>
                   </div>
-                  <span className="shrink-0 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#5f6470]">
+                  <span className="shrink-0 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-2 py-1 text-xs font-semibold text-[var(--mairie-muted)]">
                     {selectedContents.length} contenu{selectedContents.length > 1 ? 's' : ''}
                   </span>
                 </div>
@@ -531,14 +531,14 @@ export const ElearningCourseDetailsModal = ({
                       <div
                         key={content.id}
                         className={joinClasses(
-                          'flex items-start gap-3 rounded-md border bg-white p-3',
-                          contentCompleted ? 'border-[#b9dfc8]' : 'border-[#d8d2ca]'
+                          'flex items-start gap-3 rounded-md border bg-[var(--mairie-surface)] p-3',
+                          contentCompleted ? 'border-[var(--mairie-success-text)]' : 'border-[var(--mairie-border)]'
                         )}
                       >
                         <div
                           className={joinClasses(
                             'flex size-10 shrink-0 items-center justify-center rounded-md',
-                            contentCompleted ? 'bg-[#eefaf3] text-[#00a651]' : 'bg-[#e9f1fb] text-[#1256a6]'
+                            contentCompleted ? 'bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]' : 'bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]'
                           )}
                         >
                           {contentCompleted ? (
@@ -550,19 +550,19 @@ export const ElearningCourseDetailsModal = ({
                         <div className="min-w-0 flex-1">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                             <div className="min-w-0">
-                              <p className="break-words text-sm font-semibold leading-5 text-[#2f3747]">
+                              <p className="break-words text-sm font-semibold leading-5 text-[var(--mairie-text)]">
                                 {content.title}
                               </p>
-                              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase leading-4 text-[#4b908d]">
+                              <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase leading-4 text-[var(--mairie-teal-text)]">
                                 <span>
                                   {contentTypeLabels[content.type]}
                                   {content.duration ? ` - ${content.duration}` : ''}
                                 </span>
-                                {!requiredContent && <span className="text-[#8a7b6d]">Optionnel</span>}
+                                {!requiredContent && <span className="text-[var(--mairie-muted)]">Optionnel</span>}
                               </div>
                             </div>
                             <div className="flex shrink-0 flex-wrap items-center gap-2">
-                              {onContentDownload ? <button type="button" disabled={isBusy} className="rounded-md border px-2 py-1 text-xs font-semibold text-[#1256a6] disabled:opacity-50" onClick={async () => {
+                              {onContentDownload ? <button type="button" disabled={isBusy} className="rounded-md border px-2 py-1 text-xs font-semibold text-[var(--mairie-accent)] disabled:opacity-50" onClick={async () => {
                                 if (busy || pending.current) return;
                                 pending.current = true; setSubmitting(true); setDownloadError('');
                                 try { if (await onContentDownload(content) === false) throw new Error('Le téléchargement n’a pas été confirmé.'); }
@@ -571,7 +571,7 @@ export const ElearningCourseDetailsModal = ({
                               }}>{isBusy ? 'Téléchargement…' : 'Télécharger le support'}</button> : content.href && (
                                 <a
                                   href={content.href}
-                                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[#1256a6] transition hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30"
+                                  className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-semibold text-[var(--mairie-accent)] transition hover:bg-[var(--mairie-accent-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30"
                                 >
                                   Ouvrir
                                   <ExternalLink aria-hidden="true" className="size-3.5" />
@@ -587,10 +587,10 @@ export const ElearningCourseDetailsModal = ({
                                 disabled={contentCompleted || isBusy || Boolean(canCompleteContent && !canCompleteContent(content))}
                                 onClick={() => handleContentComplete(selectedChapter.id, content.id)}
                                 className={joinClasses(
-                                  'inline-flex items-center gap-1 rounded-md border border-[#d8d2ca] bg-white px-2 py-1 text-xs font-semibold text-[#2f3747] transition hover:border-[#1256a6] hover:bg-[#e9f1fb] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed',
+                                  'inline-flex items-center gap-1 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-2 py-1 text-xs font-semibold text-[var(--mairie-text)] transition hover:border-[var(--mairie-accent)] hover:bg-[var(--mairie-accent-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30 disabled:cursor-not-allowed',
                                   contentCompleted
-                                    ? 'disabled:border-[#b9dfc8] disabled:bg-[#eefaf3] disabled:text-[#00a651]'
-                                    : 'disabled:border-[#d8d2ca] disabled:bg-[#ece8e2] disabled:text-[#6f6f6f]',
+                                    ? 'disabled:border-[var(--mairie-success-text)] disabled:bg-[var(--mairie-success-surface)] disabled:text-[var(--mairie-success-text)]'
+                                    : 'disabled:border-[var(--mairie-border)] disabled:bg-[var(--mairie-surface-raised)] disabled:text-[var(--mairie-muted)]',
                                 )}
                               >
                                 {contentCompleted ? 'Terminé' : isBusy ? 'Enregistrement…' : 'Marquer comme terminé'}
@@ -598,10 +598,10 @@ export const ElearningCourseDetailsModal = ({
                             </div>
                           </div>
                           {content.description && (
-                            <p className="mt-2 break-words text-sm leading-5 text-[#6f6f6f]">{content.description}</p>
+                            <p className="mt-2 break-words text-sm leading-5 text-[var(--mairie-muted)]">{content.description}</p>
                           )}
                           {content.fileName && (
-                            <p className="mt-2 break-words text-xs leading-4 text-[#6f6f6f]">{content.fileName}</p>
+                            <p className="mt-2 break-words text-xs leading-4 text-[var(--mairie-muted)]">{content.fileName}</p>
                           )}
                         </div>
                       </div>
@@ -612,28 +612,28 @@ export const ElearningCourseDetailsModal = ({
             )}
 
             <section className="mt-5">
-              <h3 className="text-base font-bold leading-6 text-[#2f3747]">Description</h3>
-              <p className="mt-3 text-sm leading-6 text-[#6f6f6f]">{description}</p>
+              <h3 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Description</h3>
+              <p className="mt-3 text-sm leading-6 text-[var(--mairie-muted)]">{description}</p>
             </section>
 
-            <dl className="mt-5 grid gap-4 text-sm leading-5 text-[#2f3747] sm:grid-cols-3">
+            <dl className="mt-5 grid gap-4 text-sm leading-5 text-[var(--mairie-text)] sm:grid-cols-3">
               {instructor && (
                 <div className="min-w-0">
                   <dt className="font-semibold">Instructeur</dt>
-                  <dd className="mt-1 break-words text-[#5f6470]">{instructor}</dd>
+                  <dd className="mt-1 break-words text-[var(--mairie-muted)]">{instructor}</dd>
                 </div>
               )}
               {duration && (
                 <div className="min-w-0">
                   <dt className="font-semibold">Durée</dt>
-                  <dd className="mt-1 break-words text-[#5f6470]">{duration}</dd>
+                  <dd className="mt-1 break-words text-[var(--mairie-muted)]">{duration}</dd>
                 </div>
               )}
               {displayedRating !== undefined && (
                 <div className="min-w-0">
                   <dt className="font-semibold">Note</dt>
-                  <dd className="mt-1 flex items-start gap-1.5 text-[#5f6470]">
-                    <Star aria-hidden="true" className="mt-0.5 size-4 shrink-0 fill-[#f4b000] text-[#f4b000]" />
+                  <dd className="mt-1 flex items-start gap-1.5 text-[var(--mairie-muted)]">
+                    <Star aria-hidden="true" className="mt-0.5 size-4 shrink-0 fill-[var(--mairie-rating-active)] text-[var(--mairie-rating-active)]" />
                     <span className="break-words">
                       {formatElearningRating(displayedRating)}
                       {displayedRatingLabel ? ` ${displayedRatingLabel}` : ''}
@@ -645,9 +645,9 @@ export const ElearningCourseDetailsModal = ({
           </div>
 
           <aside className="min-w-0">
-            <h3 className="text-base font-bold leading-6 text-[#2f3747]">Chapitres</h3>
+            <h3 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Chapitres</h3>
             <div className="mt-3 max-h-[420px] space-y-2 overflow-y-auto pr-1">
-              {localChapters.length === 0 ? <p className="text-sm text-[#6f6f6f]">Aucun chapitre disponible.</p> : null}
+              {localChapters.length === 0 ? <p className="text-sm text-[var(--mairie-muted)]">Aucun chapitre disponible.</p> : null}
               {localChapters.map((chapter) => {
                 const Icon = chapter.completed ? CircleCheck : Circle;
                 const selected = chapter.id === selectedChapter?.id;
@@ -659,24 +659,24 @@ export const ElearningCourseDetailsModal = ({
                     aria-pressed={selected}
                     onClick={() => setSelectedChapterId(chapter.id)}
                     className={joinClasses(
-                      'flex min-h-[58px] w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30',
+                      'flex min-h-[58px] w-full items-start gap-3 rounded-md border px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30',
                       selected
-                        ? 'border-[#1256a6] bg-[#e9f1fb] shadow-sm'
+                        ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] shadow-sm'
                         : chapter.active
-                          ? 'border-[#1256a6]/25 bg-[#e9f1fb] hover:border-[#1256a6]/50'
-                          : 'border-[#e2f1e8] bg-[#eefaf3] hover:border-[#b9dfc8]'
+                          ? 'border-[var(--mairie-accent)]/25 bg-[var(--mairie-accent-surface)] hover:border-[var(--mairie-accent)]/50'
+                          : 'border-[var(--mairie-success-text)] bg-[var(--mairie-success-surface)] hover:border-[var(--mairie-success-text)]'
                     )}
                   >
                     <Icon
                       aria-hidden="true"
                       className={joinClasses(
                         'mt-0.5 size-5 shrink-0',
-                        chapter.completed ? 'text-[#00a651]' : selected ? 'text-[#1256a6]' : 'text-[#7a8797]'
+                        chapter.completed ? 'text-[var(--mairie-success-text)]' : selected ? 'text-[var(--mairie-accent)]' : 'text-[var(--mairie-muted)]'
                       )}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="break-words text-sm font-semibold leading-5 text-[#2f3747]">{chapter.title}</p>
-                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-4 text-[#6f6f6f]">
+                      <p className="break-words text-sm font-semibold leading-5 text-[var(--mairie-text)]">{chapter.title}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs leading-4 text-[var(--mairie-muted)]">
                         <span>{chapter.duration}</span>
                         <span>
                           {getChapterContents(chapter).length} contenu
@@ -691,20 +691,20 @@ export const ElearningCourseDetailsModal = ({
 
             {localProgress !== undefined && (
               <div className="mt-4">
-                <div className="mb-2 flex items-start justify-between gap-4 text-sm leading-5 text-[#2f3747]">
+                <div className="mb-2 flex items-start justify-between gap-4 text-sm leading-5 text-[var(--mairie-text)]">
                   <span>Progression totale</span>
                   <span className="shrink-0">{localProgress}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[#cfdbed]">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]">
                   <div
-                    className="h-full rounded-full bg-[#1256a6] transition-[width]"
+                    className="h-full rounded-full bg-[var(--mairie-action-background)] transition-[width]"
                     style={{ width: `${localProgress}%` }}
                   />
                 </div>
               </div>
             )}
 
-            {downloadError && <p role="alert" className="mt-3 text-sm text-red-700">{downloadError}</p>}
+            {downloadError && <p role="alert" className="mt-3 text-sm text-[var(--mairie-error-text)]">{downloadError}</p>}
             {reviewContent}
             {canRateCourse && completionRating?.onSubmit && (
               <ElearningCourseRating

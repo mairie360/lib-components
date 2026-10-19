@@ -49,7 +49,7 @@ export const WeekGrid = ({
             className="flex h-14 min-h-0 flex-col items-center justify-center text-center"
             onClick={() => onSelectDate?.(date)}
           >
-            <span className="text-xs font-medium text-[#6c7278]">{dayLabels[index]}</span>
+            <span className="text-xs font-medium text-[var(--mairie-muted)]">{dayLabels[index]}</span>
             <span className="text-sm font-bold">{date.getDate()}</span>
           </CalendarCell>
         ))}
@@ -60,7 +60,7 @@ export const WeekGrid = ({
           {hours.map((hour, index) => (
             <div
               key={hour}
-              className="absolute right-1 text-right text-xs leading-5 text-[#6c7278]"
+              className="absolute right-1 text-right text-xs leading-5 text-[var(--mairie-muted)]"
               style={{ top: index * calendarHourHeight + 6 }}
             >
               {hour}
@@ -78,7 +78,7 @@ export const WeekGrid = ({
                   key={`${dateKey(date)}-${hour}`}
                   type="button"
                   aria-label={`${formatFullDate(date)} à ${hour}`}
-                  className="absolute left-0 right-0 rounded-md border border-[#d8d2ca] bg-white transition-colors hover:border-[#b9d6d5] hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                  className="absolute left-0 right-0 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] transition-colors hover:border-[var(--mairie-border)] hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                   style={{ top: index * calendarHourHeight, height: calendarHourHeight - 4 }}
                   onClick={() => onSelectSlot?.(date, hour)}
                 />
@@ -96,8 +96,8 @@ export const WeekGrid = ({
                     onClick={onEventClick}
                     className={joinClasses(
                       'absolute z-10 shadow-sm',
-                      !range.isStart && 'rounded-l-sm border-l-4 border-l-[#2563eb]',
-                      !range.isEnd && 'rounded-r-sm border-r-4 border-r-[#2563eb]'
+                      !range.isStart && 'rounded-l-sm border-l-4 border-l-[var(--mairie-accent)]',
+                      !range.isEnd && 'rounded-r-sm border-r-4 border-r-[var(--mairie-accent)]'
                     )}
                     style={{
                       top,

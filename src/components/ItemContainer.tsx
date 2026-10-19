@@ -6,6 +6,7 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   DragEndEvent,
@@ -14,6 +15,7 @@ import {
   arrayMove,
   SortableContext,
   verticalListSortingStrategy,
+  sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 
 type ItemData = {
@@ -85,9 +87,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
-        (menuRef.current && !menuRef.current.contains(event.target as Node)) &&
-        (editMenuRef.current && !editMenuRef.current.contains(event.target as Node)) &&
-        (addMenuRef.current && !addMenuRef.current.contains(event.target as Node))
+        [menuRef, editMenuRef, addMenuRef].every(ref => !ref.current || !ref.current.contains(event.target as Node))
       ) {
         setShowMenu(false);
         setShowEditMenu(false);
@@ -110,7 +110,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
     setShowMenu(false);
   };
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(useSensor(PointerSensor), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -157,7 +157,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
 
   return (
     <section
-      className="relative mx-auto w-[380px] min-h-[600px] rounded-xl border border-white-900 bg-[#0f1117] p-3 flex flex-col"
+      className="relative mx-auto w-[380px] min-h-[600px] rounded-xl border border-white-900 bg-[var(--mairie-surface)] p-3 flex flex-col"
       role="region"
       aria-labelledby="item-container-title"
     >
@@ -178,10 +178,10 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
           />
           <h2
             id="item-container-title"
-            className="text-white font-semibold text-lg cursor-default"
+            className="text-[var(--mairie-text)] font-semibold text-lg cursor-default"
           >
             {editedTitle}{" "}
-            <span className="text-gray-400 text-sm">({items.length})</span>
+            <span className="text-[var(--mairie-muted)] text-sm">({items.length})</span>
           </h2>
         </div>
 
@@ -193,33 +193,33 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
               setShowEditMenu(false);
               setShowAddMenu(false);
             }}
-            className="p-1 rounded hover:bg-white/10 transition"
+            className="p-1 rounded hover:bg-[var(--mairie-surface-raised)] transition"
             aria-label="Ouvrir le menu du conteneur"
           >
-            <MoreHorizontal size={20} className="text-white" />
+            <MoreHorizontal size={20} className="text-[var(--mairie-text)]" />
           </button>
 
           {showMenu && (
-            <div className="absolute right-0 top-full mt-2 bg-[#1c1f26] rounded-md shadow-lg w-40 z-100 border border-gray-700">
+            <div className="absolute right-0 top-full mt-2 bg-[var(--mairie-surface)] rounded-md shadow-lg w-40 z-100 border border-[var(--mairie-border)]">
               <button
                 onClick={() => {
                   setShowEditMenu(true);
                   setShowMenu(false);
                   setShowAddMenu(false);
                 }}
-                className="w-full text-left px-3 py-2 hover:bg-gray-700 text-gray-300 rounded-t-md"
+                className="w-full text-left px-3 py-2 hover:bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)] rounded-t-md"
               >
                 Modifier
               </button>
               <button
                 onClick={handleDeleteAll}
-                className="w-full text-left px-3 py-2 hover:bg-red-700 text-red-600"
+                className="w-full text-left px-3 py-2 hover:bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]"
               >
                 Supprimer tous les éléments
               </button>
               <button
                 onClick={handleExportJSON}
-                className="w-full text-left px-3 py-2 hover:bg-blue-700 text-blue-500 rounded-b-md"
+                className="w-full text-left px-3 py-2 hover:bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)] rounded-b-md"
               >
                 Exporter JSON
               </button>
@@ -229,10 +229,10 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
           {showEditMenu && (
             <div
               ref={editMenuRef}
-              className="absolute right-0 top-full mt-2 bg-[#1c1f26] rounded-md shadow-lg w-72 z-110 border border-gray-700 p-4 flex flex-col gap-3"
+              className="absolute right-0 top-full mt-2 bg-[var(--mairie-surface)] rounded-md shadow-lg w-72 z-110 border border-[var(--mairie-border)] p-4 flex flex-col gap-3"
             >
               <label
-                className="text-white text-sm font-semibold"
+                className="text-[var(--mairie-text)] text-sm font-semibold"
                 htmlFor="edit-title-input"
               >
                 Titre
@@ -242,11 +242,11 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 type="text"
                 value={editedTitle}
                 onChange={(e) => setEditedTitle(e.target.value)}
-                className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+                className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] rounded px-2 py-1 focus:outline-none"
               />
 
               <label
-                className="text-white text-sm font-semibold"
+                className="text-[var(--mairie-text)] text-sm font-semibold"
                 htmlFor="edit-description-input"
               >
                 Description
@@ -256,10 +256,10 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                 type="text"
                 value={editedDescription}
                 onChange={(e) => setEditedDescription(e.target.value)}
-                className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+                className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] rounded px-2 py-1 focus:outline-none"
               />
 
-              <label className="text-white text-sm font-semibold">
+              <label className="text-[var(--mairie-text)] text-sm font-semibold">
                 Couleur du statut
               </label>
               <div className="flex gap-2">
@@ -270,7 +270,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                     onClick={() => setSelectedStatusColor(color)}
                     className={`${color} w-6 h-6 rounded-full border-2 ${
                       selectedStatusColor === color
-                        ? "border-white"
+                        ? "border-[var(--mairie-surface)]"
                         : "border-transparent"
                     }`}
                     type="button"
@@ -284,13 +284,13 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
                     setShowEditMenu(false);
                     setShowMenu(false);
                   }}
-                  className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white"
+                  className="px-3 py-1 rounded bg-[var(--mairie-surface-raised)] hover:bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)]"
                 >
                   Annuler
                 </button>
                 <button
                   onClick={saveEdits}
-                  className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+                  className="px-3 py-1 rounded bg-[var(--mairie-success-action-background)] hover:bg-[var(--mairie-success-action-hover-background)] text-[var(--mairie-on-action)]"
                   disabled={!editedTitle.trim()}
                 >
                   Enregistrer
@@ -303,7 +303,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
 
       {/* Description sous le titre */}
       {editedDescription && (
-        <p className="text-gray-400 text-sm mb-4">{editedDescription}</p>
+        <p className="text-[var(--mairie-muted)] text-sm mb-4">{editedDescription}</p>
       )}
 
       {/* Barre de recherche */}
@@ -312,7 +312,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
         placeholder="Rechercher..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="mb-2 bg-[#1a1d24] text-sm text-white px-2 py-1 rounded focus:outline-none"
+        className="mb-2 bg-[var(--mairie-control-background)] text-sm text-[var(--mairie-text)] px-2 py-1 rounded focus:outline-none"
         aria-label="Rechercher des éléments"
       />
 
@@ -347,14 +347,14 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
       </DndContext>
 
       {/* Bouton + menu ajout item */}
-      <div className="mt-4 relative">
+      <div className="mt-4 relative" ref={addMenuRef}>
         <button
           onClick={() => {
             setShowAddMenu((v) => !v);
             setShowMenu(false);
             setShowEditMenu(false);
           }}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded w-full"
+          className="bg-[var(--mairie-success-action-background)] hover:bg-[var(--mairie-success-action-hover-background)] text-[var(--mairie-on-action)] px-4 py-2 rounded w-full"
           aria-haspopup="dialog"
           aria-expanded={showAddMenu}
         >
@@ -363,8 +363,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
 
         {showAddMenu && (
           <div
-            ref={addMenuRef}
-            className="absolute bottom-full mb-2 right-0 w-full bg-[#1c1f26] rounded-md shadow-lg p-4 flex flex-col gap-3 z-50 border border-gray-700"
+            className="absolute bottom-full mb-2 right-0 w-full bg-[var(--mairie-surface)] rounded-md shadow-lg p-4 flex flex-col gap-3 z-50 border border-[var(--mairie-border)]"
             role="dialog"
             aria-modal="true"
             aria-label="Ajouter un nouvel élément"
@@ -374,7 +373,7 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
               placeholder="Titre"
               value={addTitle}
               onChange={(e) => setAddTitle(e.target.value)}
-              className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+              className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] rounded px-2 py-1 focus:outline-none"
               autoFocus
             />
             <input
@@ -382,19 +381,19 @@ export const ItemContainer: React.FC<ItemContainerProps> = ({
               placeholder="Description (facultative)"
               value={addDescription}
               onChange={(e) => setAddDescription(e.target.value)}
-              className="bg-[#252836] text-white rounded px-2 py-1 focus:outline-none"
+              className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] rounded px-2 py-1 focus:outline-none"
               onKeyDown={(e) => e.key === "Enter" && handleAddNewItem()}
             />
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setShowAddMenu(false)}
-                className="px-3 py-1 rounded bg-gray-600 hover:bg-gray-700 text-white"
+                className="px-3 py-1 rounded bg-[var(--mairie-surface-raised)] hover:bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)]"
               >
                 Annuler
               </button>
               <button
                 onClick={handleAddNewItem}
-                className="px-3 py-1 rounded bg-green-600 hover:bg-green-700 text-white"
+                className="px-3 py-1 rounded bg-[var(--mairie-success-action-background)] hover:bg-[var(--mairie-success-action-hover-background)] text-[var(--mairie-on-action)]"
                 disabled={!addTitle.trim()}
               >
                 Ajouter

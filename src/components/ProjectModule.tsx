@@ -120,64 +120,64 @@ const statusMeta: Record<ProjectStatus, ProjectStatusMeta> = {
   todo: {
     label: 'À faire',
     icon: AlertCircle,
-    columnClassName: 'border-[#cbd5e1] bg-[#f8fafc]',
-    badgeClassName: 'border-[#cbd5e1] bg-[#f8fafc] text-[#475569]',
-    dotClassName: 'text-[#ef4444]',
+    columnClassName: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)]',
+    badgeClassName: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
+    dotClassName: 'text-[var(--mairie-error-text)]',
   },
   'in-progress': {
     label: 'En cours',
     icon: Clock3,
-    columnClassName: 'border-[#bfdbfe] bg-[#eff6ff]',
-    badgeClassName: 'border-[#93c5fd] bg-[#dbeafe] text-[#0969da]',
-    dotClassName: 'text-[#0b76dc]',
+    columnClassName: 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)]',
+    badgeClassName: 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]',
+    dotClassName: 'text-[var(--mairie-accent)]',
   },
   review: {
     label: 'En révision',
     icon: Eye,
-    columnClassName: 'border-[#fde68a] bg-[#fffbeb]',
-    badgeClassName: 'border-[#facc15] bg-[#fef3c7] text-[#92400e]',
-    dotClassName: 'text-[#0b76dc]',
+    columnClassName: 'border-[var(--mairie-warning-text)] bg-[var(--mairie-warning-surface)]',
+    badgeClassName: 'border-[var(--mairie-warning-text)] bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)]',
+    dotClassName: 'text-[var(--mairie-accent)]',
   },
   done: {
     label: 'Terminé',
     icon: CheckCircle2,
-    columnClassName: 'border-[#bbf7d0] bg-[#f0fdf4]',
-    badgeClassName: 'border-[#86efac] bg-[#dcfce7] text-[#15803d]',
-    dotClassName: 'text-[#16a34a]',
+    columnClassName: 'border-[var(--mairie-success-text)] bg-[var(--mairie-success-surface)]',
+    badgeClassName: 'border-[var(--mairie-success-text)] bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]',
+    dotClassName: 'text-[var(--mairie-success-text)]',
   },
   suspended: {
     label: 'Suspendu',
     icon: Ban,
-    columnClassName: 'border-[#e2e8f0] bg-[#f8fafc]',
-    badgeClassName: 'border-[#cbd5e1] bg-[#f1f5f9] text-[#64748b]',
-    dotClassName: 'text-[#64748b]',
+    columnClassName: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)]',
+    badgeClassName: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
+    dotClassName: 'text-[var(--mairie-muted)]',
   },
 };
 
 const priorityMeta: Record<ProjectPriority, ProjectPriorityMeta> = {
   high: {
     label: 'Haute',
-    badgeClassName: 'bg-[#fee2e2] text-[#dc2626]',
-    dotClassName: 'bg-[#e11d48]',
+    badgeClassName: 'bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]',
+    dotClassName: 'bg-[var(--mairie-error-action-background)]',
   },
   medium: {
     label: 'Moyenne',
-    badgeClassName: 'bg-[#f0dfff] text-[#8b5cf6]',
-    dotClassName: 'bg-[#8b5cf6]',
+    badgeClassName: 'bg-[var(--mairie-purple-surface)] text-[var(--mairie-purple-text)]',
+    dotClassName: 'bg-[var(--mairie-purple-text)]',
   },
   low: {
     label: 'Basse',
-    badgeClassName: 'border border-[#d8dfe7] bg-[#f8fafc] text-[#475569]',
-    dotClassName: 'bg-[#94a3b8]',
+    badgeClassName: 'border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
+    dotClassName: 'bg-[var(--mairie-muted)]',
   },
 };
 
 const tagClassNames: Record<ProjectTag['tone'], string> = {
-  blue: 'border-[#93c5fd] bg-[#dbeafe] text-[#0969da]',
-  green: 'border-[#86efac] bg-[#dcfce7] text-[#15803d]',
-  red: 'border-[#fecaca] bg-[#fee2e2] text-[#dc2626]',
-  purple: 'border-[#ddd6fe] bg-[#ede9fe] text-[#7c3aed]',
-  gray: 'border-[#d8dfe7] bg-[#f8fafc] text-[#475569]',
+  blue: 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]',
+  green: 'border-[var(--mairie-success-text)] bg-[var(--mairie-success-surface)] text-[var(--mairie-success-text)]',
+  red: 'border-[var(--mairie-error-text)] bg-[var(--mairie-error-surface)] text-[var(--mairie-error-text)]',
+  purple: 'border-[var(--mairie-purple-text)] bg-[var(--mairie-purple-surface)] text-[var(--mairie-purple-text)]',
+  gray: 'border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]',
 };
 
 const statusOrder: ProjectStatus[] = ['todo', 'in-progress', 'review', 'done', 'suspended'];
@@ -189,10 +189,10 @@ const viewOptions: Array<{ value: ProjectViewMode; label: string; icon: LucideIc
 ];
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-70';
 
 const textareaClassName =
-  'min-h-[210px] w-full resize-none rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70';
+  'min-h-[210px] w-full resize-none rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 py-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-70';
 
 const defaultProjectFormValues: ProjectFormValues = {
   title: '',
@@ -315,12 +315,12 @@ const ProjectSearchInput = ({
   onValueChange: (value: string) => void;
 }) => (
   <div className="relative w-full min-w-0 sm:max-w-[448px]">
-    <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#64748b]" />
+    <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
     <input
       type="search"
       value={value}
       placeholder="Rechercher des projets..."
-      className="h-10 w-full rounded-md border border-[#d8d2ca] bg-white pl-11 pr-4 text-sm text-[#172033] shadow-sm outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+      className="h-10 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] pl-11 pr-4 text-sm text-[var(--mairie-text)] shadow-sm outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
       onChange={(event) => onValueChange(event.target.value)}
     />
   </div>
@@ -335,7 +335,7 @@ const ProjectSelect = <TValue extends string>({
   onValueChange,
 }: ProjectSelectProps<TValue>) => (
   <div className={showLabel ? 'space-y-1' : ''}>
-    {showLabel && <div className="text-xs font-semibold text-[#475569]">{label}</div>}
+    {showLabel && <div className="text-xs font-semibold text-[var(--mairie-muted)]">{label}</div>}
     <AdministrationSelect
       ariaLabel={label}
       value={value}
@@ -355,20 +355,20 @@ const ProjectDueDateFilter = ({
   value: string;
   onValueChange: (value: string) => void;
 }) => (
-  <div className="flex min-w-[180px] items-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-3 shadow-sm focus-within:border-[#1256a6] focus-within:ring-2 focus-within:ring-[#1256a6]/20">
-    <Calendar className="size-4 shrink-0 text-[#64748b]" strokeWidth={1.8} />
+  <div className="flex min-w-[180px] items-center gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 shadow-sm focus-within:border-[var(--mairie-accent)] focus-within:ring-2 focus-within:ring-[var(--mairie-accent)]/20">
+    <Calendar className="size-4 shrink-0 text-[var(--mairie-muted)]" strokeWidth={1.8} />
     <input
       type="date"
       aria-label="Filtrer par échéance"
       value={value}
-      className="h-10 w-full bg-transparent text-sm text-[#172033] outline-none"
+      className="h-10 w-full bg-transparent text-sm text-[var(--mairie-text)] outline-none"
       onChange={(event) => onValueChange(event.target.value)}
     />
     {value && (
       <button
         type="button"
         aria-label="Réinitialiser le filtre d'échéance"
-        className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#eef2f7] hover:text-[#0f172a]"
+        className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)]"
         onClick={() => onValueChange('')}
       >
         <X className="size-3.5" strokeWidth={1.8} />
@@ -387,7 +387,7 @@ const ProjectViewSwitcher = ({
   <div
     role="tablist"
     aria-label="Vue des projets"
-    className="inline-flex rounded-lg bg-[#e9e7e5] p-1 text-sm font-medium text-[#172033]"
+    className="inline-flex rounded-lg bg-[var(--mairie-surface-raised)] p-1 text-sm font-medium text-[var(--mairie-text)]"
   >
     {viewOptions.map((option) => {
       const Icon = option.icon;
@@ -400,8 +400,8 @@ const ProjectViewSwitcher = ({
           role="tab"
           aria-selected={selected}
           className={joinClasses(
-            'inline-flex h-8 items-center justify-center gap-2 rounded-md px-3 leading-none transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30',
-            selected ? 'bg-white shadow-sm' : 'hover:bg-white/60'
+            'inline-flex h-8 items-center justify-center gap-2 rounded-md px-3 leading-none transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30',
+            selected ? 'bg-[var(--mairie-surface)] shadow-sm' : 'hover:bg-[var(--mairie-surface)]/60'
           )}
           onClick={() => onValueChange(option.value)}
         >
@@ -464,7 +464,7 @@ const MemberAvatarStack = ({
   const visibleMembers = ids.map((id) => getMember(members, id)).filter(Boolean) as ProjectMember[];
 
   if (visibleMembers.length === 0) {
-    return <span className="text-xs text-[#64748b]">Non assigné</span>;
+    return <span className="text-xs text-[var(--mairie-muted)]">Non assigné</span>;
   }
 
   return (
@@ -474,7 +474,7 @@ const MemberAvatarStack = ({
           key={member.id}
           title={member.name}
           className={joinClasses(
-            'inline-flex size-5 items-center justify-center rounded-full border border-white bg-[#1256a6] text-[10px] font-semibold leading-none text-white shadow-sm',
+            'inline-flex size-5 items-center justify-center rounded-full border border-[var(--mairie-surface)] bg-[var(--mairie-action-background)] text-[10px] font-semibold leading-none text-[var(--mairie-on-action)] shadow-sm',
             index > 0 && '-ml-1.5'
           )}
         >
@@ -482,7 +482,7 @@ const MemberAvatarStack = ({
         </span>
       ))}
       {visibleMembers.length > max && (
-        <span className="-ml-1.5 inline-flex size-5 items-center justify-center rounded-full border border-white bg-[#e2e8f0] text-[10px] font-semibold leading-none text-[#334155]">
+        <span className="-ml-1.5 inline-flex size-5 items-center justify-center rounded-full border border-[var(--mairie-surface)] bg-[var(--mairie-surface-raised)] text-[10px] font-semibold leading-none text-[var(--mairie-text)]">
           +{visibleMembers.length - max}
         </span>
       )}
@@ -496,11 +496,11 @@ const ProgressLine = ({ progress }: { progress: number }) => {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-4 text-xs">
-        <span className="text-[#475569]">Progression</span>
-        <span className="font-bold text-[#0f172a]">{resolvedProgress}%</span>
+        <span className="text-[var(--mairie-muted)]">Progression</span>
+        <span className="font-bold text-[var(--mairie-text)]">{resolvedProgress}%</span>
       </div>
-      <div className="h-1.5 overflow-hidden rounded-full bg-[#d8e0e8]">
-        <div className="h-full rounded-full bg-[#0969da]" style={{ width: `${resolvedProgress}%` }} />
+      <div className="h-1.5 overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]">
+        <div className="h-full rounded-full bg-[var(--mairie-action-background)]" style={{ width: `${resolvedProgress}%` }} />
       </div>
     </div>
   );
@@ -567,7 +567,7 @@ const ProjectActionMenu = ({
         aria-label={`Actions pour ${project.title}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="inline-flex size-8 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#eef2f7] hover:text-[#0f172a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+        className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
         onClick={() => setOpen((currentOpen) => !currentOpen)}
       >
         <MoreHorizontal className="size-4" strokeWidth={2} />
@@ -576,12 +576,12 @@ const ProjectActionMenu = ({
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-40 mt-1 w-36 overflow-hidden rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-[0_8px_20px_rgba(15,23,42,0.18)]"
+          className="absolute right-0 top-full z-40 mt-1 w-36 overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-sm text-[var(--mairie-text)] shadow-[var(--mairie-shadow)]"
         >
           <button
             type="button"
             role="menuitem"
-            className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
+            className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[var(--mairie-surface-raised)]"
             onClick={() => handleAction('open')}
           >
             <Eye className="size-4" strokeWidth={1.8} />
@@ -591,7 +591,7 @@ const ProjectActionMenu = ({
             <button
               type="button"
               role="menuitem"
-              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[var(--mairie-surface-raised)]"
               onClick={() => handleAction('edit')}
             >
               <Pencil className="size-4" strokeWidth={1.8} />
@@ -602,7 +602,7 @@ const ProjectActionMenu = ({
             <button
               type="button"
               role="menuitem"
-              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[#eef3f2]"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left hover:bg-[var(--mairie-surface-raised)]"
               onClick={() => handleAction('close')}
             >
               <CheckCircle2 className="size-4" strokeWidth={1.8} />
@@ -613,7 +613,7 @@ const ProjectActionMenu = ({
             <button
               type="button"
               role="menuitem"
-              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-[#dc2626] hover:bg-[#fee2e2]"
+              className="flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-[var(--mairie-error-text)] hover:bg-[var(--mairie-error-surface)]"
               onClick={() => handleAction('delete')}
             >
               <X className="size-4" strokeWidth={1.8} />
@@ -644,12 +644,12 @@ const ProjectCard = ({
   const projectTags = project.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
 
   return (
-    <article className="flex h-[344px] flex-col overflow-hidden rounded-md border border-[#cbd5e1] bg-white p-3.5 text-[#172033] shadow-[0_1px_3px_rgba(15,23,42,0.16)]">
+    <article className="flex h-[344px] flex-col overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-3.5 text-[var(--mairie-text)] shadow-[var(--mairie-shadow)]">
       <div className="flex items-start gap-3">
-        <Circle className="mt-1 size-4 shrink-0 text-[#16a34a]" strokeWidth={2.2} />
+        <Circle className="mt-1 size-4 shrink-0 text-[var(--mairie-success-text)]" strokeWidth={2.2} />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-bold leading-5 text-[#0f172a]">{project.title}</h3>
-          <p className="mt-0.5 text-xs leading-5 text-[#475569]">Mairie360 / projets #{project.sequence}</p>
+          <h3 className="truncate text-sm font-bold leading-5 text-[var(--mairie-text)]">{project.title}</h3>
+          <p className="mt-0.5 text-xs leading-5 text-[var(--mairie-muted)]">Mairie360 / projets #{project.sequence}</p>
         </div>
         <ProjectActionMenu
           project={project}
@@ -663,7 +663,7 @@ const ProjectCard = ({
         />
       </div>
 
-      <p className="mt-3 min-h-[48px] line-clamp-2 text-sm leading-6 text-[#475569]">
+      <p className="mt-3 min-h-[48px] line-clamp-2 text-sm leading-6 text-[var(--mairie-muted)]">
         {project.description}
       </p>
 
@@ -677,7 +677,7 @@ const ProjectCard = ({
         <ProgressLine progress={project.progress} />
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-[#475569]">
+      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-xs text-[var(--mairie-muted)]">
         <div className="min-w-0">
           <StatusBadge status={project.status} />
         </div>
@@ -699,9 +699,9 @@ const ProjectCard = ({
       <div className="mt-3 flex items-center justify-between">
         <div className="flex min-w-0 items-center gap-2">
           <MemberAvatarStack members={members} ids={project.assigneeIds} />
-          {owner && <span className="truncate text-sm text-[#475569]">{owner.name}</span>}
+          {owner && <span className="truncate text-sm text-[var(--mairie-muted)]">{owner.name}</span>}
         </div>
-        <div className="flex items-center gap-1 text-xs text-[#475569]">
+        <div className="flex items-center gap-1 text-xs text-[var(--mairie-muted)]">
           <Users className="size-3.5" strokeWidth={1.8} />
           <span>{project.assigneeIds.length}</span>
         </div>
@@ -710,7 +710,7 @@ const ProjectCard = ({
       <div className="mt-auto pt-2">
         <button
           type="button"
-          className="inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[#cbd5e1] bg-[#f8fafc] px-3 text-sm font-medium text-[#475569] transition hover:border-[#1256a6]/40 hover:bg-[#eff6ff] hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+          className="inline-flex h-8 w-full items-center justify-start gap-2 rounded-md border border-dashed border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 text-sm font-medium text-[var(--mairie-muted)] transition hover:border-[var(--mairie-accent)]/40 hover:bg-[var(--mairie-accent-surface)] hover:text-[var(--mairie-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
           onClick={() => onEdit(project)}
         >
           <Plus className="size-4" strokeWidth={1.9} />
@@ -761,21 +761,21 @@ const KanbanView = ({
         <section key={status} className="min-w-0 space-y-3">
           <div
             className={joinClasses(
-              'flex h-12 items-center justify-between rounded-md border px-3 text-sm font-bold text-[#0f172a]',
+              'flex h-12 items-center justify-between rounded-md border px-3 text-sm font-bold text-[var(--mairie-text)]',
               meta.columnClassName
             )}
           >
             <div className="flex min-w-0 items-center gap-2">
               <Icon className={joinClasses('size-4 shrink-0', meta.dotClassName)} strokeWidth={1.9} />
               <span className="truncate">{meta.label}</span>
-              <span className="inline-flex size-5 items-center justify-center rounded-full bg-[#d8e0e8] text-xs text-[#64748b]">
+              <span className="inline-flex size-5 items-center justify-center rounded-full bg-[var(--mairie-surface-raised)] text-xs text-[var(--mairie-muted)]">
                 {columnProjects.length}
               </span>
             </div>
             <button
               type="button"
               aria-label={`Ajouter dans ${meta.label}`}
-              className="inline-flex size-7 items-center justify-center rounded-md text-[#64748b] transition hover:bg-white hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+              className="inline-flex size-7 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface)] hover:text-[var(--mairie-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
             >
               <Plus className="size-4" strokeWidth={1.9} />
             </button>
@@ -874,10 +874,10 @@ const TableView = ({
   onDelete: (project: Project) => void;
   onAction?: (project: Project, action?: ProjectAction) => void;
 }) => (
-  <div className="overflow-hidden rounded-md border border-[#d8d2ca] bg-white shadow-sm">
+  <div className="overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] shadow-sm">
     <div className="overflow-x-auto">
-      <table className="min-w-[980px] w-full text-left text-sm text-[#172033]">
-        <thead className="border-b border-[#d8d2ca] bg-white text-base font-bold text-[#0f172a]">
+      <table className="min-w-[980px] w-full text-left text-sm text-[var(--mairie-text)]">
+        <thead className="border-b border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-base font-bold text-[var(--mairie-text)]">
           <tr>
             <th className="px-5 py-4">Projet</th>
             <th className="px-5 py-4">Statut</th>
@@ -894,10 +894,10 @@ const TableView = ({
             const projectTags = project.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
 
             return (
-              <tr key={project.id} className="border-b border-[#e4e0dc] last:border-b-0">
+              <tr key={project.id} className="border-b border-[var(--mairie-border)] last:border-b-0">
                 <td className="max-w-[360px] px-5 py-4">
-                  <div className="font-bold leading-5 text-[#0f172a]">{project.title}</div>
-                  <div className="mt-1 truncate text-sm leading-5 text-[#475569]">{truncate(project.description, 68)}</div>
+                  <div className="font-bold leading-5 text-[var(--mairie-text)]">{project.title}</div>
+                  <div className="mt-1 truncate text-sm leading-5 text-[var(--mairie-muted)]">{truncate(project.description, 68)}</div>
                   <div className="mt-2 flex flex-wrap gap-1.5 lg:hidden">
                     {projectTags.map((tag) => (
                       <ProjectTagPill key={tag.id} tag={tag} />
@@ -918,16 +918,16 @@ const TableView = ({
                 </td>
                 <td className="w-[180px] px-5 py-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-1.5 w-20 overflow-hidden rounded-full bg-[#d8e0e8]">
+                    <div className="h-1.5 w-20 overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]">
                       <div
-                        className="h-full rounded-full bg-[#0969da]"
+                        className="h-full rounded-full bg-[var(--mairie-action-background)]"
                         style={{ width: `${clampProgress(project.progress)}%` }}
                       />
                     </div>
-                    <span className="w-10 text-xs font-bold text-[#0f172a]">{clampProgress(project.progress)}%</span>
+                    <span className="w-10 text-xs font-bold text-[var(--mairie-text)]">{clampProgress(project.progress)}%</span>
                   </div>
                 </td>
-                <td className="whitespace-nowrap px-5 py-4 text-[#475569]">{formatDate(project.dueDate)}</td>
+                <td className="whitespace-nowrap px-5 py-4 text-[var(--mairie-muted)]">{formatDate(project.dueDate)}</td>
                 <td className="px-5 py-4">
                   <ProjectActionMenu
                     project={project}
@@ -998,27 +998,27 @@ const ProjectMultiSelect = ({
 
   return (
     <div ref={rootRef} className="relative">
-      <label className="mb-1 block text-xs font-semibold text-[#475569]">{label}</label>
+      <label className="mb-1 block text-xs font-semibold text-[var(--mairie-muted)]">{label}</label>
       <button
         type="button"
         aria-label={label}
         aria-haspopup="listbox"
         aria-expanded={open}
         disabled={disabled}
-        className="flex min-h-9 w-full items-center justify-between gap-3 rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-2 text-left text-sm text-[#172033] outline-none transition focus-visible:border-[#1256a6] focus-visible:ring-2 focus-visible:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+        className="flex min-h-9 w-full items-center justify-between gap-3 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 py-2 text-left text-sm text-[var(--mairie-text)] outline-none transition focus-visible:border-[var(--mairie-accent)] focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-60"
         onClick={() => setOpen((currentOpen) => !currentOpen)}
       >
-        <span className={selectedOptions.length ? 'text-[#172033]' : 'text-[#67717c]'}>
+        <span className={selectedOptions.length ? 'text-[var(--mairie-text)]' : 'text-[var(--mairie-muted)]'}>
           {selectedOptions.length ? `${selectedOptions.length} sélectionné(s)` : placeholder}
         </span>
-        <Check className={joinClasses('size-4 shrink-0 transition', selectedOptions.length ? 'text-[#2d6d69]' : 'text-[#94a3b8]')} />
+        <Check className={joinClasses('size-4 shrink-0 transition', selectedOptions.length ? 'text-[var(--mairie-teal-text)]' : 'text-[var(--mairie-muted)]')} />
       </button>
 
       {open && (
         <div
           role="listbox"
           aria-label={label}
-          className="absolute left-0 z-50 mt-1 max-h-56 w-full overflow-auto rounded-md border border-[#d8d2ca] bg-white p-1 text-sm text-[#172033] shadow-[0_8px_20px_rgba(15,23,42,0.16)]"
+          className="absolute left-0 z-50 mt-1 max-h-56 w-full overflow-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 text-sm text-[var(--mairie-text)] shadow-[var(--mairie-shadow)]"
         >
           {options.map((option) => {
             const selected = value.includes(option.value);
@@ -1030,8 +1030,8 @@ const ProjectMultiSelect = ({
                 role="option"
                 aria-selected={selected}
                 className={joinClasses(
-                  'flex h-8 w-full items-center justify-between gap-2 rounded-sm px-2 text-left transition hover:bg-[#eef3f2]',
-                  selected && 'bg-[#d8eeee] text-[#2d6d69]'
+                  'flex h-8 w-full items-center justify-between gap-2 rounded-sm px-2 text-left transition hover:bg-[var(--mairie-surface-raised)]',
+                  selected && 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-teal-text)]'
                 )}
                 onClick={() => toggleValue(option.value)}
               >
@@ -1049,7 +1049,7 @@ const ProjectMultiSelect = ({
             <button
               key={option.value}
               type="button"
-              className="inline-flex h-6 items-center gap-1 rounded-full border border-[#d8dfe7] bg-white px-2 text-xs text-[#172033] transition hover:border-[#1256a6]/35 hover:text-[#1256a6]"
+              className="inline-flex h-6 items-center gap-1 rounded-full border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-2 text-xs text-[var(--mairie-text)] transition hover:border-[var(--mairie-accent)]/35 hover:text-[var(--mairie-accent)]"
               disabled={disabled}
               onClick={() => toggleValue(option.value)}
             >
@@ -1089,9 +1089,9 @@ const ProjectFieldPanel = ({
   const selectedTags = values.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
 
   return (
-    <aside className="rounded-md border border-[#d8d2ca] bg-white p-4">
-      <h3 className="text-base font-bold leading-6 text-[#0f172a]">Champs du projet</h3>
-      <p className="text-xs leading-5 text-[#475569]">Configure les champs visibles sur les cartes.</p>
+    <aside className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4">
+      <h3 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Champs du projet</h3>
+      <p className="text-xs leading-5 text-[var(--mairie-muted)]">Configure les champs visibles sur les cartes.</p>
 
       <div className="mt-4 space-y-4">
         <ProjectSelect
@@ -1141,8 +1141,8 @@ const ProjectFieldPanel = ({
           onValueChange={(tagIds) => onValueChange({ ...values, tagIds })}
         />
         <div>
-          <label htmlFor="project-due-date" className="mb-1 block text-xs font-semibold text-[#475569]">
-            Échéance <span className="text-[#dc2626]">*</span>
+          <label htmlFor="project-due-date" className="mb-1 block text-xs font-semibold text-[var(--mairie-muted)]">
+            Échéance <span className="text-[var(--mairie-error-text)]">*</span>
           </label>
           <input
             id="project-due-date"
@@ -1156,26 +1156,26 @@ const ProjectFieldPanel = ({
 
         <div>
           <div className="mb-2 flex items-center justify-between text-xs">
-            <span className="font-semibold text-[#475569]">Progression</span>
-            <span className="font-bold text-[#0f172a]">{clampProgress(values.progress)}%</span>
+            <span className="font-semibold text-[var(--mairie-muted)]">Progression</span>
+            <span className="font-bold text-[var(--mairie-text)]">{clampProgress(values.progress)}%</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-[#d8e0e8]">
-            <div className="h-full rounded-full bg-[#0969da]" style={{ width: `${clampProgress(values.progress)}%` }} />
+          <div className="h-2 overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]">
+            <div className="h-full rounded-full bg-[var(--mairie-action-background)]" style={{ width: `${clampProgress(values.progress)}%` }} />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <div className="rounded-md border border-[#d8d2ca] bg-white p-3">
-              <div className="text-xs font-semibold text-[#475569]">Terminées</div>
-              <div className="mt-2 text-lg font-bold text-[#0f172a]">{completedTasks}</div>
+            <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-3">
+              <div className="text-xs font-semibold text-[var(--mairie-muted)]">Terminées</div>
+              <div className="mt-2 text-lg font-bold text-[var(--mairie-text)]">{completedTasks}</div>
             </div>
-            <div className="rounded-md border border-[#d8d2ca] bg-white p-3">
-              <div className="text-xs font-semibold text-[#475569]">Total</div>
-              <div className="mt-2 text-lg font-bold text-[#0f172a]">{values.tasks.length}</div>
+            <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-3">
+              <div className="text-xs font-semibold text-[var(--mairie-muted)]">Total</div>
+              <div className="mt-2 text-lg font-bold text-[var(--mairie-text)]">{values.tasks.length}</div>
             </div>
           </div>
         </div>
 
         {(owner || selectedTags.length > 0) && (
-          <div className="space-y-2 rounded-md bg-[#f8fafc] p-3 text-xs text-[#475569]">
+          <div className="space-y-2 rounded-md bg-[var(--mairie-surface-raised)] p-3 text-xs text-[var(--mairie-muted)]">
             {owner && (
               <div className="flex items-center gap-2">
                 <Users className="size-3.5" />
@@ -1375,13 +1375,13 @@ const ProjectTaskEditor = ({
   };
 
   return (
-    <section className="overflow-hidden rounded-md border border-[#d8d2ca] bg-white">
-      <div className="flex items-center justify-between border-b border-[#d8d2ca] bg-[#f7f5f2] px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-bold text-[#0f172a]">
+    <section className="overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)]">
+      <div className="flex items-center justify-between border-b border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-3">
+        <div className="flex items-center gap-2 text-sm font-bold text-[var(--mairie-text)]">
           <ListTodo className="size-4" strokeWidth={1.8} />
           Tâches
         </div>
-        <span className="text-xs text-[#475569]">
+        <span className="text-xs text-[var(--mairie-muted)]">
           {getCompletedTaskCount(values.tasks)}/{values.tasks.length}
         </span>
       </div>
@@ -1413,7 +1413,7 @@ const ProjectTaskEditor = ({
             onValueChange={(priority) => setDraftTask((currentTask) => ({ ...currentTask, priority }))}
           />
           <div>
-            <label htmlFor="task-due-date" className="mb-1 block text-xs font-semibold text-[#475569]">
+            <label htmlFor="task-due-date" className="mb-1 block text-xs font-semibold text-[var(--mairie-muted)]">
               Échéance
             </label>
             <input
@@ -1448,7 +1448,7 @@ const ProjectTaskEditor = ({
           {editingTaskId && (
             <button
               type="button"
-              className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+              className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
               disabled={!canManageTasks}
               onClick={resetDraftTask}
             >
@@ -1458,27 +1458,27 @@ const ProjectTaskEditor = ({
           <button
             type="button"
             disabled={!canManageTasks}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[#23a455] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#1f924d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23a455]/35 disabled:cursor-not-allowed disabled:bg-[#9ecfb4]"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mairie-success-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition hover:bg-[var(--mairie-success-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]"
             onClick={handleSubmitTask}
           >
             {editingTaskId ? 'Mettre à jour la tâche' : 'Ajouter la tâche'}
           </button>
         </div>
         {!canManageTasks && (
-          <div className="rounded-md border border-[#d8d2ca] bg-[#f8fafc] px-3 py-2 text-xs text-[#475569]">
+          <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 py-2 text-xs text-[var(--mairie-muted)]">
             Vous pouvez consulter vos tâches, mettre à jour leur statut et ajouter un commentaire.
           </div>
         )}
       </div>
 
-      <div className="grid gap-3 border-t border-[#d8d2ca] bg-[#fbfaf8] p-4 md:grid-cols-[minmax(0,1fr)_160px_160px_180px]">
+      <div className="grid gap-3 border-t border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] p-4 md:grid-cols-[minmax(0,1fr)_160px_160px_180px]">
         <div className="relative min-w-0">
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[#64748b]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
           <input
             type="search"
             value={taskSearchValue}
             placeholder="Rechercher une tâche..."
-            className="h-10 w-full rounded-md border border-[#cbd5e1] bg-white pl-10 pr-3 text-sm text-[#172033] outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20"
+            className="h-10 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] pl-10 pr-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20"
             onChange={(event) => setTaskSearchValue(event.target.value)}
           />
         </div>
@@ -1497,17 +1497,17 @@ const ProjectTaskEditor = ({
         <ProjectDueDateFilter value={taskDueDateValue} onValueChange={setTaskDueDateValue} />
       </div>
 
-      <div className="border-t border-[#d8d2ca]">
+      <div className="border-t border-[var(--mairie-border)]">
         {values.tasks.length === 0 ? (
-          <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[#475569]">
+          <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[var(--mairie-muted)]">
             Aucune tâche pour ce projet.
           </div>
         ) : visibleTasks.length === 0 ? (
-          <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[#475569]">
+          <div className="flex min-h-[100px] items-center justify-center px-4 py-6 text-sm text-[var(--mairie-muted)]">
             Aucune tâche ne correspond aux filtres.
           </div>
         ) : (
-          <ul className="divide-y divide-[#d8d2ca]">
+          <ul className="divide-y divide-[var(--mairie-border)]">
             {visibleTasks.map((task) => {
               const taskTags = task.tagIds.map((tagId) => getTag(tags, tagId)).filter(Boolean) as ProjectTag[];
               const taskComments = getTaskComments(task);
@@ -1521,22 +1521,22 @@ const ProjectTaskEditor = ({
                     type="button"
                     aria-label={`${task.status === 'done' ? 'Marquer à faire' : 'Marquer terminé'} : ${task.title}`}
                     disabled={!taskCanUpdate}
-                    className="mt-1 text-[#94a3b8] transition hover:text-[#16a34a] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-1 text-[var(--mairie-muted)] transition hover:text-[var(--mairie-success-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25 disabled:cursor-not-allowed disabled:opacity-50"
                     onClick={() => handleToggleTask(task)}
                   >
                     {task.status === 'done' ? (
-                      <CheckCircle2 className="size-4 text-[#16a34a]" strokeWidth={2} />
+                      <CheckCircle2 className="size-4 text-[var(--mairie-success-text)]" strokeWidth={2} />
                     ) : (
                       <Circle className="size-4" strokeWidth={2} />
                     )}
                   </button>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-bold leading-5 text-[#0f172a]">{task.title}</div>
+                    <div className="text-sm font-bold leading-5 text-[var(--mairie-text)]">{task.title}</div>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <StatusBadge status={task.status} />
                       <PriorityBadge priority={task.priority} />
                       <MemberAvatarStack members={members} ids={task.assigneeIds} max={2} />
-                      <span className="inline-flex items-center gap-1 text-xs text-[#475569]">
+                      <span className="inline-flex items-center gap-1 text-xs text-[var(--mairie-muted)]">
                         <Calendar className="size-3.5" strokeWidth={1.8} />
                         {formatDate(task.dueDate)}
                       </span>
@@ -1549,7 +1549,7 @@ const ProjectTaskEditor = ({
                         aria-label={`Statut de ${task.title}`}
                         value={task.status}
                         disabled={!taskCanUpdate}
-                        className="h-8 rounded-md border border-[#cbd5e1] bg-white px-2 text-xs text-[#172033] outline-none transition focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="h-8 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-2 text-xs text-[var(--mairie-text)] outline-none transition focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-60"
                         onChange={(event) => handleTaskStatusChange(task, event.target.value as ProjectStatus)}
                       >
                         {editableProjectStatusOptions.map((option) => (
@@ -1564,7 +1564,7 @@ const ProjectTaskEditor = ({
                         value={commentDraft}
                         placeholder="Ajouter un commentaire..."
                         disabled={!taskCanComment}
-                        className="h-8 rounded-md border border-[#cbd5e1] bg-white px-3 text-xs text-[#172033] outline-none transition placeholder:text-[#64748b] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-60"
+                        className="h-8 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-xs text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-60"
                         onChange={(event) =>
                           setCommentDrafts((currentDrafts) => ({
                             ...currentDrafts,
@@ -1575,7 +1575,7 @@ const ProjectTaskEditor = ({
                       <button
                         type="button"
                         disabled={!taskCanComment || !commentDraft.trim()}
-                        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[#d8d2ca] bg-white px-3 text-xs font-semibold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-8 items-center justify-center gap-1.5 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-xs font-semibold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => handleCommentTask(task)}
                       >
                         <MessageSquare className="size-3.5" strokeWidth={1.8} />
@@ -1583,14 +1583,14 @@ const ProjectTaskEditor = ({
                       </button>
                     </div>
                     {taskComments.length > 0 && (
-                      <div className="mt-3 space-y-2 rounded-md bg-[#f8fafc] p-3">
+                      <div className="mt-3 space-y-2 rounded-md bg-[var(--mairie-surface-raised)] p-3">
                         {taskComments.slice(-2).map((comment) => {
                           const author = comment.authorId ? getMember(members, comment.authorId) : undefined;
 
                           return (
-                            <div key={comment.id} className="text-xs leading-5 text-[#475569]">
-                              <span className="font-semibold text-[#172033]">{author?.name ?? 'Agent'}</span>
-                              <span className="mx-1 text-[#94a3b8]">·</span>
+                            <div key={comment.id} className="text-xs leading-5 text-[var(--mairie-muted)]">
+                              <span className="font-semibold text-[var(--mairie-text)]">{author?.name ?? 'Agent'}</span>
+                              <span className="mx-1 text-[var(--mairie-muted)]">·</span>
                               <span>{formatDate(comment.createdAt.slice(0, 10))}</span>
                               <div>{comment.message}</div>
                             </div>
@@ -1603,7 +1603,7 @@ const ProjectTaskEditor = ({
                     <div className="flex shrink-0 gap-2">
                       <button
                         type="button"
-                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[#0969da] bg-[#eff6ff] px-3 text-sm font-medium text-[#0969da] transition hover:bg-[#dbeafe] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                        className="inline-flex h-8 items-center gap-1.5 rounded-md border border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] px-3 text-sm font-medium text-[var(--mairie-accent)] transition hover:bg-[var(--mairie-accent-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
                         onClick={() => handleEditTask(task)}
                       >
                         <Pencil className="size-4" strokeWidth={1.8} />
@@ -1612,7 +1612,7 @@ const ProjectTaskEditor = ({
                       <button
                         type="button"
                         aria-label={`Supprimer la tâche ${task.title}`}
-                        className="inline-flex size-8 items-center justify-center rounded-md text-[#64748b] transition hover:bg-[#fee2e2] hover:text-[#dc2626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                        className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-error-surface)] hover:text-[var(--mairie-error-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
                         onClick={() => handleRemoveTask(task)}
                       >
                         <X className="size-4" strokeWidth={1.8} />
@@ -1636,22 +1636,22 @@ const ProjectHistoryPanel = ({
   history: ProjectHistoryEntry[];
   members: ProjectMember[];
 }) => (
-  <section className="overflow-hidden rounded-md border border-[#d8d2ca] bg-white">
-    <div className="flex items-center gap-2 border-b border-[#d8d2ca] bg-[#f7f5f2] px-4 py-3 text-sm font-bold text-[#0f172a]">
+  <section className="overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)]">
+    <div className="flex items-center gap-2 border-b border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-3 text-sm font-bold text-[var(--mairie-text)]">
       <History className="size-4" strokeWidth={1.8} />
       Historique des modifications
     </div>
     {history.length === 0 ? (
-      <div className="px-4 py-5 text-sm text-[#475569]">Aucune modification enregistrée.</div>
+      <div className="px-4 py-5 text-sm text-[var(--mairie-muted)]">Aucune modification enregistrée.</div>
     ) : (
-      <ul className="divide-y divide-[#e4e0dc]">
+      <ul className="divide-y divide-[var(--mairie-border)]">
         {history.slice(0, 8).map((entry) => {
           const actor = entry.actorId ? getMember(members, entry.actorId) : undefined;
 
           return (
             <li key={entry.id} className="px-4 py-3 text-sm">
-              <div className="font-semibold leading-5 text-[#0f172a]">{entry.label}</div>
-              <div className="mt-1 text-xs leading-5 text-[#64748b]">
+              <div className="font-semibold leading-5 text-[var(--mairie-text)]">{entry.label}</div>
+              <div className="mt-1 text-xs leading-5 text-[var(--mairie-muted)]">
                 {actor?.name ?? 'Système'} · {formatDate(entry.createdAt.slice(0, 10))}
               </div>
             </li>
@@ -1723,23 +1723,23 @@ const ProjectModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 px-4 py-6"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/45 px-4 py-6"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
     >
       <form
-        className="flex max-h-[calc(100vh-3rem)] w-full max-w-[1152px] flex-col overflow-hidden rounded-md border border-[#27272a] bg-[#f5f3f0] text-[#172033] shadow-2xl"
+        className="flex max-h-[calc(100vh-3rem)] w-full max-w-[1152px] flex-col overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-background)] text-[var(--mairie-text)] shadow-2xl"
         onSubmit={handleSubmit}
       >
-        <div className="flex h-14 shrink-0 items-center justify-between bg-[#2b2b2b] px-5 text-white">
+        <div className="flex h-14 shrink-0 items-center justify-between bg-[var(--mairie-navigation-background)] px-5 text-[var(--mairie-on-action)]">
           <h2 id={titleId} className="text-base font-bold leading-6">
             {title}
           </h2>
           <button
             type="button"
             aria-label="Fermer"
-            className="inline-flex size-8 items-center justify-center rounded-md text-white/80 transition hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+            className="inline-flex size-8 items-center justify-center rounded-md text-[var(--mairie-on-action)]/80 transition hover:bg-[var(--mairie-surface)]/10 hover:text-[var(--mairie-on-action)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-surface)]/35"
             onClick={onCancel}
           >
             <X className="size-5" strokeWidth={1.8} />
@@ -1749,9 +1749,9 @@ const ProjectModal = ({
         <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0 space-y-4">
-              <section className="rounded-md border border-[#d8d2ca] bg-white p-4">
-                <label htmlFor={titleInputId} className="mb-2 block text-xs font-semibold text-[#475569]">
-                  Titre <span className="text-[#dc2626]">*</span>
+              <section className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4">
+                <label htmlFor={titleInputId} className="mb-2 block text-xs font-semibold text-[var(--mairie-muted)]">
+                  Titre <span className="text-[var(--mairie-error-text)]">*</span>
                 </label>
                 <input
                   id={titleInputId}
@@ -1764,15 +1764,15 @@ const ProjectModal = ({
                 />
               </section>
 
-              <section className="rounded-md border border-[#d8d2ca] bg-white p-4">
-                <label htmlFor={objectivesInputId} className="mb-2 block text-xs font-semibold text-[#475569]">
-                  Objectifs <span className="text-[#dc2626]">*</span>
+              <section className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4">
+                <label htmlFor={objectivesInputId} className="mb-2 block text-xs font-semibold text-[var(--mairie-muted)]">
+                  Objectifs <span className="text-[var(--mairie-error-text)]">*</span>
                 </label>
                 <textarea
                   id={objectivesInputId}
                   value={values.objectives}
                   placeholder="Définir les objectifs attendus du projet..."
-                  className="min-h-[96px] w-full resize-none rounded-md border border-[#cbd5e1] bg-[#f8fafc] px-3 py-3 text-sm text-[#172033] outline-none transition placeholder:text-[#67717c] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20 disabled:cursor-not-allowed disabled:opacity-70"
+                  className="min-h-[96px] w-full resize-none rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-3 py-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20 disabled:cursor-not-allowed disabled:opacity-70"
                   disabled={!canEditProjectFields}
                   onChange={(event) =>
                     setValues((currentValues) => ({ ...currentValues, objectives: event.target.value }))
@@ -1780,15 +1780,15 @@ const ProjectModal = ({
                 />
               </section>
 
-              <section className="overflow-hidden rounded-md border border-[#d8d2ca] bg-white">
-                <div className="border-b border-[#d8d2ca] bg-[#f7f5f2] px-4 py-2">
-                  <span className="inline-flex h-7 items-center rounded-md border border-[#cbd5e1] bg-white px-3 text-sm font-semibold text-[#172033]">
+              <section className="overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)]">
+                <div className="border-b border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-2">
+                  <span className="inline-flex h-7 items-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm font-semibold text-[var(--mairie-text)]">
                     Écrire
                   </span>
                 </div>
                 <div className="p-4">
-                  <label htmlFor={descriptionInputId} className="mb-2 block text-xs font-semibold text-[#475569]">
-                    Description <span className="text-[#dc2626]">*</span>
+                  <label htmlFor={descriptionInputId} className="mb-2 block text-xs font-semibold text-[var(--mairie-muted)]">
+                    Description <span className="text-[var(--mairie-error-text)]">*</span>
                   </label>
                   <textarea
                     id={descriptionInputId}
@@ -1831,10 +1831,10 @@ const ProjectModal = ({
           </div>
         </div>
 
-        <div className="flex shrink-0 justify-end gap-3 border-t border-[#d8d2ca] bg-white px-5 py-3">
+        <div className="flex shrink-0 justify-end gap-3 border-t border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-5 py-3">
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-bold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+            className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-bold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
             onClick={onCancel}
           >
             Annuler
@@ -1842,7 +1842,7 @@ const ProjectModal = ({
           <button
             type="submit"
             disabled={!canSave}
-            className="inline-flex h-9 items-center justify-center rounded-md bg-[#23a455] px-4 text-sm font-bold text-white shadow-sm transition hover:bg-[#1f924d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#23a455]/35 disabled:cursor-not-allowed disabled:bg-[#9ecfb4]"
+            className="inline-flex h-9 items-center justify-center rounded-md bg-[var(--mairie-success-action-background)] px-4 text-sm font-bold text-[var(--mairie-on-action)] shadow-sm transition hover:bg-[var(--mairie-success-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]"
           >
             {submitLabel}
           </button>
@@ -1972,17 +1972,17 @@ export const ProjectModule = ({
   };
 
   return (
-    <section className={joinClasses('space-y-7 bg-[#f5f3f0] text-[#172033]', className)} {...props}>
+    <section className={joinClasses('space-y-7 bg-[var(--mairie-background)] text-[var(--mairie-text)]', className)} {...props}>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <h1 className="text-[28px] font-bold leading-tight text-[#0b1220]">{title}</h1>
-          {subtitle && <p className="mt-2 text-base leading-6 text-[#334155]">{subtitle}</p>}
+          <h1 className="text-[28px] font-bold leading-tight text-[var(--mairie-text)]">{title}</h1>
+          {subtitle && <p className="mt-2 text-base leading-6 text-[var(--mairie-text)]">{subtitle}</p>}
         </div>
         <div className="flex shrink-0 flex-wrap gap-3">
           {canCreateProject && (
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-bold text-white shadow-[0_2px_5px_rgba(18,86,166,0.35)] transition hover:bg-[#0f4a8d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-bold text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)] transition hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
               onClick={handleNewProjectClick}
             >
               <Plus className="size-4" strokeWidth={2} />
@@ -1992,7 +1992,7 @@ export const ProjectModule = ({
           {onSettingsClick && (
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-bold text-[#172033] transition hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-bold text-[var(--mairie-text)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
               onClick={handleSettingsClick}
             >
               <Settings className="size-4" strokeWidth={1.8} />
@@ -2002,7 +2002,7 @@ export const ProjectModule = ({
         </div>
       </div>
 
-      <div className="border-t border-[#d8d2ca]" />
+      <div className="border-t border-[var(--mairie-border)]" />
 
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex min-w-0 flex-1 flex-col gap-3 sm:flex-row">
@@ -2026,10 +2026,10 @@ export const ProjectModule = ({
         </div>
       </div>
 
-      <div className="border-t border-[#d8d2ca]" />
+      <div className="border-t border-[var(--mairie-border)]" />
 
       {visibleProjects.length === 0 ? (
-        <div className="rounded-md border border-[#d8d2ca] bg-white px-6 py-10 text-center text-sm text-[#475569]">
+        <div className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-10 text-center text-sm text-[var(--mairie-muted)]">
           {scopedProjects.length === 0 ? 'Aucun projet disponible.' : 'Aucun projet ne correspond aux filtres.'}
         </div>
       ) : resolvedViewMode === 'kanban' ? (

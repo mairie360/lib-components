@@ -148,30 +148,30 @@ export const CalendarDateField = ({
       ? createPortal(
           <div
             ref={popoverRef}
-            className="fixed z-[80] rounded-md border border-[#cbd5e1] bg-white p-3 text-[#172033] shadow-xl"
+            className="fixed z-[80] rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-3 text-[var(--mairie-text)] shadow-xl"
             style={popoverStyle}
           >
             <div className="mb-3 flex items-center justify-between gap-2">
               <button
                 type="button"
                 aria-label="Mois précédent"
-                className="inline-flex size-8 items-center justify-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] transition hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
                 onClick={() => setDisplayMonth((currentMonth) => addMonths(currentMonth, -1))}
               >
                 <ChevronLeft className="size-4" strokeWidth={1.8} />
               </button>
-              <div className="min-w-0 text-sm font-semibold text-[#172033]">{formatMonthYear(displayMonth)}</div>
+              <div className="min-w-0 text-sm font-semibold text-[var(--mairie-text)]">{formatMonthYear(displayMonth)}</div>
               <button
                 type="button"
                 aria-label="Mois suivant"
-                className="inline-flex size-8 items-center justify-center rounded-md border border-[#d8d2ca] bg-[#fbfaf9] transition hover:bg-[#f3f0ec] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25"
+                className="inline-flex size-8 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
                 onClick={() => setDisplayMonth((currentMonth) => addMonths(currentMonth, 1))}
               >
                 <ChevronRight className="size-4" strokeWidth={1.8} />
               </button>
             </div>
 
-            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase text-[#64748b]">
+            <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase text-[var(--mairie-muted)]">
               {defaultDayLabels.map((dayLabel) => (
                 <div key={dayLabel}>{dayLabel}</div>
               ))}
@@ -184,10 +184,10 @@ export const CalendarDateField = ({
                     type="button"
                     aria-label={`Choisir le ${formatFullDate(date)}`}
                     className={joinClasses(
-                      'inline-flex size-8 items-center justify-center rounded-md text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25',
+                      'inline-flex size-8 items-center justify-center rounded-md text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25',
                       selectedDate && isSameDay(selectedDate, date)
-                        ? 'bg-[#1256a6] text-white hover:bg-[#0f4a8d]'
-                        : 'text-[#172033] hover:bg-[#f5f3f0]'
+                        ? 'bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)] hover:bg-[var(--mairie-action-hover-background)]'
+                        : 'text-[var(--mairie-text)] hover:bg-[var(--mairie-background)]'
                     )}
                     onClick={() => handleSelectDate(date)}
                   >
@@ -229,7 +229,7 @@ export const CalendarDateField = ({
           type="button"
           aria-label={`Ouvrir le calendrier pour ${labelText}`}
           disabled={disabled}
-          className="absolute right-1 top-1 inline-flex size-7 items-center justify-center rounded-md text-[#64748b] transition hover:bg-white hover:text-[#1256a6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25 disabled:cursor-not-allowed disabled:opacity-60"
+          className="absolute right-1 top-1 inline-flex size-7 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-surface)] hover:text-[var(--mairie-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={() => setOpen((currentOpen) => !currentOpen)}
         >
           <CalendarDays className="size-4" strokeWidth={1.8} />

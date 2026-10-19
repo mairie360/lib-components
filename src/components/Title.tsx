@@ -26,7 +26,7 @@ export const Title = ({
     subtitle,
     onClick,
     titleColor,
-    subtitleColor = "text-gray-500",
+    subtitleColor = "text-[var(--mairie-muted)]",
     titleFontSize = "text-2xl",
     subtitleFontSize = "text-sm",
     titleFontWeight = "font-bold",

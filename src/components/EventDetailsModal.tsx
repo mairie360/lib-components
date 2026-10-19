@@ -67,11 +67,11 @@ const DetailRow = ({
   value?: React.ReactNode;
   className?: string;
 }) => (
-  <div className={joinClasses('flex gap-3 rounded-md bg-[#f8fafc] px-3 py-2 text-sm', className)}>
-    <span className="mt-0.5 shrink-0 text-[#64748b]">{icon}</span>
+  <div className={joinClasses('flex gap-3 rounded-md bg-[var(--mairie-surface-raised)] px-3 py-2 text-sm', className)}>
+    <span className="mt-0.5 shrink-0 text-[var(--mairie-muted)]">{icon}</span>
     <div className="min-w-0">
-      <div className="text-xs font-semibold uppercase tracking-wide text-[#64748b]">{label}</div>
-      <div className="mt-0.5 whitespace-normal break-words font-medium text-[#172033]">
+      <div className="text-xs font-semibold uppercase tracking-wide text-[var(--mairie-muted)]">{label}</div>
+      <div className="mt-0.5 whitespace-normal break-words font-medium text-[var(--mairie-text)]">
         {value || 'Non renseigné'}
       </div>
     </div>
@@ -223,22 +223,22 @@ export const EventDetailsModal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/20 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}
     >
       <form
-        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[#f5f3f0] text-[#172033] shadow-xl"
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-[510px] flex-col overflow-hidden rounded-md bg-[var(--mairie-background)] text-[var(--mairie-text)] shadow-xl"
       >
-        <div className="flex min-h-14 items-center justify-between gap-4 bg-[#2b2b2b] px-5 py-3 text-white">
+        <div className="flex min-h-14 items-center justify-between gap-4 bg-[var(--mairie-navigation-background)] px-5 py-3 text-[var(--mairie-on-action)]">
           <h2 id={titleId} className="min-w-0 text-base font-semibold leading-6">
             {title}
           </h2>
           <button
             type="button"
             aria-label="Fermer"
-            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[#cbd5e1] transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/35"
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-[var(--mairie-navigation-text)] transition-colors hover:bg-[var(--mairie-on-action)]/10 hover:text-[var(--mairie-on-action)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-navigation-text)]/35"
             onClick={onClose}
           >
             <X className="h-5 w-5" strokeWidth={1.8} />
@@ -247,11 +247,11 @@ export const EventDetailsModal = ({
 
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
           <div>
-            <div className="whitespace-normal break-words text-xl font-semibold leading-7 text-[#172033]">
+            <div className="whitespace-normal break-words text-xl font-semibold leading-7 text-[var(--mairie-text)]">
               {event.title}
             </div>
             {event.description && (
-              <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-[#475569]">
+              <p className="mt-2 whitespace-normal break-words text-sm leading-6 text-[var(--mairie-muted)]">
                 {event.description}
               </p>
             )}
@@ -294,8 +294,8 @@ export const EventDetailsModal = ({
             />
           </div>
 
-          <div className="rounded-md bg-[#f8fafc] px-3 py-2 text-sm">
-            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[#64748b]">
+          <div className="rounded-md bg-[var(--mairie-surface-raised)] px-3 py-2 text-sm">
+            <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--mairie-muted)]">
               <Users className="h-4 w-4" strokeWidth={1.8} />
               Assignés
             </div>
@@ -304,22 +304,22 @@ export const EventDetailsModal = ({
                 {selectedAssignees.map((assignee) => (
                   <span
                     key={assignee.id}
-                    className="inline-flex items-center rounded-md bg-[#e9f2ff] px-2 py-1 text-xs font-semibold text-[#2563eb]"
+                    className="inline-flex items-center rounded-md bg-[var(--mairie-accent-surface)] px-2 py-1 text-xs font-semibold text-[var(--mairie-accent)]"
                   >
                     {assignee.name}
                   </span>
                 ))}
               </div>
             ) : (
-              <div className="text-[#64748b]">Aucune personne assignée</div>
+              <div className="text-[var(--mairie-muted)]">Aucune personne assignée</div>
             )}
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-end gap-3 bg-[#f5f3f0] px-6 py-3">
+        <div className="flex flex-wrap justify-end gap-3 bg-[var(--mairie-background)] px-6 py-3">
           <button
             type="button"
-            className="inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition-colors hover:bg-[#f8fafc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#3b82f6]/25"
+            className="inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] shadow-sm transition-colors hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
             onClick={onClose}
           >
             {closeLabel}
@@ -327,7 +327,7 @@ export const EventDetailsModal = ({
           {showValidationActions && onReject && (
             <button
               type="button"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#fecaca] bg-white px-4 text-sm font-semibold text-[#dc2626] shadow-sm transition-colors hover:bg-[#fff1f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef4444]/25"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[var(--mairie-error-text)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-error-text)] shadow-sm transition-colors hover:bg-[var(--mairie-error-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
               onClick={() => onReject(event)}
             >
               <X className="h-4 w-4" strokeWidth={1.8} />
@@ -337,7 +337,7 @@ export const EventDetailsModal = ({
           {showValidationActions && onApprove && (
             <button
               type="button"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2faa55] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#27984b] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2faa55]/35"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-success-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition-colors hover:bg-[var(--mairie-success-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
               onClick={() => onApprove(event)}
             >
               <Check className="h-4 w-4" strokeWidth={1.8} />
@@ -347,7 +347,7 @@ export const EventDetailsModal = ({
           {canDelete && onDelete && (
             <button
               type="button"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[#fecaca] bg-white px-4 text-sm font-semibold text-[#dc2626] shadow-sm transition-colors hover:bg-[#fff1f2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ef4444]/25"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-[var(--mairie-error-text)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-error-text)] shadow-sm transition-colors hover:bg-[var(--mairie-error-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25"
               onClick={() => onDelete(event)}
             >
               <Trash2 className="h-4 w-4" strokeWidth={1.8} />
@@ -357,7 +357,7 @@ export const EventDetailsModal = ({
           {resolvedCanEdit && onSave && (
             <button
               type="button"
-              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#1d4ed8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563eb]/35"
+              className="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition-colors hover:bg-[var(--mairie-action-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
               onClick={() => {
                 setValues(getEventValues(event));
                 setEditing(true);

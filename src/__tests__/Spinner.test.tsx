@@ -14,7 +14,7 @@ describe('Spinner component', () => {
     expect(spinner).toHaveClass('border-t-transparent');
     expect(spinner).toHaveClass('w-6');
     expect(spinner).toHaveClass('h-6');
-    expect(spinner).toHaveClass('text-blue-500');
+    expect(spinner).toHaveClass('text-[var(--mairie-accent)]');
   });
 
   it('renders with custom size, color and border', () => {

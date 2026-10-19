@@ -1,0 +1,18 @@
+{
+  "name": "@mairie360/sprintf-tooling-patch",
+  "version": "1.0.3-mairie360.1",
+  "description": "Local security backport of sprintf-js; see ../README.md for provenance and limits",
+  "author": "Alexandru Marasteanu <hello@alexei.ro> (http://alexei.ro/)",
+  "main": "src/sprintf.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexei/sprintf.js.git"
+  },
+  "license": "BSD-3-Clause",
+  "private": true,
+  "type": "commonjs",
+  "files": [
+    "src/sprintf.js",
+    "LICENSE"
+  ]
+}

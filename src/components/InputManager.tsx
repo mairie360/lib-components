@@ -118,7 +118,7 @@ export const InputManager = ({
     }
       
     return (
-      <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+      <div className="mt-2 flex items-center justify-between text-sm text-[var(--mairie-muted)]">
         <span>
           Fichier existant : <span className="font-medium">{filename}</span>
         </span>
@@ -127,7 +127,7 @@ export const InputManager = ({
             type="button"
             title="Aperçu du fichier"
             onClick={() => window.open(`${apiUrl}preview/${filename}`, "_blank")}
-            className="text-green-500 hover:text-green-700"
+            className="text-[var(--mairie-success-text)] hover:text-[var(--mairie-success-text)]"
           >
             <FaEye />
           </button>
@@ -135,7 +135,7 @@ export const InputManager = ({
             type="button"
             title="Télécharger le fichier"
             onClick={() => window.open(`${apiUrl}download/${filename}`, "_blank")}
-            className="text-blue-500 hover:text-blue-700"
+            className="text-[var(--mairie-accent)] hover:text-[var(--mairie-accent)]"
           >
             <FaDownload />
           </button>
@@ -143,7 +143,7 @@ export const InputManager = ({
             type="button"
             title="Supprimer le fichier"
             onClick={handleDelete}
-            className="text-red-500 hover:text-red-700"
+            className="text-[var(--mairie-error-text)] hover:text-[var(--mairie-error-text)]"
           >
             <FaTrash />
           </button>
@@ -158,7 +158,7 @@ export const InputManager = ({
     value: inputValue,
     onChange,
     className:
-      "mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm",
+      "mt-1 block w-full p-2 border border-[var(--mairie-border)] rounded-md shadow-sm focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm",
   };
 
   return (
@@ -169,7 +169,7 @@ export const InputManager = ({
 
       {type === "select" ? (
         <div className="relative" id={`${name}-wrapper`}>
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--mairie-muted)] pointer-events-none" />
           <input
             type="text"
             id={name}
@@ -187,10 +187,10 @@ export const InputManager = ({
             }}
             onFocus={() => setDropdownVisible(true)}
             placeholder="Rechercher une option..."
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full pl-10 pr-3 py-2 border border-[var(--mairie-border)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm"
           />
     {dropdownVisible && (
-      <ul className="absolute z-10 mt-1 w-full bg-white text-black border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+      <ul className="absolute z-10 mt-1 w-full bg-[var(--mairie-surface)] text-[var(--mairie-text)] border border-[var(--mairie-border)] rounded-md shadow-lg max-h-60 overflow-auto">
         {options
           .filter((option) =>
             option.label.toLowerCase().includes(search.toLowerCase())
@@ -208,7 +208,7 @@ export const InputManager = ({
                 setSearch("");
                 setDropdownVisible(false);
               }}
-              className="cursor-pointer px-4 py-2 hover:bg-indigo-100 text-sm"
+              className="cursor-pointer px-4 py-2 hover:bg-[var(--mairie-accent-surface)] text-sm"
             >
               {option.label}
             </li>
@@ -216,7 +216,7 @@ export const InputManager = ({
         {options.filter((o) =>
           o.label.toLowerCase().includes(search.toLowerCase())
         ).length === 0 && (
-          <li className="px-4 py-2 text-sm text-gray-500">Aucune option trouvée</li>
+          <li className="px-4 py-2 text-sm text-[var(--mairie-muted)]">Aucune option trouvée</li>
         )}
       </ul>
     )}
@@ -226,7 +226,7 @@ export const InputManager = ({
       ) : type === "file" ? (
         <>
           <input type="file" id={name} name={name} onChange={onChange} className={commonProps.className} />
-          {renderFileActions() || <p className="mt-2 text-sm text-gray-600">Aucun fichier sélectionné</p>}
+          {renderFileActions() || <p className="mt-2 text-sm text-[var(--mairie-muted)]">Aucun fichier sélectionné</p>}
         </>
       ) : type === "radio" ? (
         <div className="mt-2 flex gap-4">
@@ -238,7 +238,7 @@ export const InputManager = ({
                 value={option.value}
                 checked={value === option.value}
                 onChange={onChange}
-                className="text-indigo-600 focus:ring-indigo-500"
+                className="text-[var(--mairie-accent)] focus:ring-[var(--mairie-accent)]"
               />
               <span className="font-bold">{option.label}</span>
             </label>
@@ -267,8 +267,9 @@ export const InputManager = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute inset-y-0 right-2 pr-2 flex items-center hover:text-blue-500 focus:outline-none"
-            tabIndex={-1}
+            className="absolute inset-y-0 right-2 pr-2 flex items-center hover:text-[var(--mairie-accent)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
+            aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+            aria-pressed={showPassword}
           >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </button>
@@ -276,7 +277,7 @@ export const InputManager = ({
       ) : type === "email" ? (
         <div className="mb-1">
           <div className="relative">
-            <FaEnvelope className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <FaEnvelope className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--mairie-muted)] pointer-events-none" />
             <input
               type="email"
               id={name}
@@ -289,20 +290,20 @@ export const InputManager = ({
               }}
               placeholder="exemple@domaine.com"
               required
-              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                emailError ? "border-red-500 focus:border-red-500" : "border-gray-300"
+              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm ${
+                emailError ? "border-[var(--mairie-error-text)] focus:border-[var(--mairie-error-text)]" : "border-[var(--mairie-border)]"
               }`}
             />
           </div>
 
           {emailError && (
-            <p className="mt-1 text-sm text-red-600">{emailError}</p>
+            <p className="mt-1 text-sm text-[var(--mairie-error-text)]">{emailError}</p>
           )}
         </div>
       ) : type === "tel" ? (
         <div className="mb-1">
           <div className="relative">
-            <FaPhone className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+            <FaPhone className="absolute right-2 top-1/2 transform -translate-y-1/2 text-[var(--mairie-muted)] pointer-events-none" />
             <input
               type="tel"
               id={name}
@@ -310,13 +311,13 @@ export const InputManager = ({
               value={inputValue}
               onChange={handleChange}
               placeholder="06 12 34 56 78"
-              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-                phoneError ? "border-red-500 focus:border-red-500" : "border-gray-300"
+              className={`block w-full pr-10 p-2 border rounded-md shadow-sm focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm ${
+                phoneError ? "border-[var(--mairie-error-text)] focus:border-[var(--mairie-error-text)]" : "border-[var(--mairie-border)]"
               }`}
             />
           </div>
 
-          {phoneError && <p className="mt-1 text-sm text-red-600">{phoneError}</p>}
+          {phoneError && <p className="mt-1 text-sm text-[var(--mairie-error-text)]">{phoneError}</p>}
         </div>
       ) : type === "number" ? (
         <div className="mb-1">
@@ -328,15 +329,15 @@ export const InputManager = ({
             onChange={handleChangeNumber}
             min={min}
             max={max}
-            className={`block w-full p-2 border rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm ${
-              error ? "border-red-500 focus:border-red-500" : "border-gray-300"
+            className={`block w-full p-2 border rounded-md shadow-sm focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm ${
+              error ? "border-[var(--mairie-error-text)] focus:border-[var(--mairie-error-text)]" : "border-[var(--mairie-border)]"
             }`}
           />
-          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-1 text-sm text-[var(--mairie-error-text)]">{error}</p>}
         </div>
       ) : type === "search" ? (
         <div className="relative">
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--mairie-muted)] pointer-events-none" />
           <input
             type="search"
             id={name}
@@ -344,7 +345,7 @@ export const InputManager = ({
             value={inputValue}
             onChange={onChange}
             placeholder="Rechercher..."
-            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="w-full pl-10 pr-3 py-2 border border-[var(--mairie-border)] rounded-md shadow-sm focus:outline-none focus:ring-[var(--mairie-accent)] focus:border-[var(--mairie-accent)] sm:text-sm"
           />
         </div>
       ) : (

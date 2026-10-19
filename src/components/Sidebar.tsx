@@ -76,22 +76,22 @@ export const Sidebar = ({
   return (
     <aside
       aria-label="Navigation principale"
-      className={`flex min-h-screen w-[260px] flex-col border-r border-[#3b514f] bg-[#2b2b2b] text-[#dff9ff] ${className}`}
+      className={`flex min-h-screen w-[260px] flex-col border-r border-[var(--mairie-navigation-border)] bg-[var(--mairie-navigation-background)] text-[var(--mairie-navigation-text)] ${className}`}
     >
-      <div className="flex h-16 items-center gap-2.5 border-b border-[#4b908d]/45 px-7">
+      <div className="flex h-16 items-center gap-2.5 border-b border-[var(--mairie-navigation-border)]/45 px-7">
         {shouldShowLogo ? (
           <img
             src={brandLogoSrc as string}
             alt={brandLogoAlt}
-            className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-[0_1px_2px_rgba(0,0,0,0.25)]"
+            className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-[var(--mairie-shadow)]"
             onError={() => setLogoError(true)}
           />
         ) : (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#1256a6] text-sm font-semibold text-white shadow-[0_1px_2px_rgba(0,0,0,0.25)]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[var(--mairie-action-background)] text-sm font-semibold text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)]">
             {brandInitial}
           </div>
         )}
-        <div className="text-lg font-semibold tracking-normal text-white">{brandLabel}</div>
+        <div className="text-lg font-semibold tracking-normal text-[var(--mairie-on-action)]">{brandLabel}</div>
       </div>
 
       <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-4 py-6" aria-label="Menu principal">
@@ -100,13 +100,13 @@ export const Sidebar = ({
           const isActive = activeItem === item.id;
           const isAdministration = item.id === 'admin';
           let appearance = isActive
-            ? 'border-[#2677cf] bg-[#1c63b7] text-white shadow-[0_1px_2px_rgba(0,0,0,0.24)]'
-            : 'border-transparent text-[#dff9ff] hover:border-[#4b908d]/70 hover:bg-[#334d4a] hover:text-white';
+            ? 'border-[var(--mairie-navigation-active-border)] bg-[var(--mairie-navigation-active-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)]'
+            : 'border-transparent text-[var(--mairie-navigation-text)] hover:border-[var(--mairie-navigation-border)]/70 hover:bg-[var(--mairie-navigation-hover-background)] hover:text-[var(--mairie-on-action)]';
 
           if (isAdministration) {
             appearance = isActive
-              ? 'border-[#ffb0b7] bg-[#891827] text-white shadow-[inset_3px_0_0_#ffccd1,0_2px_6px_#0003] hover:bg-[#891827] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffccd1]'
-              : 'border-[#db5260] bg-[#b4232f] text-white shadow-[0_2px_6px_#0003] hover:bg-[#951c28] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ffccd1]';
+              ? 'border-[var(--mairie-navigation-admin-active-border)] bg-[var(--mairie-navigation-admin-active-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-navigation-admin-shadow)] hover:bg-[var(--mairie-navigation-admin-active-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]'
+              : 'border-[var(--mairie-navigation-admin-border)] bg-[var(--mairie-navigation-admin-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)] hover:bg-[var(--mairie-navigation-admin-hover-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]';
           }
 
           return (
@@ -120,7 +120,7 @@ export const Sidebar = ({
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.9} />
               <span className="min-w-0 flex-1 truncate">{item.label}</span>
               {item.badge && (
-                <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-white ${isAdministration ? 'bg-white/20' : 'bg-[#e60012]'}`}>
+                <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-[var(--mairie-on-action)] ${isAdministration ? 'bg-[var(--mairie-on-action)]/20' : 'bg-[var(--mairie-error-action-background)]'}`}>
                   {item.badge}
                 </span>
               )}

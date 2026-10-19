@@ -97,18 +97,18 @@ export const ElearningCourseRating = ({
 
   return (
     <section
-      className={joinClasses('rounded-lg border border-[#d8d2ca] bg-white p-4 text-[#2f3747]', className)}
+      className={joinClasses('rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-4 text-[var(--mairie-text)]', className)}
       {...props}
       aria-busy={submitting}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-sm font-bold leading-5 text-[#2f3747]">{title}</h3>
-          <p className="mt-1 text-xs leading-5 text-[#6f6f6f]">{isEditing
+          <h3 className="text-sm font-bold leading-5 text-[var(--mairie-text)]">{title}</h3>
+          <p className="mt-1 text-xs leading-5 text-[var(--mairie-muted)]">{isEditing
             ? 'Choisissez une nouvelle note puis confirmez.'
             : hasSubmitted ? submittedLabel : helperText}</p>
         </div>
-        {hasSubmitted && !isEditing && <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[#00a651]" />}
+        {hasSubmitted && !isEditing && <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-[var(--mairie-success-text)]" />}
       </div>
 
       <div
@@ -131,11 +131,11 @@ export const ElearningCourseRating = ({
               onMouseEnter={() => {
                 if (!isLocked) setHoveredValue(rating);
               }}
-              className="flex h-9 items-center justify-center rounded-md text-[#a5a199] transition hover:bg-[#fff7db] focus:outline-none focus:ring-2 focus:ring-[#f4b000]/40 disabled:cursor-default disabled:hover:bg-transparent"
+              className="flex h-9 items-center justify-center rounded-md text-[var(--mairie-muted)] transition hover:bg-[var(--mairie-warning-surface)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/40 disabled:cursor-default disabled:hover:bg-transparent"
             >
               <Star
                 aria-hidden="true"
-                className={joinClasses('size-5', selected ? 'fill-[#f4b000] text-[#f4b000]' : 'text-[#b7b2aa]')}
+                className={joinClasses('size-5', selected ? 'fill-[var(--mairie-rating-active)] text-[var(--mairie-rating-active)]' : 'text-[var(--mairie-muted)]')}
               />
             </button>
           );
@@ -146,7 +146,7 @@ export const ElearningCourseRating = ({
         type="button"
         disabled={!value || isLocked}
         onClick={handleSubmit}
-        className="mt-3 h-9 w-full rounded-md bg-[#1256a6] px-3 text-sm font-semibold text-white transition hover:bg-[#0f4b91] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed disabled:bg-[#b9c8d9]"
+        className="mt-3 h-9 w-full rounded-md bg-[var(--mairie-action-background)] px-3 text-sm font-semibold text-[var(--mairie-on-action)] transition hover:bg-[var(--mairie-action-hover-background)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30 disabled:cursor-not-allowed disabled:bg-[var(--mairie-rating-inactive)]"
       >
         {submitting ? 'Enregistrement…' : isEditing ? 'Enregistrer ma note' : hasSubmitted ? 'Note envoyée' : submitLabel}
       </button>
@@ -160,12 +160,12 @@ export const ElearningCourseRating = ({
             if (isEditing) setValue(confirmedValue);
             setEditing(!isEditing);
           }}
-          className="mt-2 min-h-9 w-full rounded-md border border-[#1256a6] px-3 py-2 text-sm font-semibold text-[#1256a6] focus:outline-none focus:ring-2 focus:ring-[#1256a6]/30 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-2 min-h-9 w-full rounded-md border border-[var(--mairie-accent)] px-3 py-2 text-sm font-semibold text-[var(--mairie-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--mairie-accent)]/30 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isEditing ? 'Annuler la modification' : 'Modifier ma note'}
         </button>
       ) : null}
-      {error ? <p role="alert" className="mt-3 text-sm text-[#a4232c]">{error}</p> : null}
+      {error ? <p role="alert" className="mt-3 text-sm text-[var(--mairie-error-text)]">{error}</p> : null}
     </section>
   );
 };

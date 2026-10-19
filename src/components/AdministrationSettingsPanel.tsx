@@ -24,7 +24,7 @@ interface ToggleFieldProps {
 }
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm text-[var(--mairie-text)] outline-none transition focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 
 const updateBoundedInteger = (
   rawValue: string,
@@ -43,8 +43,8 @@ const updateBoundedInteger = (
 const ToggleField = ({ checked, disabled, label, description, onChange }: ToggleFieldProps) => (
   <div className="flex items-start justify-between gap-4">
     <div className="min-w-0">
-      <div className="text-sm font-semibold leading-5 text-[#172033]">{label}</div>
-      <div className="text-sm leading-5 text-[#667085]">{description}</div>
+      <div className="text-sm font-semibold leading-5 text-[var(--mairie-text)]">{label}</div>
+      <div className="text-sm leading-5 text-[var(--mairie-muted)]">{description}</div>
     </div>
     <button
       type="button"
@@ -53,14 +53,14 @@ const ToggleField = ({ checked, disabled, label, description, onChange }: Toggle
       aria-label={label}
       aria-checked={checked}
       className={joinClasses(
-        'mt-1 inline-flex h-[18px] w-8 shrink-0 items-center rounded-full p-[2px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35',
-        checked ? 'bg-[#1256a6]' : 'bg-[#d8d4ce]'
+        'mt-1 inline-flex h-[18px] w-8 shrink-0 items-center rounded-full p-[2px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35',
+        checked ? 'bg-[var(--mairie-action-background)]' : 'bg-[var(--mairie-surface-raised)]'
       )}
       onClick={() => onChange(!checked)}
     >
       <span
         className={joinClasses(
-          'size-3.5 rounded-full bg-white shadow-sm transition',
+          'size-3.5 rounded-full bg-[var(--mairie-surface)] shadow-sm transition',
           checked ? 'translate-x-3.5' : 'translate-x-0'
         )}
       />
@@ -91,11 +91,11 @@ export const AdministrationSettingsPanel = ({
   };
 
   return (
-    <div className={joinClasses('space-y-6 text-[#172033]', className)} {...props}>
+    <div className={joinClasses('space-y-6 text-[var(--mairie-text)]', className)} {...props}>
       {settings ? <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
-          <h2 className="text-base font-bold leading-6 text-[#172033]">Sécurité</h2>
-          <p className="mt-1 text-base leading-6 text-[#667085]">Paramètres de sécurité et authentification</p>
+        <section className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6">
+          <h2 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Sécurité</h2>
+          <p className="mt-1 text-base leading-6 text-[var(--mairie-muted)]">Paramètres de sécurité et authentification</p>
 
           <div className="mt-7 space-y-6">
             <ToggleField
@@ -107,7 +107,7 @@ export const AdministrationSettingsPanel = ({
             />
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold leading-5 text-[#172033]">
+              <span className="mb-2 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
                 Délai d’expiration de session (heures)
               </span>
               <input
@@ -126,13 +126,13 @@ export const AdministrationSettingsPanel = ({
                   )
                 }
               />
-              <span id="session-expiration-help" className="mt-1 block text-xs text-[#667085]">
+              <span id="session-expiration-help" className="mt-1 block text-xs text-[var(--mairie-muted)]">
                 Valeur entière comprise entre 1 et 720 heures.
               </span>
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-semibold leading-5 text-[#172033]">
+              <span className="mb-2 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
                 Nombre max de tentatives de connexion
               </span>
               <input
@@ -151,16 +151,16 @@ export const AdministrationSettingsPanel = ({
                   )
                 }
               />
-              <span id="login-attempts-help" className="mt-1 block text-xs text-[#667085]">
+              <span id="login-attempts-help" className="mt-1 block text-xs text-[var(--mairie-muted)]">
                 Valeur entière comprise entre 1 et 20 tentatives.
               </span>
             </label>
           </div>
         </section>
 
-        <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
-          <h2 className="text-base font-bold leading-6 text-[#172033]">Système</h2>
-          <p className="mt-1 text-base leading-6 text-[#667085]">Configuration générale de l’application</p>
+        <section className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6">
+          <h2 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Système</h2>
+          <p className="mt-1 text-base leading-6 text-[var(--mairie-muted)]">Configuration générale de l’application</p>
 
           <div className="mt-7 space-y-6">
             <ToggleField
@@ -186,7 +186,7 @@ export const AdministrationSettingsPanel = ({
             />
 
             <div>
-              <div className="mb-2 text-sm font-semibold leading-5 text-[#172033]">
+              <div className="mb-2 text-sm font-semibold leading-5 text-[var(--mairie-text)]">
                 Fréquence des sauvegardes
               </div>
               <AdministrationSelect
@@ -200,14 +200,14 @@ export const AdministrationSettingsPanel = ({
           </div>
         </section>
       </div> : (
-        <p className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-10 text-sm text-[#667085]">
+        <p className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-10 text-sm text-[var(--mairie-muted)]">
           Paramètres indisponibles.
         </p>
       )}
 
-      <section className="rounded-lg border border-[#d8d2ca] bg-white px-6 py-6">
-        <h2 className="text-base font-bold leading-6 text-[#172033]">Actions dangereuses</h2>
-        <p className="mt-1 text-base leading-6 text-[#667085]">
+      <section className="rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-6 py-6">
+        <h2 className="text-base font-bold leading-6 text-[var(--mairie-text)]">Actions dangereuses</h2>
+        <p className="mt-1 text-base leading-6 text-[var(--mairie-muted)]">
           Ces actions sont irréversibles et doivent être effectuées avec prudence
         </p>
 
@@ -218,14 +218,14 @@ export const AdministrationSettingsPanel = ({
             return (
               <article
                 key={action.id}
-                className="rounded-md border border-[#ffb3b3] bg-[#fff1f2] px-4 py-4 text-[#b91c1c]"
+                className="rounded-md border border-[var(--mairie-error-text)] bg-[var(--mairie-error-surface)] px-4 py-4 text-[var(--mairie-error-text)]"
               >
                 <h3 className="text-base font-bold leading-6">{action.title}</h3>
-                <p className="mt-3 text-sm leading-5 text-[#e60012]">{action.description}</p>
+                <p className="mt-3 text-sm leading-5 text-[var(--mairie-error-text)]">{action.description}</p>
                 <button
                   type="button"
                   disabled={!onDangerAction}
-                  className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#c92f2f] px-4 text-sm font-semibold text-white transition hover:bg-[#b62626] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#c92f2f]/35"
+                  className="mt-4 inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-error-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] transition hover:bg-[var(--mairie-error-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35"
                   onClick={() => onDangerAction?.(action)}
                 >
                   <Icon className="size-4" strokeWidth={1.8} />
@@ -235,7 +235,7 @@ export const AdministrationSettingsPanel = ({
             );
           })}
           {(dangerActions?.length ?? 0) === 0 && (
-            <p className="text-sm text-[#667085]">
+            <p className="text-sm text-[var(--mairie-muted)]">
               {dangerActions ? 'Aucune action disponible.' : 'Actions indisponibles.'}
             </p>
           )}

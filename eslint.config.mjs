@@ -19,11 +19,14 @@ const eslintConfig = defineConfig([
     // failing CI until those components are migrated.
     files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     rules: {
+      "no-await-in-loop": "error",
       "react-hooks/set-state-in-effect": "warn",
     },
   },
   {
-    files: ["**/*.cjs"],
+    // These hash-verified upstream packages explicitly declare CommonJS and
+    // retain their original require/module.exports API, like our .cjs scripts.
+    files: ["**/*.cjs", "vendor/braces/**/*.js", "vendor/sprintf-js/**/*.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },

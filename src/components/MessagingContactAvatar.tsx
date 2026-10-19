@@ -18,9 +18,9 @@ const sizeClasses = {
 };
 
 const presenceClasses: Record<MessagingPresence, string> = {
-  online: 'bg-[#4b908d]',
-  away: 'bg-[#f4b000]',
-  offline: 'bg-[#a3a9b0]',
+  online: 'bg-[var(--mairie-presence-online)]',
+  away: 'bg-[var(--mairie-presence-away)]',
+  offline: 'bg-[var(--mairie-presence-offline)]',
 };
 
 const getInitials = (name: string, initials?: string) => {
@@ -47,7 +47,7 @@ export const MessagingContactAvatar = ({
   <div className={joinClasses('relative shrink-0', className)} {...props}>
     <div
       className={joinClasses(
-        'flex items-center justify-center overflow-hidden rounded-full bg-[#1256a6] font-semibold leading-none text-white ring-2 ring-white',
+        'flex items-center justify-center overflow-hidden rounded-full bg-[var(--mairie-action-background)] font-semibold leading-none text-[var(--mairie-on-action)] ring-2 ring-[var(--mairie-surface)]',
         sizeClasses[size]
       )}
     >
@@ -59,9 +59,10 @@ export const MessagingContactAvatar = ({
     </div>
     {presence && (
       <span
+        role="img"
         aria-label={presence === 'online' ? 'En ligne' : presence === 'away' ? 'Absent' : 'Hors ligne'}
         className={joinClasses(
-          'absolute bottom-0 right-0 block size-3 rounded-full border-2 border-white',
+          'absolute bottom-0 right-0 block size-3 rounded-full border-2 border-[var(--mairie-surface)]',
           presenceClasses[presence]
         )}
       />

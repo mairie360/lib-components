@@ -65,27 +65,27 @@ export const FileUploadModal = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
-      <div className="w-full max-w-lg rounded-lg border border-[#ded8d0] bg-white p-6 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-overlay-background)]/45 p-4" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <div className="w-full max-w-lg rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-6 shadow-xl">
         <div className="flex items-start justify-between gap-4">
-          <div><h2 id={titleId} className="text-xl font-bold text-[#172033]">Télécharger un fichier</h2><p className="mt-1 text-sm text-[#687385]">Ajouter un nouveau fichier au système</p></div>
-          <button type="button" aria-label="Fermer" className="rounded p-1 text-[#64748b] hover:bg-[#f1efec]" onClick={onCancel}><X className="size-5" /></button>
+          <div><h2 id={titleId} className="text-xl font-bold text-[var(--mairie-text)]">Télécharger un fichier</h2><p className="mt-1 text-sm text-[var(--mairie-muted)]">Ajouter un nouveau fichier au système</p></div>
+          <button type="button" aria-label="Fermer" className="rounded p-1 text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface-raised)]" onClick={onCancel}><X className="size-5" /></button>
         </div>
-        <div className={joinFileClasses('mt-5 flex min-h-48 flex-col items-center justify-center rounded-md border-2 border-dashed px-5 py-6 text-center', file ? 'border-[#155bb5] bg-[#eff6ff]' : 'border-[#d3cec7]')} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); selectFile(event.dataTransfer.files?.[0]); }}>
-          <Upload className="size-10 text-[#737373]" strokeWidth={1.8} aria-hidden="true" />
-          {file ? <><p className="mt-4 font-semibold text-[#172033]">{file.name}</p><p className="mt-1 text-sm text-[#687385]">{formatFileSize(file.size)}</p></> : <p className="mt-4 text-base text-[#687385]">Glissez-déposez vos fichiers ici ou</p>}
-          <button type="button" className="mt-3 rounded-md border border-[#d8d2ca] bg-white px-4 py-2 text-sm font-medium text-[#172033]" onClick={() => inputRef.current?.click()}>Parcourir les fichiers</button>
+        <div className={joinFileClasses('mt-5 flex min-h-48 flex-col items-center justify-center rounded-md border-2 border-dashed px-5 py-6 text-center', file ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)]' : 'border-[var(--mairie-border)]')} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); selectFile(event.dataTransfer.files?.[0]); }}>
+          <Upload className="size-10 text-[var(--mairie-muted)]" strokeWidth={1.8} aria-hidden="true" />
+          {file ? <><p className="mt-4 font-semibold text-[var(--mairie-text)]">{file.name}</p><p className="mt-1 text-sm text-[var(--mairie-muted)]">{formatFileSize(file.size)}</p></> : <p className="mt-4 text-base text-[var(--mairie-muted)]">Glissez-déposez vos fichiers ici ou</p>}
+          <button type="button" className="mt-3 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-2 text-sm font-medium text-[var(--mairie-text)]" onClick={() => inputRef.current?.click()}>Parcourir les fichiers</button>
           <input ref={inputRef} type="file" className="sr-only" aria-label="Choisir un fichier" accept={acceptedExtensions.join(',')} onChange={(event) => selectFile(event.target.files?.[0])} />
         </div>
-        <label className="mt-4 block text-sm font-semibold text-[#172033]">Catégorie
-          <select value={category} onChange={(event) => { setCategory(event.target.value); setError(''); }} className="mt-1 h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-3 font-normal text-[#243041]">
+        <label className="mt-4 block text-sm font-semibold text-[var(--mairie-text)]">Catégorie
+          <select value={category} onChange={(event) => { setCategory(event.target.value); setError(''); }} className="mt-1 h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 font-normal text-[var(--mairie-text)]">
             <option value="">Sélectionner une catégorie</option>{categories.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
         </label>
-        {error && <p role="alert" className="mt-3 rounded-md bg-[#fff1f2] px-3 py-2 text-sm text-[#b91c1c]">{error}</p>}
+        {error && <p role="alert" className="mt-3 rounded-md bg-[var(--mairie-error-surface)] px-3 py-2 text-sm text-[var(--mairie-error-text)]">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
-          <button type="button" className="rounded-md border border-[#d8d2ca] bg-white px-4 py-2 text-sm font-medium" onClick={onCancel}>Annuler</button>
-          <button type="button" className="rounded-md bg-[#155bb5] px-4 py-2 text-sm font-semibold text-white" onClick={submit}>Télécharger</button>
+          <button type="button" className="rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 py-2 text-sm font-medium" onClick={onCancel}>Annuler</button>
+          <button type="button" className="rounded-md bg-[var(--mairie-action-background)] px-4 py-2 text-sm font-semibold text-[var(--mairie-on-action)]" onClick={submit}>Télécharger</button>
         </div>
       </div>
     </div>

@@ -21,7 +21,7 @@ export const SettingsTabs = ({ value, onValueChange, className = '', ...props }:
   <div
     role="tablist"
     aria-label="Paramètres du compte"
-    className={`grid overflow-x-auto rounded-xl bg-[#e9e7e4] p-1 sm:grid-cols-3 xl:grid-cols-6 ${className}`}
+    className={`grid overflow-x-auto rounded-xl bg-[var(--mairie-surface-raised)] p-1 sm:grid-cols-3 xl:grid-cols-6 ${className}`}
     {...props}
   >
     {tabs.map((tab) => {
@@ -33,8 +33,8 @@ export const SettingsTabs = ({ value, onValueChange, className = '', ...props }:
           type="button"
           role="tab"
           aria-selected={active}
-          className={`inline-flex h-9 min-w-36 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 xl:min-w-0 ${
-            active ? 'bg-white text-[#172033] shadow-sm' : 'text-[#3f454c] hover:bg-white/60'
+          className={`inline-flex h-9 min-w-36 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 xl:min-w-0 ${
+            active ? 'bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-sm' : 'text-[var(--mairie-text)] hover:bg-[var(--mairie-surface)]/60'
           }`}
           onClick={() => onValueChange?.(tab.id)}
         >

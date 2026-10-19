@@ -23,13 +23,13 @@ export interface NewMessageModalProps {
 }
 
 const fieldClassName =
-  'h-9 w-full rounded-md border border-[#d8d2ca] bg-white px-3 text-sm text-[#172033] outline-none transition placeholder:text-[#6b7280] focus:border-[#1256a6] focus:ring-2 focus:ring-[#1256a6]/20';
+  'h-9 w-full rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 text-sm text-[var(--mairie-text)] outline-none transition placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/20';
 
 const buttonSecondaryClassName =
-  'inline-flex h-9 items-center justify-center rounded-md border border-[#d8d2ca] bg-white px-4 text-sm font-semibold text-[#172033] shadow-sm transition hover:bg-[#fbfaf9] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/25';
+  'inline-flex h-9 items-center justify-center rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-sm font-semibold text-[var(--mairie-text)] shadow-sm transition hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/25';
 
 const buttonPrimaryClassName =
-  'inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[#1256a6] px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-[#0f4b91] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/35 disabled:cursor-not-allowed disabled:bg-[#b7cce3]';
+  'inline-flex h-9 items-center justify-center gap-2 rounded-md bg-[var(--mairie-action-background)] px-4 text-sm font-semibold text-[var(--mairie-on-action)] shadow-sm transition hover:bg-[var(--mairie-action-hover-background)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/35 disabled:cursor-not-allowed disabled:bg-[var(--mairie-border)]';
 
 export const NewMessageModal = ({
   isOpen,
@@ -118,7 +118,7 @@ export const NewMessageModal = ({
       }
     >
       <div>
-        <label htmlFor={recipientId} className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">
+        <label htmlFor={recipientId} className="mb-1 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
           {recipientLabel}
         </label>
         <div className="relative">
@@ -137,12 +137,12 @@ export const NewMessageModal = ({
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[#7a8087]" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
         </div>
       </div>
 
       <div>
-        <label htmlFor={messageId} className="mb-1 block text-sm font-semibold leading-5 text-[#2f3747]">
+        <label htmlFor={messageId} className="mb-1 block text-sm font-semibold leading-5 text-[var(--mairie-text)]">
           {messageLabel}
         </label>
         <textarea

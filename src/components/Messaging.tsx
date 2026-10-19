@@ -367,7 +367,7 @@ export const Messaging = ({
   return (
     <section
       className={joinClasses(
-        'grid min-h-[560px] overflow-hidden rounded-md border border-[#d8d2ca] bg-white text-[#172033] shadow-[0_1px_3px_rgba(0,0,0,0.12)] lg:h-[692px] lg:grid-cols-[320px_minmax(0,1fr)]',
+        'grid min-h-[560px] overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-[var(--mairie-shadow)] lg:h-[692px] lg:grid-cols-[320px_minmax(0,1fr)]',
         className
       )}
       {...props}
@@ -380,7 +380,7 @@ export const Messaging = ({
         onCreateGroupClick={onCreateGroup ? handleCreateGroupClick : undefined}
       />
 
-      <div className="flex min-h-0 flex-col bg-white">
+      <div className="flex min-h-0 flex-col bg-[var(--mairie-surface)]">
         <MessagingChatHeader
           key={activeConversation ? String(activeConversation.id) : 'no-conversation'}
           conversation={activeConversation}
@@ -393,14 +393,14 @@ export const Messaging = ({
         />
 
         {readFailure && messagingIdsMatch(readFailure.conversationId, resolvedActiveId) && (
-          <p role="alert" className="border-b border-[#d8d2ca] px-4 py-2 text-sm text-[#b3261e] sm:px-5">{readFailure.message}</p>
+          <p role="alert" className="border-b border-[var(--mairie-border)] px-4 py-2 text-sm text-[var(--mairie-error-text)] sm:px-5">{readFailure.message}</p>
         )}
 
         {unreadNotificationCount > 0 && (
           <div
             role="status"
             aria-label="Notifications de messagerie"
-            className="flex flex-wrap items-center gap-3 border-b border-[#d8d2ca] bg-[#fff8e8] px-4 py-2.5 text-sm text-[#5a3b00] sm:px-5"
+            className="flex flex-wrap items-center gap-3 border-b border-[var(--mairie-border)] bg-[var(--mairie-warning-surface)] px-4 py-2.5 text-sm text-[var(--mairie-warning-text)] sm:px-5"
           >
             <Bell className="size-4 shrink-0" strokeWidth={1.8} />
             <span className="font-semibold">
@@ -410,7 +410,7 @@ export const Messaging = ({
             {firstUnreadConversation && (
               <button
                 type="button"
-                className="rounded-md px-2 py-1 font-semibold text-[#1256a6] transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                className="rounded-md px-2 py-1 font-semibold text-[var(--mairie-accent)] transition hover:bg-[var(--mairie-surface)]/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                 onClick={() => handleConversationSelect(firstUnreadConversation)}
               >
                 Voir {firstUnreadConversation.name}
@@ -419,7 +419,7 @@ export const Messaging = ({
           </div>
         )}
 
-        <div ref={messageRegionRef} className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-white px-4 py-5 sm:px-5">
+        <div ref={messageRegionRef} className="min-h-[340px] flex-1 space-y-5 overflow-y-auto bg-[var(--mairie-surface)] px-4 py-5 sm:px-5">
           {activeConversation ? (
             visibleMessages.length > 0 ? (
               visibleMessages.map((message) => (
@@ -434,21 +434,21 @@ export const Messaging = ({
                 />
               ))
             ) : (
-              <div className="flex h-full items-center justify-center text-sm text-[#5f6770]">
+              <div className="flex h-full items-center justify-center text-sm text-[var(--mairie-muted)]">
                 Aucun message dans cette conversation.
               </div>
             )
           ) : (
-            <div className="flex h-full items-center justify-center text-sm text-[#5f6770]">{emptyStateLabel}</div>
+            <div className="flex h-full items-center justify-center text-sm text-[var(--mairie-muted)]">{emptyStateLabel}</div>
           )}
         </div>
 
         {contextReference && (
           <div
             aria-label="Message contextuel"
-            className="flex items-center gap-3 border-t border-[#d8d2ca] bg-[#eef7f6] px-4 py-3 text-sm text-[#245651] sm:px-5"
+            className="flex items-center gap-3 border-t border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] px-4 py-3 text-sm text-[var(--mairie-teal-text)] sm:px-5"
           >
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-[#1d7a63]">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-[var(--mairie-surface)] text-[var(--mairie-teal-text)]">
               {getBusinessReferenceIcon(contextReference)}
             </span>
             <span className="min-w-0 flex-1">
@@ -460,7 +460,7 @@ export const Messaging = ({
             {onBusinessReferenceClick && (
               <button
                 type="button"
-                className="shrink-0 rounded-md px-2.5 py-1.5 font-semibold text-[#1256a6] transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1256a6]/30"
+                className="shrink-0 rounded-md px-2.5 py-1.5 font-semibold text-[var(--mairie-accent)] transition hover:bg-[var(--mairie-surface)]/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30"
                 onClick={() => onBusinessReferenceClick(contextReference)}
               >
                 Ouvrir
