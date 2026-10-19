@@ -1,6 +1,6 @@
 # Shared frontend session server
 
-MAIR-266 uses the separate `@mairie360/lib-components/next` entry for Next route handlers. Next is an optional peer; the React UI entry and its styles stay separate. Install the actual published library release before migrating a consumer.
+MAIR-266 uses the separate `@mairie360/lib-components/next` entry for Next route handlers; since MAIR-126 it is the former `@mairie360/front-kit/next` (adds the peer `refresh` / `resume` handlers), next to the `guard`, `browser`, `shared`, `react` and `theme` entries (see `docs/en/module-packaging.md`). Next is an optional peer; the React UI entry and its styles stay separate. Install the actual published library release before migrating a consumer.
 
 The User protocol comes from the published `a416b4ea37f54566260e7b926b920f31799cb91e` contract, observed in Dev on 10 October 2026. Its `/auth/refresh` accepts `refresh_token` and returns `message` with rotated credentials in HttpOnly cookies. `/auth/logout` accepts the refresh token, reports `session_revoked` and may return the Keycloak end-session URL. The test fixture contains exact selected operations and transitive schemas from that export. The earlier published User0.5 message-only logout remains local expiry with server revocation explicitly unconfirmed.
 

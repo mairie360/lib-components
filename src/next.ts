@@ -8,3 +8,4 @@ export type { SessionProxyConfig, PublishedPaths } from './server/proxy';
 export { createSessionLogoutHandler, sessionLogoutUrl } from './server/logout';
 export { createSessionLogoutProxy } from './server/session-peer';
 export type { SessionPeerConfig } from './server/session-peer';
+export { createSessionRefreshProxy, createSessionResumeHandler } from './server/resume';

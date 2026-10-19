@@ -21,7 +21,16 @@ import type { ToastOptions } from '@mairie360/lib-components/primitives';
 | `admin` | Administration and its panels |
 | `elearning` | Course catalog and details |
 | `shell` | Page shell and navigation |
-| `next` | Server session operations only |
+| `next` | Server session operations only: bounded BFF proxy, Login-owned refresh and logout, peer `refresh` / `resume` handlers, cookies |
+| `guard` | Page guard and CSP for `middleware.ts` (data routes answer JSON 401, documents resume locally) |
+| `browser` | Same-origin `sessionFetch`: one shared refresh and one replay after a 401 |
+| `shared` | Validated front URLs, CSP, display-only JWT role, instance civil dates (no React, no Next) |
+| `react` | Client providers: display role, instance time zone, `useModalFocusScope` |
+| `theme` | Appearance preference cookie and sync (no React, no Next) |
+
+## Shared front kit (MAIR-126)
+
+`guard`, `browser`, `shared`, `react`, `theme` and the `next` entry come from the former `@mairie360/front-kit` package (Front_End_Template#15), now published here. A front imports them as `@mairie360/lib-components/<entry>` instead of `@mairie360/front-kit/<entry>`, with the same exports. Each is its own bundle (no shared chunk) and never imports the UI root, so a front only ships the modules it imports: `scripts/check-server-entry.mjs` (run after every build) checks, on `dist`, that `shared`, `browser` and `theme` import nothing, `guard` only `next/server.js`, `react` only `react`, and that none reaches a UI entry. Their tests (`tests/kit/*.test.mjs`) run on the built entries through `npm run test:kit`, part of `npm test`, with a 60 % lines/functions/branches gate per entry; the React providers are measured by the consuming fronts.
 
 UI entries carry a `use client` boundary. The `next` entry retains `dist/next.js`, `dist/next.cjs` and declarations without a client boundary. ESM and CommonJS have matching declarations. Root and module imports within one format must share their `ToastProvider` context; mixing formats in one application does not promise shared identity.
 

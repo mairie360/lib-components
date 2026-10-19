@@ -21,7 +21,16 @@ import type { ToastOptions } from '@mairie360/lib-components/primitives';
 | `admin` | Administration et panneaux associés |
 | `elearning` | Catalogue et détails des formations |
 | `shell` | Structure de page et navigation |
-| `next` | Opérations de session côté serveur uniquement |
+| `next` | Opérations de session côté serveur uniquement : proxy borné vers le BFF, renouvellement et déconnexion pilotés par Login, handlers `refresh` / `resume` des fronts pairs, cookies |
+| `guard` | Garde des pages et CSP pour `middleware.ts` (les routes de données répondent 401 en JSON, les pages reprennent localement) |
+| `browser` | `sessionFetch` de même origine : un seul renouvellement partagé et une seule nouvelle tentative après un 401 |
+| `shared` | URLs des fronts validées, CSP, rôle d’affichage lu dans le JWT, dates civiles de l’instance (sans React ni Next) |
+| `react` | Fournisseurs client : rôle d’affichage, fuseau de l’instance, `useModalFocusScope` |
+| `theme` | Cookie et synchronisation des préférences d’apparence (sans React ni Next) |
+
+## Kit commun des fronts (MAIR-126)
+
+`guard`, `browser`, `shared`, `react`, `theme` et l’entrée `next` viennent de l’ancien paquet `@mairie360/front-kit` (Front_End_Template#15), désormais publié ici. Un front les importe via `@mairie360/lib-components/<entrée>` au lieu de `@mairie360/front-kit/<entrée>`, avec les mêmes exports. Chacun est un bundle indépendant (sans chunk partagé) qui n’importe jamais la racine UI : un front n’embarque que les modules qu’il importe. `scripts/check-server-entry.mjs` (lancé après chaque build) vérifie sur `dist` que `shared`, `browser` et `theme` n’importent rien, `guard` seulement `next/server.js`, `react` seulement `react`, et qu’aucun n’atteint une entrée UI. Leurs tests (`tests/kit/*.test.mjs`) tournent sur les entrées construites via `npm run test:kit`, inclus dans `npm test`, avec un seuil de 60 % (lignes, fonctions, branches) par entrée ; les fournisseurs React sont mesurés par les fronts qui les utilisent.
 
 Les entrées UI portent une frontière `use client`. L’entrée `next` conserve ses fichiers `dist/next.js`, `dist/next.cjs` et ses déclarations, sans frontière client. Les formats ESM et CommonJS disposent chacun de déclarations adaptées. Des imports racine et par module dans un même format doivent partager le même contexte `ToastProvider` ; mélanger deux formats dans une même application n’est pas un contrat d’identité partagé.
 

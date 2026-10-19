@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server.js';
 
 export type SessionCookies = { accessToken: string; refreshToken: string; maxAge: number };
 export type SessionCookieOptions = { secure: boolean; domain?: string };
-const cookieValue = (value: string) => /^[\x21\x23-\x2b\x2d-\x3a\x3c-\x5b\x5d-\x7e]+$/.test(value);
+const cookieValue = (value: unknown): value is string => typeof value === 'string' && /^[\x21\x23-\x2b\x2d-\x3a\x3c-\x5b\x5d-\x7e]+$/.test(value);
 
 /** Read the published User Set-Cookie protocol, without adopting upstream cookie scopes. */
 export function readSessionCookies(response: Response): SessionCookies | null | undefined {
@@ -44,7 +44,7 @@ export function setSessionCookies(response: NextResponse, session: SessionCookie
   if (maxAge <= 0) throw new Error('Expired session cookie pair');
   const common = { httpOnly: true, secure: options.secure, sameSite: 'strict' as const, ...(options.domain ? { domain: options.domain } : {}) };
   response.cookies.set('accessToken', session.accessToken, { ...common, path: '/', maxAge });
-  response.cookies.set('refreshToken', session.refreshToken, { ...common, path: '/api' });
+  response.cookies.set('refreshToken', session.refreshToken, { ...common, path: '/api', maxAge: 30 * 86400 });
 }
 
 export function clearSessionCookies(response: NextResponse, options: SessionCookieOptions): void {

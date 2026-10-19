@@ -30,8 +30,9 @@
     "lhci:check": "node scripts/check-accessibility.js",
     "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
     "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
-    "test": "jest --coverage",
-    "postbuild": "node scripts/check-server-entry.mjs"
+    "test": "jest --coverage && npm run test:kit",
+    "postbuild": "node scripts/check-server-entry.mjs",
+    "test:kit": "node scripts/test-kit-coverage.mjs"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/",
@@ -135,6 +136,56 @@
       "require": {
         "types": "./dist/next.d.cts",
         "default": "./dist/next.cjs"
+      }
+    },
+    "./guard": {
+      "import": {
+        "types": "./dist/guard.d.ts",
+        "default": "./dist/guard.js"
+      },
+      "require": {
+        "types": "./dist/guard.d.cts",
+        "default": "./dist/guard.cjs"
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "require": {
+        "types": "./dist/browser.d.cts",
+        "default": "./dist/browser.cjs"
+      }
+    },
+    "./shared": {
+      "import": {
+        "types": "./dist/shared.d.ts",
+        "default": "./dist/shared.js"
+      },
+      "require": {
+        "types": "./dist/shared.d.cts",
+        "default": "./dist/shared.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
+      },
+      "require": {
+        "types": "./dist/react.d.cts",
+        "default": "./dist/react.cjs"
+      }
+    },
+    "./theme": {
+      "import": {
+        "types": "./dist/theme.d.ts",
+        "default": "./dist/theme.js"
+      },
+      "require": {
+        "types": "./dist/theme.d.cts",
+        "default": "./dist/theme.cjs"
       }
     },
     "./primitives": {

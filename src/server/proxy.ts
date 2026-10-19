@@ -9,13 +9,35 @@ export type SessionProxyConfig = {
   loginUrl: () => string;
   frontUrl: () => string;
   trustedHeaders?: (request: NextRequest) => Record<string, string>;
+  maxBodyBytes?: number;
 };
+const requestHeaderNames = ['accept', 'accept-language', 'content-type', 'if-match', 'if-none-match', 'if-modified-since', 'if-unmodified-since', 'user-agent', 'x-request-id', 'last-event-id'];
+const responseHeaderNames = ['content-type', 'content-disposition', 'etag', 'last-modified', 'retry-after', 'allow', 'x-request-id'];
+async function readBoundedBody(request: NextRequest, maximum: number): Promise<ArrayBuffer | null> {
+  if (Number(request.headers.get('content-length') ?? 0) > maximum) return null;
+  if (!request.body) return new ArrayBuffer(0);
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];let length=0;
+  const read = async ():Promise<ArrayBuffer|null> => {
+    const chunk = await reader.read();
+    if (chunk.done) {
+      const result = new Uint8Array(length);let offset=0;
+      for(const item of chunks) {result.set(item,offset);offset+=item.length;}
+      return result.buffer;
+    }
+    length += chunk.value.byteLength;
+    if (length > maximum) {await reader.cancel();return null;}
+    chunks.push(chunk.value);return read();
+  };
+  try {return await read();} finally {reader.releaseLock();}
+}
 const errorResponse = (status: number, message: string, loginRequired = false) => Response.json({ error: { message } }, {
-  status, headers: { 'Cache-Control': 'no-store', ...(loginRequired ? { 'X-Mairie360-Login-Required': 'true' } : {}) },
+  status, headers: { 'Cache-Control': 'no-store', ...(loginRequired ? { 'X-Mairie360-Login-Required': 'true', 'X-Mairie360-Refresh-Refused':'true' } : {}) },
 });
 
 /** Only an existing published route and method can reach the configured BFF. */
 export async function proxyPublishedBffRequest(request: NextRequest, path: string[], config: SessionProxyConfig): Promise<Response> {
+  if (path.length===1 && ['openapi.json','swagger.json'].includes(path[0])) return errorResponse(404,'Route inconnue.');
   if (path.some(part => !part || part === '.' || part === '..' || /[\/\\\x00-\x1f\x7f]/.test(part))) return errorResponse(400, 'Chemin invalide.');
   const route = Object.entries(config.paths).find(([template]) => {
     const parts = template.split('/').filter(Boolean);
@@ -28,16 +50,23 @@ export async function proxyPublishedBffRequest(request: NextRequest, path: strin
   const base = serviceBase(config.baseUrl());
   if (!base) return errorResponse(503, 'Le service n’est pas configuré.');
   const origin = request.headers.get('origin'), ownOrigin = publicOrigin(config.frontUrl());
-  if (request.headers.get('sec-fetch-site') === 'cross-site' || (origin && origin !== ownOrigin)) return errorResponse(403, 'Cette demande doit provenir de cet outil Mairie360.');
+  const site=request.headers.get('sec-fetch-site');
+  if (site === 'cross-site' || (origin && origin !== ownOrigin) || (!['GET','HEAD','OPTIONS'].includes(request.method) && site && !['same-origin','none'].includes(site))) return errorResponse(403, 'Cette demande doit provenir de cet outil Mairie360.');
   const target = new URL(base + '/' + path.map(encodeURIComponent).join('/'));
   target.search = new URL(request.url).search;
-  const headers = new Headers(request.headers);
-  for (const name of ['host', 'connection', 'content-length', 'accept-encoding', 'cookie', 'x-nonce', 'content-security-policy', 'x-forwarded-for', 'x-real-ip']) headers.delete(name);
+  const headers = new Headers();
+  for(const name of requestHeaderNames) {const value=request.headers.get(name);if(value!==null) headers.set(name,value);}
   for (const [name, value] of Object.entries(config.trustedHeaders?.(request) ?? {})) headers.set(name, value);
   const access = request.cookies.get('accessToken')?.value;
   if (validSessionToken(access)) headers.set('Authorization', `Bearer ${access}`);
-  else if (validSessionToken(request.cookies.get('refreshToken')?.value)) headers.delete('authorization');
-  const body = ['GET', 'HEAD'].includes(request.method) ? undefined : await request.arrayBuffer();
+  let body:ArrayBuffer|undefined;
+  if (!['GET','HEAD'].includes(request.method)) {
+    try {
+      const read=await readBoundedBody(request,config.maxBodyBytes ?? 1024*1024);
+      if(read===null) return errorResponse(413,'Le corps de la requête est trop volumineux.');
+      body=read;
+    } catch {return errorResponse(400,'Le corps de la requête est invalide.');}
+  }
   let renewedCookies: string[] = [];
   try {
     const send = () => fetch(target, { method: request.method, headers, body, cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(15_000) });
@@ -45,7 +74,10 @@ export async function proxyPublishedBffRequest(request: NextRequest, path: strin
     if (upstream.status === 401 && path[0] !== 'auth') {
       const refresh = request.cookies.get('refreshToken')?.value;
       const login = serviceBase(config.loginUrl()), origin = publicOrigin(config.frontUrl());
-      if (!validSessionToken(refresh) || !login || !origin) return errorResponse(401, 'Votre session a expiré. Veuillez vous reconnecter.', true);
+      // Root business routes do not receive the /api-scoped refresh cookie.
+      // The browser must still be allowed to renew through its own /api route.
+      if (!validSessionToken(refresh)) return errorResponse(401, 'Votre session doit être renouvelée.');
+      if (!login || !origin) return errorResponse(503, 'La connexion partagée n’est pas configurée.');
       if (process.env.NODE_ENV === 'production' && new URL(login).protocol !== 'https:') return errorResponse(503, 'La connexion partagée n’est pas configurée.');
       await upstream.body?.cancel();
       // No browser-readable token: another frontend calls the Login owner with
@@ -58,13 +90,13 @@ export async function proxyPublishedBffRequest(request: NextRequest, path: strin
       const session = readSessionCookies(renewal);
       const receipt: unknown = await renewal.json();
       if (!session || typeof receipt !== 'object' || receipt === null || !('message' in receipt) || typeof receipt.message !== 'string') return errorResponse(502, 'La réponse de renouvellement est invalide.');
-      renewedCookies = renewal.headers.getSetCookie();
+      renewedCookies = renewal.headers.getSetCookie().filter(cookie => /^(?:accessToken|refreshToken)=/.test(cookie));
       headers.set('Authorization', `Bearer ${session.accessToken}`);
       upstream = await send();
       if (upstream.status === 401) return errorResponse(401, 'Votre session a expiré. Veuillez vous reconnecter.', true);
     }
-    const responseHeaders = new Headers(upstream.headers);
-    for (const name of ['content-encoding', 'content-length', 'transfer-encoding', 'connection', 'set-cookie']) responseHeaders.delete(name);
+    const responseHeaders = new Headers();
+    for(const name of responseHeaderNames) {const value=upstream.headers.get(name);if(value!==null) responseHeaders.set(name,value);}
     for (const cookie of renewedCookies) responseHeaders.append('Set-Cookie', cookie);
     responseHeaders.set('Cache-Control', 'no-store');
     return new Response(request.method === 'HEAD' || [204, 205, 304].includes(upstream.status) ? null : upstream.body, { status: upstream.status, statusText: upstream.statusText, headers: responseHeaders });

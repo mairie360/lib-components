@@ -3,7 +3,8 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'jest-environment-jsdom',
   maxWorkers: 1,
-  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.stories.*'],
+  // src/kit is tested by `npm run test:kit` on the built entries (MAIR-126).
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.stories.*', '!src/kit/**'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -13,7 +14,7 @@ module.exports = {
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: './tsconfig.jest.json' }],
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/tests/kit/'],
   coverageThreshold: {
     global: {
       branches: 60,
