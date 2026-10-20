@@ -152,6 +152,7 @@ The public API includes the following main groups:
   alter catalogue filters. Received labels, order and disabled states are retained.
   Refreshing choices does not reset the draft or silently select the first option
   (MAIR-475).
+- Shell: `AppShell`, `AccessibleShell` (the shell as the fronts consume it: collapsible desktop navigation, administration entry from the trusted instance role, shell kept inert while a dialog or alert dialog is open), `CurrentDate` (French page date in the instance time zone), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter`, plus the `sidebar-preference` cookie helpers, all from `@mairie360/lib-components/shell` (MAIR-578).
 - Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
 - Projects: `ProjectModule` and its project-management views and interactions.
 - User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.

@@ -20,7 +20,7 @@ const moduleExports = {
   calendar: ['CalendarModule'],
   admin: ['AdministrationModule'],
   elearning: ['ElearningCatalog'],
-  shell: ['AppShell', 'Header', 'Sidebar'],
+  shell: ['AppShell', 'AccessibleShell', 'CurrentDate', 'Header', 'Sidebar'],
 };
 let fixture;
 let unpacked;

@@ -1,3 +1,4 @@
+export { AccessibleShell } from './components/AccessibleShell';
 export { AdministrationAuditPanel } from './components/AdministrationAuditPanel';
 export { AdministrationLogsPanel } from './components/AdministrationLogsPanel';
 export { AdministrationMetricCards } from './components/AdministrationMetricCards';
@@ -23,6 +24,7 @@ export { Card } from './components/Card';
 export { ConfirmModal } from './components/ConfirmModal';
 export { CreateEventModal } from './components/CreateEventModal';
 export { CreateGroupModal } from './components/CreateGroupModal';
+export { CurrentDate } from './components/CurrentDate';
 export { DashboardMetricCards } from './components/DashboardMetricCards';
 export { DashboardModule } from './components/DashboardModule';
 export { DashboardPendingTasks } from './components/DashboardPendingTasks';

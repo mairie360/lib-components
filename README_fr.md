@@ -155,6 +155,7 @@ L’API publique comprend les groupes principaux suivants :
   l’ordre et les états désactivés reçus restent inchangés. Actualiser les choix ne
   réinitialise pas le brouillon et ne sélectionne pas silencieusement le premier
   statut (MAIR-475).
+- Shell : `AppShell`, `AccessibleShell` (le shell tel que les fronts l’utilisent : navigation bureau repliable, entrée Administration issue du rôle d’instance, shell inerte pendant qu’un dialogue ou une alerte modale est ouvert), `CurrentDate` (date du jour en français dans le fuseau de l’instance), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter` et les utilitaires du cookie `sidebar-preference`, tous depuis `@mairie360/lib-components/shell` (MAIR-578).
 - Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
 - Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
 - Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.
