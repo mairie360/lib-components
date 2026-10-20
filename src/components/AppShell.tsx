@@ -186,7 +186,7 @@ export const AppShell = ({
           Aller au contenu
         </a>
       </div>
-      {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
+      {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={skipLinkInactive || sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
       {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
       <div className="flex h-screen">
         <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>

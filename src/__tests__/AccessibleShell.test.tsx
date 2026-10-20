@@ -52,6 +52,7 @@ describe('AccessibleShell (MAIR-578)', () => {
     );
     await act(async () => { await Promise.resolve(); });
     expect(skip.parentElement).toHaveAttribute('inert');
+    expect(container.querySelector('aside.app-desktop-navigation')).toHaveAttribute('inert');
     expect(container.querySelector('[data-navigation-inactive]')).not.toBeNull();
     rerender(
       <InstanceProvider role="User" timeZone="Europe/Paris">

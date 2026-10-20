@@ -2,7 +2,8 @@
 
 import React from 'react';
 
-import { getInstanceTimeZone } from '../kit/shared';
+// The published `shared` entry holds the instance time zone set by the front's InstanceProvider.
+import { getInstanceTimeZone } from '@mairie360/lib-components/shared';
 
 const subscribe = () => () => {};
 const emptyOnServer = () => '';

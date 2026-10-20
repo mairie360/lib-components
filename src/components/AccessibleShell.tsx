@@ -3,7 +3,8 @@
 import React from 'react';
 
 import { AppShell, type AppShellProps } from './AppShell';
-import { useInstanceRole, useModalFocusScope } from '../kit/react';
+// The published `react` entry owns the instance context; bundling src/kit/react here would create a second one.
+import { useInstanceRole, useModalFocusScope } from '@mairie360/lib-components/react';
 
 export type AccessibleShellProps = Omit<AppShellProps, 'collapsibleSidebar' | 'desktopNavigation' | 'skipLinkInactive' | 'isAdmin' | 'footerPlacement'>;
 
