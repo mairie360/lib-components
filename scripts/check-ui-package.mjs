@@ -116,7 +116,7 @@ for (const format of ['module', 'commonjs']) {
       ${loadStatement(`${packageName}/react`, format, 'kit')}
       const shellHtml = renderToString(React.createElement(kit.InstanceProvider, { role: 'Admin', timeZone: 'Europe/Paris' }, React.createElement(shell.AccessibleShell, { hrefs: { admin: '/admin', settings: '/settings' } }, React.createElement('h1', null, 'Contenu'))));
       assert.match(shellHtml, /app-desktop-navigation/); assert.match(shellHtml, /data-admin="true"/); assert.match(shellHtml, /app-accessible-footer/);
-      assert.match(renderToString(React.createElement(shell.CurrentDate, { date: new Date('2026-10-20T10:00:00Z') })), /class="page-current-date"><\/span>/);
+      assert.match(renderToString(React.createElement(shell.CurrentDate, { date: new Date('2026-10-20T10:00:00Z') })), /class="page-current-date"><[/]span>/);
     `, format);
   });
   test(`${format}: server-only next entry retains public session operations`, () => {
