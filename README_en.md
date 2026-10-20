@@ -159,6 +159,12 @@ The public API includes the following main groups:
 
 Feature modules can work with their included demonstration data, or receive application data and callbacks through props. Use their Storybook stories as the reference for supported states and interactions.
 
+## Figma library
+
+The design counterpart of this package lives in the Figma team library **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (Mairie360 Figma team). It is generated from this repository: one Figma component per export of `src/index.tsx` (same name, variants for the React props), the `--mairie-*` tokens of `src/styles/municipal-theme.css` as variables with Light/Dark modes, the text and shadow styles, and the lucide icons used by the components. Pages: Foundations, Index (full inventory), then one page per group (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+
+The Figma library is the source of truth: a visual or behavioural change is designed and agreed in Figma **before** the code is written, and the pull request then implements the Figma component. Every front mock-up must instantiate these components instead of redrawing them.
+
 ## Local development
 
 Install the exact dependency versions from the lockfile:

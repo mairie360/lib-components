@@ -162,6 +162,12 @@ L’API publique comprend les groupes principaux suivants :
 
 Les modules fonctionnels peuvent utiliser les données de démonstration incluses ou recevoir les données et callbacks de l’application au moyen de leurs props. Consultez leurs stories Storybook pour connaître les états et interactions pris en charge.
 
+## Bibliothèque Figma
+
+Le pendant design de ce paquet est la bibliothèque d’équipe Figma **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (équipe Figma Mairie360). Elle est générée depuis ce dépôt : un composant Figma par export de `src/index.tsx` (même nom, variantes pour les props React), les tokens `--mairie-*` de `src/styles/municipal-theme.css` en variables avec modes Light/Dark, les styles de texte et d’ombre, et les icônes lucide utilisées par les composants. Pages : Foundations, Index (inventaire complet), puis une page par groupe (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+
+La bibliothèque Figma est la source de vérité : un changement visuel ou de comportement est conçu et validé dans Figma **avant** d’écrire le code, et la pull request implémente ensuite le composant Figma. Toute maquette de front doit instancier ces composants au lieu de les redessiner.
+
 ## Développement local
 
 Installez les versions exactes des dépendances définies dans le lockfile :

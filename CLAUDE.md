@@ -6,6 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 `@mairie360/lib-components` is the shared React 19 + TypeScript component library for Mairie360 front-ends, styled with Tailwind CSS 4 and DaisyUI 5, developed in Storybook, and published to GitHub Packages (`publishConfig.registry`). Only `dist/` is shipped. See `README_en.md` / `README_fr.md` for consumer-facing docs.
 
+## Figma library
+
+The Figma counterpart of this library is **Mairie360 – lib-components**: https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2 (Mairie360 Figma team). One Figma component per `src/index.tsx` export (same name; internal helpers are dot-prefixed, e.g. `.Calendar/EventPill`), variables `Color/mairie-*` (Light/Dark) mirroring `src/styles/municipal-theme.css`, text/effect styles, and the lucide icons as `Icon/*`. Pages: Cover, Foundations, Index, then one page per component group. Rules: Figma is the source of truth — design and agree the change on the Figma component first, then write the code that matches it (never the other way round); front mock-ups instantiate this library (publish it from Figma, Assets → Publish, after changes) and never redraw shared components.
+
 ## Commands
 
 ```bash
