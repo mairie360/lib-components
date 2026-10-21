@@ -19,8 +19,8 @@ export interface SelectFieldProps<T extends string = string> extends Omit<React.
   value?: T | '';
   defaultValue?: T | '';
   onChange?: (value: T) => void;
-  /** First, non-selectable entry ("Choisir…"). */
-  placeholder?: string;
+  /** First entry ("Choisir…"), not selectable when required; `null` omits it when every value is a real choice. */
+  placeholder?: string | null;
   hint?: React.ReactNode;
   error?: React.ReactNode;
   size?: Size;
@@ -49,7 +49,7 @@ function SelectFieldInner<T extends string = string>(
           className="h-full w-full cursor-pointer appearance-none bg-transparent pr-8 outline-none"
           style={{ fontSize: 'inherit', minHeight: 'inherit' }}
         >
-          <option value="" disabled={required}>{placeholder}</option>
+          {placeholder !== null ? <option value="" disabled={required}>{placeholder}</option> : null}
           {options.map((option) => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
         </select>
         <Icon icon={ChevronDown} size="s" className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[var(--mairie-muted)]" />

@@ -106,3 +106,12 @@ describe('review fixes (CodeRabbit on #467)', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
+
+describe('modal title, description and select placeholder (MAIR-608 Calendars)', () => {
+  it('links a description to the dialog and accepts a rich title', () => {
+    render(<Modal open title={<>Détail<span role="status">Enregistrement en cours…</span></>} description="Ajoutez une date au calendrier." onClose={() => undefined}><p>x</p></Modal>);
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveAccessibleDescription('Ajoutez une date au calendrier.');
+    expect(within(dialog).getByRole('status')).toHaveTextContent('Enregistrement en cours…');
+  });
+});

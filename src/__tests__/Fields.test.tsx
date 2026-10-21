@@ -202,3 +202,8 @@ describe('review fixes (CodeRabbit on #467)', () => {
     expect(screen.getByRole('slider')).not.toHaveAttribute('aria-valuetext');
   });
 });
+
+it('omits the placeholder entry when every option is a real choice', () => {
+  render(<SelectField label="Récurrence" placeholder={null} value="none" options={[{ value: 'none', label: 'Ne se répète pas' }, { value: 'daily', label: 'Tous les jours' }]} />);
+  expect(within(screen.getByLabelText('Récurrence')).getAllByRole('option')).toHaveLength(2);
+});
