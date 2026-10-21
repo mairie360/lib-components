@@ -97,6 +97,14 @@ voulu. Le composant `Footer` seul reste horizontal par défaut ;
 `Sidebar` accepte aussi un nœud React `footer`, hors de sa navigation défilante.
 Les écrans d’authentification Login n’utilisent pas `AppShell`.
 
+## Fondations — MAIR-608
+
+- **Charte** dans `src/styles/municipal-theme.css` : teal principal `#70c1b3` (actions, accent, focus ; texte sombre `--mairie-on-action` dessus), bleu secondaire `#3c4f76` (liens, actions secondaires, info), sombre neutre `#383f51` (texte, navigation), clair neutre `#c8bfc7` (bordures, surfaces atténuées), chacune déclinée en Light et Dark ; les tons fonctionnels succès / avertissement / danger gardent leurs surfaces verte / ambre / rouge. Nouveaux jetons : `--mairie-secondary*`, `--mairie-info-*`, `--mairie-logo-backing`.
+- **Une seule échelle de tailles** `xs | s | m | l | xl` : contrôles 24/32/40/48/56, icônes 12/16/20/24/32, texte 12/14/16/18/20, avatars 20/24/32/40/56, espacements 4/8/16/24/32, rayons 4/6/8/12/16, logo 16/24/32/48/64 px, en propriétés `--mairie-<type>-<taille>`.
+- **Jetons côté code** depuis `@mairie360/lib-components/theme` : `tones`, `Tone`, `sizes`, `Size`, `scale`, `charteTokens`, `scaleVar`, `isSize`, `isTone`. Chaque composant normalisé prend `size` et, quand c'est pertinent, `tone` de ces types.
+- **`Icon`** (`primitives`) : la seule façon d'afficher une icône lucide, taille typée, couleur courante, décorative sans libellé. **`Logo`** (`shell`) : le logo aux cinq hauteurs de la charte.
+- La bibliothèque Figma (page Foundations « Charte & échelle », `Base/Icon`, `Base/Logo`) est la source de ces valeurs ; on change Figma d'abord.
+
 ## Groupes de composants
 
 Depuis MAIR-607, la bibliothèque ne contient que ce que plusieurs fronts

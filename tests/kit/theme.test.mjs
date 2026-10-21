@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { APPEARANCE_COOKIE, parseAppearanceCookie, appearancePreferenceCookie, applyConfirmedAppearance, startAppearanceSync, safeFontFamily, configureAppearanceCookieDomain } from '../../dist/theme.js';
+import { APPEARANCE_COOKIE, parseAppearanceCookie, appearancePreferenceCookie, applyConfirmedAppearance, startAppearanceSync, safeFontFamily, configureAppearanceCookieDomain, tones, sizes, scale, charteTokens, scaleVar, isSize, isTone } from '../../dist/theme.js';
+import { readFileSync } from 'node:fs';
 const appearance = { theme: 'dark', density: 'comfortable', font_family: 'Arial, sans-serif' };
 function browser(dark = false) {
   const properties = new Map();
@@ -113,4 +114,16 @@ test('a rejected optional cookie write does not restore an older preference on f
   assert.equal(env.document.documentElement.dataset.theme, 'dark');
   assert.equal(env.document.documentElement.dataset.density, 'comfortable');
   dispose();
+});
+
+test('MAIR-608 the tokens expose the charte, the tone list and one size scale that the stylesheet declares', () => {
+  assert.deepEqual([...tones], ['primary', 'secondary', 'neutral', 'success', 'warning', 'danger', 'info']);
+  assert.deepEqual([...sizes], ['xs', 's', 'm', 'l', 'xl']);
+  assert.equal(charteTokens.primary, 'var(--mairie-action-background)');
+  assert.equal(scaleVar('icon', 'm'), 'var(--mairie-icon-m)');
+  assert.equal(isSize('l'), true); assert.equal(isSize('xxl'), false); assert.equal(isTone('danger'), true); assert.equal(isTone('error'), false);
+  const css = readFileSync(new URL('../../src/styles/municipal-theme.css', import.meta.url), 'utf8');
+  for (const [kind, entries] of Object.entries(scale)) for (const [size, px] of Object.entries(entries)) assert.match(css, new RegExp(`--mairie-${kind}-${size}: ${px}px;`), `${kind}/${size}`);
+  // The charte itself (teal #70c1b3, navy #3c4f76, ink #383f51, mist #c8bfc7) is declared once, in the stylesheet.
+  for (const [name, hex] of [['action-background', '#70c1b3'], ['secondary', '#3c4f76'], ['text', '#383f51'], ['control-border', '#c8bfc7']]) assert.match(css, new RegExp(`--mairie-${name}: ${hex};`), name);
 });

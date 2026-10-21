@@ -96,6 +96,14 @@ keeps its horizontal default; `variant="sidebar"` selects its compact dark
 presentation. `Sidebar` also accepts a `footer` React node outside its scrollable
 navigation. Login authentication screens do not use `AppShell`.
 
+## Foundations — MAIR-608
+
+- **Charte** in `src/styles/municipal-theme.css`: primary teal `#70c1b3` (actions, accent, focus; dark text `--mairie-on-action` on it), secondary navy `#3c4f76` (links, secondary actions, info), neutral dark ink `#383f51` (text, navigation), neutral light mist `#c8bfc7` (borders, muted surfaces), each declined in Light and Dark; functional tones success / warning / danger keep their green / amber / red surfaces. New tokens: `--mairie-secondary*`, `--mairie-info-*`, `--mairie-logo-backing`.
+- **One size scale** `xs | s | m | l | xl`: controls 24/32/40/48/56, icons 12/16/20/24/32, text 12/14/16/18/20, avatars 20/24/32/40/56, spacing 4/8/16/24/32, radius 4/6/8/12/16, logo 16/24/32/48/64 px, as `--mairie-<kind>-<size>` custom properties.
+- **Tokens in code** from `@mairie360/lib-components/theme`: `tones`, `Tone`, `sizes`, `Size`, `scale`, `charteTokens`, `scaleVar`, `isSize`, `isTone`. Every normalised component takes `size` and, when it makes sense, `tone` from these types.
+- **`Icon`** (`primitives`): the only way to render a lucide icon, typed size, current colour, decorative unless labelled. **`Logo`** (`shell`): the brand logo at one of the five charte heights.
+- The Figma library (page Foundations « Charte & échelle », `Base/Icon`, `Base/Logo`) is the source of these values; change Figma first.
+
 ## Component groups
 
 Since MAIR-607 the library only ships what several fronts share. A business

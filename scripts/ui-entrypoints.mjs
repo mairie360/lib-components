@@ -3,7 +3,7 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'Badge', 'Button', 'Card', 'ConfirmModal', 'DropdownMenu', 'EmptyState', 'Paragraph', 'Select', 'SessionList', 'Skeleton', 'Spinner', 'Title', 'Toast', 'ToastProvider', 'ToolTip'],
+    components: ['Alert', 'Avatar', 'Badge', 'Button', 'Card', 'ConfirmModal', 'DropdownMenu', 'EmptyState', 'Icon', 'Paragraph', 'Select', 'SessionList', 'Skeleton', 'Spinner', 'Title', 'Toast', 'ToastProvider', 'ToolTip'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
@@ -12,7 +12,7 @@ export const uiEntryPoints = {
     ],
   },
   shell: {
-    components: ['AppShell', 'AccessibleShell', 'CurrentDate', 'DesktopNavigation', 'Footer', 'Header', 'NotificationCenter', 'PageTitleBar', 'Sidebar'],
+    components: ['AppShell', 'AccessibleShell', 'CurrentDate', 'DesktopNavigation', 'Footer', 'Header', 'Logo', 'NotificationCenter', 'PageTitleBar', 'Sidebar'],
     extra: [
       "export { defaultSidebarItems } from '../components/Sidebar';",
       "export { mairie360LogoSrc } from '../assets/logo';",

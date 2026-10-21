@@ -12,8 +12,8 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 const packageName = '@mairie360/lib-components';
 const moduleExports = {
-  primitives: ['Button', 'Skeleton', 'EmptyState', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem', 'SessionList', 'sessionState'],
-  shell: ['AppShell', 'AccessibleShell', 'CurrentDate', 'Header', 'Sidebar'],
+  primitives: ['Button', 'Skeleton', 'EmptyState', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem', 'SessionList', 'sessionState', 'Icon'],
+  shell: ['AppShell', 'AccessibleShell', 'CurrentDate', 'Header', 'Logo', 'Sidebar'],
 };
 let fixture;
 let unpacked;

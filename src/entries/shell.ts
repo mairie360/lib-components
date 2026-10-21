@@ -12,6 +12,8 @@ export { Footer } from '../components/Footer';
 export type { FooterLink, FooterProps } from '../components/Footer';
 export { Header } from '../components/Header';
 export type { HeaderProps } from '../components/Header';
+export { Logo } from '../components/Logo';
+export type { LogoProps } from '../components/Logo';
 export { NotificationCenter } from '../components/NotificationCenter';
 export type { NotificationItem, NotificationSource } from '../components/NotificationCenter';
 export { PageTitleBar } from '../components/PageTitleBar';

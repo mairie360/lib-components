@@ -12,6 +12,8 @@ export { DropdownMenu } from './components/DropdownMenu';
 export { EmptyState } from './components/EmptyState';
 export { Footer } from './components/Footer';
 export { Header } from './components/Header';
+export { Icon } from './components/Icon';
+export { Logo } from './components/Logo';
 export { NotificationCenter } from './components/NotificationCenter';
 export { PageTitleBar } from './components/PageTitleBar';
 export { Paragraph } from './components/Paragraph';

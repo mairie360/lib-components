@@ -8,9 +8,10 @@ beforeAll(async () => {
   stylesheet = document.createElement('style');
   // JSDOM does not resolve CSS variables in colour declarations. Resolve the
   // fixed brand backing from its central token before inspecting dimensions.
-  const onAction = /--mairie-on-action:\s*(#[\da-f]+);/i.exec(source)?.[1];
-  expect(onAction).toBe('#ffffff');
-  stylesheet.textContent = (await compile(source)).build([]).replaceAll('var(--mairie-on-action)', onAction!);
+  // MAIR-608: the logo backing has its own token (the on-action colour is the dark charte text on teal).
+  const backing = /--mairie-logo-backing:\s*(#[\da-f]+);/i.exec(source)?.[1];
+  expect(backing).toBe('#ffffff');
+  stylesheet.textContent = (await compile(source)).build([]).replaceAll('var(--mairie-logo-backing)', backing!);
   document.head.appendChild(stylesheet);
 });
 afterAll(() => stylesheet.remove());

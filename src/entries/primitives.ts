@@ -16,6 +16,8 @@ export type { ConfirmModalProps } from '../components/ConfirmModal';
 export { DropdownMenu } from '../components/DropdownMenu';
 export { EmptyState } from '../components/EmptyState';
 export type { EmptyStateProps } from '../components/EmptyState';
+export { Icon } from '../components/Icon';
+export type { IconProps } from '../components/Icon';
 export { Paragraph } from '../components/Paragraph';
 export type { ParagraphProps } from '../components/Paragraph';
 export { Select } from '../components/Select';
