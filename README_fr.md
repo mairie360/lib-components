@@ -105,6 +105,13 @@ Les écrans d’authentification Login n’utilisent pas `AppShell`.
 - **`Icon`** (`primitives`) : la seule façon d'afficher une icône lucide, taille typée, couleur courante, décorative sans libellé. **`Logo`** (`shell`) : le logo aux cinq hauteurs de la charte.
 - La bibliothèque Figma (page Foundations « Charte & échelle », `Base/Icon`, `Base/Logo`) est la source de ces valeurs ; on change Figma d'abord.
 
+## Boutons et formulaires — MAIR-608 (lot 2)
+
+- **`Button`** (`primitives`) : `variant` solid | outline | ghost | link, `tone` (7 tons), `size` xs–xl, `loading`, `icon` + `iconPosition`, forwardRef. Les props DaisyUI disparaissent.
+- **Préréglages par rôle** : `CreateButton`, `SaveButton`, `CancelButton`, `EditButton`, `DeleteButton`, `ConfirmDeleteButton`, `RefreshButton`, `RetryButton`, `CloseButton`, `BackButton`, `SendButton`, `DownloadButton`, `LogoutButton` (`ButtonPresets` par clé). `IconButton` (carré, `preset` close | more | edit | delete | previous | next | search | notifications, nom accessible obligatoire) et `LinkButton` (texte, icône + texte, icône seule, image ; lien ou bouton).
+- **Champs** : `TextField` (+ `EmailField`, `PasswordField`, `SearchField`, `PhoneField`, `DateField`, `NumberField`, `NameField`), `TextArea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `FileField`, `SelectField`, `MultiSelect`, `FilterSelect`, `FormSection`, `FormActions` ; même anatomie `Field` (libellé, marqueur obligatoire, aide, erreur en `role=alert`), ref transmise, props natives.
+- **Adaptateur react-hook-form** (`@mairie360/lib-components/forms`, pairs optionnels `react-hook-form`, `zod`, `@hookform/resolvers`) : `useZodForm(schema)`, `<Form form onSubmit>`, `<FormField name render={({ error, ...field }) => <EmailField {...field} error={error} />} />`. Entrée séparée pour que les primitives restent chargeables sans ces pairs.
+
 ## Groupes de composants
 
 Depuis MAIR-607, la bibliothèque ne contient que ce que plusieurs fronts

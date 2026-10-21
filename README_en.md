@@ -104,6 +104,13 @@ navigation. Login authentication screens do not use `AppShell`.
 - **`Icon`** (`primitives`): the only way to render a lucide icon, typed size, current colour, decorative unless labelled. **`Logo`** (`shell`): the brand logo at one of the five charte heights.
 - The Figma library (page Foundations « Charte & échelle », `Base/Icon`, `Base/Logo`) is the source of these values; change Figma first.
 
+## Buttons and forms — MAIR-608 (lot 2)
+
+- **`Button`** (`primitives`): `variant` solid | outline | ghost | link, `tone` (7 semantic tones), `size` xs–xl, `loading`, `icon` + `iconPosition`, forwardRef. The DaisyUI props are gone.
+- **Presets by role** (same entry): `CreateButton`, `SaveButton`, `CancelButton`, `EditButton`, `DeleteButton`, `ConfirmDeleteButton`, `RefreshButton`, `RetryButton`, `CloseButton`, `BackButton`, `SendButton`, `DownloadButton`, `LogoutButton` (`ButtonPresets` by key). `IconButton` (square, `preset` close | more | edit | delete | previous | next | search | notifications, accessible name mandatory) and `LinkButton` (text, icon + text, icon only, image; anchor or button).
+- **Fields** (same entry): `TextField` (+ `EmailField`, `PasswordField`, `SearchField`, `PhoneField`, `DateField`, `NumberField`, `NameField`), `TextArea`, `Checkbox`, `RadioGroup`, `Switch`, `Slider`, `FileField`, `SelectField`, `MultiSelect`, `FilterSelect`, `FormSection`, `FormActions`; all share the `Field` anatomy (label, required marker, hint, error with `role=alert`), forward their ref and spread native props.
+- **react-hook-form adapter** (`@mairie360/lib-components/forms`, optional peers `react-hook-form`, `zod`, `@hookform/resolvers`): `useZodForm(schema)`, `<Form form onSubmit>`, `<FormField name render={({ error, ...field }) => <EmailField {...field} error={error} />} />`. The adapter has its own entry so the primitives stay loadable without those peers.
+
 ## Component groups
 
 Since MAIR-607 the library only ships what several fronts share. A business
