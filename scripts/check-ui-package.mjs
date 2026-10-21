@@ -80,8 +80,8 @@ for (const format of ['module', 'commonjs']) {
       `, format);
       const actual = JSON.parse(output);
       expected.forEach(name => {
-        if (name === 'Toast') assert.ok(['function', 'object'].includes(actual[name]), 'Toast may be a forwardRef component; the rendering probe checks it');
-        else assert.equal(actual[name], 'function', `${subpath}.${name}`);
+        // forwardRef components (Toast, Button family, fields) are exotic objects; the rendering probes check them.
+        assert.ok(['function', 'object'].includes(actual[name]) && actual[name] !== 'undefined', `${subpath}.${name}`);
       });
     });
   }
