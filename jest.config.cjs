@@ -4,7 +4,7 @@ module.exports = {
   testEnvironment: 'jest-environment-jsdom',
   maxWorkers: 1,
   // src/kit is tested by `npm run test:kit` on the built entries (MAIR-126).
-  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.stories.*', '!src/kit/**'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.stories.*', '!src/**/*.test.*', '!src/kit/**'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

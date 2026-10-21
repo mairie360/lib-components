@@ -6,11 +6,11 @@ The library is built with React 19, TypeScript, Tailwind CSS 4, and DaisyUI. Sto
 
 ## How the library works
 
-The source code lives in `src/components`. Each top-level component is exposed through `src/index.tsx` and can be imported from the package root.
+The source code lives in `src/components`, one folder per component (`<Name>/<Name>.tsx`, `index.ts`, `<Name>.test.tsx`, `components/` for its sub-components). Each component folder is exposed through `src/index.tsx` and can be imported from the package root.
 
 When `npm run build` is executed:
 
-1. `scripts/generate-exports.js` scans `src/components` and regenerates `src/index.tsx`.
+1. `scripts/generate-exports.js` scans the component folders of `src/components` and regenerates `src/index.tsx`.
 2. `tsup` bundles the TypeScript source as ESM and CommonJS, generates declarations, and writes the output to `dist`.
 3. PostCSS compiles `src/app/globals.css`, including Tailwind CSS and DaisyUI, to `dist/styles.css`.
 4. Only the `dist` directory is included in the published package.
@@ -159,10 +159,10 @@ Storybook loads the library stylesheet globally and discovers stories matching `
 
 ## Adding a component
 
-1. Add `src/components/ComponentName.tsx`.
+1. Add `src/components/ComponentName/ComponentName.tsx` with its `index.ts` and `ComponentName.test.tsx`.
 2. Export a named component whose name matches the filename: `ComponentName`.
 3. Add a Storybook story under `src/stories`.
-4. Add tests under `src/__tests__` when the component has behavior to verify.
+4. Its tests live beside it (`ComponentName.test.tsx`); `src/__tests__` keeps the cross-component suites.
 5. Run the tests and build before submitting the change.
 
 Do not manually maintain `src/index.tsx` for top-level components. The `prebuild` script regenerates it and will overwrite manual changes. Files inside nested component folders are not added automatically to the package entry point.
@@ -185,7 +185,7 @@ src/
 ├── assets/               # Assets bundled with the library
 ├── components/           # Component source files and feature-specific helpers
 ├── stories/              # Storybook stories and documentation
-├── __tests__/            # Jest component tests
+├── __tests__/            # Jest cross-component suites (component tests sit beside each component)
 └── index.tsx             # Generated public package entry point
 scripts/
 └── generate-exports.js   # Creates the public component exports

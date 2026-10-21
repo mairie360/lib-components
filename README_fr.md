@@ -6,11 +6,11 @@ La bibliothèque utilise React 19, TypeScript, Tailwind CSS 4 et DaisyUI. Storyb
 
 ## Fonctionnement de la bibliothèque
 
-Le code source se trouve dans `src/components`. Chaque composant de premier niveau est exposé par `src/index.tsx` et peut être importé depuis la racine du package.
+Le code source se trouve dans `src/components`, un dossier par composant (`<Name>/<Name>.tsx`, `index.ts`, `<Name>.test.tsx`, `components/` pour ses sous-composants). Chaque dossier de composant est exposé par `src/index.tsx` et peut être importé depuis la racine du package.
 
 Lors de l’exécution de `npm run build` :
 
-1. `scripts/generate-exports.js` analyse `src/components` et régénère `src/index.tsx`.
+1. `scripts/generate-exports.js` analyse les dossiers de composants de `src/components` et régénère `src/index.tsx`.
 2. `tsup` compile le code TypeScript aux formats ESM et CommonJS, génère les déclarations de types et écrit le résultat dans `dist`.
 3. PostCSS compile `src/app/globals.css`, qui inclut Tailwind CSS et DaisyUI, vers `dist/styles.css`.
 4. Seul le répertoire `dist` est inclus dans le package publié.
@@ -160,10 +160,10 @@ Storybook charge globalement la feuille de styles de la bibliothèque et détect
 
 ## Ajouter un composant
 
-1. Ajoutez `src/components/ComponentName.tsx`.
+1. Ajoutez `src/components/ComponentName/ComponentName.tsx` avec son `index.ts` et son `ComponentName.test.tsx`.
 2. Exportez un composant nommé comme le fichier : `ComponentName`.
 3. Ajoutez une story Storybook dans `src/stories`.
-4. Ajoutez des tests dans `src/__tests__` lorsque le composant comporte un comportement à vérifier.
+4. Ses tests vivent à côté de lui (`ComponentName.test.tsx`) ; `src/__tests__` garde les suites transverses.
 5. Exécutez les tests et le build avant de proposer la modification.
 
 Ne maintenez pas manuellement `src/index.tsx` pour les composants de premier niveau. Le script `prebuild` le régénère et écrase les modifications manuelles. Les fichiers placés dans les sous-répertoires de composants ne sont pas ajoutés automatiquement au point d’entrée du package.
@@ -186,7 +186,7 @@ src/
 ├── assets/               # Ressources intégrées à la bibliothèque
 ├── components/           # Composants et utilitaires propres aux modules
 ├── stories/              # Stories et documentation Storybook
-├── __tests__/            # Tests de composants avec Jest
+├── __tests__/            # Suites Jest transverses (les tests de composants sont à côté de chaque composant)
 └── index.tsx             # Point d’entrée public du package, généré automatiquement
 scripts/
 └── generate-exports.js   # Génère les exports publics des composants
