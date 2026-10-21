@@ -61,7 +61,7 @@ export { mairie360LogoSrc } from './assets/logo';
 export { defaultSidebarItems } from './components/Sidebar';
 export type { NotificationItem, NotificationSource } from './components/NotificationCenter';
 export type { AppShellProps } from './components/AppShell';
-export { nextSessionExpiryDelay, sessionState } from './components/SessionList';
+export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from './components/SessionList';
 export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from './components/ButtonPresets';
 export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';
 export { DateField, EmailField, NameField, NumberField, PasswordField, PhoneField, SearchField } from './components/FieldPresets';

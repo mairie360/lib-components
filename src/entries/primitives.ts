@@ -102,7 +102,7 @@ export type { UserIdentityVariant, UserIdentityProps } from '../components/UserI
 export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';
 export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';
 export { useToast } from '../components/ToastProvider';
-export { nextSessionExpiryDelay, sessionState } from '../components/SessionList';
+export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../components/SessionList';
 export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';
 export { buttonAppearance, buttonSizing } from '../components/Button';
 export { DateField, EmailField, NameField, NumberField, PasswordField, PhoneField, SearchField } from '../components/FieldPresets';

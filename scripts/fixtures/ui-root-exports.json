@@ -112,6 +112,7 @@
     "nextSessionExpiryDelay",
     "paginationSummary",
     "parseDateValue",
+    "parseSessionTimestamp",
     "priorities",
     "sessionState",
     "statuses",

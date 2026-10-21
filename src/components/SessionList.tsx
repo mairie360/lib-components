@@ -25,10 +25,30 @@ export type SessionState = 'active' | 'expired' | 'revoked' | 'unknown';
 
 type SessionDates = Pick<SessionRecord, 'expires_at' | 'revoked_at'>;
 
+const isoDateTime = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)(?:\.\d+)?(?:Z|[+-](?:0\d|1[0-4]):[0-5]\d)$/;
+
+/**
+ * Strict ISO 8601 parse shared by the state, the timer and the date column, so the
+ * three never disagree: `NaN` when missing, non-ISO, or an impossible calendar day
+ * (Date would roll "2026-02-30" over to March).
+ */
+export function parseSessionTimestamp(value: string | null | undefined): number {
+  if (!value) return NaN;
+  const match = isoDateTime.exec(value);
+  if (!match) return NaN;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
+  if (!daysInMonth || day < 1 || day > daysInMonth) return NaN;
+  return Date.parse(value);
+}
+
 /** Revoked wins over expiry; an unparsable expiry is reported, never guessed. */
 export function sessionState(session: SessionDates, now: number): SessionState {
   if (session.revoked_at) return 'revoked';
-  const expiry = session.expires_at ? Date.parse(session.expires_at) : NaN;
+  const expiry = parseSessionTimestamp(session.expires_at);
   if (!Number.isFinite(expiry)) return 'unknown';
   return expiry <= now ? 'expired' : 'active';
 }
@@ -38,7 +58,7 @@ export function nextSessionExpiryDelay(sessions: readonly SessionDates[], now: n
   let earliest = Infinity;
   for (const session of sessions) {
     if (session.revoked_at) continue;
-    const expiry = session.expires_at ? Date.parse(session.expires_at) : NaN;
+    const expiry = parseSessionTimestamp(session.expires_at);
     if (expiry > now && expiry < earliest) earliest = expiry;
   }
   return Number.isFinite(earliest) ? Math.min(earliest - now + 1, 2_147_483_647) : null;
@@ -95,26 +115,14 @@ function useNow(sessions: readonly SessionRecord[] | null, fixed?: number) {
   return fixed ?? now;
 }
 
-const isoDateTime = /^(\d{4})-(\d{2})-(\d{2})T([01]\d|2[0-3]):([0-5]\d):([0-5]\d)(?:\.\d+)?(?:Z|[+-](?:0\d|1[0-4]):[0-5]\d)$/;
-
 /**
  * Format a BFF timestamp in the instance time zone; an invalid or missing value is
- * reported, never guessed (Date would roll "2026-02-30" over to March, so the
- * calendar day is checked explicitly).
+ * reported, never guessed (same strict parser as the state badge).
  */
 export function formatSessionDate(value: string | null | undefined, timeZone = getInstanceTimeZone()): string | null {
-  if (!value) return null;
-  const match = isoDateTime.exec(value);
-  if (!match) return null;
-  const year = Number(match[1]);
-  const month = Number(match[2]);
-  const day = Number(match[3]);
-  const leapYear = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
-  const daysInMonth = [31, leapYear ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month - 1];
-  if (!daysInMonth || day < 1 || day > daysInMonth) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(date);
+  const epoch = parseSessionTimestamp(value);
+  if (!Number.isFinite(epoch)) return null;
+  return new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(epoch));
 }
 
 function SessionDate({ value, timeZone }: { value: string | null | undefined; timeZone?: string }) {
@@ -146,7 +154,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
           size="s"
           role="status"
           title={unavailableMessage}
-          description="Utilisez Actualiser pour réessayer."
+          description={onRetry ? 'Utilisez Actualiser pour réessayer.' : undefined}
           action={onRetry ? <RefreshButton size="s" onClick={onRetry} /> : undefined}
         />
       </div>
