@@ -1,9 +1,12 @@
 import React from 'react';
 
-import { joinClasses } from './calendar/style';
-import type { CardProps } from './calendar/types';
+import { joinClasses } from './shared/classes';
 
-export type { CardProps } from './calendar/types';
+export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
+  title?: React.ReactNode;
+  children: React.ReactNode;
+}
+
 
 export const Card = ({ title, children, className = '', ...props }: CardProps) => (
   <section

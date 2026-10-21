@@ -32,16 +32,13 @@ CI runs the shared reusable workflow `mairie360/CICD/.github/workflows/front-lib
 ### Public API is generated
 `src/index.tsx` is **generated** by `scripts/generate-exports.js` on `prebuild` and overwritten on every build. For each `*.ts(x)` file directly in `src/components/`, it emits `export { <FileName> } from './components/<FileName>'`, plus `mairie360LogoSrc`. Consequences:
 - A top-level component file must export a named symbol identical to its filename, or the build breaks.
-- Files in subfolders (`src/components/calendar/`, `files/`, `messaging/`, …) are **not** exported. Neither are prop interfaces or types — only the component names.
+- Files in subfolders (`src/components/shared/`) are **not** exported. Neither are prop interfaces or types — only the component names (plus the explicit `rootExtraExports` of `scripts/ui-entrypoints.mjs`).
 - Don't hand-edit `src/index.tsx`; if you add a component, run `npm run build` (or the script) so the committed index stays in sync.
 
-### Feature modules vs. primitives
-`src/components/` is flat. Primitives (`Button`, `Alert`, `Select`, …) sit alongside feature modules named by prefix: `Administration*`, `Calendar*`/`MonthGrid`/`WeekGrid`/`DaySchedule`, `Dashboard*`, `Elearning*`, `Email*`, `Files*`/`FileCard`, `Messaging*`, `Project*`, `Settings*`. Each feature has a lowercase helper folder (`src/components/<feature>/`) containing:
-- `types.ts` — domain types for the module
-- `defaultData.ts` — French demo data used when the consumer passes nothing
-- `utils.ts` / `styles.ts` / sub-components as needed
+### Shared-only inventory (MAIR-607)
+`src/components/` is flat and holds **only components shared by several fronts**: primitives (`Button`, `Alert`, `Select`, …), the shell (`AppShell`, `AccessibleShell`, `Header`, `Sidebar`, `DesktopNavigation`, `Footer`, `NotificationCenter`, `PageTitleBar`, `CurrentDate`) and shared business components (`SessionList`, used by Administrator and Settings). The rule: pure display goes to the lib; a business component enters the lib when at least two fronts use it, and may be born in a front first. The former feature modules (`Administration*`, `Calendar*`, `Dashboard*`, `Elearning*`, `Email*`, `Files*`, `Messaging*`, `Project*`, `Settings*`) were removed in MAIR-607 and now live in the front that uses them. `src/components/shared/` holds helpers (`joinClasses`). Public entries are `primitives` and `shell` (plus the kit entries `react`, `shared`, `theme`, `next`, `guard`, `browser`); `scripts/ui-entrypoints.mjs` is the single source of that membership and `scripts/check-ui-package.mjs` probes the packed package against it.
 
-The `*Module` components (e.g. `FilesModule`) follow a common pattern: every data prop is optional and falls back to internal state seeded from `defaultData` (`const resolved = files ?? internalFiles`); mutations update internal state only when uncontrolled, and always fire `on*` callbacks so host apps can wire them to an API. Modules compose their sub-panels plus shared pieces like `ConfirmModal`. Components extend the relevant `React.HTMLAttributes` and spread `...props` / accept `className`.
+The Figma library (see above) mirrors this inventory: one `Base/*` set per component plus named presets; a component added here must exist in Figma first.
 
 ### Language and a11y
 User-facing strings, demo data and story names are in **French**, and Jest tests query by that French text and by ARIA roles/labels (`getByRole`, `getByLabelText`, `aria-pressed`, `data-testid`). Changing a label usually means updating tests. Accessibility is enforced via the Lighthouse check on Storybook docs pages.

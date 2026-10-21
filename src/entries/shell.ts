@@ -15,6 +15,7 @@ export type { HeaderProps } from '../components/Header';
 export { NotificationCenter } from '../components/NotificationCenter';
 export type { NotificationItem, NotificationSource } from '../components/NotificationCenter';
 export { PageTitleBar } from '../components/PageTitleBar';
+export type { PageTitleBarProps } from '../components/PageTitleBar';
 export { Sidebar } from '../components/Sidebar';
 export type { SidebarItem, SidebarProps } from '../components/Sidebar';
 export { defaultSidebarItems } from '../components/Sidebar';

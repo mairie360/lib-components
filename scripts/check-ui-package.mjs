@@ -12,14 +12,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 const packageName = '@mairie360/lib-components';
 const moduleExports = {
-  primitives: ['Button', 'Skeleton', 'EmptyState', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem'],
-  settings: ['SettingsModule'],
-  dashboard: ['DashboardModule'],
-  projects: ['ProjectModule', 'TaskStatusKanban', 'TaskStatusSelect'],
-  messages: ['Messaging'],
-  calendar: ['CalendarModule'],
-  admin: ['AdministrationModule'],
-  elearning: ['ElearningCatalog'],
+  primitives: ['Button', 'Skeleton', 'EmptyState', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem', 'SessionList', 'sessionState'],
   shell: ['AppShell', 'AccessibleShell', 'CurrentDate', 'Header', 'Sidebar'],
 };
 let fixture;
@@ -102,10 +95,12 @@ for (const format of ['module', 'commonjs']) {
       ${format === 'module' ? "import assert from 'node:assert/strict'; import React from 'react'; import { renderToString } from 'react-dom/server';" : "const assert = require('node:assert/strict'); const React = require('react'); const { renderToString } = require('react-dom/server');"}
       ${loadStatement(packageName, format, 'root')}
       ${loadStatement(`${packageName}/primitives`, format, 'primitives')}
-      ${loadStatement(`${packageName}/projects`, format, 'projects')}
       ${loadStatement(`${packageName}/shell`, format, 'shell')}
       ['Button', 'Toast', 'ToastProvider', 'useToast', 'Select'].forEach(name => assert.equal(root[name], primitives[name], name));
-      assert.equal(root.TaskStatusKanban, projects.TaskStatusKanban);
+      assert.equal(root.SessionList, primitives.SessionList);
+      // MAIR-607: the shared session list renders a row with its state from the packed primitives entry.
+      const sessionsHtml = renderToString(React.createElement(primitives.SessionList, { sessions: [{ id: 's-1', device_info: 'Chrome · Windows', ip_address: '192.168.1.24', created_at: '2026-10-20T09:12:00Z', expires_at: '2999-01-01T00:00:00Z' }] }));
+      assert.match(sessionsHtml, /Chrome · Windows/); assert.match(sessionsHtml, /Active/);
       assert.equal(root.defaultSidebarItems, shell.defaultSidebarItems);
       function Consumer({ hook }) { const api = hook(); assert.equal(typeof api.notify, 'function'); return React.createElement('span', null, 'Consumer ready'); }
       assert.match(renderToString(React.createElement(root.ToastProvider, { regionLabel: 'Notifications' }, React.createElement(Consumer, { hook: primitives.useToast }))), /Consumer ready/);
@@ -142,18 +137,13 @@ test('real ESM and CJS TypeScript consumers resolve props and matching declarati
   const imports = `
     import { Skeleton, ToastProvider, useToast } from '${packageName}/primitives';
     import type { ToastOptions } from '${packageName}/primitives';
-    import type { SettingsModuleProps } from '${packageName}/settings';
-    import type { DashboardModuleProps } from '${packageName}/dashboard';
-    import type { ProjectModuleProps } from '${packageName}/projects';
-    import type { MessagingProps } from '${packageName}/messages';
-    import type { CalendarModuleProps } from '${packageName}/calendar';
-    import type { AdministrationModuleProps } from '${packageName}/admin';
-    import type { ElearningCatalogProps } from '${packageName}/elearning';
+    import type { SessionListProps, SessionRecord } from '${packageName}/primitives';
     import type { AppShellProps } from '${packageName}/shell';
     import type { SessionServerConfig } from '${packageName}/next';
-    export type { NotificationItem, NotificationSource, AppShellProps, TaskStatusDefinition, TaskStatusSelectProps, TaskStatusKanbanTask, TaskStatusKanbanProps, SkeletonProps, EmptyStateProps, ToastProps, ToastVariant, ToastOptions, ToastContextValue, ToastProviderProps } from '${packageName}';
+    export type { NotificationItem, NotificationSource, AppShellProps, SessionListProps, SessionRecord, SessionState, SkeletonProps, EmptyStateProps, ToastProps, ToastVariant, ToastOptions, ToastContextValue, ToastProviderProps } from '${packageName}';
     const message: ToastOptions = { message: 'Reçu', duration: null };
-    const moduleProps: Partial<SettingsModuleProps & DashboardModuleProps & ProjectModuleProps & MessagingProps & CalendarModuleProps & AdministrationModuleProps & ElearningCatalogProps & AppShellProps> = {};
+    const session: SessionRecord = { id: 's-1', device_info: 'Chrome', ip_address: '10.0.0.1', created_at: '2026-10-20T09:12:00Z', expires_at: null };
+    const moduleProps: Partial<SessionListProps & AppShellProps> = { sessions: [session] };
     const serverProps: Partial<SessionServerConfig> = {};
     void [Skeleton, ToastProvider, useToast, message, moduleProps, serverProps];
   `;

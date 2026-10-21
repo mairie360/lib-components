@@ -6,21 +6,14 @@ import userEvent from '@testing-library/user-event';
 import * as root from '../index';
 import * as primitives from '../entries/primitives';
 import * as shell from '../entries/shell';
-import * as settings from '../entries/settings';
-import * as dashboard from '../entries/dashboard';
-import * as projects from '../entries/projects';
-import * as messages from '../entries/messages';
-import * as calendar from '../entries/calendar';
-import * as admin from '../entries/admin';
-import * as elearning from '../entries/elearning';
 
-it('keeps every historical root runtime binding usable by existing consumers', () => {
+it('keeps every published root runtime binding usable by existing consumers (MAIR-607 surface)', () => {
   const historical = JSON.parse(readFileSync(resolve(process.cwd(), 'scripts/fixtures/ui-root-exports.json'), 'utf8')) as { runtimeExports: string[] };
   const bindings = root as Record<string, unknown>;
   for (const name of historical.runtimeExports) expect(bindings[name]).toBeDefined();
 });
 
-it.each(Object.entries({ primitives, shell, settings, dashboard, projects, messages, calendar, admin, elearning }))(
+it.each(Object.entries({ primitives, shell }))(
   '%s consumers share existing component and context identities with root consumers', (_name, entry) => {
     const existing = root as Record<string, unknown>;
     for (const [name, binding] of Object.entries(entry)) {
