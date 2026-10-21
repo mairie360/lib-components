@@ -124,6 +124,7 @@ test('MAIR-608 the tokens expose the charte, the tone list and one size scale th
   assert.equal(isSize('l'), true); assert.equal(isSize('xxl'), false); assert.equal(isTone('danger'), true); assert.equal(isTone('error'), false);
   const css = readFileSync(new URL('../../src/styles/municipal-theme.css', import.meta.url), 'utf8');
   for (const [kind, entries] of Object.entries(scale)) for (const [size, px] of Object.entries(entries)) assert.match(css, new RegExp(`--mairie-${kind}-${size}: ${px}px;`), `${kind}/${size}`);
-  // The charte itself (teal #70c1b3, navy #3c4f76, ink #383f51, mist #c8bfc7) is declared once, in the stylesheet.
-  for (const [name, hex] of [['action-background', '#70c1b3'], ['secondary', '#3c4f76'], ['text', '#383f51'], ['control-border', '#c8bfc7']]) assert.match(css, new RegExp(`--mairie-${name}: ${hex};`), name);
+  // The charte itself (teal #70c1b3, navy #3c4f76, ink #383f51, mist #c8bfc7) is declared once, in the stylesheet;
+  // control borders use the darker mist step so the 3:1 non-text contrast holds on white.
+  for (const [name, hex] of [['action-background', '#70c1b3'], ['secondary', '#3c4f76'], ['text', '#383f51'], ['border', '#c8bfc7'], ['control-border', '#8f8290']]) assert.match(css, new RegExp(`--mairie-${name}: ${hex};`), name);
 });
