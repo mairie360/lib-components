@@ -24,6 +24,16 @@ describe('SessionList (MAIR-607)', () => {
     expect(nextSessionExpiryDelay([sessions[2], sessions[3]], NOW)).toBeNull();
   });
 
+  it('reports an impossible calendar day or a non-ISO expiry as unknown, with no timer and no date (CodeRabbit on #464)', () => {
+    const now = Date.parse('2026-02-01T00:00:00Z');
+    for (const expires_at of ['2026-02-30T08:00:00Z', '2026-10-21 10:00', '2027-13-01T00:00:00Z']) {
+      expect(sessionState({ expires_at, revoked_at: null }, now)).toBe('unknown');
+      expect(nextSessionExpiryDelay([{ expires_at, revoked_at: null }], now)).toBeNull();
+      expect(formatSessionDate(expires_at, 'Europe/Paris')).toBeNull();
+    }
+    expect(sessionState({ expires_at: '2026-02-28T08:00:00Z', revoked_at: null }, now)).toBe('active');
+  });
+
   it('formats valid timestamps in the given time zone and reports missing or invalid ones', () => {
     expect(formatSessionDate('2026-10-21T09:12:00Z', 'Europe/Paris')).toBe('21 oct. 2026, 11:12');
     expect(formatSessionDate('2026-13-45', 'Europe/Paris')).toBeNull();

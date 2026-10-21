@@ -36,4 +36,4 @@ export type { TooltipProps } from '../components/ToolTip';
 export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';
 export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';
 export { useToast } from '../components/ToastProvider';
-export { nextSessionExpiryDelay, sessionState } from '../components/SessionList';
+export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../components/SessionList';

@@ -28,6 +28,7 @@
     "defaultSidebarItems",
     "mairie360LogoSrc",
     "nextSessionExpiryDelay",
+    "parseSessionTimestamp",
     "sessionState",
     "useToast"
   ],

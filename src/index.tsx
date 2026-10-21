@@ -28,7 +28,7 @@ export { mairie360LogoSrc } from './assets/logo';
 export { defaultSidebarItems } from './components/Sidebar';
 export type { NotificationItem, NotificationSource } from './components/NotificationCenter';
 export type { AppShellProps } from './components/AppShell';
-export { nextSessionExpiryDelay, sessionState } from './components/SessionList';
+export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from './components/SessionList';
 export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';
 export type { SkeletonProps } from './components/Skeleton';
 export type { EmptyStateProps } from './components/EmptyState';

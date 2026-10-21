@@ -8,7 +8,7 @@ export const uiEntryPoints = {
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
       "export { useToast } from '../components/ToastProvider';",
-      "export { nextSessionExpiryDelay, sessionState } from '../components/SessionList';",
+      "export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../components/SessionList';",
     ],
   },
   shell: {
@@ -28,7 +28,7 @@ export const rootExtraExports = [
   "export { defaultSidebarItems } from './components/Sidebar';",
   "export type { NotificationItem, NotificationSource } from './components/NotificationCenter';",
   "export type { AppShellProps } from './components/AppShell';",
-  "export { nextSessionExpiryDelay, sessionState } from './components/SessionList';",
+  "export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from './components/SessionList';",
   "export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';",
   "export type { SkeletonProps } from './components/Skeleton';",
   "export type { EmptyStateProps } from './components/EmptyState';",
