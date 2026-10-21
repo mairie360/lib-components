@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Toast } from '@/components/Toast';
+import { Toast } from '../../../Toast';
 import { isDanger, type CloseReason, type Entry } from '../../toast-entries';
 
 // One notification of the provider: its hover/focus pauses, its countdown and its close reasons.
