@@ -98,66 +98,20 @@ navigation. Login authentication screens do not use `AppShell`.
 
 ## Component groups
 
-### Conversation drafts — MAIR-461
+Since MAIR-607 the library only ships what several fronts share. A business
+component enters the library when at least two fronts use it; until then it
+lives in its front (it can be born there and move here later). Everything that
+is pure display belongs here.
 
-Messaging retains in-memory composers only for visited conversation IDs. Numeric
-and string IDs are equivalent. Inactive composers are hidden and disabled;
-switching threads preserves text, attachments, mentions and business references
-only for their originating conversation. Removing a conversation or changing
-the current account clears its drafts and releases owned attachment URLs.
-Return the real send result: a confirmation clears only the originating draft;
-a refusal/rejection preserves it. Late settlements after account changes or
-conversation removal cannot clear a replacement draft. Pending sends freeze
-text, attachment removal/addition, mention/business suggestions and emoji actions.
-Two independent sends may settle in either order without crossing their drafts.
-These callback guarantees do not certify the consumer's BFF persistence or rights.
+- **Primitives** (`@mairie360/lib-components/primitives`): `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `ConfirmModal`, `DropdownMenu`, `EmptyState`, `Paragraph`, `Select`, `Skeleton`, `Spinner`, `Title`, `Toast`, `ToastProvider` + `useToast`, `ToolTip`.
+- **Shell** (`@mairie360/lib-components/shell`): `AppShell`, `AccessibleShell` (the shell as the fronts consume it: collapsible desktop navigation, administration entry from the trusted instance role, shell kept inert while a dialog or alert dialog is open), `CurrentDate` (French page date in the instance time zone), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter`, `PageTitleBar`, plus the `sidebar-preference` cookie helpers (MAIR-578).
+- **Shared business** (`@mairie360/lib-components/primitives`): `SessionList` (MAIR-607), the single way Administrator and Settings display a user's sessions: device, IP address, creation, expiry or revocation date, state badge computed by `sessionState`, optional revoke action (never on the current session), loading / empty / unavailable states with a retry action. `nextSessionExpiryDelay` gives the one timer that flips active sessions to expired.
 
-The delivery candidate retains the current main dependency updates and its
-v4.2.0 reusable workflow, aligning only the matching action-version input.
-A scoped Next/sharp override uses the patched image tooling (0.35.5, librsvg
-2.63.2); no security/RGAA check or npm policy is disabled. Package publication
-also requires the unchanged audit. Compatible tooling locks compression1.8.2
-and proxy-addr2.0.8 remove their high/critical findings without changing backend
-services or library runtime dependencies. Remaining braces/sprintf-js findings
-are not waived or hidden by a forced breaking tooling downgrade. Publication
-and the subsequent Messages consumer pin/integration must succeed before this
-feature is considered delivered; local library builds are not published versions.
-
-`Messaging.onCreateGroup` and `CreateGroupModal.onCreateGroup` accept a synchronous
-or asynchronous `boolean | void` result. Return `false` or reject/throw to retain
-the group name, description and members for retry. A confirmed success (including
-legacy `void` callbacks) closes the `Messaging` dialog. While a promise is pending,
-the form and close controls are disabled and repeated submissions are ignored.
-Consumers must return their service result, not discard its promise, and must not
-return success until the service has actually created the group.
-
-The public API includes the following main groups:
-
-- UI primitives: `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `DropdownMenu`, `InputManager`, `Select`, `Spinner`, `Title`, and `ToolTip`.
-- Layout and navigation: `Header`, `Footer`, `Sidebar`, `PageTitleBar`, `Item`, and `ItemContainer`.
-- Calendar: `CalendarModule`, calendar grids, toolbars, sidebars, event fields, and event modals.
-- Messaging: `Messaging`, conversation items, message bubbles, the composer, sidebar, and message modals.
-- E-learning: `ElearningCatalog`, course cards, course details, filters, ratings, badges, and statistics.
-
-  Course administration callbacks `onCreateCourse` / `onUpdateCourse` may return
-  `boolean | void | Promise<boolean | void>`. Return the actual persistence promise
-  and `false` on refusal to retain all form values for retry. Pending saves disable
-  fields, cancellation and repeat submissions; only confirmation closes the form.
-  Synchronous `void` callbacks remain compatible, but cannot report remote failure.
-  Do not return `false` when the mutation succeeded and only catalogue refresh failed:
-  retry that refresh separately without creating/updating the course again (MAIR-378).
-  Author status selects preserve the exact draft value even when catalogue filter
-  choices omit it. A missing current value is displayed through a disabled
-  presentation-only option; it does not add a selectable business transition or
-  alter catalogue filters. Received labels, order and disabled states are retained.
-  Refreshing choices does not reset the draft or silently select the first option
-  (MAIR-475).
-- Shell: `AppShell`, `AccessibleShell` (the shell as the fronts consume it: collapsible desktop navigation, administration entry from the trusted instance role, shell kept inert while a dialog or alert dialog is open), `CurrentDate` (French page date in the instance time zone), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter`, plus the `sidebar-preference` cookie helpers, all from `@mairie360/lib-components/shell` (MAIR-578).
-- Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
-- Projects: `ProjectModule` and its project-management views and interactions.
-- User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.
-
-Feature modules can work with their included demonstration data, or receive application data and callbacks through props. Use their Storybook stories as the reference for supported states and interactions.
+Removed in MAIR-607 (each lived in a single front, which now owns it): the
+`settings`, `dashboard`, `projects`, `messages`, `calendar`, `admin` and
+`elearning` entries, `InputManager`, `ProgressBar`, `FileCard`, `MiniCard`,
+`Item`, `ItemContainer`, `SortableItem`, `UserProfile` and `UserProfilePage`.
+The Figma library mirrors this inventory page by page.
 
 ## Figma library
 

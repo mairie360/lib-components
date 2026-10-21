@@ -6,7 +6,7 @@ import { configureSidebarCookieDomain } from '../utils/sidebar-preference';
 import { Header, type HeaderProps } from './Header';
 import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } from './Sidebar';
 import { NotificationCenter, type NotificationSource } from './NotificationCenter';
-import { joinClasses } from './calendar/style';
+import { joinClasses } from './shared/classes';
 
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
   /** Opt into the shared desktop collapse and municipal theme layout. */

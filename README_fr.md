@@ -99,68 +99,20 @@ Les écrans d’authentification Login n’utilisent pas `AppShell`.
 
 ## Groupes de composants
 
-### Brouillons par conversation — MAIR-461
+Depuis MAIR-607, la bibliothèque ne contient que ce que plusieurs fronts
+partagent. Un composant métier entre dans la bibliothèque quand au moins deux
+fronts l'utilisent ; d'ici là il vit dans son front (il peut y naître puis
+monter ici). Tout ce qui est affichage pur a sa place ici.
 
-Messaging conserve des éditeurs en mémoire uniquement pour les conversations
-visitées ; les IDs numériques et textuels sont équivalents. Les éditeurs inactifs
-sont cachés et désactivés. Changer de fil conserve texte, pièces jointes, mentions
-et références métier uniquement dans leur conversation d’origine. Supprimer une
-conversation ou changer de compte efface ses brouillons et libère leurs URLs.
-Retourner le véritable résultat d’envoi : la confirmation efface uniquement le
-brouillon d’origine ; refus/rejet le conserve. Une réponse tardive après changement
-de compte ou suppression du fil ne peut pas effacer un nouveau brouillon. Pendant
-l’attente, texte, ajout/retrait de pièces jointes, suggestions utilisateur/métier
-et réactions sont figés. Deux envois indépendants peuvent se terminer dans n’importe
-quel ordre sans croiser leurs brouillons. Ces garanties de callbacks ne certifient
-ni persistance BFF ni droits réels du consommateur.
+- **Primitives** (`@mairie360/lib-components/primitives`) : `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `ConfirmModal`, `DropdownMenu`, `EmptyState`, `Paragraph`, `Select`, `Skeleton`, `Spinner`, `Title`, `Toast`, `ToastProvider` + `useToast`, `ToolTip`.
+- **Shell** (`@mairie360/lib-components/shell`) : `AppShell`, `AccessibleShell` (le shell tel que les fronts le consomment : navigation repliable, entrée Administration selon le rôle de l'instance, shell inerte pendant une boîte de dialogue), `CurrentDate` (date du jour en français dans le fuseau de l'instance), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter`, `PageTitleBar`, plus les utilitaires du cookie `sidebar-preference` (MAIR-578).
+- **Métier partagé** (`@mairie360/lib-components/primitives`) : `SessionList` (MAIR-607), la seule façon pour Administrator et Settings d'afficher les sessions d'un utilisateur : appareil, adresse IP, création, expiration ou révocation, badge d'état calculé par `sessionState`, action de déconnexion optionnelle (jamais sur la session courante), états chargement / vide / indisponible avec action Actualiser. `nextSessionExpiryDelay` fournit le minuteur unique qui fait passer les sessions actives en expirées.
 
-Le candidat conserve les dépendances déjà mises à jour dans main et son workflow
-réutilisable v4.2.0 ; seule l’entrée de version des actions correspondantes est
-alignée. Un override Next/sharp ciblé utilise l’outillage d’image corrigé (0.35.5,
-librsvg 2.63.2). Aucun contrôle sécurité/RGAA ou politique npm n’est désactivé.
-Les verrous compatibles d’outillage compression1.8.2 et proxy-addr2.0.8 retirent
-leurs alertes high/critical, sans modifier les services backend ni les dépendances
-runtime de la bibliothèque. L’audit inchangé reste obligatoire ; les alertes
-braces/sprintf-js ne sont ni masquées ni contournées par un downgrade majeur.
-Publication réelle du paquet puis pin/intégration du consommateur Messages restent
-obligatoires avant livraison : un build local n’est pas une version publiée.
-
-`Messaging.onCreateGroup` et `CreateGroupModal.onCreateGroup` acceptent un résultat
-`boolean | void`, synchrone ou asynchrone. Retourner `false` ou lever/rejeter une
-erreur conserve le nom, la description et les membres pour réessayer. Un succès
-confirmé (y compris les anciens callbacks `void`) ferme la fenêtre de `Messaging`.
-Pendant l’attente, les champs et les contrôles de fermeture sont désactivés et les
-soumissions répétées sont ignorées. Le front doit retourner le résultat du service,
-sans abandonner sa promesse ni annoncer un succès avant la création effective.
-
-L’API publique comprend les groupes principaux suivants :
-
-- Composants d’interface : `Alert`, `Avatar`, `Badge`, `Button`, `Card`, `DropdownMenu`, `InputManager`, `Select`, `Spinner`, `Title` et `ToolTip`.
-- Mise en page et navigation : `Header`, `Footer`, `Sidebar`, `PageTitleBar`, `Item` et `ItemContainer`.
-- Calendrier : `CalendarModule`, les grilles, barres d’outils, panneaux latéraux, champs et fenêtres modales d’événements.
-- Messagerie : `Messaging`, les conversations, bulles de messages, l’éditeur, le panneau latéral et les fenêtres modales.
-- Formation en ligne : `ElearningCatalog`, les cartes et détails de formations, les filtres, évaluations, badges et statistiques.
-
-  Les callbacks d’administration `onCreateCourse` / `onUpdateCourse` peuvent retourner
-  `boolean | void | Promise<boolean | void>`. Retourner la promesse réelle de sauvegarde
-  et `false` en cas de refus conserve toutes les saisies pour réessayer. Pendant l’attente,
-  champs, annulation et double soumission sont bloqués ; seule la confirmation ferme le
-  formulaire. Les callbacks synchrones `void` restent compatibles mais ne signalent pas
-  un échec distant. Si la mutation réussit mais que le catalogue ne se recharge pas,
-  réessayer uniquement ce chargement, sans renvoyer la création/modification (MAIR-378).
-  Le sélecteur de statut auteur conserve la valeur exacte du brouillon même si les
-  choix de filtre du catalogue ne la contiennent pas. Une valeur courante absente
-  est représentée par une option désactivée, uniquement pour l’affichage : aucune
-  transition métier sélectionnable ni option de filtre n’est ajoutée. Les libellés,
-  l’ordre et les états désactivés reçus restent inchangés. Actualiser les choix ne
-  réinitialise pas le brouillon et ne sélectionne pas silencieusement le premier
-  statut (MAIR-475).
-- Shell : `AppShell`, `AccessibleShell` (le shell tel que les fronts l’utilisent : navigation bureau repliable, entrée Administration issue du rôle d’instance, shell inerte pendant qu’un dialogue ou une alerte modale est ouvert), `CurrentDate` (date du jour en français dans le fuseau de l’instance), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter` et les utilitaires du cookie `sidebar-preference`, tous depuis `@mairie360/lib-components/shell` (MAIR-578).
-- Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
-- Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
-- Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.
-
-Les modules fonctionnels peuvent utiliser les données de démonstration incluses ou recevoir les données et callbacks de l’application au moyen de leurs props. Consultez leurs stories Storybook pour connaître les états et interactions pris en charge.
+Retirés par MAIR-607 (chacun ne servait qu'à un seul front, qui le possède
+désormais) : les entrées `settings`, `dashboard`, `projects`, `messages`,
+`calendar`, `admin` et `elearning`, `InputManager`, `ProgressBar`, `FileCard`,
+`MiniCard`, `Item`, `ItemContainer`, `SortableItem`, `UserProfile` et
+`UserProfilePage`. La bibliothèque Figma reflète cet inventaire page par page.
 
 ## Bibliothèque Figma
 

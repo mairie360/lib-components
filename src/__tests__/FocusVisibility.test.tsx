@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { compile } from 'tailwindcss';
 import postcss from 'postcss';
-import { InputManager } from '../components/InputManager';
 import { Select, SelectTrigger, SelectContent, SelectItem } from '../components/Select';
 
 async function focusIndicator(element: HTMLElement) {
@@ -26,9 +25,4 @@ it('emits a visible local keyboard focus indicator for a selected list option', 
   await user.tab(); await user.keyboard('{Enter}{ArrowDown}');
   const option = screen.getByRole('option', { name: 'Budget' }); expect(option).toHaveFocus();
   expect(await focusIndicator(option)).toBe(true);
-});
-it('emits a visible local keyboard focus indicator for the password toggle', async () => {
-  const user = userEvent.setup(); render(<InputManager label="Mot de passe" name="password" type="password" value="" onChange={() => undefined} />);
-  await user.tab(); await user.tab(); const toggle = screen.getByRole('button', { name: 'Afficher le mot de passe' }); expect(toggle).toHaveFocus();
-  expect(await focusIndicator(toggle)).toBe(true);
 });

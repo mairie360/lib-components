@@ -1,10 +1,17 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 
-import { joinClasses } from './calendar/style';
-import type { PageTitleBarProps } from './calendar/types';
+import { joinClasses } from './shared/classes';
 
-export type { PageTitleBarProps } from './calendar/types';
+export interface PageTitleBarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title'> {
+  title: React.ReactNode;
+  subtitle?: React.ReactNode;
+  actionLabel?: string;
+  actionIcon?: React.ReactNode;
+  action?: React.ReactNode;
+  onAction?: () => void;
+}
+
 
 export const PageTitleBar = ({
   title,
