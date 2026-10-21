@@ -10,7 +10,9 @@ export type ButtonPresetProps = Omit<ButtonProps, 'label'> & { label?: string };
 
 function preset(name: string, defaults: Partial<Pick<ButtonProps, 'label' | 'icon' | 'variant' | 'tone'>>) {
   const Preset = React.forwardRef<HTMLButtonElement, ButtonPresetProps>(function Preset(props, ref) {
-    return <Button ref={ref} {...defaults} data-preset={name} {...props} />;
+    // An explicit `undefined` (e.g. `label={maybeLabel}`) keeps the preset default.
+    const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined));
+    return <Button ref={ref} {...defaults} data-preset={name} {...overrides} />;
   });
   Preset.displayName = `${name}Button`;
   return Preset;
