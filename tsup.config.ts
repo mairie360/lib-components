@@ -14,5 +14,9 @@ export default defineConfig({
   minify: false,
   banner: { js: '"use client";' },
   loader: { '.png': 'dataurl' },
-  external: ['react', 'react-dom', 'fs', 'zlib', 'path', 'stream', 'http', 'https', 'os', 'url', 'buffer', 'crypto', 'axios', 'next/server.js', 'node:crypto'],
+  // tsconfig keeps `jsx: preserve` for Next.js; without this esbuild emits classic React.createElement calls that
+  // break any component importing only hooks from React (DesktopNavigation in the published 0.10.2, MAIR-578).
+  esbuildOptions(options) { options.jsx = 'automatic'; },
+  // Components reach the kit through the published entries (module state must stay unique, MAIR-578).
+  external: [/^@mairie360\/lib-components\//, 'react', 'react-dom', 'fs', 'zlib', 'path', 'stream', 'http', 'https', 'os', 'url', 'buffer', 'crypto', 'axios', 'next/server.js', 'node:crypto'],
 });

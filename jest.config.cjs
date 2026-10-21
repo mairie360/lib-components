@@ -8,6 +8,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^@mairie360/lib-components/(react|shared|theme)$': '<rootDir>/src/kit/$1',
     '\\.(css|scss|sass)$': 'identity-obj-proxy',
     '\\.(png|jpg|jpeg|gif|webp|avif|svg)$': '<rootDir>/src/__mocks__/fileMock.ts',
   },

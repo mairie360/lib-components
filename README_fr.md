@@ -155,11 +155,18 @@ L’API publique comprend les groupes principaux suivants :
   l’ordre et les états désactivés reçus restent inchangés. Actualiser les choix ne
   réinitialise pas le brouillon et ne sélectionne pas silencieusement le premier
   statut (MAIR-475).
+- Shell : `AppShell`, `AccessibleShell` (le shell tel que les fronts l’utilisent : navigation bureau repliable, entrée Administration issue du rôle d’instance, shell inerte pendant qu’un dialogue ou une alerte modale est ouvert), `CurrentDate` (date du jour en français dans le fuseau de l’instance), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter` et les utilitaires du cookie `sidebar-preference`, tous depuis `@mairie360/lib-components/shell` (MAIR-578).
 - Administration : `AdministrationModule`, la gestion des utilisateurs, les paramètres, journaux, audits, états du système et indicateurs.
 - Projets : `ProjectModule` ainsi que ses vues et interactions de gestion de projets.
 - Expérience utilisateur : `UserProfile`, `UserProfilePage`, `ConfirmModal` et les composants de progression ou de statistiques.
 
 Les modules fonctionnels peuvent utiliser les données de démonstration incluses ou recevoir les données et callbacks de l’application au moyen de leurs props. Consultez leurs stories Storybook pour connaître les états et interactions pris en charge.
+
+## Bibliothèque Figma
+
+Le pendant design de ce paquet est la bibliothèque d’équipe Figma **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (équipe Figma Mairie360). Elle est générée depuis ce dépôt : un composant Figma par export de `src/index.tsx` (même nom, variantes pour les props React), les tokens `--mairie-*` de `src/styles/municipal-theme.css` en variables avec modes Light/Dark, les styles de texte et d’ombre, et les icônes lucide utilisées par les composants. Pages : Foundations, Index (inventaire complet), puis une page par groupe (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+
+La bibliothèque Figma est la source de vérité : un changement visuel ou de comportement est conçu et validé dans Figma **avant** d’écrire le code, et la pull request implémente ensuite le composant Figma. Toute maquette de front doit instancier ces composants au lieu de les redessiner.
 
 ## Développement local
 

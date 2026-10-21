@@ -152,11 +152,18 @@ The public API includes the following main groups:
   alter catalogue filters. Received labels, order and disabled states are retained.
   Refreshing choices does not reset the draft or silently select the first option
   (MAIR-475).
+- Shell: `AppShell`, `AccessibleShell` (the shell as the fronts consume it: collapsible desktop navigation, administration entry from the trusted instance role, shell kept inert while a dialog or alert dialog is open), `CurrentDate` (French page date in the instance time zone), `Header`, `Sidebar`, `Footer`, `DesktopNavigation`, `NotificationCenter`, plus the `sidebar-preference` cookie helpers, all from `@mairie360/lib-components/shell` (MAIR-578).
 - Administration: `AdministrationModule`, user management, settings, logs, audit, system status, and metric panels.
 - Projects: `ProjectModule` and its project-management views and interactions.
 - User experience: `UserProfile`, `UserProfilePage`, `ConfirmModal`, and progress or statistics components.
 
 Feature modules can work with their included demonstration data, or receive application data and callbacks through props. Use their Storybook stories as the reference for supported states and interactions.
+
+## Figma library
+
+The design counterpart of this package lives in the Figma team library **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (Mairie360 Figma team). It is generated from this repository: one Figma component per export of `src/index.tsx` (same name, variants for the React props), the `--mairie-*` tokens of `src/styles/municipal-theme.css` as variables with Light/Dark modes, the text and shadow styles, and the lucide icons used by the components. Pages: Foundations, Index (full inventory), then one page per group (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+
+The Figma library is the source of truth: a visual or behavioural change is designed and agreed in Figma **before** the code is written, and the pull request then implements the Figma component. Every front mock-up must instantiate these components instead of redrawing them.
 
 ## Local development
 

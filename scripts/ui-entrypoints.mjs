@@ -37,10 +37,12 @@ export const uiEntryPoints = {
     components: ['ElearningCatalog', 'ElearningAdminStats', 'ElearningBadge', 'ElearningCourseCard', 'ElearningCourseDetailsModal', 'ElearningCourseFormModal', 'ElearningCourseRating', 'ElearningFilterSelect', 'ElearningSearchInput', 'ElearningStatCard'],
   },
   shell: {
-    components: ['AppShell', 'DesktopNavigation', 'Footer', 'Header', 'NotificationCenter', 'PageTitleBar', 'Sidebar'],
+    components: ['AppShell', 'AccessibleShell', 'CurrentDate', 'DesktopNavigation', 'Footer', 'Header', 'NotificationCenter', 'PageTitleBar', 'Sidebar'],
     extra: [
       "export { defaultSidebarItems } from '../components/Sidebar';",
       "export { mairie360LogoSrc } from '../assets/logo';",
+      "export { formatCurrentDate } from '../components/CurrentDate';",
+      "export { SIDEBAR_COOKIE, configureSidebarCookieDomain, readSidebarPreference, sidebarPreferenceCookie, validSidebarCookieDomain } from '../utils/sidebar-preference';",
     ],
   },
 };
