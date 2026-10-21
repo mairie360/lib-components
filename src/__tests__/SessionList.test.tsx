@@ -74,3 +74,19 @@ describe('SessionList (MAIR-607)', () => {
     }
   });
 });
+
+describe('SessionList without a browser window (MAIR-607)', () => {
+  it('renders on a server-like runtime that exposes a document stand-in but no window', () => {
+    const originalWindow = globalThis.window;
+    // @ts-expect-error simulate a server renderer with a document stand-in only
+    delete globalThis.window;
+    try {
+      const { renderToString } = require('react-dom/server') as typeof import('react-dom/server');
+      const html = renderToString(<SessionList sessions={sessions} now={NOW} timeZone="Europe/Paris" />);
+      expect(html).toContain('Chrome 129 · Windows 11');
+      expect(html).toContain('Expirée');
+    } finally {
+      globalThis.window = originalWindow;
+    }
+  });
+});

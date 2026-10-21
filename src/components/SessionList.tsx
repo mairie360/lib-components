@@ -71,7 +71,8 @@ export interface SessionListProps extends Omit<React.HTMLAttributes<HTMLDivEleme
 function useNow(sessions: readonly SessionRecord[] | null, fixed?: number) {
   const [now, setNow] = React.useState(() => fixed ?? Date.now());
   React.useEffect(() => {
-    if (fixed !== undefined || !sessions || typeof document === 'undefined') return;
+    // Server renderers may define a document stand-in without a window: no timer there.
+    if (fixed !== undefined || !sessions || typeof document === 'undefined' || typeof window === 'undefined') return;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const refresh = () => {
       const current = Date.now();
