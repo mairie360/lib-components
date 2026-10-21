@@ -27,13 +27,44 @@ npm run lighthouse                       # build Storybook + Lighthouse; fails i
 
 CI runs the shared reusable workflow `mairie360/CICD/.github/workflows/front-libs-cicd.yml` (see `.github/workflows/cicd.yaml`); its steps are not defined in this repo. It runs on pull requests, manual dispatch and pushes to `main` only; the workflow token is read-only by default and only the `CICD` job gets `contents`/`packages`/`pages`/`id-token: write`, the cap the reusable `package` and `storybook` jobs need (MAIR-436, pinned by `src/__tests__/WorkflowPermissions.test.ts`).
 
+## Component tree convention
+
+Every component under `src/components/` is a **folder named after it**, and the folder tree
+mirrors the composition tree:
+
+```
+Name/
+  index.ts          # exports the component (and the helpers it owns)
+  Name.tsx          # imports ONLY its direct sub-components, through their index.ts
+  Name.test.tsx     # its tests, co-located (Jest + jsdom)
+  components/       # one such folder per direct sub-component, recursively
+```
+
+- A component needs nothing but the `index.ts` of its direct sub-components: `Name.tsx` imports
+  `./components/Sub`, never `./components/Sub/Sub` nor a sub-sub-component. Leaves are folders
+  too (without `components/`).
+- Helpers a component owns (models, hooks, `*.ts`) sit beside it and are exported by its
+  `index.ts`; a helper shared by two siblings sits in their closest common ancestor.
+- A big component is acceptable only for a technical reason stated in a comment; otherwise
+  split it so that each visible part is a component and what composes it a sub-component.
+- Cross-component suites (runtime, entry points, server, CSS) stay in `src/__tests__/`;
+  per-component tests are the co-located `Name.test.tsx`. `src/__tests__/component-tree-convention.test.ts` enforces the folder, the index,
+  the co-located test and the index-only imports.
+
+## Front tickets and the Figma mockup
+
+A front or lib ticket (Jira + GitHub issue + PR) **must link the Figma frame that serves as
+the example** of what is being built or changed. Without that link the ticket cannot be worked
+on, unless the change does not affect the display (tooling, tests, proxy, contracts…). Update
+and agree the mockup first, then code it: the sync direction is Figma → code.
+
 ## Architecture
 
 ### Public API is generated
-`src/index.tsx` is **generated** by `scripts/generate-exports.js` on `prebuild` and overwritten on every build. For each `*.ts(x)` file directly in `src/components/`, it emits `export { <FileName> } from './components/<FileName>'`, plus `mairie360LogoSrc`. Consequences:
-- A top-level component file must export a named symbol identical to its filename, or the build breaks.
-- Files in subfolders (`src/components/shared/`) are **not** exported. Neither are prop interfaces or types — only the component names (plus the explicit `rootExtraExports` of `scripts/ui-entrypoints.mjs`).
-- Don't hand-edit `src/index.tsx`; if you add a component, run `npm run build` (or the script) so the committed index stays in sync.
+`src/index.tsx` and `src/entries/*.ts` are **generated** by `scripts/generate-exports.js` on `prebuild` and overwritten on every build. For each component folder `src/components/<Name>/<Name>.tsx`, it emits `export { <Name> } from './components/<Name>'` (the folder's `index.ts`), plus `mairie360LogoSrc`. Consequences:
+- A component folder must export a named symbol identical to its folder name, or the build breaks.
+- Loose helper files beside the folders (`src/components/shared-classes.ts`) and sub-components (`<Name>/components/*`) are **not** exported. Neither are prop interfaces or types — only the component names (plus the explicit `rootExtraExports` of `scripts/ui-entrypoints.mjs`); the `uiEntryPoints` extras reach a component's helpers through its folder (`'../components/SessionList'` also serves `session-dates.ts` through the index).
+- Don't hand-edit `src/index.tsx` or `src/entries/`; if you add a component, run `npm run build` (or the script) so the committed files stay in sync.
 
 ### Charte, tones and sizes (MAIR-608)
 `src/styles/municipal-theme.css` carries the charte (`#70c1b3` primary with dark `--mairie-on-action`, `#3c4f76` secondary, `#383f51` text/navigation, `#c8bfc7` borders) in Light and Dark, plus the single size scale as `--mairie-<kind>-<size>` tokens (`control`, `icon`, `avatar`, `text`, `space`, `radius`, `logo` × `xs|s|m|l|xl`). `src/kit/theme.ts` exports the matching `tones` / `Tone`, `sizes` / `Size`, `scale`, `charteTokens`, `scaleVar`; `tests/kit/theme.test.mjs` checks the stylesheet declares every scale token. New colour tokens must be added to `approvedThemeProperties` in `scripts/check-ui-colors.mjs` (the colour guard forbids literals elsewhere). `Icon` and `Logo` are the first components on the scale; every normalised component takes `size?: Size` (and `tone?: Tone` when relevant) and binds the `--mairie-*` tokens rather than hard-coded pixels or colours.
@@ -45,7 +76,7 @@ CI runs the shared reusable workflow `mairie360/CICD/.github/workflows/front-lib
 Every visible string goes through `Text` or a preset of `src/components/Text.tsx` (never a bare `<p className="text-sm">`); the same preset convention (`undefined` overrides keep the default) applies to `Alert` presets and `StatusBadge` / `PriorityPill` (`statuses` / `priorities` maps in `StatusPill.tsx` are the single colour per business status). Empty, loading, unavailable and error areas use `DataState`; `Panel` and `DataTable` embed it. `Modal` and `Drawer` share `useDialogFocus` (`Modal.tsx`: focus trap, Escape, scroll lock, focus restored to the opener); `ConfirmModal` is `Modal` size xs with the button presets. Toasts: `ToastProvider` keeps its focus and timing rules; `useToast()` adds `error/success/warning/info` shortcuts, timed toasts show the countdown bar (`progress` + `progressDuration` props of `Toast`, frozen while paused). The shimmer and countdown live in `municipal-theme.css` under `prefers-reduced-motion: no-preference`. Removed in this ticket: `Badge`, `Title`, `Paragraph`, `EmptyState`, `PageTitleBar` (fronts migrate on the major release).
 
 ### Shared-only inventory (MAIR-607)
-`src/components/` is flat and holds **only components shared by several fronts**: primitives (`Button`, `Alert`, `Select`, …), the shell (`AppShell`, `AccessibleShell`, `Header`, `Sidebar`, `DesktopNavigation`, `Footer`, `NotificationCenter`, `PageTitleBar`, `CurrentDate`) and shared business components (`SessionList`, used by Administrator and Settings). The rule: pure display goes to the lib; a business component enters the lib when at least two fronts use it, and may be born in a front first. The former feature modules (`Administration*`, `Calendar*`, `Dashboard*`, `Elearning*`, `Email*`, `Files*`, `Messaging*`, `Project*`, `Settings*`) were removed in MAIR-607 and now live in the front that uses them. `src/components/shared/` holds helpers (`joinClasses`). Public entries are `primitives` and `shell` (plus the kit entries `react`, `shared`, `theme`, `next`, `guard`, `browser`); `scripts/ui-entrypoints.mjs` is the single source of that membership and `scripts/check-ui-package.mjs` probes the packed package against it.
+`src/components/` holds one folder per component (see the convention above) and **only components shared by several fronts**: primitives (`Button`, `Alert`, `Select`, …), the shell (`AppShell`, `AccessibleShell`, `Header`, `Sidebar`, `DesktopNavigation`, `Footer`, `NotificationCenter`, `PageTitleBar`, `CurrentDate`) and shared business components (`SessionList`, used by Administrator and Settings). The rule: pure display goes to the lib; a business component enters the lib when at least two fronts use it, and may be born in a front first. The former feature modules (`Administration*`, `Calendar*`, `Dashboard*`, `Elearning*`, `Email*`, `Files*`, `Messaging*`, `Project*`, `Settings*`) were removed in MAIR-607 and now live in the front that uses them. `src/components/shared-classes.ts` holds helpers (`joinClasses`). Compound components (`Select`, `DropdownMenu`) keep their parts in one file because they share a context; `ToastProvider` and `SessionList` carry their internal parts in `components/` (`TimedToast`, `SessionDate`). Public entries are `primitives` and `shell` (plus the kit entries `react`, `shared`, `theme`, `next`, `guard`, `browser`); `scripts/ui-entrypoints.mjs` is the single source of that membership and `scripts/check-ui-package.mjs` probes the packed package against it.
 
 The Figma library (see above) mirrors this inventory: one `Base/*` set per component plus named presets; a component added here must exist in Figma first.
 
@@ -61,7 +92,7 @@ Components that use hooks start with `'use client'` (the tsup banner also marks 
 - `tsup` bundles `src/index.tsx` to ESM + CJS with `.d.ts`; PNGs are inlined as data URLs; React/React DOM are peer deps and external. Keep framework packages (next, storybook, etc.) in `devDependencies`, not runtime `dependencies`.
 
 ### Tests and stories
-- Jest (`jest.config.cjs`, `ts-jest`, jsdom, `tsconfig.jest.json`) runs `src/__tests__/*.test.tsx`; CSS maps to `identity-obj-proxy`, images to `src/__mocks__/fileMock.ts`; `@/` aliases `src/`.
+- Jest (`jest.config.cjs`, `ts-jest`, jsdom, `tsconfig.jest.json`) runs the co-located `src/components/<Name>/<Name>.test.tsx` and the cross-component suites of `src/__tests__/`; CSS maps to `identity-obj-proxy`, images to `src/__mocks__/fileMock.ts`; `@/` aliases `src/`.
 - Stories live in `src/stories/`, titled `Components/<Feature>/<Name>` with `tags: ['autodocs']`, and use `fn()` from `storybook/test` for callback args. Module stories typically render inside `Sidebar` + `Header` + `Footer` for a full-page layout. `scripts/generate-lhci-urls.js` derives Lighthouse URLs from each story's `title`, so every story file needs a literal `title:`.
 - `vitest.config.ts` is only the Storybook Vitest addon (browser tests of stories via Playwright), separate from `npm test`.
 
