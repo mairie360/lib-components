@@ -39,9 +39,12 @@
     "access": "public"
   },
   "peerDependencies": {
+    "next": "^16.3.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "^16.3.8"
+    "react-hook-form": "^7.50.0",
+    "zod": "^3.23.0",
+    "@hookform/resolvers": "^3.9.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -53,9 +56,8 @@
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
-    "braces": "file:./vendor/braces",
-    "sprintf-js": "file:./vendor/sprintf-js",
     "@chromatic-com/storybook": "^5.2.1",
+    "@hookform/resolvers": "^3.10.0",
     "@lhci/cli": "^0.15.0",
     "@storybook/addon-docs": "^10.4.6",
     "@storybook/addon-onboarding": "^10.4.6",
@@ -74,6 +76,8 @@
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
     "@vitest/coverage-v8": "^4.1.11",
+    "ajv": "6.15.0",
+    "braces": "file:./vendor/braces",
     "chromatic": "^18.0.0",
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
@@ -89,6 +93,8 @@
     "postcss-cli": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.90.0",
+    "sprintf-js": "file:./vendor/sprintf-js",
     "start-server-and-test": "^3.0.0",
     "storybook": "^10.4.6",
     "tailwindcss": "^4.1.5",
@@ -97,7 +103,7 @@
     "typescript": "^5",
     "vitest": "^4.1.11",
     "wait-on": "^9.0.0",
-    "ajv": "6.15.0"
+    "zod": "^3.25.76"
   },
   "overrides": {
     "braces": "$braces",
@@ -208,11 +214,30 @@
         "default": "./dist/shell.cjs"
       }
     },
+    "./forms": {
+      "import": {
+        "types": "./dist/forms.d.ts",
+        "default": "./dist/forms.js"
+      },
+      "require": {
+        "types": "./dist/forms.d.cts",
+        "default": "./dist/forms.cjs"
+      }
+    },
     "./styles.css": "./dist/styles.css",
     "./*": "./*"
   },
   "peerDependenciesMeta": {
     "next": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    },
+    "@hookform/resolvers": {
       "optional": true
     }
   },

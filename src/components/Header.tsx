@@ -186,8 +186,9 @@ export const Header = ({
               <Avatar
                 src={avatarSrc}
                 alt={displayName}
-                fallback={<span className="text-[11px] font-semibold leading-none text-[var(--mairie-on-action)]">{getInitials(displayName)}</span>}
-                className="!h-6 !w-6 border-2 border-[var(--mairie-accent)]"
+                fallback={getInitials(displayName)}
+                size="s"
+                className="border-2 border-[var(--mairie-accent)]"
               />
               <span className="hidden whitespace-nowrap sm:inline">{displayName}</span>
               <ChevronDown className="hidden h-4 w-4 sm:inline" strokeWidth={1.8} />

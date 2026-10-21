@@ -2,12 +2,12 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { compile } from 'tailwindcss';
-import postcss, { type Node as CssNode } from 'postcss';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { Skeleton } from '../components/Skeleton';
-import { EmptyState } from '../components/EmptyState';
+import { DataState } from '../components/DataState';
 import { Toast } from '../components/Toast';
-import { ToastProvider, useToast } from '../components/ToastProvider';
+import { TOAST_DEFAULT_DURATION, ToastProvider, useToast } from '../components/ToastProvider';
 
 // JSDOM has no active native window; model the normal focused application explicitly.
 beforeEach(() => jest.spyOn(document, 'hasFocus').mockReturnValue(true));
@@ -23,47 +23,59 @@ it('keeps decorative skeletons silent and announces only a supplied loading labe
   expect((await axe(container)).violations).toEqual([]);
 });
 
-it('compiles skeleton animation only for users allowing motion', async () => {
-  const { container, rerender } = render(<Skeleton />);
-  const compiler = await compile('@theme { --animate-pulse: pulse 2s infinite; } @tailwind utilities;');
-  const css = postcss.parse(compiler.build(Array.from(container.querySelector('[aria-hidden]')!.classList)));
-  const animatedMedia: string[] = [];
-  css.walkDecls('animation', declaration => {
-    let ancestor: CssNode | undefined = declaration.parent;
-    while (ancestor && ancestor.type !== 'atrule') ancestor = ancestor.parent;
-    if (ancestor && 'params' in ancestor) animatedMedia.push(String(ancestor.params));
-  });
-  expect(animatedMedia).toContain('(prefers-reduced-motion: no-preference)');
+it('shimmers only for users allowing motion and offers the Figma shapes and presets (MAIR-608)', () => {
+  const css = readFileSync(resolve(process.cwd(), 'src/styles/municipal-theme.css'), 'utf8');
+  const motion = css.slice(css.indexOf('.mairie-skeleton-animated'));
+  expect(css).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s*\.mairie-skeleton-animated/);
+  expect(motion).toContain('animation: mairie-shimmer');
+  const { container, rerender } = render(<Skeleton shape="circle" size="l" />);
+  const bone = container.querySelector('[aria-hidden]') as HTMLElement;
+  expect(bone).toHaveClass('mairie-skeleton-animated'); expect(bone).toHaveAttribute('data-shape', 'circle');
+  expect(bone.style.width).toBe('var(--mairie-avatar-l)');
   rerender(<Skeleton animated={false} />);
-  expect(container.querySelector('[aria-hidden]')).not.toHaveClass('motion-safe:animate-pulse');
+  expect(container.querySelector('[aria-hidden]')).not.toHaveClass('mairie-skeleton-animated');
+  rerender(<Skeleton.UserIdentity label="Chargement de l’agent" />);
+  expect(screen.getByRole('status')).toHaveTextContent('Chargement de l’agent');
+  expect(container.querySelectorAll('[data-shape="circle"]')).toHaveLength(1);
+  rerender(<Skeleton.TableRow columns={3} />);
+  expect(container.querySelectorAll('[data-shape="line"]')).toHaveLength(3);
 });
 
-it('names an empty section and delegates its real keyboard action without focusing it', async () => {
+it('names an empty region, defaults its French text and delegates its create action without focusing it', async () => {
   const user = userEvent.setup(); const create = jest.fn();
-  const { container } = render(<EmptyState title="Aucun dossier" description="Créez le premier dossier." icon={<span>Décoration</span>} action={<button onClick={create}>Créer un dossier</button>} />);
-  expect(screen.getByRole('region', { name: 'Aucun dossier' })).toHaveTextContent('Créez le premier dossier.');
-  expect(screen.getByText('Décoration').closest('[aria-hidden]')).toHaveAttribute('aria-hidden', 'true');
-  expect(screen.getByRole('heading', { name: 'Aucun dossier' })).toBeInTheDocument();
+  const { container, rerender } = render(<DataState state="empty" onCreate={create} createLabel="Créer un dossier" />);
+  expect(screen.getByRole('region', { name: 'Aucun élément à afficher.' })).toHaveTextContent('Les éléments apparaîtront ici dès qu’ils seront créés.');
   expect(create).not.toHaveBeenCalled(); expect(document.body).toHaveFocus();
   await user.tab(); await user.keyboard('{Enter}'); expect(create).toHaveBeenCalledTimes(1);
   expect((await axe(container)).violations).toEqual([]);
+  const retry = jest.fn();
+  rerender(<DataState state="unavailable" title="Calendrier indisponible" onRetry={retry} />);
+  await user.click(screen.getByRole('button', { name: 'Réessayer' })); expect(retry).toHaveBeenCalledTimes(1);
+  rerender(<DataState state="error" onRetry={retry} />);
+  expect(screen.getByRole('region', { name: 'Une erreur est survenue.' })).toBeInTheDocument();
+  rerender(<DataState state="loading" title="Chargement des projets" />);
+  expect(screen.getByRole('status')).toHaveTextContent('Chargement des projets');
+  expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
 });
 
-it.each(['info', 'success', 'warning'] as const)('announces %s politely and renders supplied content', variant => {
-  render(<Toast variant={variant} title="Dossiers" message="Modification confirmée par le serveur" />);
+it.each(['info', 'success', 'warning'] as const)('announces %s politely and renders supplied content', tone => {
+  render(<Toast tone={tone} title="Dossiers" message="Modification confirmée par le serveur" />);
   expect(screen.getByRole('status')).toHaveAttribute('aria-live', 'polite');
   expect(screen.getByRole('status')).toHaveTextContent('Dossiers');
+  expect(screen.getByRole('status')).toHaveAttribute('data-tone', tone);
   expect(screen.queryByRole('alert')).not.toBeInTheDocument();
 });
 
-it('reserves alerts for errors and supports an accessible keyboard close', async () => {
+it('reserves alerts for danger toasts (legacy variant error) and supports an accessible keyboard close', async () => {
   const user = userEvent.setup(); const close = jest.fn();
-  const { container } = render(<Toast variant="error" message="Enregistrement impossible" closeLabel="Masquer cette erreur" onClose={close} />);
+  const { container, rerender } = render(<Toast tone="danger" message="Enregistrement impossible" closeLabel="Masquer cette erreur" onClose={close} />);
   expect(screen.getByRole('alert')).toHaveAttribute('aria-live', 'assertive');
   await user.tab(); expect(screen.getByRole('button', { name: 'Masquer cette erreur' })).toHaveFocus();
   await user.keyboard('{Escape}'); expect(close).toHaveBeenCalledTimes(1);
   await user.keyboard('{Enter}'); expect(close).toHaveBeenCalledTimes(2);
   expect((await axe(container)).violations).toEqual([]);
+  rerender(<Toast variant="error" message="Ancien appel" />);
+  expect(screen.getByRole('alert')).toHaveAttribute('data-tone', 'danger');
 });
 
 function Harness({ duration, variant = 'info' }: { duration?: number; variant?: 'info' | 'error' }) {
@@ -151,6 +163,38 @@ describe('opt-in toast timing', () => {
     expect(screen.getByRole('status')).not.toBeEmptyDOMElement(); advance(1); expect(screen.getByRole('status')).toBeEmptyDOMElement();
     open(); view.unmount(); expect(jest.getTimerCount()).toBe(0); hidden.mockRestore();
   });
+  it('draws the countdown bar of a timed toast, freezes it while paused and omits it on persistent toasts (MAIR-608)', () => {
+    setup(4000); open();
+    const bar = screen.getByTestId('toast-progress').firstElementChild as HTMLElement;
+    expect(bar.style.width).toBe('0%'); expect(bar.style.transition).toBe('width 4000ms linear');
+    advance(1000); fireEvent.mouseEnter(screen.getByRole('group', { name: 'Reçu du serveur' }));
+    expect(bar.style.width).toBe('75%'); expect(bar.style.transition).toBe('none');
+    fireEvent.mouseLeave(screen.getByRole('group', { name: 'Reçu du serveur' }));
+    expect(bar.style.width).toBe('0%'); expect(bar.style.transition).toBe('width 3000ms linear');
+    screen.getByRole('button', { name: 'Fermer la notification' }).click();
+    render(<ToastProvider regionLabel="Autres"><Harness variant="error" duration={4000} /></ToastProvider>);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Enregistrer' })[1]);
+    expect(screen.queryByTestId('toast-progress')).not.toBeInTheDocument();
+  });
+  it('exposes the Figma tone shortcuts: error and warning persist, success and info count down 5 s', () => {
+    function Shortcuts() {
+      const toast = useToast();
+      return <>
+        <button onClick={() => toast.error('Échec de l’enregistrement')}>Erreur</button>
+        <button onClick={() => toast.warning('Mode dégradé')}>Avertissement</button>
+        <button onClick={() => toast.success('Profil enregistré')}>Succès</button>
+        <button onClick={() => toast.info('Nouvelle version disponible', { showProgress: false })}>Info</button>
+      </>;
+    }
+    render(<ToastProvider regionLabel="Notifications"><Shortcuts /></ToastProvider>);
+    fireEvent.click(screen.getByRole('button', { name: 'Erreur' })); fireEvent.click(screen.getByRole('button', { name: 'Avertissement' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Succès' })); fireEvent.click(screen.getByRole('button', { name: 'Info' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Échec de l’enregistrement');
+    expect(screen.getAllByRole('group')).toHaveLength(4);
+    expect(screen.getAllByTestId('toast-progress')).toHaveLength(1);
+    advance(TOAST_DEFAULT_DURATION);
+    expect(screen.getAllByRole('group').map(group => group.getAttribute('data-tone'))).toEqual(['danger', 'warning']);
+  });
 });
 
 it('keeps independent notifications and exposes an accessible populated region', async () => {
@@ -182,9 +226,7 @@ it('honors controlled keyboard handlers and optional presentation without insert
   fireEvent.keyDown(screen.getByRole('status'), { key: 'Escape' }); expect(close).not.toHaveBeenCalled();
   rerender(<Toast message="Information disponible" />);
   expect(screen.queryByRole('button')).not.toBeInTheDocument(); expect(screen.getByRole('status')).toHaveTextContent('Information disponible');
-  rerender(<EmptyState title="Aucun résultat" />); expect(screen.getByRole('region')).toHaveTextContent('Aucun résultat');
 });
-
 
 it('mounts stable empty announcement regions before notifications and preserves identical batched receipts', () => {
   function Batch() {
@@ -192,7 +234,7 @@ it('mounts stable empty announcement regions before notifications and preserves 
     return <button onClick={() => {
       notify({ title: 'Dossiers', message: 'Reçu confirmé' });
       notify({ title: 'Dossiers', message: 'Reçu confirmé' });
-      notify({ message: 'Échec confirmé', variant: 'error' });
+      notify({ message: 'Échec confirmé', tone: 'danger' });
     }}>Recevoir</button>;
   }
   render(<React.StrictMode><ToastProvider regionLabel="Notifications"><Batch /></ToastProvider></React.StrictMode>);

@@ -1,4 +1,28 @@
 /** Public display preferences only. This module never reads authentication data. */
+
+// MAIR-608 design tokens: the charte and the single size scale every component uses.
+/** Semantic tones; each maps to the `--mairie-*` colour tokens of the theme. */
+export const tones = ['primary', 'secondary', 'neutral', 'success', 'warning', 'danger', 'info'] as const;
+export type Tone = (typeof tones)[number];
+/** The one size scale (controls 24–56 px, icons 12–32 px, text 12–20 px, avatars 20–56 px, spacing 4–32 px, radius 4–16 px, logo 16–64 px). */
+export const sizes = ['xs', 's', 'm', 'l', 'xl'] as const;
+export type Size = (typeof sizes)[number];
+export const scale = {
+  control: { xs: 24, s: 32, m: 40, l: 48, xl: 56 },
+  icon: { xs: 12, s: 16, m: 20, l: 24, xl: 32 },
+  avatar: { xs: 20, s: 24, m: 32, l: 40, xl: 56 },
+  text: { xs: 12, s: 14, m: 16, l: 18, xl: 20 },
+  space: { xs: 4, s: 8, m: 16, l: 24, xl: 32 },
+  radius: { xs: 4, s: 6, m: 8, l: 12, xl: 16 },
+  logo: { xs: 16, s: 24, m: 32, l: 48, xl: 64 },
+} as const satisfies Record<string, Record<Size, number>>;
+/** The charte colours live only in `src/styles/municipal-theme.css` (one place to change them); code binds the `--mairie-*` tokens. */
+export const charteTokens = { primary: 'var(--mairie-action-background)', onPrimary: 'var(--mairie-on-action)', secondary: 'var(--mairie-secondary)', text: 'var(--mairie-text)', border: 'var(--mairie-control-border)' } as const;
+/** CSS custom property of one scale entry, e.g. `var(--mairie-icon-m)`. */
+export function scaleVar(kind: keyof typeof scale, size: Size): string { return `var(--mairie-${kind}-${size})`; }
+export function isSize(value: unknown): value is Size { return typeof value === 'string' && (sizes as readonly string[]).includes(value); }
+export function isTone(value: unknown): value is Tone { return typeof value === 'string' && (tones as readonly string[]).includes(value); }
+
 export type AppearanceTheme = 'light' | 'dark' | 'system';
 export type AppearanceDensity = 'compact' | 'normal' | 'comfortable';
 export type Appearance = { theme: AppearanceTheme | null; density: AppearanceDensity | null; font_family: string | null };

@@ -17,14 +17,14 @@
   --mairie-error-action-background: #a40e26;
   --mairie-error-action-hover-background: #891827;
   --mairie-overlay-background: #000000;
-  --mairie-navigation-background: #262b2d;
-  --mairie-navigation-text: #dff9ff;
-  --mairie-navigation-border: #405154;
-  --mairie-navigation-control-border: #6c8585;
-  --mairie-navigation-control-background: #334345;
-  --mairie-navigation-hover-background: #334d4a;
-  --mairie-navigation-active-background: #1c63b7;
-  --mairie-navigation-active-border: #2677cf;
+  --mairie-navigation-background: #383f51;
+  --mairie-navigation-text: #f8f7f8;
+  --mairie-navigation-border: #303646;
+  --mairie-navigation-control-border: #9c9fa8;
+  --mairie-navigation-control-background: #303646;
+  --mairie-navigation-hover-background: #303646;
+  --mairie-navigation-active-background: #3c4f76;
+  --mairie-navigation-active-border: #70c1b3;
   --mairie-navigation-admin-background: #b4232f;
   --mairie-navigation-admin-hover-background: #951c28;
   --mairie-navigation-admin-border: #db5260;
@@ -33,16 +33,16 @@
   --mairie-navigation-admin-focus: #ffccd1;
   --mairie-navigation-shadow: 4px 0 16px rgb(12 28 48 / 10%);
   --mairie-navigation-admin-shadow: inset 3px 0 0 var(--mairie-navigation-admin-focus), 0 2px 6px rgb(0 0 0 / 20%);
-  --mairie-preview-light-background: var(--mairie-on-action);
-  --mairie-preview-light-text: #162033;
-  --mairie-preview-dark-background: #172033;
-  --mairie-preview-dark-text: var(--mairie-on-action);
-  --mairie-action-background: #1256a6;
-  --mairie-action-hover-background: #0f4b91;
-  --mairie-on-action: #ffffff;
-  --mairie-background: #f1f7fc;
+  --mairie-preview-light-background: #ffffff;
+  --mairie-preview-light-text: #383f51;
+  --mairie-preview-dark-background: #161920;
+  --mairie-preview-dark-text: #f8f7f8;
+  --mairie-action-background: #70c1b3;
+  --mairie-action-hover-background: #60a69a;
+  --mairie-on-action: #383f51;
+  --mairie-background: #fcfbfc;
   --mairie-surface: #ffffff;
-  --mairie-surface-raised: #f3f7fc;
+  --mairie-surface-raised: #f8f7f8;
   --mairie-control-background: #ffffff;
   --mairie-error-surface: #fff0f1;
   --mairie-error-text: #a40e26;
@@ -52,25 +52,43 @@
   --mairie-success-action-hover-background: #145735;
   --mairie-purple-surface: #f1e5ff;
   --mairie-purple-text: #6434b5;
-  --mairie-teal-text: #2b706c;
+  --mairie-teal-text: #3e6a62;
   --mairie-warning-surface: #fff8e6;
   --mairie-warning-text: #75520b;
-  --mairie-accent-surface: #edf5ff;
+  --mairie-accent-surface: #eef8f6;
   --mairie-density-space: 16px;
-  --mairie-text: #162033;
-  --mairie-muted: #475569;
-  --mairie-accent: #1256a6;
-  --mairie-control-border: #788ba7;
-  --mairie-border: #dce6f1;
+  --mairie-text: #383f51;
+  --mairie-muted: #646976;
+  --mairie-accent: #3e6a62;
+  /* Charte mist #c8bfc7 draws dividers and panel borders; control borders use its darker step so the 3:1 non-text contrast holds on white (WCAG 1.4.11). */
+  --mairie-control-border: #8f8290;
+  --mairie-border: #c8bfc7;
   --mairie-radius: 16px;
-  --mairie-shadow: 0 2px 12px rgb(23 32 51 / 5%);
+  --mairie-shadow: 0 2px 12px rgb(23 32 51 / 5%);  /* MAIR-608 charte: primary teal #70c1b3, secondary navy #3c4f76, neutral dark ink #383f51, neutral light mist #c8bfc7. */
+  --mairie-secondary: #3c4f76;
+  --mairie-secondary-surface: #e8eaef;
+  --mairie-secondary-action-background: #3c4f76;
+  --mairie-secondary-action-hover-background: #344465;
+  --mairie-on-secondary: #ffffff;
+  --mairie-info-surface: #e8eaef;
+  --mairie-info-text: #344465;
+  --mairie-logo-backing: #ffffff;
+  /* MAIR-608 scale: Size = xs | s | m | l | xl, one scale for every component. */
+  --mairie-control-xs: 24px; --mairie-control-s: 32px; --mairie-control-m: 40px; --mairie-control-l: 48px; --mairie-control-xl: 56px;
+  --mairie-icon-xs: 12px; --mairie-icon-s: 16px; --mairie-icon-m: 20px; --mairie-icon-l: 24px; --mairie-icon-xl: 32px;
+  --mairie-avatar-xs: 20px; --mairie-avatar-s: 24px; --mairie-avatar-m: 32px; --mairie-avatar-l: 40px; --mairie-avatar-xl: 56px;
+  --mairie-text-xs: 12px; --mairie-text-s: 14px; --mairie-text-m: 16px; --mairie-text-l: 18px; --mairie-text-xl: 20px;
+  --mairie-space-xs: 4px; --mairie-space-s: 8px; --mairie-space-m: 16px; --mairie-space-l: 24px; --mairie-space-xl: 32px;
+  --mairie-radius-xs: 4px; --mairie-radius-s: 6px; --mairie-radius-m: 8px; --mairie-radius-l: 12px; --mairie-radius-xl: 16px;
+  --mairie-logo-xs: 16px; --mairie-logo-s: 24px; --mairie-logo-m: 32px; --mairie-logo-l: 48px; --mairie-logo-xl: 64px;
 }
+
 html[data-theme="dark"] {
-  --mairie-teal-text: var(--mairie-accent);
-  --mairie-background: #101b2d;
-  --mairie-surface: #17263a;
-  --mairie-surface-raised: #203149;
-  --mairie-control-background: #101e31;
+  --mairie-teal-text: #b8e0d9;
+  --mairie-background: #0f1015;
+  --mairie-surface: #161920;
+  --mairie-surface-raised: #1f232d;
+  --mairie-control-background: #0f1015;
   --mairie-error-surface: #48232b;
   --mairie-error-text: #ffc1c8;
   --mairie-success-surface: #173b31;
@@ -79,13 +97,24 @@ html[data-theme="dark"] {
   --mairie-purple-text: #e2ccff;
   --mairie-warning-surface: #42351a;
   --mairie-warning-text: #ffe0a0;
-  --mairie-accent-surface: #203c5e;
-  --mairie-text: #f1f5f9;
-  --mairie-muted: #cbd5e1;
-  --mairie-accent: #9dc9ff;
-  --mairie-control-border: #8fa4c0;
-  --mairie-border: #405572;
+  --mairie-accent-surface: #1d322f;
+  --mairie-text: #f8f7f8;
+  --mairie-muted: #e3dfe3;
+  --mairie-accent: #b8e0d9;
+  --mairie-control-border: #8c868b;
+  --mairie-border: #272c39;  --mairie-action-hover-background: #94d1c6;
+  --mairie-secondary: #9ea7bb;
+  --mairie-secondary-surface: #10151f;
+  --mairie-secondary-action-hover-background: #6d7b98;
+  --mairie-info-surface: #10151f;
+  --mairie-info-text: #c8ced9;
+  --mairie-navigation-background: #0f1015;
+  --mairie-navigation-border: #1f232d;
+  --mairie-navigation-control-border: #303646;
+  --mairie-navigation-control-background: #161920;
+  --mairie-navigation-hover-background: #1f232d;
 }
+
 html:has(body.mairie-ui) { font-size: 17px; }
 html body.mairie-ui {
   --mairie-font: var(--mairie-user-font, var(--font-geist-sans, system-ui)), sans-serif;
@@ -337,7 +366,7 @@ body.mairie-ui .mairie-appearance-preview[data-preview-theme="dark"] { backgroun
 html[data-theme="dark"] body.mairie-ui :is(img[src*="mairie360-logo"], img[alt="Logo Mairie360"][src*="logo.png"]) {
   box-sizing: border-box;
   max-width: 100%;
-  background-color: var(--mairie-on-action);
+  background-color: var(--mairie-logo-backing);
   padding: 2px;
   border-radius: 8px;
 }
@@ -360,3 +389,15 @@ html[data-theme="dark"] body.mairie-ui .elearning-catalog-shell [role="dialog"]:
 }
 html[data-theme="dark"] body.mairie-ui .elearning-catalog-shell article > button:first-child { background: var(--mairie-accent-surface); }
 html[data-theme="dark"] body.mairie-ui span[class~="bg-[#f4f2ef]"] { background-color: var(--mairie-surface-raised); }
+
+/* MAIR-608: loading shimmer (Figma Base/Skeleton) and toast countdown. Motion only for users allowing it. */
+.mairie-skeleton { background: var(--mairie-surface-raised); }
+@keyframes mairie-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .mairie-skeleton-animated {
+    background: linear-gradient(90deg, var(--mairie-surface-raised) 0%, var(--mairie-border) 50%, var(--mairie-surface-raised) 100%);
+    background-size: 200% 100%;
+    animation: mairie-shimmer 1.6s linear infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .mairie-toast-progress { transition: none !important; } }
