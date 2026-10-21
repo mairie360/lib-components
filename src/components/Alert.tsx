@@ -45,7 +45,7 @@ export const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert
 ) {
   const textSize: Size = size === 'l' ? 'm' : 's';
   return (
-    <div {...props} ref={ref} role={tone === 'danger' ? 'alert' : 'status'} data-tone={tone} data-size={size}
+    <div {...props} ref={ref} role={props.role ?? (tone === 'danger' ? 'alert' : 'status')} data-tone={tone} data-size={size}
       className={`flex items-start gap-3 border-l-4 ${className}`.trim()}
       style={{ padding: padding[size], borderRadius: 'var(--mairie-radius-m)', ...colours[tone], ...style }}>
       <span className="shrink-0 pt-0.5"><Icon icon={icon ?? icons[tone]} size={size === 'l' ? 'l' : 'm'} /></span>

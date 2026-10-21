@@ -18,6 +18,8 @@ describe('Alert (MAIR-608, Figma Base/Alert + presets)', () => {
     await user.click(screen.getByRole('button', { name: 'Réessayer' })); expect(action).toHaveBeenCalledTimes(1);
     await user.click(screen.getByRole('button', { name: 'Fermer le message' })); expect(dismiss).toHaveBeenCalledTimes(1);
     expect((await axe(container)).violations).toEqual([]);
+    rerender(<Alert tone="warning" role="alert" title="Action à vérifier" />);
+    expect(screen.getByRole('alert')).toHaveAttribute('data-tone', 'warning');
     rerender(<Alert tone="success" title="Enregistré" />);
     expect(screen.getByRole('status')).toHaveAttribute('data-tone', 'success'); expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
