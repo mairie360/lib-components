@@ -58,7 +58,7 @@
   --mairie-accent-surface: #eef8f6;
   --mairie-density-space: 16px;
   --mairie-text: #383f51;
-  --mairie-muted: #6a6f7d;
+  --mairie-muted: #646976;
   --mairie-accent: #3e6a62;
   /* Charte mist #c8bfc7 draws dividers and panel borders; control borders use its darker step so the 3:1 non-text contrast holds on white (WCAG 1.4.11). */
   --mairie-control-border: #8f8290;
