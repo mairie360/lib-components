@@ -16,8 +16,6 @@ export { Logo } from '../components/Logo';
 export type { LogoProps } from '../components/Logo';
 export { NotificationCenter } from '../components/NotificationCenter';
 export type { NotificationItem, NotificationSource } from '../components/NotificationCenter';
-export { PageTitleBar } from '../components/PageTitleBar';
-export type { PageTitleBarProps } from '../components/PageTitleBar';
 export { Sidebar } from '../components/Sidebar';
 export type { SidebarItem, SidebarProps } from '../components/Sidebar';
 export { defaultSidebarItems } from '../components/Sidebar';

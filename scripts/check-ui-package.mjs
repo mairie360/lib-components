@@ -12,7 +12,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const require = createRequire(import.meta.url);
 const packageName = '@mairie360/lib-components';
 const moduleExports = {
-  primitives: ['Button', 'Skeleton', 'EmptyState', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem', 'SessionList', 'sessionState', 'Icon', 'IconButton', 'LinkButton', 'CreateButton', 'DeleteButton', 'TextField', 'EmailField', 'PasswordField', 'TextArea', 'Checkbox', 'RadioGroup', 'Switch', 'Slider', 'FileField', 'SelectField', 'MultiSelect', 'FilterSelect', 'FormSection', 'FormActions'],
+  primitives: ['Button', 'Skeleton', 'DataState', 'DataTable', 'Modal', 'ConfirmModal', 'Drawer', 'Alert', 'ErrorAlert', 'Text', 'PageTitle', 'StatusPill', 'StatusBadge', 'Tag', 'TagList', 'MetricCard', 'ProgressMeter', 'Tabs', 'SegmentedControl', 'Pagination', 'DateTime', 'Panel', 'PageHeader', 'UserIdentity', 'AvatarStack', 'SessionExpiredNotice', 'PendingFeatureNotice', 'Toast', 'ToastProvider', 'useToast', 'Select', 'SelectTrigger', 'SelectContent', 'SelectItem', 'SessionList', 'sessionState', 'Icon', 'IconButton', 'LinkButton', 'CreateButton', 'DeleteButton', 'TextField', 'EmailField', 'PasswordField', 'TextArea', 'Checkbox', 'RadioGroup', 'Switch', 'Slider', 'FileField', 'SelectField', 'MultiSelect', 'FilterSelect', 'FormSection', 'FormActions'],
   shell: ['AppShell', 'AccessibleShell', 'CurrentDate', 'Header', 'Logo', 'Sidebar'],
 };
 let fixture;
@@ -140,7 +140,7 @@ test('real ESM and CJS TypeScript consumers resolve props and matching declarati
     import type { SessionListProps, SessionRecord } from '${packageName}/primitives';
     import type { AppShellProps } from '${packageName}/shell';
     import type { SessionServerConfig } from '${packageName}/next';
-    export type { NotificationItem, NotificationSource, AppShellProps, SessionListProps, SessionRecord, SessionState, SkeletonProps, EmptyStateProps, ToastProps, ToastVariant, ToastOptions, ToastContextValue, ToastProviderProps } from '${packageName}';
+    export type { NotificationItem, NotificationSource, AppShellProps, SessionListProps, SessionRecord, SessionState, SkeletonProps, ToastProps, ToastVariant, ToastOptions, ToastContextValue, ToastProviderProps } from '${packageName}';
     const message: ToastOptions = { message: 'Reçu', duration: null };
     const session: SessionRecord = { id: 's-1', device_info: 'Chrome', ip_address: '10.0.0.1', created_at: '2026-10-20T09:12:00Z', expires_at: null };
     const moduleProps: Partial<SessionListProps & AppShellProps> = { sessions: [session] };

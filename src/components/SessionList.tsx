@@ -4,10 +4,10 @@ import React from 'react';
 
 // The published `shared` entry holds the instance time zone set by the front's InstanceProvider.
 import { getInstanceTimeZone } from '@mairie360/lib-components/shared';
-import { Badge, type BadgeVariant } from './Badge';
 import { RefreshButton } from './ButtonPresets';
 import { Button } from './Button';
-import { EmptyState } from './EmptyState';
+import { DataState } from './DataState';
+import { StatusBadge, type Status } from './StatusPill';
 import { Skeleton } from './Skeleton';
 import { joinClasses } from './shared/classes';
 
@@ -45,7 +45,7 @@ export function nextSessionExpiryDelay(sessions: readonly SessionDates[], now: n
 }
 
 const stateLabels: Record<SessionState, string> = { active: 'Active', expired: 'Expirée', revoked: 'Révoquée', unknown: 'État indéterminé' };
-const stateVariants: Record<SessionState, BadgeVariant> = { active: 'green', expired: 'default', revoked: 'red', unknown: 'dark' };
+const stateStatuses: Record<SessionState, Status> = { active: 'active', expired: 'expired', revoked: 'revoked', unknown: 'unknown' };
 
 export interface SessionListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** `null` means the sessions could not be loaded (unavailable state); `[]` is the empty state. */
@@ -134,14 +134,16 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
   if (loading && !sessions) {
     return (
       <div {...props} className={frame} aria-busy="true">
-        <Skeleton label="Chargement des sessions…" className="m-4 !h-24" />
+        <div className="p-4"><Skeleton.TableRow label="Chargement des sessions…" columns={5} /></div>
       </div>
     );
   }
   if (!sessions) {
     return (
       <div {...props} className={frame}>
-        <EmptyState
+        <DataState
+          state="unavailable"
+          size="s"
           role="status"
           title={unavailableMessage}
           description="Utilisez Actualiser pour réessayer."
@@ -153,7 +155,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
   if (sessions.length === 0) {
     return (
       <div {...props} className={frame}>
-        <EmptyState title={emptyMessage} />
+        <DataState state="empty" size="s" title={emptyMessage} description={null} />
       </div>
     );
   }
@@ -190,7 +192,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
                     ? <>Révoquée le <SessionDate value={session.revoked_at} timeZone={timeZone} /></>
                     : <SessionDate value={session.expires_at} timeZone={timeZone} />}
                 </td>
-                <td className="px-4 py-3.5"><Badge variant={stateVariants[state]} rounded text={stateLabels[state]} /></td>
+                <td className="px-4 py-3.5"><StatusBadge status={stateStatuses[state]} label={stateLabels[state]} size="s" /></td>
                 {onRevoke ? (
                   <td className="px-4 py-3.5 text-right">
                     {revocable ? (

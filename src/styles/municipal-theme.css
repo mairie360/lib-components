@@ -388,3 +388,15 @@ html[data-theme="dark"] body.mairie-ui .elearning-catalog-shell [role="dialog"]:
 }
 html[data-theme="dark"] body.mairie-ui .elearning-catalog-shell article > button:first-child { background: var(--mairie-accent-surface); }
 html[data-theme="dark"] body.mairie-ui span[class~="bg-[#f4f2ef]"] { background-color: var(--mairie-surface-raised); }
+
+/* MAIR-608: loading shimmer (Figma Base/Skeleton) and toast countdown. Motion only for users allowing it. */
+.mairie-skeleton { background: var(--mairie-surface-raised); }
+@keyframes mairie-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  .mairie-skeleton-animated {
+    background: linear-gradient(90deg, var(--mairie-surface-raised) 0%, var(--mairie-border) 50%, var(--mairie-surface-raised) 100%);
+    background-size: 200% 100%;
+    animation: mairie-shimmer 1.6s linear infinite;
+  }
+}
+@media (prefers-reduced-motion: reduce) { .mairie-toast-progress { transition: none !important; } }
