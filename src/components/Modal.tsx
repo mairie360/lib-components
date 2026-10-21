@@ -37,21 +37,39 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
   useEffect(() => { close.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open || !panel.current) return;
-    const opener = document.activeElement as HTMLElement | null;
     const node = panel.current;
-    const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE));
+    const doc = node.ownerDocument;
+    const active = doc.activeElement as HTMLElement | null;
+    // Focus lost to the body (a previous dialog just closed) has no opener: the shell restores it.
+    const opener = active && active !== doc.body && !node.contains(active) ? active : null;
+    // Controls disabled by a surrounding fieldset are not tab stops either.
+    // Own tab stops only: not disabled by a fieldset, not inside a nested dialog.
+    const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => !element.matches(':disabled') && element.closest('[role="dialog"][aria-modal="true"]') === node);
+    // A busy dialog whose controls are all disabled still takes focus, on its panel.
     (initialFocusRef?.current ?? focusables()[0] ?? node).focus();
     const keydown = (event: KeyboardEvent) => {
+      // A dialog nested inside this one owns its own keys (Tab scope, Escape).
+      const owner = (event.target as Element | null)?.closest?.('[role="dialog"][aria-modal="true"]');
+      if (owner && owner !== node) return;
       if (event.key === 'Escape') { event.stopPropagation(); close.current(); return; }
       if (event.key !== 'Tab') return;
       const items = focusables(); if (items.length === 0) { event.preventDefault(); return; }
       const first = items[0]; const last = items[items.length - 1];
-      if (event.shiftKey && (document.activeElement === first || !node.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
-      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+      if (event.shiftKey && (doc.activeElement === first || !node.contains(doc.activeElement))) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); }
     };
     node.addEventListener('keydown', keydown);
     const previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
-    return () => { node.removeEventListener('keydown', keydown); document.body.style.overflow = previousOverflow; if (opener?.isConnected) opener.focus(); };
+    return () => {
+      node.removeEventListener('keydown', keydown);
+      document.body.style.overflow = previousOverflow;
+      // Hand focus back only when it is really lost and no other modal took over
+      // (a details dialog replaced by its editor keeps focus inside the editor).
+      const current = doc.activeElement;
+      const lost = !current || current === doc.body || node.contains(current);
+      const otherDialog = Array.from(doc.querySelectorAll('[role="dialog"][aria-modal="true"]')).some(dialog => dialog !== node && dialog.isConnected);
+      if (lost && !otherDialog && opener?.isConnected) opener.focus();
+    };
   }, [open, panel, initialFocusRef]);
 }
 
