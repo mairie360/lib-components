@@ -26,6 +26,9 @@ describe('SessionList (MAIR-607)', () => {
   it('formats valid timestamps in the given time zone and reports missing or invalid ones', () => {
     expect(formatSessionDate('2026-10-21T09:12:00Z', 'Europe/Paris')).toBe('21 oct. 2026, 11:12');
     expect(formatSessionDate('2026-13-45', 'Europe/Paris')).toBeNull();
+    expect(formatSessionDate('2026-02-30T08:00:00Z', 'Europe/Paris')).toBeNull();
+    expect(formatSessionDate('2028-02-29T10:30:00+04:00', 'Europe/Paris')).not.toBeNull();
+    expect(formatSessionDate('not-a-date', 'Europe/Paris')).toBeNull();
     expect(formatSessionDate(null, 'Europe/Paris')).toBeNull();
   });
 
