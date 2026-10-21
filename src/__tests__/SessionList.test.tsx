@@ -1,5 +1,6 @@
 import React from 'react';
 import { act, render, screen, within } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
@@ -84,7 +85,6 @@ describe('SessionList without a browser window (MAIR-607)', () => {
     // @ts-expect-error simulate a server renderer with a document stand-in only
     delete globalThis.window;
     try {
-      const { renderToString } = require('react-dom/server') as typeof import('react-dom/server');
       const html = renderToString(<SessionList sessions={sessions} now={NOW} timeZone="Europe/Paris" />);
       expect(html).toContain('Chrome 129 · Windows 11');
       expect(html).toContain('Expirée');
