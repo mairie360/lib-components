@@ -3,12 +3,14 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'Badge', 'Button', 'Card', 'ConfirmModal', 'DropdownMenu', 'EmptyState', 'Icon', 'Paragraph', 'Select', 'SessionList', 'Skeleton', 'Spinner', 'Title', 'Toast', 'ToastProvider', 'ToolTip'],
+    components: ['Alert', 'Avatar', 'Badge', 'Button', 'ButtonPresets', 'Card', 'ConfirmModal', 'DropdownMenu', 'EmptyState', 'Icon', 'IconButton', 'LinkButton', 'Paragraph', 'Select', 'SessionList', 'Skeleton', 'Spinner', 'Title', 'Toast', 'ToastProvider', 'ToolTip'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
       "export { useToast } from '../components/ToastProvider';",
       "export { nextSessionExpiryDelay, sessionState } from '../components/SessionList';",
+      "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';",
+      "export { buttonAppearance, buttonSizing } from '../components/Button';",
     ],
   },
   shell: {
@@ -29,6 +31,7 @@ export const rootExtraExports = [
   "export type { NotificationItem, NotificationSource } from './components/NotificationCenter';",
   "export type { AppShellProps } from './components/AppShell';",
   "export { nextSessionExpiryDelay, sessionState } from './components/SessionList';",
+  "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from './components/ButtonPresets';",
   "export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';",
   "export type { SkeletonProps } from './components/Skeleton';",
   "export type { EmptyStateProps } from './components/EmptyState';",

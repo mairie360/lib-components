@@ -5,6 +5,7 @@ import React from 'react';
 // The published `shared` entry holds the instance time zone set by the front's InstanceProvider.
 import { getInstanceTimeZone } from '@mairie360/lib-components/shared';
 import { Badge, type BadgeVariant } from './Badge';
+import { RefreshButton } from './ButtonPresets';
 import { Button } from './Button';
 import { EmptyState } from './EmptyState';
 import { Skeleton } from './Skeleton';
@@ -144,7 +145,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
           role="status"
           title={unavailableMessage}
           description="Utilisez Actualiser pour réessayer."
-          action={onRetry ? <Button label="Actualiser" size="btn-sm" onClick={onRetry} /> : undefined}
+          action={onRetry ? <RefreshButton size="s" onClick={onRetry} /> : undefined}
         />
       </div>
     );
@@ -195,8 +196,10 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
                     {revocable ? (
                       <Button
                         label={revokingId === session.id ? 'Déconnexion…' : 'Déconnecter'}
-                        size="btn-sm"
-                        disabled={revokingId === session.id}
+                        size="s"
+                        variant="outline"
+                        tone="danger"
+                        loading={revokingId === session.id}
                         aria-label={`Déconnecter la session ${session.device_info}`}
                         onClick={() => onRevoke?.(session)}
                       />
