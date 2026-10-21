@@ -33,10 +33,11 @@ export const labelSize = (size: Size): Size => (size === 'xs' ? 'xs' : size === 
  */
 export const Field = ({ htmlFor, label, hint, error, required = false, size = 'm', disabled = false, children, className = '', ...props }: FieldProps) => (
   <div {...props} data-size={size} data-invalid={error ? 'true' : undefined} className={`mairie-field flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ gap: 'var(--mairie-space-xs)', ...props.style }}>
-    <label htmlFor={htmlFor} className="font-medium text-[var(--mairie-text)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>
-      {label}
-      {required ? <span aria-hidden="true" className="text-[var(--mairie-error-text)]"> *</span> : null}
-    </label>
+    {/* The required marker sits beside the label so the control's accessible name stays the label text alone. */}
+    <span className="inline-flex items-baseline gap-1">
+      <label htmlFor={htmlFor} className="font-medium text-[var(--mairie-text)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>{label}</label>
+      {required ? <span aria-hidden="true" className="text-[var(--mairie-error-text)]">*</span> : null}
+    </span>
     {children}
     {hint && !error ? <p id={`${htmlFor}-hint`} className="text-[var(--mairie-muted)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>{hint}</p> : null}
     {error ? (
