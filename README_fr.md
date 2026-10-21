@@ -1,6 +1,6 @@
 # `@mairie360/lib-components`
 
-`@mairie360/lib-components` est la bibliothèque de composants React partagée entre les applications Mairie360. Elle fournit des composants d’interface réutilisables, des éléments de navigation et des modules fonctionnels complets pour le calendrier, la messagerie, la formation en ligne, l’administration, les projets et les profils utilisateurs.
+`@mairie360/lib-components` est la bibliothèque de composants React partagée entre les applications Mairie360. Elle fournit des composants d’interface réutilisables, le shell applicatif (navigation, en-tête, barre latérale) et les composants métier partagés par plusieurs fronts ; chaque module fonctionnel vit dans son propre front.
 
 La bibliothèque utilise React 19, TypeScript, Tailwind CSS 4 et DaisyUI. Storybook permet de développer et de documenter les composants de manière isolée.
 
@@ -138,7 +138,7 @@ désormais) : les entrées `settings`, `dashboard`, `projects`, `messages`,
 
 ## Bibliothèque Figma
 
-Le pendant design de ce paquet est la bibliothèque d’équipe Figma **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (équipe Figma Mairie360). Elle est générée depuis ce dépôt : un composant Figma par export de `src/index.tsx` (même nom, variantes pour les props React), les tokens `--mairie-*` de `src/styles/municipal-theme.css` en variables avec modes Light/Dark, les styles de texte et d’ombre, et les icônes lucide utilisées par les composants. Pages : Foundations, Index (inventaire complet), puis une page par groupe (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+Le pendant design de ce paquet est la bibliothèque d’équipe Figma **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (équipe Figma Mairie360). Elle reflète ce paquet : un composant Figma par export de `src/index.tsx` (même nom, variantes pour les props React), les tokens `--mairie-*` de `src/styles/municipal-theme.css` en variables avec modes Light/Dark, les styles de texte et d’ombre, et les icônes lucide utilisées par les composants. Pages : Foundations, Index (inventaire complet), puis une page par groupe (Primitives, Feedback, Forms & Data, Navigation & Shell, Sessions). Les pages fonctionnelles retirées par MAIR-607 (Calendar, Dashboard, Messaging, E-learning, Projects, Settings, Administration) vivent désormais dans la maquette Figma de chaque front.
 
 La bibliothèque Figma est la source de vérité : un changement visuel ou de comportement est conçu et validé dans Figma **avant** d’écrire le code, et la pull request implémente ensuite le composant Figma. Toute maquette de front doit instancier ces composants au lieu de les redessiner.
 

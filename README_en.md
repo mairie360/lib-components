@@ -1,6 +1,6 @@
 # `@mairie360/lib-components`
 
-`@mairie360/lib-components` is the shared React component library for Mairie360 applications. It provides reusable UI primitives, navigation elements, and complete feature modules for calendars, messaging, e-learning, administration, projects, and user profiles.
+`@mairie360/lib-components` is the shared React component library for Mairie360 applications. It provides reusable UI primitives, the application shell (navigation, header, sidebar) and the business components shared by several fronts; each feature module lives in its own front.
 
 The library is built with React 19, TypeScript, Tailwind CSS 4, and DaisyUI. Storybook is used to develop and document components in isolation.
 
@@ -137,7 +137,7 @@ The Figma library mirrors this inventory page by page.
 
 ## Figma library
 
-The design counterpart of this package lives in the Figma team library **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (Mairie360 Figma team). It is generated from this repository: one Figma component per export of `src/index.tsx` (same name, variants for the React props), the `--mairie-*` tokens of `src/styles/municipal-theme.css` as variables with Light/Dark modes, the text and shadow styles, and the lucide icons used by the components. Pages: Foundations, Index (full inventory), then one page per group (Primitives, Feedback, Forms & Data, Navigation & Shell, Calendar, Dashboard, Messaging, Email, Files, E-learning, Projects, Settings, Administration).
+The design counterpart of this package lives in the Figma team library **[Mairie360 – lib-components](https://www.figma.com/design/T7vetUfuzPEXk5TxjHRiO2)** (Mairie360 Figma team). It mirrors this package: one Figma component per export of `src/index.tsx` (same name, variants for the React props), the `--mairie-*` tokens of `src/styles/municipal-theme.css` as variables with Light/Dark modes, the text and shadow styles, and the lucide icons used by the components. Pages: Foundations, Index (full inventory), then one page per group (Primitives, Feedback, Forms & Data, Navigation & Shell, Sessions). The feature pages removed by MAIR-607 (Calendar, Dashboard, Messaging, E-learning, Projects, Settings, Administration) now live in each front's own Figma mockup.
 
 The Figma library is the source of truth: a visual or behavioural change is designed and agreed in Figma **before** the code is written, and the pull request then implements the Figma component. Every front mock-up must instantiate these components instead of redrawing them.
 
