@@ -59,10 +59,10 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
       else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); }
     };
     node.addEventListener('keydown', keydown);
-    const previousOverflow = doc.body.style.overflow; doc.body.style.overflow = 'hidden';
+    const previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
     return () => {
       node.removeEventListener('keydown', keydown);
-      doc.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousOverflow;
       // Hand focus back only when it is really lost and no other modal took over
       // (a details dialog replaced by its editor keeps focus inside the editor).
       const current = doc.activeElement;
