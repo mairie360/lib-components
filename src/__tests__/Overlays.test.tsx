@@ -115,3 +115,36 @@ describe('modal title, description and select placeholder (MAIR-608 Calendars)',
     expect(within(dialog).getByRole('status')).toHaveTextContent('Enregistrement en cours…');
   });
 });
+
+describe('focus hand-off between dialogs (Calendars details → editor, MAIR-608)', () => {
+  it('keeps focus in the next dialog and focuses a busy dialog on its panel', async () => {
+    const user = userEvent.setup();
+    function Host() {
+      const [step, setStep] = React.useState<'closed' | 'details' | 'editor'>('closed');
+      return <>
+        <button onClick={() => setStep('details')}>Ouvrir</button>
+        {step === 'details' && <Modal open title="Détail" onClose={() => setStep('closed')}><button onClick={() => setStep('editor')}>Modifier</button></Modal>}
+        {step === 'editor' && <Modal open title="Éditeur" onClose={() => setStep('closed')}><fieldset disabled><input aria-label="Titre" /><button>Enregistrer</button></fieldset></Modal>}
+      </>;
+    }
+    render(<Host />);
+    await user.click(screen.getByRole('button', { name: 'Ouvrir' }));
+    await user.click(screen.getByRole('button', { name: 'Modifier' }));
+    const editor = screen.getByRole('dialog', { name: 'Éditeur' });
+    expect(editor.contains(document.activeElement)).toBe(true);
+    expect(screen.getByRole('button', { name: 'Ouvrir' })).not.toHaveFocus();
+  });
+});
+
+it('leaves Tab and Escape to a dialog nested inside it', () => {
+  const close = jest.fn();
+  render(<Modal open title="Parent" onClose={close}><button>Action</button><div role="dialog" aria-modal="true" aria-label="Imbriquée"><button>Premier</button><button>Dernier</button></div></Modal>);
+  const last = screen.getByRole('button', { name: 'Dernier' });
+  last.focus();
+  const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+  last.dispatchEvent(tab);
+  expect(tab.defaultPrevented).toBe(false);
+  expect(last).toHaveFocus();
+  fireEvent.keyDown(last, { key: 'Escape' });
+  expect(close).not.toHaveBeenCalled();
+});
