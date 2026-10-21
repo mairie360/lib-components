@@ -43,6 +43,8 @@ describe('component tree convention (MAIR-608)', () => {
         const spec = match[1];
         if (!spec.startsWith('.') && !spec.startsWith('@/components/')) continue;
         if (/\/index$/.test(spec)) problems.push(`${rel(file)} must import the folder, not ${spec}`);
+        // Storybook's Vite config has no `@/` alias: library sources use relative paths only.
+        if (spec.startsWith('@/')) problems.push(`${rel(file)} must use a relative path, not ${spec} (Storybook cannot resolve the alias)`);
         // A file inside another component's folder (its helpers included) is reached through that folder only.
         const base = spec.startsWith('@/') ? path.join(root, 'src', spec.slice(2)) : path.resolve(path.dirname(file), spec);
         const target = ['.tsx', '.ts'].map(ext => base + ext).find(candidate => fs.existsSync(candidate));
