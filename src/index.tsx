@@ -72,6 +72,7 @@ export { TagList } from './components/Tag';
 export { TOAST_DEFAULT_DURATION } from './components/ToastProvider';
 export { formatDateTime, formatRelative, parseDateValue } from './components/DateTime';
 export { paginationSummary } from './components/Pagination';
+export { tabsIds } from './components/Tabs';
 export { initialsOf } from './components/Avatar';
 export { modalWidths, useDialogFocus } from './components/Modal';
 export { drawerWidths } from './components/Drawer';

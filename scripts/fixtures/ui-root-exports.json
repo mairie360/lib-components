@@ -116,6 +116,7 @@
     "priorities",
     "sessionState",
     "statuses",
+    "tabsIds",
     "useDialogFocus",
     "useToast"
   ],

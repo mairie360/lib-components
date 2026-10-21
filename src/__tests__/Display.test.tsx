@@ -101,8 +101,9 @@ describe('Panel and PageHeader', () => {
     const { rerender } = render(<PageHeader title="Projets" subtitle="Suivi des dossiers" actions={<button>Nouveau projet</button>} />);
     expect(screen.getByRole('heading', { level: 1, name: 'Projets' })).toBeInTheDocument(); expect(screen.getByText('Suivi des dossiers')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Nouveau projet' })).toBeInTheDocument();
-    rerender(<PageHeader title="Tableau de bord" showDate />);
-    expect(document.querySelector('.page-current-date')).toBeInTheDocument(); expect(screen.getByRole('heading').parentElement!.parentElement).toHaveAttribute('data-variant', 'with-date');
+    rerender(<PageHeader title="Tableau de bord" subtitle="Bienvenue Marie" showDate />);
+    expect(document.querySelector('.page-current-date')).toBeInTheDocument(); expect(screen.getByText('Bienvenue Marie')).toBeInTheDocument();
+    expect(screen.getByRole('heading').parentElement!.parentElement).toHaveAttribute('data-variant', 'with-date');
   });
 });
 
@@ -121,6 +122,13 @@ describe('Tabs, SegmentedControl, Pagination', () => {
     expect(screen.getByRole('tabpanel')).toHaveTextContent('Liste des groupes');
     await user.keyboard('{ArrowRight}'); expect(screen.getByRole('tab', { name: 'Utilisateurs 12' })).toHaveAttribute('aria-selected', 'true');
     expect((await axe(container)).violations).toEqual([]);
+  });
+  it('lets a host own the panel with stable ids (MAIR-608 Settings)', () => {
+    render(<><Tabs id="settings" hostPanel label="Paramètres" value="profile" onChange={() => undefined} items={[{ key: 'profile', label: 'Profil' }, { key: 'security', label: 'Sécurité' }]} /><div id="settings-panel-profile" role="tabpanel" aria-labelledby="settings-tab-profile">Contenu</div></>);
+    expect(screen.getByRole('tab', { name: 'Profil' })).toHaveAttribute('id', 'settings-tab-profile');
+    expect(screen.getByRole('tab', { name: 'Profil' })).toHaveAttribute('aria-controls', 'settings-panel-profile');
+    expect(screen.getByRole('tab', { name: 'Sécurité' })).not.toHaveAttribute('aria-controls');
+    expect(screen.getByRole('tabpanel', { name: 'Profil' })).toHaveTextContent('Contenu');
   });
   it('behaves as a radio group for the view choice', async () => {
     const user = userEvent.setup(); const change = jest.fn();

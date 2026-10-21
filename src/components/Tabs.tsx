@@ -15,14 +15,19 @@ export interface TabsProps<Key extends string = string> extends Omit<React.HTMLA
   value: Key;
   onChange: (key: Key) => void;
   size?: TabsSize;
-  /** The tab panels, keyed by tab; omit when the page renders them itself (the active tab then has no `aria-controls`). */
+  /** The tab panels, keyed by tab; omit when the page renders them itself. */
   panels?: Partial<Record<Key, React.ReactNode>>;
+  /** Stable id base (`<id>-tab-<key>` / `<id>-panel-<key>`); defaults to a React id. */
+  id?: string;
+  /** The host renders `<div id="<id>-panel-<key>" role="tabpanel">` itself: the selected tab still points to it. */
+  hostPanel?: boolean;
 }
+export const tabsIds = (id: string, key: string) => ({ tab: `${id}-tab-${key}`, panel: `${id}-panel-${key}` });
 const heights: Record<TabsSize, number> = { s: 36, m: 44, l: 52 };
 
 /** Underlined page tabs to switch views on one screen; arrow keys move between tabs (MAIR-608, Figma `Base/Tabs`). */
-export function Tabs<Key extends string = string>({ label, items, value, onChange, size = 'm', panels, className = '', ...props }: TabsProps<Key>) {
-  const id = useId();
+export function Tabs<Key extends string = string>({ label, items, value, onChange, size = 'm', panels, id: idProp, hostPanel = false, className = '', ...props }: TabsProps<Key>) {
+  const generated = useId(); const id = idProp ?? generated;
   const tabId = (key: Key) => `${id}-tab-${key}`; const panelId = (key: Key) => `${id}-panel-${key}`;
   const move = (from: number, step: number) => {
     const enabled = items.filter(item => !item.disabled); if (enabled.length === 0) return;
@@ -31,12 +36,12 @@ export function Tabs<Key extends string = string>({ label, items, value, onChang
     onChange(next.key); document.getElementById(tabId(next.key))?.focus();
   };
   return (
-    <div {...props} data-size={size} className={className}>
+    <div {...props} id={idProp ? `${idProp}-tabs` : undefined} data-size={size} className={className}>
       <div role="tablist" aria-label={label} className="flex gap-1 border-b border-[var(--mairie-border)]">
         {items.map((item, index) => {
           const selected = item.key === value;
           return (
-            <button key={item.key} id={tabId(item.key)} role="tab" type="button" aria-selected={selected} aria-controls={panels ? panelId(item.key) : undefined} tabIndex={selected ? 0 : -1} disabled={item.disabled}
+            <button key={item.key} id={tabId(item.key)} role="tab" type="button" aria-selected={selected} aria-controls={panels || (hostPanel && selected) ? panelId(item.key) : undefined} tabIndex={selected ? 0 : -1} disabled={item.disabled}
               onClick={() => onChange(item.key)}
               onKeyDown={event => { if (event.key === 'ArrowRight') { event.preventDefault(); move(index, 1); } if (event.key === 'ArrowLeft') { event.preventDefault(); move(index, -1); } if (event.key === 'Home') { event.preventDefault(); move(index, -index); } if (event.key === 'End') { event.preventDefault(); move(index, items.length - 1 - index); } }}
               className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] disabled:cursor-not-allowed disabled:opacity-50 ${selected ? 'border-[var(--mairie-accent)] text-[var(--mairie-accent)]' : 'border-transparent text-[var(--mairie-muted)] hover:text-[var(--mairie-text)]'}`}
