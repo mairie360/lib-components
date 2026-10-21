@@ -12,6 +12,7 @@ import { ProgressMeter } from '../components/ProgressMeter';
 import { Panel } from '../components/Panel';
 import { PageHeader } from '../components/PageHeader';
 import { Tabs } from '../components/Tabs';
+import { Skeleton } from '../components/Skeleton';
 import { SegmentedControl } from '../components/SegmentedControl';
 import { Pagination, paginationSummary } from '../components/Pagination';
 import { DataTable } from '../components/DataTable';
@@ -183,5 +184,41 @@ describe('DataTable and DateTime', () => {
     expect(time.tagName).toBe('TIME'); expect(time).toHaveAttribute('datetime', '2026-10-21T07:12:00.000Z'); expect(time).toHaveAttribute('title', expect.stringContaining('21 octobre 2026'));
     rerender(<DateTime value="pas une date" />); expect(screen.getByText('Indisponible')).toHaveAttribute('data-format', 'unavailable');
     rerender(<DateTime value={null} unavailableText="—" />); expect(screen.getByText('—')).toBeInTheDocument();
+  });
+});
+
+describe('review fixes (CodeRabbit on #467)', () => {
+  it('Home and End reach the first and last enabled tabs even around a disabled one', async () => {
+    const user = userEvent.setup();
+    function Host() {
+      const [tab, setTab] = React.useState<'users' | 'roles' | 'groups'>('groups');
+      return <Tabs label="Sections" value={tab} onChange={setTab} items={[{ key: 'users', label: 'Utilisateurs' }, { key: 'roles', label: 'Rôles', disabled: true }, { key: 'groups', label: 'Groupes' }]} />;
+    }
+    render(<Host />);
+    screen.getByRole('tab', { name: 'Groupes' }).focus();
+    await user.keyboard('{Home}'); expect(screen.getByRole('tab', { name: 'Utilisateurs' })).toHaveAttribute('aria-selected', 'true'); expect(screen.getByRole('tab', { name: 'Utilisateurs' })).toHaveFocus();
+    await user.keyboard('{End}'); expect(screen.getByRole('tab', { name: 'Groupes' })).toHaveAttribute('aria-selected', 'true');
+  });
+  it('moves focus with the selection in a segmented control', () => {
+    function Host() { const [view, setView] = React.useState('kanban'); return <SegmentedControl label="Vue" value={view} onChange={setView} options={[{ key: 'kanban', label: 'Kanban' }, { key: 'table', label: 'Tableau' }]} />; }
+    render(<Host />);
+    screen.getByRole('radio', { name: 'Kanban' }).focus();
+    fireEvent.keyDown(screen.getByRole('radiogroup'), { key: 'ArrowRight' });
+    expect(screen.getByRole('radio', { name: 'Tableau' })).toHaveFocus();
+  });
+  it('merges consumer styles and classes, lays the table-row skeleton in columns', () => {
+    const { container } = render(<>
+      <Panel title="P" style={{ marginTop: 3 }}><p>x</p></Panel>
+      <DataTable label="T" columns={[{ key: 'a', header: 'A' }]} rows={[]} rowKey={() => 'k'} style={{ marginTop: 4 }} />
+      <Link href="/aide" className="ml-2">Aide</Link>
+      <TagList label="Tags" items={[]} emptyText="Aucune étiquette" />
+    </>);
+    expect(screen.getByRole('region', { name: 'P' }).style.marginTop).toBe('3px');
+    expect(screen.getByRole('table').style.marginTop).toBe('4px');
+    expect(screen.getByRole('link', { name: 'Aide' })).toHaveClass('ml-2', 'underline');
+    expect(screen.getByText('Aucune étiquette')).toHaveAttribute('data-preset', 'Help');
+    const { container: row } = render(<Skeleton.TableRow columns={3} />);
+    expect((row.firstChild as HTMLElement).style.gridTemplateColumns).toBe('repeat(3, minmax(0, 1fr))');
+    void container;
   });
 });

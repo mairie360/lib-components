@@ -53,7 +53,7 @@ The Figma library (see above) mirrors this inventory: one `Base/*` set per compo
 User-facing strings, demo data and story names are in **French**, and Jest tests query by that French text and by ARIA roles/labels (`getByRole`, `getByLabelText`, `aria-pressed`, `data-testid`). Changing a label usually means updating tests. Accessibility is enforced via the Lighthouse check on Storybook docs pages.
 
 ### Client-only components
-Components use hooks but carry no `'use client'` directive; consumers (Next.js App Router) must render them from Client Components.
+Components that use hooks start with `'use client'` (the tsup banner also marks every bundle as a client module); consumers (Next.js App Router) render them from Client Components. Server-safe helpers live in the kit entries (`shared`, `theme`), never in component files.
 
 ### Styling and build
 - `src/app/globals.css` is the single stylesheet entry (Tailwind + DaisyUI, with DaisyUI's `select` component excluded for Next.js 15.3/Turbopack CSS parsing). It is compiled to `dist/styles.css` and imported by Storybook's `preview.ts`. Components mostly use Tailwind utility classes with arbitrary hex values.

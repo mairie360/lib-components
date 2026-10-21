@@ -25,8 +25,8 @@ function SkeletonBase({ shape = 'line', size = 'm', label, animated = true, clas
 }
 
 type PresetProps = Pick<SkeletonProps, 'label' | 'animated' | 'className'>;
-const wrap = (label: string | undefined, children: React.ReactNode, className: string) =>
-  label ? <div role="status" aria-live="polite" className={className}><span className="sr-only">{label}</span>{children}</div> : <div aria-hidden="true" className={className}>{children}</div>;
+const wrap = (label: string | undefined, children: React.ReactNode, className: string, style?: React.CSSProperties) =>
+  label ? <div role="status" aria-live="polite" className={className} style={style}><span className="sr-only">{label}</span>{children}</div> : <div aria-hidden="true" className={className} style={style}>{children}</div>;
 
 /** Three text lines (Figma Skeleton/TextBlock). */
 const TextBlock = ({ label, animated, className = '' }: PresetProps) => wrap(label, <>
@@ -42,7 +42,7 @@ const Card = ({ label, animated, className = '' }: PresetProps) => wrap(label, <
 /** A table row of `columns` cells (Skeleton/TableRow). */
 const TableRow = ({ label, animated, className = '', columns = 4 }: PresetProps & { columns?: number }) => wrap(label, <>
   {Array.from({ length: columns }, (_, index) => <SkeletonBase key={index} size="s" animated={animated} />)}
-</>, `grid items-center gap-4 py-3 ${className}`.trim());
+</>, `grid items-center gap-4 py-3 ${className}`.trim(), { gridTemplateColumns: `repeat(${Math.max(1, columns)}, minmax(0, 1fr))` });
 /** Avatar + two lines (Skeleton/UserIdentity). */
 const UserIdentity = ({ label, animated, className = '' }: PresetProps) => wrap(label, <>
   <SkeletonBase shape="circle" size="l" animated={animated} />

@@ -14,10 +14,10 @@ export interface PendingFeatureNoticeProps extends Omit<React.HTMLAttributes<HTM
 }
 
 /** Placeholder of a feature the backend does not serve yet (HTTP 501), same wording in every front (MAIR-608, Figma `Base/PendingFeatureNotice`). */
-export const PendingFeatureNotice = ({ feature, title, description = 'Cette fonctionnalité sera disponible dans une prochaine version.', className = '', ...props }: PendingFeatureNoticeProps) => {
+export const PendingFeatureNotice = ({ feature, title, description = 'Cette fonctionnalité sera disponible dans une prochaine version.', className = '', style, ...props }: PendingFeatureNoticeProps) => {
   const titleId = useId();
   return (
-    <section {...props} aria-labelledby={titleId} data-feature={feature} className={`flex flex-col items-center gap-2 rounded-lg border border-dashed border-[var(--mairie-control-border)] bg-[var(--mairie-surface-raised)] text-center ${className}`.trim()} style={{ padding: 'var(--mairie-space-l)', borderRadius: 'var(--mairie-radius-l)' }}>
+    <section {...props} aria-labelledby={titleId} data-feature={feature} className={`flex flex-col items-center gap-2 rounded-lg border border-dashed border-[var(--mairie-control-border)] bg-[var(--mairie-surface-raised)] text-center ${className}`.trim()} style={{ padding: 'var(--mairie-space-l)', borderRadius: 'var(--mairie-radius-l)', ...style }}>
       <span className="text-[var(--mairie-muted)]"><Icon icon={Construction} size="l" /></span>
       <PanelTitle id={titleId}>{title ?? (feature ? `${feature} : bientôt disponible` : 'Bientôt disponible')}</PanelTitle>
       <Help>{description}</Help>

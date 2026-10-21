@@ -29,12 +29,15 @@ const heights: Record<TabsSize, number> = { s: 36, m: 44, l: 52 };
 export function Tabs<Key extends string = string>({ label, items, value, onChange, size = 'm', panels, id: idProp, hostPanel = false, className = '', ...props }: TabsProps<Key>) {
   const generated = useId(); const id = idProp ?? generated;
   const tabId = (key: Key) => `${id}-tab-${key}`; const panelId = (key: Key) => `${id}-panel-${key}`;
+  const focusTab = (key: Key) => { onChange(key); document.getElementById(tabId(key))?.focus(); };
+  const enabled = items.filter(item => !item.disabled);
+  /** Arrow keys wrap over the enabled tabs; Home and End go to the first and last enabled tab. */
   const move = (from: number, step: number) => {
-    const enabled = items.filter(item => !item.disabled); if (enabled.length === 0) return;
+    if (enabled.length === 0) return;
     const current = enabled.findIndex(item => item.key === items[from].key);
-    const next = enabled[(current + step + enabled.length) % enabled.length];
-    onChange(next.key); document.getElementById(tabId(next.key))?.focus();
+    focusTab(enabled[(current + step + enabled.length) % enabled.length].key);
   };
+  const edge = (last: boolean) => { if (enabled.length) focusTab(enabled[last ? enabled.length - 1 : 0].key); };
   return (
     <div {...props} id={idProp ? `${idProp}-tabs` : undefined} data-size={size} className={className}>
       <div role="tablist" aria-label={label} className="flex gap-1 border-b border-[var(--mairie-border)]">
@@ -43,7 +46,7 @@ export function Tabs<Key extends string = string>({ label, items, value, onChang
           return (
             <button key={item.key} id={tabId(item.key)} role="tab" type="button" aria-selected={selected} aria-controls={panels || (hostPanel && selected) ? panelId(item.key) : undefined} tabIndex={selected ? 0 : -1} disabled={item.disabled}
               onClick={() => onChange(item.key)}
-              onKeyDown={event => { if (event.key === 'ArrowRight') { event.preventDefault(); move(index, 1); } if (event.key === 'ArrowLeft') { event.preventDefault(); move(index, -1); } if (event.key === 'Home') { event.preventDefault(); move(index, -index); } if (event.key === 'End') { event.preventDefault(); move(index, items.length - 1 - index); } }}
+              onKeyDown={event => { if (event.key === 'ArrowRight') { event.preventDefault(); move(index, 1); } if (event.key === 'ArrowLeft') { event.preventDefault(); move(index, -1); } if (event.key === 'Home') { event.preventDefault(); edge(false); } if (event.key === 'End') { event.preventDefault(); edge(true); } }}
               className={`-mb-px inline-flex items-center gap-2 border-b-2 px-3 font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] disabled:cursor-not-allowed disabled:opacity-50 ${selected ? 'border-[var(--mairie-accent)] text-[var(--mairie-accent)]' : 'border-transparent text-[var(--mairie-muted)] hover:text-[var(--mairie-text)]'}`}
               style={{ height: heights[size], fontSize: `var(--mairie-text-${size})` }}>
               {item.icon && <Icon icon={item.icon} size={size} />}

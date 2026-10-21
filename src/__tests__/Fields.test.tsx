@@ -184,3 +184,21 @@ describe('FormSection and FormActions (MAIR-608)', () => {
     expect(screen.getByRole('button', { name: 'Annuler' })).toBeDisabled();
   });
 });
+
+describe('review fixes (CodeRabbit on #467)', () => {
+  it('lets the same file be picked again after a removal', () => {
+    const onChange = jest.fn();
+    render(<FileField label="Pièce jointe" onChange={onChange} />);
+    const input = screen.getByLabelText('Pièce jointe') as HTMLInputElement;
+    const file = new File(['x'], 'plan.pdf', { type: 'application/pdf' });
+    fireEvent.change(input, { target: { files: [file] } });
+    expect(onChange).toHaveBeenCalledWith([file]);
+    expect(input.value).toBe('');
+  });
+  it('announces a slider value only when the formatted value is text', () => {
+    const { rerender } = render(<Slider label="Taille" min={12} max={24} value={16} format={(v) => `${v} px`} />);
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuetext', '16 px');
+    rerender(<Slider label="Taille" min={12} max={24} value={16} format={(v) => <strong>{v}</strong>} />);
+    expect(screen.getByRole('slider')).not.toHaveAttribute('aria-valuetext');
+  });
+});

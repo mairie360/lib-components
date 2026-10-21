@@ -44,7 +44,7 @@ export const Slider = React.forwardRef<HTMLInputElement, SliderProps>(function S
         value={current}
         disabled={disabled}
         aria-describedby={hint ? `${inputId}-hint` : undefined}
-        aria-valuetext={String(format(current))}
+        aria-valuetext={(() => { const text = format(current); return typeof text === 'string' || typeof text === 'number' ? String(text) : undefined; })()}
         onChange={(event) => { const next = Number(event.target.value); if (value === undefined) setInternal(next); onChange?.(next); }}
         className="w-full cursor-pointer accent-[var(--mairie-action-background)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] disabled:cursor-not-allowed"
         style={{ height: 'var(--mairie-control-xs)' }}

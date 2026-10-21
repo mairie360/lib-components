@@ -39,7 +39,7 @@ export interface DataTableProps<Row> extends Omit<React.TableHTMLAttributes<HTML
 }
 
 /** Data table: sortable header, rows, state cells, row actions, states through DataState (MAIR-608, Figma `Base/DataTable`). */
-export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default', stateProps, sort, onSort, skeletonRows = 4, onRowClick, rowProps, className = '', ...props }: DataTableProps<Row>) {
+export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default', stateProps, sort, onSort, skeletonRows = 4, onRowClick, rowProps, className = '', style, ...props }: DataTableProps<Row>) {
   const toggle = (column: DataTableColumn<Row>) => {
     if (!column.sortable || !onSort) return;
     onSort(column.key, sort?.key === column.key && sort.direction === 'asc' ? 'desc' : 'asc');
@@ -47,7 +47,7 @@ export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default'
   const empty = state === 'empty' || (state === 'default' && rows.length === 0);
   return (
     <div className="w-full overflow-x-auto" data-state={state}>
-      <table {...props} aria-busy={state === 'loading' || undefined} className={`w-full border-collapse text-left ${className}`.trim()} style={{ fontSize: 'var(--mairie-text-s)' }}>
+      <table {...props} aria-busy={state === 'loading' || undefined} className={`w-full border-collapse text-left ${className}`.trim()} style={{ fontSize: 'var(--mairie-text-s)', ...style }}>
         <caption className="sr-only">{label}</caption>
         <thead className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]">
           <tr>

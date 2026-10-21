@@ -17,10 +17,10 @@ export interface SessionExpiredNoticeProps extends Omit<React.HTMLAttributes<HTM
 }
 
 /** Full-page notice when the session expired: same words in every front (MAIR-608, Figma `Base/SessionExpiredNotice`). */
-export const SessionExpiredNotice = ({ loginHref, onReconnect, title = 'Votre session a expiré', description = 'Pour des raisons de sécurité, vous avez été déconnecté après une période d’inactivité. Reconnectez-vous pour continuer.', reconnectLabel = 'Se reconnecter', className = '', ...props }: SessionExpiredNoticeProps) => {
+export const SessionExpiredNotice = ({ loginHref, onReconnect, title = 'Votre session a expiré', description = 'Pour des raisons de sécurité, vous avez été déconnecté après une période d’inactivité. Reconnectez-vous pour continuer.', reconnectLabel = 'Se reconnecter', className = '', style, ...props }: SessionExpiredNoticeProps) => {
   const titleId = useId();
   return (
-    <section {...props} role="alert" aria-labelledby={titleId} className={`mx-auto flex max-w-md flex-col items-center gap-3 rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-center ${className}`.trim()} style={{ padding: 'var(--mairie-space-xl)', borderRadius: 'var(--mairie-radius-l)' }}>
+    <section {...props} role="alert" aria-labelledby={titleId} className={`mx-auto flex max-w-md flex-col items-center gap-3 rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-center ${className}`.trim()} style={{ padding: 'var(--mairie-space-xl)', borderRadius: 'var(--mairie-radius-l)', ...style }}>
       <span className="text-[var(--mairie-warning-text)]"><Icon icon={Clock} size="xl" /></span>
       <SectionTitle id={titleId}>{title}</SectionTitle>
       <Help>{description}</Help>

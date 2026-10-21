@@ -82,3 +82,27 @@ describe('Modal, ConfirmModal, Drawer', () => {
     rerender(<Drawer open={false} title="Fiche du projet" onClose={close} />); expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
+
+describe('review fixes (CodeRabbit on #467)', () => {
+  it('keeps focus in a field of a modal whose parent re-renders on every keystroke', async () => {
+    const user = userEvent.setup();
+    function Host() {
+      const [value, setValue] = React.useState('');
+      return <Modal open title="Nom du projet" onClose={() => undefined}><label htmlFor="name">Nom</label><input id="name" value={value} onChange={(event) => setValue(event.target.value)} /></Modal>;
+    }
+    render(<Host />);
+    await user.click(screen.getByLabelText('Nom'));
+    await user.keyboard('Voirie');
+    expect(screen.getByLabelText('Nom')).toHaveFocus();
+    expect(screen.getByLabelText('Nom')).toHaveValue('Voirie');
+  });
+  it('cannot be dismissed by Escape or the backdrop while the confirmation runs', async () => {
+    const user = userEvent.setup(); const cancel = jest.fn();
+    render(<ConfirmModal open busy title="Supprimer ?" message="Irréversible." onConfirm={() => undefined} onCancel={cancel} />);
+    await user.keyboard('{Escape}');
+    fireEvent.mouseDown(screen.getByRole('dialog').parentElement!);
+    await user.click(screen.getByRole('button', { name: 'Fermer la fenêtre' }));
+    expect(cancel).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+});

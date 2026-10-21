@@ -28,6 +28,10 @@ const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([t
 
 /** Keeps Tab inside the panel and restores focus to the opener on close. */
 export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement | null>, onClose: () => void, initialFocusRef?: React.RefObject<HTMLElement | null>) {
+  // The latest onClose is read through a ref: an inline closure re-created on every parent
+  // render must not re-run the effect (that would move focus out of the field being typed in).
+  const close = useRef(onClose);
+  useEffect(() => { close.current = onClose; }, [onClose]);
   useEffect(() => {
     if (!open || !panel.current) return;
     const opener = document.activeElement as HTMLElement | null;
@@ -35,7 +39,7 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
     const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE));
     (initialFocusRef?.current ?? focusables()[0] ?? node).focus();
     const keydown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { event.stopPropagation(); onClose(); return; }
+      if (event.key === 'Escape') { event.stopPropagation(); close.current(); return; }
       if (event.key !== 'Tab') return;
       const items = focusables(); if (items.length === 0) { event.preventDefault(); return; }
       const first = items[0]; const last = items[items.length - 1];
@@ -45,7 +49,7 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
     node.addEventListener('keydown', keydown);
     const previousOverflow = document.body.style.overflow; document.body.style.overflow = 'hidden';
     return () => { node.removeEventListener('keydown', keydown); document.body.style.overflow = previousOverflow; if (opener?.isConnected) opener.focus(); };
-  }, [open, panel, onClose, initialFocusRef]);
+  }, [open, panel, initialFocusRef]);
 }
 
 /** Centred window over a veil: header (title, close), free content, actions footer (MAIR-608, Figma `Base/Modal`). */

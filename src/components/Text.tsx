@@ -65,8 +65,10 @@ export type TextPresetProps = Omit<TextProps, 'size' | 'weight'> & { size?: Size
 
 function preset(name: string, defaults: Partial<TextProps>) {
   const Preset = React.forwardRef<HTMLElement, TextPresetProps>(function Preset(props, ref) {
-    const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined));
-    return <Text ref={ref} {...defaults} data-preset={name} {...overrides} />;
+    const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined)) as TextPresetProps;
+    // A consumer class adds to the preset classes (a Link keeps its underline).
+    const className = [defaults.className, overrides.className].filter(Boolean).join(' ') || undefined;
+    return <Text ref={ref} {...defaults} data-preset={name} {...overrides} className={className} />;
   });
   Preset.displayName = name;
   return Preset;
