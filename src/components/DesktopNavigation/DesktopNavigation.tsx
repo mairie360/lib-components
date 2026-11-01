@@ -23,7 +23,8 @@ function safeDestination(value: string | undefined) {
 /**
  * Desktop navigation of the shared shell (MAIR-548, Figma `DesktopNavigation`).
  * It rests collapsed (logo and module icons) and expands to the width of its
- * commands while the pointer is over it or keyboard focus is inside it, pushing
+ * commands while the pointer is over it or keyboard focus is inside it (a click
+ * focuses a command without keeping the band open once the pointer leaves), pushing
  * the module aside rather than covering it. Mobile navigation stays in AppShell.
  */
 export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, hrefs, onNavigate, onPageChange, sidebarProps, onCollapsedChange, inactive = false }: Props) {
@@ -31,6 +32,8 @@ export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, h
   const [focused, setFocused] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
   const asideRef = useRef<HTMLElement>(null);
+  // Focus that follows a pointer press is not keyboard focus: it must not keep the band expanded.
+  const pointerPressed = useRef(false);
   const expanded = !inactive && (hovered || focused);
   const items = (sidebarProps?.items ?? defaultSidebarItems).filter(item => (!item.adminOnly || isAdmin) && (safeDestination(hrefs[item.id]) || onPageChange));
 
@@ -53,7 +56,10 @@ export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, h
   const brandLabel = sidebarProps?.brandLabel?.trim();
 
   return <aside ref={asideRef} className="app-desktop-navigation" aria-label="Navigation principale" data-expanded={expanded} inert={inactive}
-    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={leaveFocus}>
+    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+    onPointerDownCapture={() => { pointerPressed.current = true; }} onMouseDownCapture={() => { pointerPressed.current = true; }}
+    onKeyDownCapture={() => { pointerPressed.current = false; setFocused(true); }}
+    onFocus={() => { setFocused(!pointerPressed.current); pointerPressed.current = false; }} onBlur={leaveFocus}>
     <div className="app-navigation-brand">
       {logo && !logoFailed
         ? <img className="app-navigation-logo" src={logo} alt={sidebarProps?.brandLogoAlt ?? 'Logo Mairie360'} onError={() => setLogoFailed(true)} />

@@ -114,3 +114,20 @@ it('requires the trusted administrator flag and falls back to the supplied brand
   rerender(<DesktopNavigation {...props} isAdmin />);
   expect(screen.getByRole('button', { name: 'Administration' })).toBeVisible();
 });
+
+// CodeRabbit on #500: clicking a command focuses it, but the band must collapse once the pointer leaves.
+it('MAIR-548 collapses after a click once the pointer leaves, and still expands on keyboard focus', async () => {
+  const user = userEvent.setup();
+  const onCollapsedChange = jest.fn();
+  const { container } = render(<DesktopNavigation hrefs={{ settings: '/settings' }} onPageChange={() => undefined} onCollapsedChange={onCollapsedChange} />);
+  const aside = container.querySelector('aside.app-desktop-navigation')!;
+  const command = within(aside as HTMLElement).getAllByRole('button')[0];
+  await user.hover(aside);
+  await user.click(command);
+  expect(command).toHaveFocus();
+  await user.unhover(aside);
+  expect(aside).toHaveAttribute('data-expanded', 'false');
+  expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
+  await user.keyboard('{Tab}');
+  expect(aside).toHaveAttribute('data-expanded', 'true');
+});

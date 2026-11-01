@@ -248,14 +248,14 @@ body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-acces
     border-right: 1px solid var(--mairie-navigation-border); box-shadow: none;
     background: var(--mairie-navigation-background); color: var(--mairie-navigation-text);
   }
-  body.mairie-ui .app-desktop-navigation:is([data-expanded="true"], :focus-within) { width: max-content; max-width: 320px; }
-  .app-desktop-navigation:not([data-expanded="true"]):not(:focus-within) :is(.app-navigation-label, .app-navigation-commune) {
+  body.mairie-ui .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) { width: max-content; max-width: 320px; }
+  .app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) :is(.app-navigation-label, .app-navigation-commune) {
     position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
   }
   body.mairie-ui .app-desktop-navigation .app-navigation-brand { display: flex; align-items: center; gap: 10px; height: 64px; flex-shrink: 0; padding: 8px 14px; }
-  .app-desktop-navigation:is([data-expanded="true"], :focus-within) .app-navigation-brand { padding: 8px 12px; }
+  .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) .app-navigation-brand { padding: 8px 12px; }
   .app-navigation-logo { display: block; width: auto; height: 32px; flex-shrink: 0; object-fit: contain; }
-  .app-desktop-navigation:is([data-expanded="true"], :focus-within) .app-navigation-logo { height: 48px; }
+  .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) .app-navigation-logo { height: 48px; }
   .app-navigation-initial { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: 8px; background: var(--mairie-action-background); color: var(--mairie-on-action); font-weight: 650; }
   .app-navigation-commune { display: flex; flex-direction: column; max-width: 140px; padding-left: 10px; border-left: 1px solid var(--mairie-navigation-border); line-height: 1.4; overflow-wrap: anywhere; }
   .app-navigation-commune-caption { font-size: 12px; color: var(--mairie-navigation-text); }
@@ -272,7 +272,7 @@ body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-acces
   .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-navigation-admin-text); }
   .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
   .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-navigation-admin-text); background: var(--mairie-navigation-admin-background); }
-  .app-desktop-navigation:not([data-expanded="true"]):not(:focus-within) .app-navigation-badge { position: absolute; top: -4px; right: -4px; }
+  .app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) .app-navigation-badge { position: absolute; top: -4px; right: -4px; }
 }
 @media (prefers-reduced-motion: reduce) { body.mairie-ui .app-desktop-navigation { transition: none; } }
 
