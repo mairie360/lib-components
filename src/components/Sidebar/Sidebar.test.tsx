@@ -1,0 +1,92 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Sidebar } from './Sidebar';
+import '@testing-library/jest-dom';
+
+describe('Sidebar component', () => {
+  it('renders the brand and default navigation items for administrators', () => {
+    render(<Sidebar isAdmin />);
+
+    expect(screen.getByText('Mairie360')).toBeInTheDocument();
+    expect(screen.getByAltText('Logo Mairie360')).toHaveAttribute('src', 'test-file-stub');
+    expect(screen.getByRole('button', { name: /Tableau de bord/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Projets/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Messagerie/ })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /E-mails/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Fichiers/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Formation/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Calendrier/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Administration/ })).toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Paramètres/ })).toBeInTheDocument();
+  });
+
+  it('highlights the entire Administration row without changing other destinations', () => {
+    render(<Sidebar isAdmin />);
+
+    const administration = screen.getByRole('button', { name: 'Administration' });
+    expect(administration).toHaveClass('bg-[var(--mairie-navigation-admin-background)]', 'border-[var(--mairie-navigation-admin-border)]', 'hover:bg-[var(--mairie-navigation-admin-hover-background)]', 'focus-visible:outline-[var(--mairie-navigation-admin-focus)]');
+    expect(screen.getByRole('button', { name: 'Projets' })).not.toHaveClass('bg-[var(--mairie-navigation-admin-background)]');
+  });
+
+  it('keeps the Administration row red when it is active', () => {
+    render(<Sidebar isAdmin activeItem="admin" />);
+
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]', 'border-[var(--mairie-navigation-admin-active-border)]');
+  });
+
+  it('hides Administration when the user is not an administrator', () => {
+    render(<Sidebar isAdmin={false} />);
+
+    expect(screen.queryByRole('button', { name: /Administration/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+  });
+
+  it('marks the active item', () => {
+    render(<Sidebar activeItem="projects" />);
+
+    expect(screen.getByRole('button', { name: /Projets/ })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: /Tableau de bord/ })).not.toHaveAttribute('aria-current');
+  });
+
+  it('keeps navigation scrollable without shrinking destinations in short viewports', () => {
+    render(<Sidebar isAdmin />);
+
+    expect(screen.getByRole('navigation', { name: 'Menu principal' })).toHaveClass('min-h-0', 'overflow-y-auto');
+    expect(screen.getByRole('button', { name: /Paramètres/ })).toHaveClass('shrink-0');
+  });
+
+  it('calls onItemSelect when a navigation item is clicked', () => {
+    const onItemSelect = jest.fn();
+    render(<Sidebar isAdmin onItemSelect={onItemSelect} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Projets/ }));
+
+    expect(onItemSelect).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'projects',
+      label: 'Projets',
+    }));
+  });
+
+  it('supports custom branding', () => {
+    render(<Sidebar brandLabel="Ville Connectée" brandLogoSrc="/ville.png" brandLogoAlt="Logo Ville Connectée" />);
+
+    expect(screen.getByText('Ville Connectée')).toBeInTheDocument();
+    expect(screen.getByAltText('Logo Ville Connectée')).toHaveAttribute('src', '/ville.png');
+  });
+
+  it('places supplied application information outside the scrollable navigation', () => {
+    render(<Sidebar footer={<p>Informations application</p>} />);
+
+    const information = screen.getByText('Informations application');
+    expect(information.closest('aside')).toBe(screen.getByRole('complementary'));
+    expect(information.closest('nav')).toBeNull();
+    expect(information.parentElement).toHaveClass('shrink-0');
+  });
+
+  it('renders the brand initial when no logo is provided', () => {
+    render(<Sidebar brandLabel="Ville Connectée" brandLogoSrc={null} brandInitial="V" />);
+
+    expect(screen.getByText('V')).toBeInTheDocument();
+  });
+});

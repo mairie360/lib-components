@@ -8,7 +8,7 @@ import {
   SelectLabel,
   SelectSeparator,
   SelectGroup,
-} from "../components/Select";
+} from '../components/Select';
 
 const meta: Meta<typeof Select> = {
   title: "Components/Select/Select",

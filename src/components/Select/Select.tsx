@@ -1,0 +1,351 @@
+import React from "react";
+
+interface SelectContextValue {
+  value?: string;
+  onValueChange?: (value: string) => void;
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  triggerRef?: React.RefObject<HTMLButtonElement | null>;
+}
+
+const SelectContext = React.createContext<SelectContextValue>({
+  open: false,
+  setOpen: () => {},
+});
+
+interface SelectProps {
+  children: React.ReactNode;
+  value?: string;
+  onValueChange?: (value: string) => void;
+  defaultValue?: string;
+}
+
+function Select({ children, value: controlledValue, onValueChange, defaultValue }: SelectProps) {
+  const [internalValue, setInternalValue] = React.useState(defaultValue || "");
+  const [open, setOpen] = React.useState(false);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+
+  const value = controlledValue !== undefined ? controlledValue : internalValue;
+
+  const handleValueChange = React.useCallback(
+    (newValue: string) => {
+      if (controlledValue === undefined) {
+        setInternalValue(newValue);
+      }
+      onValueChange?.(newValue);
+    },
+    [controlledValue, onValueChange]
+  );
+
+  return (
+    <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen, triggerRef }}>
+      <div data-slot="select" className="relative inline-block w-full">
+        {children}
+      </div>
+    </SelectContext.Provider>
+  );
+}
+
+interface SelectTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  size?: "sm" | "default";
+  placeholder?: string;
+}
+
+function SelectTrigger({
+  className = "",
+  size = "default",
+  children,
+  placeholder,
+  ...props
+}: SelectTriggerProps) {
+  const { open, setOpen, triggerRef } = React.useContext(SelectContext);
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    setOpen(!open);
+    props.onClick?.(e);
+  };
+
+  return (
+    <button
+      {...props}
+      ref={triggerRef}
+      aria-haspopup="listbox"
+      aria-expanded={open}
+      data-slot="select-trigger"
+      data-size={size}
+      type="button"
+      className={`flex w-full items-center justify-between gap-2 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] px-3 py-2 text-sm text-[var(--mairie-text)] whitespace-nowrap transition-[color,box-shadow] outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/50 disabled:cursor-not-allowed disabled:opacity-50 ${
+        size === "default" ? "h-9" : "h-8"
+      } ${className}`}
+      onClick={handleClick}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (!event.defaultPrevented && ["ArrowDown", "ArrowUp"].includes(event.key)) {
+          event.preventDefault();
+          setOpen(true);
+        }
+      }}
+    >
+      {children}
+      <svg
+        className="size-4 opacity-50 shrink-0"
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M4 6L8 10L12 6"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+interface SelectValueProps {
+  placeholder?: string;
+}
+
+function SelectValue({ placeholder }: SelectValueProps) {
+  const { value } = React.useContext(SelectContext);
+  const itemsContext = React.useContext(SelectItemsContext);
+
+  const selectedItem = itemsContext.items.find((item) => item.value === value);
+
+  return (
+    <span data-slot="select-value" className="flex items-center gap-2 line-clamp-1">
+      {selectedItem ? selectedItem.label : placeholder || "Sélectionner..."}
+    </span>
+  );
+}
+
+interface SelectContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  position?: "popper" | "item-aligned";
+}
+
+function SelectContent({
+  className = "",
+  children,
+  position = "popper",
+  ...props
+}: SelectContentProps) {
+  const { open, setOpen, triggerRef } = React.useContext(SelectContext);
+  const contentRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const options = contentRef.current?.querySelectorAll<HTMLElement>('[role="option"]');
+    const selected = contentRef.current?.querySelector<HTMLElement>('[aria-selected="true"]');
+    (selected ?? options?.[0])?.focus();
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (contentRef.current && !contentRef.current.contains(event.target as Node) && !triggerRef?.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && contentRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+        triggerRef?.current?.focus();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [open, setOpen, triggerRef]);
+
+  if (!open) return null;
+
+  return (
+    <div
+      ref={contentRef}
+      role="listbox"
+      aria-label="Options"
+      data-slot="select-content"
+      className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] shadow-md text-[var(--mairie-text)] p-1 ${className}`}
+      {...props}
+      onBlur={event => {
+        props.onBlur?.(event);
+        const next = event.relatedTarget as Node | null;
+        if (!event.currentTarget.contains(next) && next !== triggerRef?.current) setOpen(false);
+      }}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (event.defaultPrevented || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const options = Array.from(contentRef.current?.querySelectorAll<HTMLElement>('[role="option"]') ?? []);
+        const index = options.indexOf(document.activeElement as HTMLElement);
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
+          : (index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+        options[next]?.focus();
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+interface SelectItemProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: string;
+  children: React.ReactNode;
+}
+
+interface SelectItemsContextValue {
+  items: Array<{ value: string; label: React.ReactNode }>;
+  registerItem: (value: string, label: React.ReactNode) => void;
+}
+
+const SelectItemsContext = React.createContext<SelectItemsContextValue>({
+  items: [],
+  registerItem: () => {},
+});
+
+function SelectItemsProvider({ children }: { children: React.ReactNode }) {
+  const [items, setItems] = React.useState<Array<{ value: string; label: React.ReactNode }>>([]);
+
+  const registerItem = React.useCallback((value: string, label: React.ReactNode) => {
+    setItems((prev) => {
+      const exists = prev.find((item) => item.value === value);
+      if (exists) return prev;
+      return [...prev, { value, label }];
+    });
+  }, []);
+
+  return (
+    <SelectItemsContext.Provider value={{ items, registerItem }}>
+      {children}
+    </SelectItemsContext.Provider>
+  );
+}
+
+function SelectItem({ className = "", value, children, ...props }: SelectItemProps) {
+  const { value: selectedValue, onValueChange, setOpen, triggerRef } = React.useContext(SelectContext);
+  const { registerItem } = React.useContext(SelectItemsContext);
+
+  React.useEffect(() => {
+    registerItem(value, children);
+  }, [value, children, registerItem]);
+
+  const isSelected = value === selectedValue;
+
+  const handleClick = () => {
+    onValueChange?.(value);
+    setOpen(false);
+    triggerRef?.current?.focus();
+  };
+
+  return (
+    <div
+      role="option"
+      tabIndex={-1}
+      aria-selected={isSelected}
+      data-slot="select-item"
+      className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] ${className}`}
+      {...props}
+      onClick={event => {
+        props.onClick?.(event);
+        if (!event.defaultPrevented) handleClick();
+      }}
+      onKeyDown={event => {
+        props.onKeyDown?.(event);
+        if (!event.defaultPrevented && ["Enter", " "].includes(event.key)) {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
+    >
+      {isSelected && (
+        <span className="absolute right-2 flex size-3.5 items-center justify-center">
+          <svg
+            className="size-4"
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M13.3332 4L5.99984 11.3333L2.6665 8"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      )}
+      <span className="flex items-center gap-2">{children}</span>
+    </div>
+  );
+}
+
+type SelectLabelProps = React.HTMLAttributes<HTMLDivElement>;
+
+function SelectLabel({ className = "", ...props }: SelectLabelProps) {
+  return (
+    <div
+      data-slot="select-label"
+      className={`px-2 py-1.5 text-xs text-[var(--mairie-muted)] ${className}`}
+      {...props}
+    />
+  );
+}
+
+type SelectSeparatorProps = React.HTMLAttributes<HTMLDivElement>;
+
+function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
+  return (
+    <div
+      data-slot="select-separator"
+      className={`-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)] pointer-events-none ${className}`}
+      {...props}
+    />
+  );
+}
+
+type SelectGroupProps = React.HTMLAttributes<HTMLDivElement>;
+
+function SelectGroup({ ...props }: SelectGroupProps) {
+  return <div data-slot="select-group" {...props} />;
+}
+
+function SelectScrollUpButton() {
+  return null;
+}
+
+function SelectScrollDownButton() {
+  return null;
+}
+
+function SelectWithProvider(props: SelectProps) {
+  return (
+    <SelectItemsProvider>
+      <Select {...props} />
+    </SelectItemsProvider>
+  );
+}
+
+export {
+  SelectWithProvider as Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+};
