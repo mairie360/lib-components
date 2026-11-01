@@ -10,4 +10,6 @@ Il n'y a plus de bouton de repli ni d'infobulle. `sidebarCookieDomain` et les ex
 
 Sous 1024 px, le tiroir mobile garde son comportement (focus contenu, Échap, retour du focus sur le bouton de menu). Tant que le tiroir, une boîte de dialogue ou le centre de notifications est ouvert, le bandeau, le contenu et le pied de page sont inertes.
 
-Tests : `DesktopNavigationRuntime`, `AppShellRuntime`, `AppShellSkipNavigation` (comportement) et `ShellLayoutCss` (dépliage, mouvement réduit, règles du pied de page et du module dans le thème).
+Couleurs (MAIR-765, Figma « Proposition C ») : le cadre porte un voile vert d'eau translucide ; le bandeau de navigation (trait à droite), la barre du haut (trait en bas) et le pied de page (trait en haut) sont des couches vert d'eau translucides posées dessus, rendues en clair bandeau `#d5eae7`, barres `#cde7e3`, survol `#bde1da`, actif `#addad2` (libellés ardoise, liseré actif `#2d786c`) et en sombre `#1f2d2f`, `#253839`, `#2f4a49`, `#3a5f5c` (libellés clairs, liseré `#70c1b3`). L'entrée Administration reste rouge, texte blanc. Le tiroir mobile reçoit le même fond opaque.
+
+Tests : `DesktopNavigationRuntime`, `AppShellRuntime`, `AppShellSkipNavigation` (comportement) et `ShellLayoutCss` (dépliage, mouvement réduit, règles du pied de page et du module dans le thème, cadre vert d'eau), `NavigationContrast` et `ThemeContrast` (contrastes rendus).

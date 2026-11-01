@@ -35,3 +35,27 @@ describe('MAIR-548 shared shell stylesheet', () => {
     expect(desktop).toMatch(/\.app-desktop-navigation nav button \{[^}]*height: 42px;[^}]*font-size: 16px;/);
   });
 });
+
+describe('MAIR-765 teal application frame', () => {
+  const source = (path: string) => readFileSync(join(__dirname, '..', path), 'utf8');
+
+  it('paints the teal veil over the page background on the frame and the mobile drawer', () => {
+    expect(css).toMatch(/\.app-shell-veil, \.app-shell-drawer \{ background: linear-gradient\(var\(--mairie-shell-background\), var\(--mairie-shell-background\)\), var\(--mairie-background\); \}/);
+    const shell = source('components/AppShell/AppShell.tsx');
+    expect(shell).toContain("'app-shell-veil h-screen");
+    expect(shell).toContain('className="app-shell-drawer relative');
+  });
+
+  it('tints the top bar and the footer with a border towards the module', () => {
+    expect(source('components/Header/Header.tsx')).toMatch(/<header className="[^"]*border-b-\[var\(--mairie-shell-bar-border\)\] bg-\[var\(--mairie-shell-bar-background\)\]/);
+    const footer = source('components/Footer/Footer.tsx');
+    expect(footer).toContain('border-t border-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)]');
+    expect(footer).not.toContain('hover:text-[var(--mairie-accent)]');
+  });
+
+  it('draws the navigation band with a border on its right and no shadow', () => {
+    expect(desktop).toMatch(/border-right: 1px solid var\(--mairie-navigation-border\); box-shadow: none;/);
+    expect(source('components/Sidebar/Sidebar.tsx')).toContain('border-r border-[var(--mairie-navigation-border)] bg-[var(--mairie-navigation-background)]');
+    expect(css).toMatch(/--mairie-navigation-shadow: none;/);
+  });
+});

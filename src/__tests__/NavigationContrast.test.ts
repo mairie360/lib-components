@@ -1,33 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { rendered, themes, tokenContrast } from '../test-utils/themeColours';
 
 // MAIR-547: the active and hovered navigation items write their label and icon in
 // --mairie-navigation-active-text, the Administration entry and counters in
 // --mairie-navigation-admin-text. Both must reach AA text contrast (4.5:1) on their backgrounds,
-// in Light and Dark. The former --mairie-on-action (dark ink) gave 1.3:1 on navy.
+// in Light and Dark, measured on the colours the translucent teal band renders (MAIR-765).
 const css = readFileSync(resolve(process.cwd(), 'src/styles/municipal-theme.css'), 'utf8');
-const block = (selector: string) => css.slice(css.indexOf(`${selector} {`), css.indexOf('}', css.indexOf(`${selector} {`)));
-// Every --mairie-navigation-* colour is read: #rgb is expanded and any other format throws, so a
-// dark override can never fall back silently to the light value.
-const toHex = (name: string, value: string) => {
-  const raw = value.trim().toLowerCase();
-  if (/^#[\da-f]{6}$/.test(raw)) return raw;
-  if (/^#[\da-f]{3}$/.test(raw)) return `#${[...raw.slice(1)].map(c => c + c).join('')}`;
-  throw new Error(`--mairie-${name}: unsupported colour "${value.trim()}" (use #rgb or #rrggbb)`);
-};
-const tokens = (text: string) => Object.fromEntries([...text.matchAll(/--mairie-(navigation-[\w-]+):\s*([^;]+);/g)].filter(([, name]) => !/shadow/.test(name)).map(([, name, value]) => [name, toHex(name, value)]));
-const light = tokens(block(':root'));
-const dark = { ...light, ...tokens(block('html[data-theme="dark"]')) };
-
-const luminance = (hex: string) => {
-  const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(c => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-};
-const contrast = (a: string, b: string) => {
-  const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-  return (high + 0.05) / (low + 0.05);
-};
-
 const pairs: Array<[string, string]> = [
   ['navigation-text', 'navigation-background'],
   ['navigation-active-text', 'navigation-active-background'],
@@ -37,15 +16,13 @@ const pairs: Array<[string, string]> = [
   ['navigation-admin-text', 'navigation-admin-active-background'],
 ];
 
-describe.each([['light', light], ['dark', dark]] as const)('MAIR-547 %s navigation', (_theme, theme) => {
+describe.each(themes)('MAIR-547 %s navigation', (_theme, theme) => {
   it.each(pairs)('%s reaches 4.5:1 on %s', (text, background) => {
-    expect(theme[text]).toBeDefined();
-    expect(theme[background]).toBeDefined();
-    expect(contrast(theme[text], theme[background])).toBeGreaterThanOrEqual(4.5);
+    expect(tokenContrast(theme, text, background)).toBeGreaterThanOrEqual(4.5);
   });
 
-  it('keeps the active border at 3:1 on the navigation background', () => {
-    expect(contrast(theme['navigation-active-border'], theme['navigation-background'])).toBeGreaterThanOrEqual(3);
+  it.each(['navigation-background', 'navigation-active-background'])('keeps the active border at 3:1 on %s', background => {
+    expect(tokenContrast(theme, 'navigation-active-border', background)).toBeGreaterThanOrEqual(3);
   });
 });
 
@@ -75,4 +52,18 @@ it('MAIR-547 keeps --mairie-on-action out of the Sidebar and Footer navigation i
   // The only remaining use is the brand initial, drawn on the teal action background.
   expect(sidebar.match(/--mairie-on-action/g) ?? []).toHaveLength(1);
   expect(footer).not.toContain('--mairie-on-action');
+});
+
+// MAIR-765: the translucent teal layers render the Figma « Proposition C » colours.
+it.each([
+  ['light', 'shell-background', '#e4f1ee'], ['light', 'navigation-background', '#d5eae7'], ['light', 'shell-bar-background', '#cde7e3'],
+  ['light', 'navigation-hover-background', '#bde1da'], ['light', 'navigation-active-background', '#addad2'],
+  ['dark', 'shell-background', '#171e22'], ['dark', 'navigation-background', '#1f2d2f'], ['dark', 'shell-bar-background', '#253839'],
+  ['dark', 'navigation-hover-background', '#2f4a49'], ['dark', 'navigation-active-background', '#3a5f5c'],
+] as const)('MAIR-765 %s %s renders %s', (mode, token, expected) => {
+  const theme = themes.find(([name]) => name === mode)![1];
+  const [r, g, b] = [1, 3, 5].map(i => parseInt(rendered(theme, token).slice(i, i + 2), 16));
+  const [er, eg, eb] = [1, 3, 5].map(i => parseInt(expected.slice(i, i + 2), 16));
+  // One unit of rounding tolerance per channel against the Figma swatches.
+  expect([Math.abs(r - er), Math.abs(g - eg), Math.abs(b - eb)].every(d => d <= 1)).toBe(true);
 });
