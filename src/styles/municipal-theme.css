@@ -17,25 +17,32 @@
   --mairie-error-action-background: #a40e26;
   --mairie-error-action-hover-background: #891827;
   --mairie-overlay-background: #000000;
-  --mairie-navigation-background: #383f51;
-  --mairie-navigation-text: #f8f7f8;
-  /* MAIR-547: label and icon of the active and hovered items (white on navy, 8.2:1), and of the
-   * Administration entry and counters (white on red, 6.5:1 and more). Never --mairie-on-action here. */
-  --mairie-navigation-active-text: #ffffff;
+  /* MAIR-765 (Figma « Proposition C »): the application frame is a translucent teal (#70c1b3) veil.
+   * Layers: shell veil over --mairie-background; navigation band and top/bottom bars over the veil;
+   * hover and active items over the band. Rendered in Light: veil #e4f1ee, band #d5eae7, bars #cde7e3,
+   * hover #bde1da, active #addad2. Text stays ink (8.4:1 on the band, 6.9:1 on the active item). */
+  --mairie-shell-background: rgb(112 193 179 / 10%);
+  --mairie-shell-bar-background: rgb(112 193 179 / 20%);
+  --mairie-shell-bar-border: rgb(112 193 179 / 50%);
+  --mairie-navigation-background: rgb(112 193 179 / 13%);
+  --mairie-navigation-text: #383f51;
+  /* MAIR-547: label and icon of the active and hovered items, and of the Administration entry and
+   * counters (white on red, 6.5:1 and more). Never --mairie-on-action here. */
+  --mairie-navigation-active-text: #383f51;
   --mairie-navigation-admin-text: #ffffff;
-  --mairie-navigation-border: #303646;
-  --mairie-navigation-control-border: #9c9fa8;
-  --mairie-navigation-control-background: #303646;
-  --mairie-navigation-hover-background: #303646;
-  --mairie-navigation-active-background: #3c4f76;
-  --mairie-navigation-active-border: #70c1b3;
+  --mairie-navigation-border: rgb(112 193 179 / 30%);
+  --mairie-navigation-control-border: #6a6f7d;
+  --mairie-navigation-control-background: rgb(112 193 179 / 24%);
+  --mairie-navigation-hover-background: rgb(112 193 179 / 24%);
+  --mairie-navigation-active-background: rgb(112 193 179 / 40%);
+  --mairie-navigation-active-border: #2d786c;
   --mairie-navigation-admin-background: #b4232f;
   --mairie-navigation-admin-hover-background: #951c28;
   --mairie-navigation-admin-border: #db5260;
   --mairie-navigation-admin-active-background: #891827;
   --mairie-navigation-admin-active-border: #ffb0b7;
   --mairie-navigation-admin-focus: #ffccd1;
-  --mairie-navigation-shadow: 4px 0 16px rgb(12 28 48 / 10%);
+  --mairie-navigation-shadow: none;
   --mairie-navigation-admin-shadow: inset 3px 0 0 var(--mairie-navigation-admin-focus), 0 2px 6px rgb(0 0 0 / 20%);
   --mairie-preview-light-background: #ffffff;
   --mairie-preview-light-text: #383f51;
@@ -121,13 +128,21 @@ html[data-theme="dark"] {
   --mairie-secondary-action-hover-background: #5a6a8a;
   --mairie-info-surface: #10151f;
   --mairie-info-text: #c8ced9;
-  --mairie-navigation-background: #0f1015;
-  --mairie-navigation-border: #1f232d;
-  --mairie-navigation-control-border: #6a6f7d;
+  /* MAIR-765 Dark: veil #171e22, band #1f2d2f, bars #253839, hover #2f4a49, active #3a5f5c. */
+  --mairie-shell-background: rgb(112 193 179 / 8%);
+  --mairie-shell-bar-background: rgb(112 193 179 / 16%);
+  --mairie-shell-bar-border: rgb(112 193 179 / 30%);
+  --mairie-navigation-background: rgb(112 193 179 / 9%);
+  --mairie-navigation-text: #f8f7f8;
+  --mairie-navigation-active-text: #f8f7f8;
+  --mairie-navigation-border: rgb(112 193 179 / 18%);
+  --mairie-navigation-active-background: rgb(112 193 179 / 34%);
+  --mairie-navigation-active-border: #70c1b3;
+  --mairie-navigation-control-border: #8c868b;
   /* Calendar keeps the showcase orange on dark surfaces (6.2:1); Light uses one step darker for 3:1 on white. */
   --mairie-module-calendar: #d08a4c;
-  --mairie-navigation-control-background: #161920;
-  --mairie-navigation-hover-background: #1f232d;
+  --mairie-navigation-control-background: rgb(112 193 179 / 20%);
+  --mairie-navigation-hover-background: rgb(112 193 179 / 20%);
   --mairie-module-dashboard: #9da7ba;
 }
 
@@ -234,6 +249,9 @@ body.mairie-ui header > div > button svg { width: 20px; height: 20px; }
 .app-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .app-desktop-navigation { display: none; }
 .app-shell-main { padding: 0; }
+/* MAIR-765: the frame carries the teal veil; translucent band and bars are drawn over it, and the
+ * mobile drawer gets the same opaque backing so the page never shows through the band. */
+.app-shell-veil, .app-shell-drawer { background: linear-gradient(var(--mairie-shell-background), var(--mairie-shell-background)), var(--mairie-background); }
 .app-shell-footer { position: relative; z-index: 30; }
 body.mairie-ui .app-accessible-footer, .app-accessible-footer {
   min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px;

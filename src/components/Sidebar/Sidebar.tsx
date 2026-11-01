@@ -108,7 +108,7 @@ export const Sidebar = ({
           const isAdministration = item.id === 'admin';
           let appearance = isActive
             ? 'border-[var(--mairie-navigation-active-border)] bg-[var(--mairie-navigation-active-background)] text-[var(--mairie-navigation-active-text)] shadow-[var(--mairie-shadow)]'
-            : 'border-transparent text-[var(--mairie-navigation-text)] hover:border-[var(--mairie-navigation-border)]/70 hover:bg-[var(--mairie-navigation-hover-background)] hover:text-[var(--mairie-navigation-active-text)]';
+            : 'border-transparent text-[var(--mairie-navigation-text)] hover:border-[var(--mairie-navigation-border)] hover:bg-[var(--mairie-navigation-hover-background)] hover:text-[var(--mairie-navigation-active-text)]';
 
           if (isAdministration) {
             appearance = isActive

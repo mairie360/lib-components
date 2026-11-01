@@ -169,7 +169,7 @@ export const AppShell = ({
   );
 
   return (
-    <div {...props} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[var(--mairie-background)] font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame flex flex-col' : undefined, className)}>
+    <div {...props} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('app-shell-veil h-screen overflow-hidden font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame flex flex-col' : undefined, className)}>
       <div inert={skipLinkInactive || sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}
@@ -193,7 +193,7 @@ export const AppShell = ({
               className="absolute inset-0 h-full w-full bg-[var(--mairie-overlay-background)]/35"
               onClick={() => setSidebarOpen(false)}
             />
-            <div className="relative h-full w-[260px] max-w-[82vw] shadow-2xl">
+            <div className="app-shell-drawer relative h-full w-[260px] max-w-[82vw] shadow-2xl">
               <button
                 ref={closeButtonRef}
                 type="button"

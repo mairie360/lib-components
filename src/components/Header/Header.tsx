@@ -135,7 +135,7 @@ export const Header = ({
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-b-[var(--mairie-border)] bg-[var(--mairie-surface)] px-4 text-[var(--mairie-text)] shadow-[var(--mairie-shadow)] sm:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-b-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)] px-4 text-[var(--mairie-text)] sm:px-6">
       <div className="flex flex-1 items-center gap-3 sm:gap-4">
         <button
           ref={menuButtonRef}
