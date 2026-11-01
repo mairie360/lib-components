@@ -6,7 +6,15 @@ import { resolve } from 'node:path';
 // backgrounds, in Light and Dark. The former --mairie-on-action (dark ink) gave 1.3:1 on navy.
 const css = readFileSync(resolve(process.cwd(), 'src/styles/municipal-theme.css'), 'utf8');
 const block = (selector: string) => css.slice(css.indexOf(`${selector} {`), css.indexOf('}', css.indexOf(`${selector} {`)));
-const tokens = (text: string) => Object.fromEntries([...text.matchAll(/--mairie-([\w-]+):\s*(#[\da-f]{6});/gi)].map(([, name, hex]) => [name, hex.toLowerCase()]));
+// Every --mairie-navigation-* declaration is read, whatever its format: #rgb is expanded, and any
+// other value throws, so a dark override can never fall back silently to the light value.
+const toHex = (name: string, value: string) => {
+  const raw = value.trim().toLowerCase();
+  if (/^#[\da-f]{6}$/.test(raw)) return raw;
+  if (/^#[\da-f]{3}$/.test(raw)) return `#${[...raw.slice(1)].map(c => c + c).join('')}`;
+  throw new Error(`--mairie-${name}: unsupported colour "${value.trim()}" (use #rgb or #rrggbb)`);
+};
+const tokens = (text: string) => Object.fromEntries([...text.matchAll(/--mairie-(navigation-[\w-]+):\s*([^;]+);/g)].filter(([, name]) => !/shadow/.test(name)).map(([, name, value]) => [name, toHex(name, value)]));
 const light = tokens(block(':root'));
 const dark = { ...light, ...tokens(block('html[data-theme="dark"]')) };
 
