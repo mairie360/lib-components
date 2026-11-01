@@ -19,6 +19,8 @@
   --mairie-overlay-background: #000000;
   --mairie-navigation-background: #383f51;
   --mairie-navigation-text: #f8f7f8;
+  /* Label and icon of the active, hovered and Administration items: white on navy / red (8.2:1 and more). */
+  --mairie-navigation-active-text: #ffffff;
   --mairie-navigation-border: #303646;
   --mairie-navigation-control-border: #9c9fa8;
   --mairie-navigation-control-background: #303646;
