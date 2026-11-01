@@ -198,7 +198,7 @@ export const AppShell = ({
                 ref={closeButtonRef}
                 type="button"
                 aria-label="Fermer la navigation"
-                className="absolute right-3 top-3 z-10 rounded-md p-2 text-[var(--mairie-on-action)] hover:bg-[var(--mairie-surface)]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-on-action)]"
+                className="absolute right-3 top-3 z-10 rounded-md p-2 text-[var(--mairie-navigation-text)] hover:bg-[var(--mairie-navigation-hover-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-navigation-text)]"
                 onClick={() => setSidebarOpen(false)}
               >
                 ×
