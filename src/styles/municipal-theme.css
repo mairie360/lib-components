@@ -262,13 +262,13 @@ body.mairie-ui .app-accessible-footer > div { font-size: 14px; }
   .app-desktop-navigation nav button svg { flex-shrink: 0; }
   .app-navigation-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); }
-  .app-desktop-navigation nav button[aria-current="page"] { background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-on-action); }
-  .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-on-action); }
+  .app-desktop-navigation nav button[aria-current="page"] { background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-navigation-active-text); font-weight: 600; }
+  .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-navigation-active-text); }
   .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
   [data-collapsed="true"] nav button { justify-content: center; }
-  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-on-action); background: var(--mairie-navigation-admin-background); }
+  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-navigation-active-text); background: var(--mairie-navigation-admin-background); }
   [data-collapsed="true"] .app-navigation-badge { position: absolute; top: 0; right: 0; }
-  .app-navigation-tooltip { position: fixed; left: 68px; z-index: 100; max-width: min(260px, calc(100vw - 110px)); padding: 10px 14px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 8px; color: var(--mairie-on-action); background: var(--mairie-navigation-background); box-shadow: var(--mairie-shadow); font-size: 16px; }
+  .app-navigation-tooltip { position: fixed; left: 68px; z-index: 100; max-width: min(260px, calc(100vw - 110px)); padding: 10px 14px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 8px; color: var(--mairie-navigation-text); background: var(--mairie-navigation-background); box-shadow: var(--mairie-shadow); font-size: 16px; }
   .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer { width: 82px; padding: 10px 5px; }
   .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer > div { display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: center; overflow-wrap: anywhere; }
 }

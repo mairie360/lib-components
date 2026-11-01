@@ -36,3 +36,21 @@ describe.each([['light', light], ['dark', dark]] as const)('%s theme', (_theme, 
     expect(contrast(theme['navigation-active-text'], theme[background])).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+// DesktopNavigation (AccessibleShell on desktop) is styled by the stylesheet, not by Sidebar classes:
+// its active, Administration and badge rules must use the same readable token, and no navigation
+// rule may write in --mairie-on-action (dark ink, made for text on the teal action colour).
+it('styles the desktop navigation with the readable navigation text tokens', () => {
+  const rule = (selector: string) => {
+    const start = css.indexOf(`${selector} {`);
+    expect(start).toBeGreaterThan(-1);
+    return css.slice(start, css.indexOf('}', start));
+  };
+  expect(rule('.app-desktop-navigation nav button[aria-current="page"]')).toContain('color: var(--mairie-navigation-active-text)');
+  expect(rule('.app-desktop-navigation nav button[data-admin="true"]')).toContain('color: var(--mairie-navigation-active-text)');
+  expect(rule('.app-navigation-badge')).toContain('color: var(--mairie-navigation-active-text)');
+  expect(rule('.app-navigation-tooltip')).toContain('color: var(--mairie-navigation-text)');
+  const navigationRules = [...css.matchAll(/[^{}]*\.app-(?:desktop-)?navigation[^{}]*\{[^}]*\}/g)].map(([text]) => text);
+  expect(navigationRules.length).toBeGreaterThan(0);
+  expect(navigationRules.filter(text => text.includes('--mairie-on-action'))).toEqual([]);
+});
