@@ -87,7 +87,12 @@ states:
   - id: navigation-appshell--anonymous
     story: components-navigation-appshell--anonymous
   - id: navigation-appshell--mobile-keyboard-navigation
+    description: Mobile navigation drawer opened (the story's play function opens and closes it)
     story: components-navigation-appshell--mobile-keyboard-navigation
+    viewport: { width: 375, height: 667 }
+    steps:
+      - click: { role: button, name: Ouvrir la navigation }
+      - wait_for: { role: button, name: Fermer la navigation }
   # Components/Buttons/Button
   - id: buttons-button--default
     story: components-buttons-button--default
