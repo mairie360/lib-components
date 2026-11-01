@@ -9,7 +9,7 @@ export { CurrentDate } from '../components/CurrentDate';
 export type { CurrentDateProps } from '../components/CurrentDate';
 export { DesktopNavigation } from '../components/DesktopNavigation';
 export { Footer } from '../components/Footer';
-export type { FooterLink, FooterProps } from '../components/Footer';
+export type { FooterLink, FooterLegalLinks, FooterProps } from '../components/Footer';
 export { Header } from '../components/Header';
 export type { HeaderProps } from '../components/Header';
 export { Logo } from '../components/Logo';
