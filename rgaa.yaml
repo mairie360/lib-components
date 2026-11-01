@@ -135,11 +135,23 @@ states:
       - click: { role: button }
       - wait_for: { text: Option 1, exact: true }
   - id: dropdownmenu-dropdownmenu--with-label
+    description: Menu with a label, opened
     story: components-dropdownmenu-dropdownmenu--with-label
+    steps:
+      - click: { role: button, name: Actions }
+      - wait_for: { text: Mon Menu, exact: true }
   - id: dropdownmenu-dropdownmenu--with-delete-action
+    description: Menu with a delete action, opened (never clicked)
     story: components-dropdownmenu-dropdownmenu--with-delete-action
+    steps:
+      - click: { role: button, name: Options }
+      - wait_for: { text: Voir les détails, exact: true }
   - id: dropdownmenu-dropdownmenu--with-icons
+    description: Menu with icons, opened
     story: components-dropdownmenu-dropdownmenu--with-icons
+    steps:
+      - click: { role: button, name: Menu avec icônes }
+      - wait_for: { text: 📁 Nouveau dossier, exact: true }
   # Components/Feedback/Alert
   - id: feedback-alert--default
     story: components-feedback-alert--default
@@ -200,9 +212,18 @@ states:
   - id: select-select--small-size
     story: components-select-select--small-size
   - id: select-select--with-default-value
+    description: Listbox opened on its selected value
     story: components-select-select--with-default-value
+    steps:
+      # The trigger is named after its placeholder, not the selected value: target it by its slot.
+      - click: { selector: "[data-slot=select-trigger]" }
+      - wait_for: { text: Option 3, exact: true }
   - id: select-select--long-list
+    description: Long listbox opened
     story: components-select-select--long-list
+    steps:
+      - click: { role: button, name: Sélectionner un pays }
+      - wait_for: { text: Inde, exact: true }
   # Components/Shared/SessionList
   - id: shared-sessionlist--own-sessions
     story: components-shared-sessionlist--own-sessions
@@ -249,4 +270,8 @@ states:
       - hover: { role: button, name: Survolez-moi }
       - wait_for: { text: Info bulle par défaut }
   - id: feedback-tooltip--with-icon
+    description: Tooltip of an icon, shown on hover
     story: components-feedback-tooltip--with-icon
+    steps:
+      - hover: { text: ❓ }
+      - wait_for: { text: Icône avec info }
