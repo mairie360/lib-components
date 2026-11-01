@@ -1,0 +1,282 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mairie360/CICD/main/tests/a11y/rgaa.schema.json
+# RGAA 4.1.2 scope of lib-components (MAIR-316), checked by the accessibility_tests job of
+# mairie360/CICD front-libs-cicd.yml on the static Storybook. Format: CICD README, "RGAA scope".
+version: 1
+target: http://storybook:6006
+
+criteria:
+  # 2.x: no frame. 4.x: no media player.
+  # Images (1.4-1.9: no CAPTCHA, chart, image of text or figure caption in the components)
+  - "1.1"
+  - "1.2"
+  - "1.3"
+  # Colours
+  - "3.1"
+  - "3.2"
+  - "3.3"
+  # Tables (AdministrationModule users, ProjectModule table view; 5.1-5.3, 5.8: no complex or layout table)
+  - "5.4"
+  - "5.5"
+  - "5.6"
+  - "5.7"
+  # Links
+  - "6.1"
+  - "6.2"
+  # Scripts (7.2: SortableItem / ItemContainer drag and drop needs a keyboard alternative)
+  - "7.1"
+  - "7.2"
+  - "7.3"
+  - "7.4"
+  - "7.5"
+  # Mandatory elements. 8.1, 8.3-8.6 (doctype, page language, page title) are page-level: the fronts check them on their pages
+  - "8.2"
+  - "8.7"
+  - "8.8"
+  - "8.9"
+  # Structure. 9.1, 9.2 (headings and landmarks of the page) are page-level, checked by the fronts; 9.4: no quotation
+  - "9.3"
+  # Presentation (10.14: no content revealed by CSS only)
+  - "10.1"
+  - "10.2"
+  - "10.3"
+  - "10.4"
+  - "10.5"
+  - "10.6"
+  - "10.7"
+  - "10.8"
+  - "10.9"
+  - "10.10"
+  - "10.11"
+  - "10.12"
+  - "10.13"
+  # Forms
+  - "11.1"
+  - "11.2"
+  - "11.3"
+  - "11.4"
+  - "11.5"
+  - "11.6"
+  - "11.7"
+  - "11.8"
+  - "11.9"
+  - "11.10"
+  - "11.11"
+  - "11.12"
+  - "11.13"
+  # Navigation. 12.1-12.7 (navigation systems, site map, search, landmarks, skip link) are page-level, checked by the fronts; 12.10: no single-key shortcut
+  - "12.8"
+  - "12.9"
+  - "12.11"
+  # Consultation (13.7: no flashing content; 13.12: no device motion)
+  - "13.1"
+  - "13.2"
+  - "13.3"
+  - "13.4"
+  - "13.5"
+  - "13.6"
+  - "13.8"
+  - "13.9"
+  - "13.10"
+  - "13.11"
+
+# One state per story (Storybook id). Opened states (menus, listboxes, tooltips) have steps.
+states:
+  # Components/Navigation/AppShell
+  - id: navigation-appshell--default
+    story: components-navigation-appshell--default
+  - id: navigation-appshell--anonymous
+    story: components-navigation-appshell--anonymous
+  - id: navigation-appshell--mobile-keyboard-navigation
+    description: Mobile navigation drawer opened (the story's play function opens and closes it)
+    story: components-navigation-appshell--mobile-keyboard-navigation
+    viewport: { width: 375, height: 667 }
+    steps:
+      - click: { role: button, name: Ouvrir la navigation }
+      - wait_for: { role: button, name: Fermer la navigation }
+  # Components/Buttons/Button
+  - id: buttons-button--default
+    story: components-buttons-button--default
+  - id: buttons-button--variants-and-tones
+    story: components-buttons-button--variants-and-tones
+  - id: buttons-button--sizes
+    story: components-buttons-button--sizes
+  - id: buttons-button--loading
+    story: components-buttons-button--loading
+  - id: buttons-button--presets
+    story: components-buttons-button--presets
+  - id: buttons-button--icon-buttons
+    story: components-buttons-button--icon-buttons
+  - id: buttons-button--link-buttons
+    story: components-buttons-button--link-buttons
+  # Components/Display/StatusPill
+  - id: display-statuspill--default
+    story: components-display-statuspill--default
+  - id: display-statuspill--tones-and-sizes
+    story: components-display-statuspill--tones-and-sizes
+  - id: display-statuspill--business-statuses
+    story: components-display-statuspill--business-statuses
+  - id: display-statuspill--tags
+    story: components-display-statuspill--tags
+  - id: display-statuspill--metrics
+    story: components-display-statuspill--metrics
+  - id: display-statuspill--progress
+    story: components-display-statuspill--progress
+  - id: display-statuspill--panel-states
+    story: components-display-statuspill--panel-states
+  - id: display-statuspill--header
+    story: components-display-statuspill--header
+  - id: display-statuspill--navigation
+    story: components-display-statuspill--navigation
+  - id: display-statuspill--table
+    story: components-display-statuspill--table
+  - id: display-statuspill--skeletons
+    story: components-display-statuspill--skeletons
+  # Components/DropdownMenu/DropdownMenu
+  - id: dropdownmenu-dropdownmenu--open
+    description: Menu opened from its trigger
+    story: components-dropdownmenu-dropdownmenu--default
+    steps:
+      # No role="menu" on the opened menu yet (MAIR-473): wait for its first item.
+      - click: { role: button }
+      - wait_for: { text: Option 1, exact: true }
+  - id: dropdownmenu-dropdownmenu--with-label
+    description: Menu with a label, opened
+    story: components-dropdownmenu-dropdownmenu--with-label
+    steps:
+      - click: { role: button, name: Actions }
+      - wait_for: { text: Mon Menu, exact: true }
+  - id: dropdownmenu-dropdownmenu--with-delete-action
+    description: Menu with a delete action, opened (never clicked)
+    story: components-dropdownmenu-dropdownmenu--with-delete-action
+    steps:
+      - click: { role: button, name: Options }
+      - wait_for: { text: Voir les détails, exact: true }
+  - id: dropdownmenu-dropdownmenu--with-icons
+    description: Menu with icons, opened
+    story: components-dropdownmenu-dropdownmenu--with-icons
+    steps:
+      - click: { role: button, name: Menu avec icônes }
+      - wait_for: { text: 📁 Nouveau dossier, exact: true }
+  # Components/Feedback/Alert
+  - id: feedback-alert--default
+    story: components-feedback-alert--default
+  - id: feedback-alert--tones
+    story: components-feedback-alert--tones
+  - id: feedback-alert--presets
+    story: components-feedback-alert--presets
+  - id: feedback-alert--data-states
+    story: components-feedback-alert--data-states
+  - id: feedback-alert--toast-shortcuts
+    story: components-feedback-alert--toast-shortcuts
+  - id: feedback-alert--overlays
+    story: components-feedback-alert--overlays
+  # Components/Forms/Fields
+  - id: forms-fields--states
+    story: components-forms-fields--states
+  - id: forms-fields--sizes
+    story: components-forms-fields--sizes
+  - id: forms-fields--presets
+    story: components-forms-fields--presets
+  - id: forms-fields--choices
+    story: components-forms-fields--choices
+  - id: forms-fields--section
+    story: components-forms-fields--section
+  # Components/Navigation/Footer
+  - id: navigation-footer--default
+    story: components-navigation-footer--default
+  - id: navigation-footer--with-links
+    story: components-navigation-footer--with-links
+  - id: navigation-footer--with-legal-links
+    story: components-navigation-footer--with-legal-links
+  # Components/Header/Header
+  - id: header-header--admin
+    story: components-header-header--admin
+  - id: header-header--standard-user
+    story: components-header-header--standard-user
+  # Components/Primitives/Icon & Logo
+  - id: primitives-icon-logo--icon-sizes
+    story: components-primitives-icon-logo--icon-sizes
+  - id: primitives-icon-logo--labelled-icon
+    story: components-primitives-icon-logo--labelled-icon
+  - id: primitives-icon-logo--logo-sizes
+    story: components-primitives-icon-logo--logo-sizes
+  # Components/Select/Select
+  - id: select-select--open
+    description: Listbox opened
+    story: components-select-select--default
+    steps:
+      # No role="listbox" on the opened list yet (MAIR-473): wait for its first option.
+      - click: { role: button, name: Sélectionner une option }
+      - wait_for: { text: Option 1, exact: true }
+  - id: select-select--with-groups-open
+    description: Grouped options opened
+    story: components-select-select--with-groups
+    steps:
+      - click: { role: button, name: Sélectionner un fruit }
+      - wait_for: { selector: "[data-slot=select-content]" }
+  - id: select-select--small-size
+    story: components-select-select--small-size
+  - id: select-select--with-default-value
+    description: Listbox opened on its selected value
+    story: components-select-select--with-default-value
+    steps:
+      # The trigger is named after its placeholder, not the selected value: target it by its slot.
+      - click: { selector: "[data-slot=select-trigger]" }
+      - wait_for: { text: Option 3, exact: true }
+  - id: select-select--long-list
+    description: Long listbox opened
+    story: components-select-select--long-list
+    steps:
+      - click: { role: button, name: Sélectionner un pays }
+      - wait_for: { text: Inde, exact: true }
+  # Components/Shared/SessionList
+  - id: shared-sessionlist--own-sessions
+    story: components-shared-sessionlist--own-sessions
+  - id: shared-sessionlist--user-sessions
+    story: components-shared-sessionlist--user-sessions
+  - id: shared-sessionlist--loading
+    story: components-shared-sessionlist--loading
+  - id: shared-sessionlist--empty
+    story: components-shared-sessionlist--empty
+  - id: shared-sessionlist--unavailable
+    story: components-shared-sessionlist--unavailable
+  # Components/Shared business/UserIdentity
+  - id: shared-business-useridentity--default
+    story: components-shared-business-useridentity--default
+  - id: shared-business-useridentity--sizes
+    story: components-shared-business-useridentity--sizes
+  - id: shared-business-useridentity--variants
+    story: components-shared-business-useridentity--variants
+  - id: shared-business-useridentity--avatars
+    story: components-shared-business-useridentity--avatars
+  - id: shared-business-useridentity--stack
+    story: components-shared-business-useridentity--stack
+  - id: shared-business-useridentity--notices
+    story: components-shared-business-useridentity--notices
+  # Components/Navigation/Sidebar
+  - id: navigation-sidebar--admin
+    story: components-navigation-sidebar--admin
+  - id: navigation-sidebar--standard-user
+    story: components-navigation-sidebar--standard-user
+  # Components/Primitives/Text
+  - id: primitives-text--default
+    story: components-primitives-text--default
+  - id: primitives-text--sizes
+    story: components-primitives-text--sizes
+  - id: primitives-text--tones
+    story: components-primitives-text--tones
+  - id: primitives-text--presets
+    story: components-primitives-text--presets
+  # Components/Feedback/ToolTip
+  - id: feedback-tooltip--shown
+    description: Tooltip shown on hover
+    story: components-feedback-tooltip--default
+    steps:
+      - hover: { role: button, name: Survolez-moi }
+      - wait_for: { text: Info bulle par défaut }
+  - id: feedback-tooltip--with-icon
+    description: Tooltip of an icon, shown on hover
+    story: components-feedback-tooltip--with-icon
+    steps:
+      - hover: { text: ❓ }
+      - wait_for: { text: Icône avec info }

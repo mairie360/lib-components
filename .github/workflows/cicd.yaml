@@ -21,9 +21,13 @@ jobs:
       packages: write
       pages: write
       id-token: write
-    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v4.3.2
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v5.2.0
     with:
-      cicd_version: v4.3.2
+      cicd_version: v5.2.0
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+      # RGAA AI pre-audit of the stories (accessibility_tests job, MAIR-320); the workspace only when
+      # the key is not scoped to one. Without the key the pre-audit is skipped.
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}

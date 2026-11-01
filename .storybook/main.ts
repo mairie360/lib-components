@@ -25,6 +25,11 @@ const config: StorybookConfig = {
   ],
   viteFinal: async (config) => ({
     ...config,
+    // Same JSX transform as tsup.config.ts (the published build): tsconfig keeps `jsx: preserve` for
+    // Next.js, and without this the static Storybook compiled stories and components with classic
+    // React.createElement calls, so every file writing JSX without importing React rendered
+    // "React is not defined" (MAIR-316: 22 stories, which the RGAA job could not check).
+    esbuild: { ...config.esbuild, jsx: 'automatic' },
     resolve: {
       ...config.resolve,
       alias: [
