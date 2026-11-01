@@ -1,24 +1,33 @@
 name: Lib Components CICD
 
 on:
+  # MAIR-436: branch pushes are covered by their pull_request run; only main
+  # (which publishes) runs on push, so a PR branch no longer runs the pipeline twice.
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
+# MAIR-436: read-only token by default; write scopes are granted to the release job only.
 permissions:
-  contents: write
-  packages: write
-  pages: write
-  id-token: write
+  contents: read
 
 jobs:
   CICD:
-    # TEMPORARY (MAIR-316 / MAIR-320): RGAA engine of the CICD branch under review, to test the
-    # accessibility job and its AI pre-audit on this PR. Set back to the CICD release before merging.
-    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@mair-320-rgaa-ai-preaudit
+    # A reusable workflow cannot exceed its caller job's scopes: `package` (release tag +
+    # GitHub Packages) and `storybook` (GitHub Pages deployment) need them.
+    permissions:
+      contents: write
+      packages: write
+      pages: write
+      id-token: write
+    uses: mairie360/CICD/.github/workflows/front-libs-cicd.yml@v5.1.1
     with:
-      cicd_version: mair-320-rgaa-ai-preaudit
+      cicd_version: v5.1.1
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}
+      # RGAA AI pre-audit of the stories (accessibility_tests job, MAIR-320); the workspace only when
+      # the key is not scoped to one. Without the key the pre-audit is skipped.
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      ANTHROPIC_WORKSPACE_ID: ${{ secrets.ANTHROPIC_WORKSPACE_ID }}

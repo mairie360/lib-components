@@ -29,3 +29,13 @@ export const WithLinks: StoryObj<FooterProps> = {
     ],
   },
 };
+
+export const WithLegalLinks: StoryObj<FooterProps> = {
+  args: {
+    year: 2026,
+    legalLinks: {
+      legalNotice: '/mentions-legales',
+      privacyPolicy: '/confidentialite',
+    },
+  },
+};

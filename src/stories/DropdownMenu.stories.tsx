@@ -1,4 +1,3 @@
-import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import {
   DropdownMenu,
@@ -7,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "../components/DropdownMenu";
+} from '../components/DropdownMenu';
 import { MoreHorizontal } from "lucide-react";
 
 const meta: Meta<typeof DropdownMenu> = {

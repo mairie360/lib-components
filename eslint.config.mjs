@@ -1,15 +1,7 @@
 import { defineConfig, globalIgnores } from "eslint/config";
-import importPlugin from "eslint-plugin-import";
-import jsxA11y from "eslint-plugin-jsx-a11y";
-import react from "eslint-plugin-react";
-import reactHooks from "eslint-plugin-react-hooks";
-import globals from "globals";
-import tseslint from "typescript-eslint";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 
-// The rules of eslint-config-next (core-web-vitals + typescript) without its Next-only parts: the
-// @next/next plugin (next/image, next/link, pages… rules that do not apply to a component library,
-// and whose dependency chain fast-glob → micromatch → braces fails `npm audit`) and the Babel parser
-// of Next (plain JS is parsed by ESLint's default parser, TypeScript by typescript-eslint).
 const eslintConfig = defineConfig([
   globalIgnores([
     ".lighthouseci/**",
@@ -19,53 +11,31 @@ const eslintConfig = defineConfig([
     "storybook-static/**",
     "next-env.d.ts",
   ]),
-  {
-    files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
-    plugins: {
-      react,
-      "react-hooks": reactHooks,
-      import: importPlugin,
-      "jsx-a11y": jsxA11y,
-    },
-    languageOptions: {
-      parserOptions: { ecmaFeatures: { jsx: true } },
-      globals: { ...globals.browser, ...globals.node },
-    },
-    settings: { react: { version: "detect" } },
-    rules: {
-      ...react.configs.recommended.rules,
-      ...reactHooks.configs.recommended.rules,
-      "import/no-anonymous-default-export": "warn",
-      "react/no-unknown-property": "off",
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
-      "react/jsx-no-target-blank": "off",
-      "jsx-a11y/alt-text": ["warn", { elements: ["img"], img: ["Image"] }],
-      "jsx-a11y/aria-props": "warn",
-      "jsx-a11y/aria-proptypes": "warn",
-      "jsx-a11y/aria-unsupported-elements": "warn",
-      "jsx-a11y/role-has-required-aria-props": "warn",
-      "jsx-a11y/role-supports-aria-props": "warn",
-    },
-  },
-  ...tseslint.configs.recommended,
-  {
-    rules: {
-      "@typescript-eslint/no-unused-vars": "warn",
-      "@typescript-eslint/no-unused-expressions": "warn",
-    },
-  },
+  ...nextVitals,
+  ...nextTs,
   {
     // React Compiler rules introduced by eslint-plugin-react-hooks v7 (Next 16).
     // They flag the existing prop-to-state sync effects; report them without
     // failing CI until those components are migrated.
     files: ["**/*.{js,jsx,mjs,ts,tsx,mts,cts}"],
     rules: {
+      "no-await-in-loop": "error",
       "react-hooks/set-state-in-effect": "warn",
     },
   },
   {
-    files: ["**/*.cjs"],
+    // MAIR-126: the kit tests and the built-entry check run their cases one after the
+    // other on purpose (shared module state such as the refresh flight table and the
+    // ESM/CJS entries), so sequential awaits in loops are the intended behaviour there.
+    files: ["tests/kit/**/*.mjs", "scripts/check-server-entry.mjs"],
+    rules: {
+      "no-await-in-loop": "off",
+    },
+  },
+  {
+    // These hash-verified upstream packages explicitly declare CommonJS and
+    // retain their original require/module.exports API, like our .cjs scripts.
+    files: ["**/*.cjs", "vendor/braces/**/*.js", "vendor/sprintf-js/**/*.js"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },

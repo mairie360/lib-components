@@ -81,28 +81,6 @@ criteria:
 
 # One state per story (Storybook id). Opened states (menus, listboxes, tooltips) have steps.
 states:
-  # Components/Administration/AdministrationModule
-  - id: administration-administrationmodule--utilisateurs
-    story: components-administration-administrationmodule--utilisateurs
-  - id: administration-administrationmodule--logs
-    story: components-administration-administrationmodule--logs
-  - id: administration-administrationmodule--systeme
-    story: components-administration-administrationmodule--systeme
-  - id: administration-administrationmodule--audit
-    story: components-administration-administrationmodule--audit
-  - id: administration-administrationmodule--parametres
-    story: components-administration-administrationmodule--parametres
-  - id: administration-administrationmodule--nouvel-utilisateur
-    story: components-administration-administrationmodule--nouvel-utilisateur
-  # Components/Alerts/Alert
-  - id: alerts-alert--default
-    story: components-alerts-alert--default
-  - id: alerts-alert--closable
-    story: components-alerts-alert--closable
-  - id: alerts-alert--success
-    story: components-alerts-alert--success
-  - id: alerts-alert--auto-dismiss
-    story: components-alerts-alert--auto-dismiss
   # Components/Navigation/AppShell
   - id: navigation-appshell--default
     story: components-navigation-appshell--default
@@ -110,61 +88,45 @@ states:
     story: components-navigation-appshell--anonymous
   - id: navigation-appshell--mobile-keyboard-navigation
     story: components-navigation-appshell--mobile-keyboard-navigation
-  # Components/Avatar/Avatar
-  - id: avatar-avatar--default
-    story: components-avatar-avatar--default
-  - id: avatar-avatar--with-fallback
-    story: components-avatar-avatar--with-fallback
-  - id: avatar-avatar--custom-class
-    story: components-avatar-avatar--custom-class
-  # Components/Badge/Badge
-  - id: badge-badge--default
-    story: components-badge-badge--default
-  - id: badge-badge--green
-    story: components-badge-badge--green
-  - id: badge-badge--blue
-    story: components-badge-badge--blue
-  - id: badge-badge--red
-    story: components-badge-badge--red
-  - id: badge-badge--dark
-    story: components-badge-badge--dark
-  - id: badge-badge--rounded
-    story: components-badge-badge--rounded
   # Components/Buttons/Button
   - id: buttons-button--default
     story: components-buttons-button--default
-  # Components/Calendar/Composition
-  - id: calendar-composition--month
-    story: components-calendar-composition--month
-  - id: calendar-composition--week
-    story: components-calendar-composition--week
-  - id: calendar-composition--day
-    story: components-calendar-composition--day
-  # Components/Calendar/CalendarModule
-  - id: calendar-calendarmodule--responsable
-    story: components-calendar-calendarmodule--responsable
-  - id: calendar-calendarmodule--maire
-    story: components-calendar-calendarmodule--maire
-  - id: calendar-calendarmodule--agent
-    story: components-calendar-calendarmodule--agent
-  # Components/ConfirmModal/ConfirmModal
-  - id: confirmmodal-confirmmodal--default
-    story: components-confirmmodal-confirmmodal--default
-  # Components/Calendar/CreateEventModal
-  - id: calendar-createeventmodal--default
-    story: components-calendar-createeventmodal--default
-  # Components/Dashboard/DashboardModule
-  - id: dashboard-dashboardmodule--default
-    story: components-dashboard-dashboardmodule--default
+  - id: buttons-button--variants-and-tones
+    story: components-buttons-button--variants-and-tones
+  - id: buttons-button--sizes
+    story: components-buttons-button--sizes
+  - id: buttons-button--loading
+    story: components-buttons-button--loading
+  - id: buttons-button--presets
+    story: components-buttons-button--presets
+  - id: buttons-button--icon-buttons
+    story: components-buttons-button--icon-buttons
+  - id: buttons-button--link-buttons
+    story: components-buttons-button--link-buttons
+  # Components/Display/StatusPill
+  - id: display-statuspill--default
+    story: components-display-statuspill--default
+  - id: display-statuspill--tones-and-sizes
+    story: components-display-statuspill--tones-and-sizes
+  - id: display-statuspill--business-statuses
+    story: components-display-statuspill--business-statuses
+  - id: display-statuspill--tags
+    story: components-display-statuspill--tags
+  - id: display-statuspill--metrics
+    story: components-display-statuspill--metrics
+  - id: display-statuspill--progress
+    story: components-display-statuspill--progress
+  - id: display-statuspill--panel-states
+    story: components-display-statuspill--panel-states
+  - id: display-statuspill--header
+    story: components-display-statuspill--header
+  - id: display-statuspill--navigation
+    story: components-display-statuspill--navigation
+  - id: display-statuspill--table
+    story: components-display-statuspill--table
+  - id: display-statuspill--skeletons
+    story: components-display-statuspill--skeletons
   # Components/DropdownMenu/DropdownMenu
-  - id: dropdownmenu-dropdownmenu--default
-    story: components-dropdownmenu-dropdownmenu--default
-  - id: dropdownmenu-dropdownmenu--with-label
-    story: components-dropdownmenu-dropdownmenu--with-label
-  - id: dropdownmenu-dropdownmenu--with-delete-action
-    story: components-dropdownmenu-dropdownmenu--with-delete-action
-  - id: dropdownmenu-dropdownmenu--with-icons
-    story: components-dropdownmenu-dropdownmenu--with-icons
   - id: dropdownmenu-dropdownmenu--open
     description: Menu opened from its trigger
     story: components-dropdownmenu-dropdownmenu--default
@@ -172,112 +134,56 @@ states:
       # No role="menu" on the opened menu yet (MAIR-473): wait for its first item.
       - click: { role: button }
       - wait_for: { text: Option 1, exact: true }
-  # Components/Elearning/Elearning Catalog
-  - id: elearning-elearning-catalog--catalog
-    story: components-elearning-elearning-catalog--catalog
-  - id: elearning-elearning-catalog--course-details-modal
-    story: components-elearning-elearning-catalog--course-details-modal
-  - id: elearning-elearning-catalog--course-rating
-    story: components-elearning-elearning-catalog--course-rating
-  - id: elearning-elearning-catalog--course-card
-    story: components-elearning-elearning-catalog--course-card
-  - id: elearning-elearning-catalog--filter-open-states
-    story: components-elearning-elearning-catalog--filter-open-states
-  - id: elearning-elearning-catalog--stat-cards
-    story: components-elearning-elearning-catalog--stat-cards
-  # Components/Email/EmailModule
-  - id: email-emailmodule--default
-    story: components-email-emailmodule--default
-  # Components/Files/FilesModule
-  - id: files-filesmodule--grille
-    story: components-files-filesmodule--grille
-  - id: files-filesmodule--liste
-    story: components-files-filesmodule--liste
+  - id: dropdownmenu-dropdownmenu--with-label
+    story: components-dropdownmenu-dropdownmenu--with-label
+  - id: dropdownmenu-dropdownmenu--with-delete-action
+    story: components-dropdownmenu-dropdownmenu--with-delete-action
+  - id: dropdownmenu-dropdownmenu--with-icons
+    story: components-dropdownmenu-dropdownmenu--with-icons
+  # Components/Feedback/Alert
+  - id: feedback-alert--default
+    story: components-feedback-alert--default
+  - id: feedback-alert--tones
+    story: components-feedback-alert--tones
+  - id: feedback-alert--presets
+    story: components-feedback-alert--presets
+  - id: feedback-alert--data-states
+    story: components-feedback-alert--data-states
+  - id: feedback-alert--toast-shortcuts
+    story: components-feedback-alert--toast-shortcuts
+  - id: feedback-alert--overlays
+    story: components-feedback-alert--overlays
+  # Components/Forms/Fields
+  - id: forms-fields--states
+    story: components-forms-fields--states
+  - id: forms-fields--sizes
+    story: components-forms-fields--sizes
+  - id: forms-fields--presets
+    story: components-forms-fields--presets
+  - id: forms-fields--choices
+    story: components-forms-fields--choices
+  - id: forms-fields--section
+    story: components-forms-fields--section
   # Components/Navigation/Footer
   - id: navigation-footer--default
     story: components-navigation-footer--default
   - id: navigation-footer--with-links
     story: components-navigation-footer--with-links
+  - id: navigation-footer--with-legal-links
+    story: components-navigation-footer--with-legal-links
   # Components/Header/Header
   - id: header-header--admin
     story: components-header-header--admin
   - id: header-header--standard-user
     story: components-header-header--standard-user
-  # Components/Input/InputManager
-  - id: input-inputmanager--textarea
-    story: components-input-inputmanager--textarea
-  - id: input-inputmanager--select-input
-    story: components-input-inputmanager--select-input
-  - id: input-inputmanager--radio
-    story: components-input-inputmanager--radio
-  - id: input-inputmanager--file-input
-    story: components-input-inputmanager--file-input
-  - id: input-inputmanager--date-input
-    story: components-input-inputmanager--date-input
-  - id: input-inputmanager--checkbox
-    story: components-input-inputmanager--checkbox
-  - id: input-inputmanager--number-input
-    story: components-input-inputmanager--number-input
-  - id: input-inputmanager--password-input
-    story: components-input-inputmanager--password-input
-  - id: input-inputmanager--email-input
-    story: components-input-inputmanager--email-input
-  - id: input-inputmanager--telephone-input
-    story: components-input-inputmanager--telephone-input
-  - id: input-inputmanager--search-input
-    story: components-input-inputmanager--search-input
-  - id: input-inputmanager--default-input
-    story: components-input-inputmanager--default-input
-  # Components/Items/Item
-  - id: items-item--default
-    story: components-items-item--default
-  # Components/Items/ItemContainer
-  - id: items-itemcontainer--default
-    story: components-items-itemcontainer--default
-  # Components/Messaging/Messaging
-  - id: messaging-messaging--module-complet
-    story: components-messaging-messaging--module-complet
-  - id: messaging-messaging--mentions-connectees
-    story: components-messaging-messaging--mentions-connectees
-  - id: messaging-messaging--nouveau-message
-    story: components-messaging-messaging--nouveau-message
-  - id: messaging-messaging--creer-groupe
-    story: components-messaging-messaging--creer-groupe
-  # Components/Card/MiniCard
-  - id: card-minicard--default
-    story: components-card-minicard--default
-  # Components/Text/Paragraph
-  - id: text-paragraph--paragraph-with-text
-    story: components-text-paragraph--paragraph-with-text
-  # Components/ProgressBar/ProgressBar
-  - id: progressbar-progressbar--default
-    story: components-progressbar-progressbar--default
-  - id: progressbar-progressbar--full
-    story: components-progressbar-progressbar--full
-  - id: progressbar-progressbar--empty
-    story: components-progressbar-progressbar--empty
-  - id: progressbar-progressbar--custom-class
-    story: components-progressbar-progressbar--custom-class
-  # Components/Projects/ProjectModule
-  - id: projects-projectmodule--kanban
-    story: components-projects-projectmodule--kanban
-  - id: projects-projectmodule--grille
-    story: components-projects-projectmodule--grille
-  - id: projects-projectmodule--table
-    story: components-projects-projectmodule--table
-  - id: projects-projectmodule--nouveau-projet
-    story: components-projects-projectmodule--nouveau-projet
+  # Components/Primitives/Icon & Logo
+  - id: primitives-icon-logo--icon-sizes
+    story: components-primitives-icon-logo--icon-sizes
+  - id: primitives-icon-logo--labelled-icon
+    story: components-primitives-icon-logo--labelled-icon
+  - id: primitives-icon-logo--logo-sizes
+    story: components-primitives-icon-logo--logo-sizes
   # Components/Select/Select
-  - id: select-select--default
-    story: components-select-select--default
-  - id: select-select--with-groups
-    story: components-select-select--with-groups
-  - id: select-select--small-size
-    story: components-select-select--small-size
-  - id: select-select--with-default-value
-    story: components-select-select--with-default-value
-  - id: select-select--long-list
-    story: components-select-select--long-list
   - id: select-select--open
     description: Listbox opened
     story: components-select-select--default
@@ -291,55 +197,56 @@ states:
     steps:
       - click: { role: button, name: Sélectionner un fruit }
       - wait_for: { selector: "[data-slot=select-content]" }
-  # Components/Settings/SettingsModule
-  - id: settings-settingsmodule--profil
-    story: components-settings-settingsmodule--profil
-  - id: settings-settingsmodule--securite
-    story: components-settings-settingsmodule--securite
-  - id: settings-settingsmodule--notifications
-    story: components-settings-settingsmodule--notifications
-  - id: settings-settingsmodule--apparence
-    story: components-settings-settingsmodule--apparence
-  - id: settings-settingsmodule--general
-    story: components-settings-settingsmodule--general
-  - id: settings-settingsmodule--systeme
-    story: components-settings-settingsmodule--systeme
+  - id: select-select--small-size
+    story: components-select-select--small-size
+  - id: select-select--with-default-value
+    story: components-select-select--with-default-value
+  - id: select-select--long-list
+    story: components-select-select--long-list
+  # Components/Shared/SessionList
+  - id: shared-sessionlist--own-sessions
+    story: components-shared-sessionlist--own-sessions
+  - id: shared-sessionlist--user-sessions
+    story: components-shared-sessionlist--user-sessions
+  - id: shared-sessionlist--loading
+    story: components-shared-sessionlist--loading
+  - id: shared-sessionlist--empty
+    story: components-shared-sessionlist--empty
+  - id: shared-sessionlist--unavailable
+    story: components-shared-sessionlist--unavailable
+  # Components/Shared business/UserIdentity
+  - id: shared-business-useridentity--default
+    story: components-shared-business-useridentity--default
+  - id: shared-business-useridentity--sizes
+    story: components-shared-business-useridentity--sizes
+  - id: shared-business-useridentity--variants
+    story: components-shared-business-useridentity--variants
+  - id: shared-business-useridentity--avatars
+    story: components-shared-business-useridentity--avatars
+  - id: shared-business-useridentity--stack
+    story: components-shared-business-useridentity--stack
+  - id: shared-business-useridentity--notices
+    story: components-shared-business-useridentity--notices
   # Components/Navigation/Sidebar
   - id: navigation-sidebar--admin
     story: components-navigation-sidebar--admin
   - id: navigation-sidebar--standard-user
     story: components-navigation-sidebar--standard-user
-  # Components/Items/SortableItem
-  - id: items-sortableitem--default
-    story: components-items-sortableitem--default
-  - id: items-sortableitem--multiple-items
-    story: components-items-sortableitem--multiple-items
-  # Components/Feedback/Spinner
-  - id: feedback-spinner--default
-    story: components-feedback-spinner--default
-  - id: feedback-spinner--small-gray
-    story: components-feedback-spinner--small-gray
-  - id: feedback-spinner--large-indigo
-    story: components-feedback-spinner--large-indigo
-  # Components/Text/Title
-  - id: text-title--title-without-subtitle
-    story: components-text-title--title-without-subtitle
-  - id: text-title--title-with-subtitle
-    story: components-text-title--title-with-subtitle
+  # Components/Primitives/Text
+  - id: primitives-text--default
+    story: components-primitives-text--default
+  - id: primitives-text--sizes
+    story: components-primitives-text--sizes
+  - id: primitives-text--tones
+    story: components-primitives-text--tones
+  - id: primitives-text--presets
+    story: components-primitives-text--presets
   # Components/Feedback/ToolTip
-  - id: feedback-tooltip--default
-    story: components-feedback-tooltip--default
-  - id: feedback-tooltip--with-icon
-    story: components-feedback-tooltip--with-icon
   - id: feedback-tooltip--shown
     description: Tooltip shown on hover
     story: components-feedback-tooltip--default
     steps:
       - hover: { role: button, name: Survolez-moi }
       - wait_for: { text: Info bulle par défaut }
-  # Components/UserProfile/UserProfile
-  - id: userprofile-userprofile--consultation
-    story: components-userprofile-userprofile--consultation
-  # Components/UserProfile/UserProfilePage
-  - id: userprofile-userprofilepage--consultation
-    story: components-userprofile-userprofilepage--consultation
+  - id: feedback-tooltip--with-icon
+    story: components-feedback-tooltip--with-icon

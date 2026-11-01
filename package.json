@@ -16,11 +16,12 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "prebuild": "node scripts/generate-exports.js",
-    "build": "tsup && npm run build:css",
+    "prebuild": "node scripts/check-tooling-patches.cjs && node scripts/check-ui-colors.mjs && node scripts/generate-exports.js",
+    "build": "tsup && tsup --config tsup.server.config.ts && npm run build:css",
     "build:css": "postcss src/app/globals.css -o dist/styles.css",
     "start": "next start",
     "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "local-storybook": "npx serve ./storybook-static -l 8080",
@@ -29,15 +30,21 @@
     "lhci:check": "node scripts/check-accessibility.js",
     "lighthouse": "npm run build-storybook && npm run lhci:urls && npm run lhci:run && npm run lhci:check",
     "chromatic": "npx chromatic --project-token=${CHROMATIC_PROJECT_TOKEN}",
-    "test": "jest --coverage"
+    "test": "jest --coverage && npm run test:kit",
+    "postbuild": "node scripts/check-server-entry.mjs",
+    "test:kit": "node scripts/test-kit-coverage.mjs"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/",
     "access": "public"
   },
   "peerDependencies": {
+    "next": "^16.3.8",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.50.0",
+    "zod": "^3.23.0",
+    "@hookform/resolvers": "^3.9.0"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -50,6 +57,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@hookform/resolvers": "^3.10.0",
     "@lhci/cli": "^0.15.0",
     "@storybook/addon-docs": "^10.4.6",
     "@storybook/addon-onboarding": "^10.4.6",
@@ -60,6 +68,7 @@
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
+    "@types/jest-axe": "3.5.9",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^24.0.0",
     "@types/react": "^19",
@@ -67,44 +76,172 @@
     "@vitest/browser": "^4.1.11",
     "@vitest/browser-playwright": "^4.1.11",
     "@vitest/coverage-v8": "^4.1.11",
+    "ajv": "6.15.0",
+    "braces": "file:./vendor/braces",
     "chromatic": "^18.0.0",
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.5",
-    "eslint-plugin-import": "2.32.0",
-    "eslint-plugin-jsx-a11y": "6.10.2",
-    "eslint-plugin-react": "7.37.5",
-    "eslint-plugin-react-hooks": "7.1.1",
-    "globals": "16.4.0",
+    "eslint-config-next": "16.4.3",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
+    "jest-axe": "11.0.0",
     "jest-environment-jsdom": "^30.0.4",
-    "next": "16.3.8",
+    "next": "16.4.3",
     "playwright": "^1.52.0",
     "postcss": "^8.5.3",
     "postcss-cli": "^12.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.90.0",
+    "sprintf-js": "file:./vendor/sprintf-js",
     "start-server-and-test": "^3.0.0",
     "storybook": "^10.4.6",
     "tailwindcss": "^4.1.5",
     "ts-jest": "^29.4.0",
     "tsup": "^8.5.0",
     "typescript": "^5",
-    "typescript-eslint": "8.70.1",
     "vitest": "^4.1.11",
-    "wait-on": "^9.0.0"
+    "wait-on": "^9.0.0",
+    "zod": "^3.25.76"
   },
   "overrides": {
+    "braces": "$braces",
+    "sprintf-js": "$sprintf-js",
     "esbuild": "0.28.2",
+    "handlebars": "4.7.10",
+    "next": {
+      "sharp": "^0.35.5"
+    },
     "get-uri": {
-      "basic-ftp": "6.2.2"
+      "basic-ftp": "6.2.4"
     },
     "postcss": "$postcss",
-    "puppeteer-core": "25.12.0",
-    "qs": "6.16.0",
+    "puppeteer-core": "25.16.0",
+    "qs": "6.17.1",
     "storybook": "$storybook",
     "tmp": "0.2.7",
-    "uuid": "14.0.2"
-  }
+    "uuid": "14.0.3"
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
+    },
+    "./next": {
+      "import": {
+        "types": "./dist/next.d.ts",
+        "default": "./dist/next.js"
+      },
+      "require": {
+        "types": "./dist/next.d.cts",
+        "default": "./dist/next.cjs"
+      }
+    },
+    "./guard": {
+      "import": {
+        "types": "./dist/guard.d.ts",
+        "default": "./dist/guard.js"
+      },
+      "require": {
+        "types": "./dist/guard.d.cts",
+        "default": "./dist/guard.cjs"
+      }
+    },
+    "./browser": {
+      "import": {
+        "types": "./dist/browser.d.ts",
+        "default": "./dist/browser.js"
+      },
+      "require": {
+        "types": "./dist/browser.d.cts",
+        "default": "./dist/browser.cjs"
+      }
+    },
+    "./shared": {
+      "import": {
+        "types": "./dist/shared.d.ts",
+        "default": "./dist/shared.js"
+      },
+      "require": {
+        "types": "./dist/shared.d.cts",
+        "default": "./dist/shared.cjs"
+      }
+    },
+    "./react": {
+      "import": {
+        "types": "./dist/react.d.ts",
+        "default": "./dist/react.js"
+      },
+      "require": {
+        "types": "./dist/react.d.cts",
+        "default": "./dist/react.cjs"
+      }
+    },
+    "./theme": {
+      "import": {
+        "types": "./dist/theme.d.ts",
+        "default": "./dist/theme.js"
+      },
+      "require": {
+        "types": "./dist/theme.d.cts",
+        "default": "./dist/theme.cjs"
+      }
+    },
+    "./primitives": {
+      "import": {
+        "types": "./dist/primitives.d.ts",
+        "default": "./dist/primitives.js"
+      },
+      "require": {
+        "types": "./dist/primitives.d.cts",
+        "default": "./dist/primitives.cjs"
+      }
+    },
+    "./shell": {
+      "import": {
+        "types": "./dist/shell.d.ts",
+        "default": "./dist/shell.js"
+      },
+      "require": {
+        "types": "./dist/shell.d.cts",
+        "default": "./dist/shell.cjs"
+      }
+    },
+    "./forms": {
+      "import": {
+        "types": "./dist/forms.d.ts",
+        "default": "./dist/forms.js"
+      },
+      "require": {
+        "types": "./dist/forms.d.cts",
+        "default": "./dist/forms.cjs"
+      }
+    },
+    "./styles.css": "./dist/styles.css",
+    "./*": "./*"
+  },
+  "peerDependenciesMeta": {
+    "next": {
+      "optional": true
+    },
+    "react-hook-form": {
+      "optional": true
+    },
+    "zod": {
+      "optional": true
+    },
+    "@hookform/resolvers": {
+      "optional": true
+    }
+  },
+  "sideEffects": [
+    "**/*.css"
+  ]
 }
