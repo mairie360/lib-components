@@ -168,11 +168,11 @@ body.mairie-ui [aria-label="Navigation principale"] {
   background: var(--mairie-navigation-background);
   box-shadow: var(--mairie-navigation-shadow);
 }
-body.mairie-ui [aria-label="Navigation principale"] > div:first-child { height: 78px; }
+body.mairie-ui [aria-label="Navigation principale"] > div:first-child { height: 64px; }
 body.mairie-ui [aria-label="Navigation principale"] nav button {
-  min-height: 48px;
-  border-radius: 8px;
-  font-size: 17px;
+  min-height: 42px;
+  border-radius: 6px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 body.mairie-ui [aria-label="Navigation principale"] :focus-visible { outline-color: var(--mairie-navigation-text); }
@@ -182,7 +182,6 @@ body.mairie-ui :is(.projects-shell, .calendar-scroll-shell, .messages-app-root, 
   background: var(--mairie-surface);
   border-color: var(--mairie-border);
 }
-body.mairie-ui .app-accessible-footer { width: 270px; background: var(--mairie-navigation-background); }
 body.mairie-ui .projects-shell > .flex > .flex > main,
 body.mairie-ui .elearning-shell > .flex > .flex > main,
 body.mairie-ui .messages-app-root > .flex > .flex > main { background: var(--mairie-background); }
@@ -197,9 +196,6 @@ body.mairie-ui main [class~="bg-[#00a844]"] { background: var(--mairie-success-a
 body.mairie-ui main [class~="text-[#dc2626]"] { color: var(--mairie-error-text); }
 body.mairie-ui .login-page > section,
 body.mairie-ui .login-page > div > section { border-radius: var(--mairie-radius); border: 1px solid var(--mairie-border); box-shadow: var(--mairie-shadow); }
-@media (max-width: 1023px) {
-  body.mairie-ui .app-accessible-footer { width: 100%; background: var(--mairie-surface); }
-}
 @media (max-width: 767px) {
   body.mairie-ui main h1 { font-size: 30px; }
   body.mairie-ui main h1 + p { font-size: 16px; }
@@ -218,65 +214,60 @@ body.mairie-ui .login-page > div > section { border-radius: var(--mairie-radius)
 .app-skip-link { position: fixed; top: 8px; left: 8px; z-index: 100; transform: translateY(-180%); padding: 12px 18px; border-radius: 8px; background: var(--mairie-surface); color: var(--mairie-accent); font-weight: 650; }
 .app-skip-link:focus { transform: none; }
 .app-main-content { min-width: 0; }
-.app-accessible-footer { position: fixed; left: 0; bottom: 0; z-index: 20; width: 270px; min-height: 76px; justify-content: center; border-color: var(--mairie-navigation-border); background: var(--mairie-navigation-background); color: var(--mairie-navigation-text); padding: 16px; box-shadow: none; }
-.app-accessible-footer > div { font-size: 12px; justify-content: center; }
 .messages-app-root main > .app-main-content { display: flex; flex: 1; min-height: 0; height: 100%; }
-@media (max-width: 1023px) { .app-accessible-footer { position: static; width: 100%; min-height: 48px; padding: 12px; background: var(--mairie-surface); color: var(--mairie-muted); border-color: var(--mairie-border); } }
 
 /* Brand and account rhythm of the approved direction. */
-body.mairie-ui [aria-label="Navigation principale"] > div:first-child img { width: 40px; height: 40px; }
-body.mairie-ui [aria-label="Navigation principale"] > div:first-child > div:last-child { font-size: 24px; }
-body.mairie-ui [aria-label="Navigation principale"] nav button { font-size: 18px; }
 body.mairie-ui header [data-slot="avatar"] { width: 32px; height: 32px; }
 body.mairie-ui header [data-slot="dropdown-menu"] > button { font-size: 17px; }
 body.mairie-ui header > div > button svg { width: 20px; height: 20px; }
-body.mairie-ui .app-accessible-footer > div { font-size: 14px; }
 
-@media (min-width: 1024px) {
-  body.mairie-ui [aria-label="Navigation principale"] > nav {
-    max-height: calc(100dvh - 78px - var(--app-footer-height, 76px));
-  }
-}
-
-/* MAIR-548: the published mobile drawer and a shared collapsible desktop menu. */
+/* MAIR-548: shared shell (Figma AppShell / DesktopNavigation): the desktop navigation rests
+ * collapsed and expands on hover or keyboard focus, pushing the module aside; one full-width
+ * footer; the module area fills the free space without margin. Mobile keeps the drawer. */
 .app-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .app-desktop-navigation { display: none; }
+.app-shell-main { padding: 0; }
+.app-shell-footer { position: relative; z-index: 30; }
+body.mairie-ui .app-accessible-footer, .app-accessible-footer {
+  min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 24px;
+  padding: 8px 24px 8px 20px; box-shadow: none; font-size: 12px; line-height: 1.6;
+}
+body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-accessible-footer :is(div, nav, a, button, span) { font-size: 12px; }
 @media (min-width: 1024px) {
-  .app-shell-frame { padding-left: 270px; }
-  .app-shell-frame[data-sidebar-collapsed="true"] { padding-left: 82px; }
   body.mairie-ui .app-published-sidebar { display: none; }
-  body.mairie-ui .app-desktop-navigation { position: fixed; inset: 0 auto 0 0; z-index: 25; display: flex; width: 270px; min-height: 0; flex-direction: column; background: var(--mairie-navigation-background); color: var(--mairie-navigation-text); }
-  body.mairie-ui .app-desktop-navigation[data-collapsed="true"] { width: 82px; }
-  .app-navigation-brand { display: flex; align-items: center; gap: 10px; height: 78px; flex-shrink: 0; padding: 18px; border-bottom: 1px solid var(--mairie-navigation-border); }
-  .app-navigation-brand img, .app-navigation-initial { width: 40px; height: 40px; flex-shrink: 0; object-fit: contain; border-radius: 8px; }
-  .app-navigation-brand > span { font-size: 20px; font-weight: 650; }
-  .app-navigation-initial { display: grid; place-items: center; background: var(--mairie-action-background); }
-  .app-navigation-toggle { position: absolute; top: 22px; right: 8px; display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 7px; color: var(--mairie-navigation-text); background: var(--mairie-navigation-control-background); }
-  [data-collapsed="true"] .app-navigation-toggle { position: static; align-self: center; flex-shrink: 0; margin-top: 12px; }
-  body.mairie-ui .app-desktop-navigation > nav { display: flex; min-height: 0; flex-direction: column; gap: 8px; padding: 22px 14px; max-height: calc(100dvh - 78px - var(--app-footer-height, 76px)); overflow-y: auto; }
-  body.mairie-ui .app-desktop-navigation[data-collapsed="true"] > nav { padding-top: 12px; max-height: calc(100dvh - 124px - var(--app-footer-height, 76px)); }
-  .app-desktop-navigation nav button { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-width: 0; padding: 10px 12px; border: 1px solid transparent; color: var(--mairie-navigation-text); text-align: left; }
+  body.mairie-ui .app-desktop-navigation {
+    position: relative; z-index: 25; display: flex; flex-direction: column; flex-shrink: 0;
+    width: 71px; min-height: 0; overflow: hidden; interpolate-size: allow-keywords; transition: width 160ms ease-out;
+    border-right: 1px solid var(--mairie-navigation-border); box-shadow: none;
+    background: var(--mairie-navigation-background); color: var(--mairie-navigation-text);
+  }
+  body.mairie-ui .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) { width: max-content; max-width: 320px; }
+  .app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) :is(.app-navigation-label, .app-navigation-commune) {
+    position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  body.mairie-ui .app-desktop-navigation .app-navigation-brand { display: flex; align-items: center; gap: 10px; height: 64px; flex-shrink: 0; padding: 8px 14px; }
+  .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) .app-navigation-brand { padding: 8px 12px; }
+  .app-navigation-logo { display: block; width: auto; height: 32px; flex-shrink: 0; object-fit: contain; }
+  .app-desktop-navigation:is([data-expanded="true"], :has(:focus-visible)) .app-navigation-logo { height: 48px; }
+  .app-navigation-initial { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; border-radius: 8px; background: var(--mairie-action-background); color: var(--mairie-on-action); font-weight: 650; }
+  .app-navigation-commune { display: flex; flex-direction: column; max-width: 140px; padding-left: 10px; border-left: 1px solid var(--mairie-navigation-border); line-height: 1.4; overflow-wrap: anywhere; }
+  .app-navigation-commune-caption { font-size: 12px; color: var(--mairie-navigation-text); }
+  .app-navigation-commune-name { font-size: 16px; font-weight: 600; }
+  body.mairie-ui .app-desktop-navigation > nav { display: flex; flex: 1; min-height: 0; max-height: none; flex-direction: column; align-items: flex-start; gap: 8px; padding: 12px 12px 24px; overflow-y: auto; }
+  body.mairie-ui .app-desktop-navigation nav button {
+    position: relative; display: inline-flex; align-items: center; gap: 12px; width: auto; min-width: 0; height: 42px; min-height: 42px;
+    padding: 0 14px 0 12px; border: 1px solid transparent; border-radius: 6px; font-size: 16px; white-space: nowrap;
+    color: var(--mairie-navigation-text); background: transparent; text-align: left;
+  }
   .app-desktop-navigation nav button svg { flex-shrink: 0; }
-  .app-navigation-label { flex: 1; min-width: 0; overflow-wrap: anywhere; }
   .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); }
-  .app-desktop-navigation nav button[aria-current="page"] { background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-on-action); }
+  .app-desktop-navigation nav button[aria-current="page"] { font-weight: 600; background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-on-action); }
   .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-on-action); }
   .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
-  [data-collapsed="true"] nav button { justify-content: center; }
   .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-on-action); background: var(--mairie-navigation-admin-background); }
-  [data-collapsed="true"] .app-navigation-badge { position: absolute; top: 0; right: 0; }
-  .app-navigation-tooltip { position: fixed; left: 68px; z-index: 100; max-width: min(260px, calc(100vw - 110px)); padding: 10px 14px; border: 1px solid var(--mairie-navigation-control-border); border-radius: 8px; color: var(--mairie-on-action); background: var(--mairie-navigation-background); box-shadow: var(--mairie-shadow); font-size: 16px; }
-  .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer { width: 82px; padding: 10px 5px; }
-  .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer > div { display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: center; overflow-wrap: anywhere; }
+  .app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) .app-navigation-badge { position: absolute; top: -4px; right: -4px; }
 }
-
-@media (min-width: 1024px) { .app-shell-frame .app-accessible-footer { z-index: 30; } }
-
-@media (min-width: 1024px) {
-  body.mairie-ui .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer { padding: 12px 8px; overflow-wrap: anywhere; }
-  body.mairie-ui .app-shell-frame[data-sidebar-collapsed="true"] .app-accessible-footer > div { font-size: 12px; line-height: 1.5; }
-}
-
+@media (prefers-reduced-motion: reduce) { body.mairie-ui .app-desktop-navigation { transition: none; } }
 
 /* MAIR-526: confirmed public appearance; dark surfaces keep native controls readable. */
 html[data-theme="light"] { color-scheme: light; }

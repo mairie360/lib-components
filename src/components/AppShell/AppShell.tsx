@@ -9,13 +9,16 @@ import { NotificationCenter, type NotificationSource } from '../NotificationCent
 import { joinClasses } from '../shared-classes';
 
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
-  /** Opt into the shared desktop collapse and municipal theme layout. */
+  /**
+   * Opt into the shared municipal shell (MAIR-548): desktop navigation collapsed at rest and
+   * expanded on hover or keyboard focus, one full-width footer and a full-bleed module area.
+   */
   collapsibleSidebar?: boolean;
   /** Desktop navigation rendered after the shared skip link, replacing the built-in navigation when provided. */
   desktopNavigation?: React.ReactNode;
   /** Disable the shared skip link while a consumer-managed modal is open, without disabling main content. */
   skipLinkInactive?: boolean;
-  /** Validated shared preference scope; no authentication cookie is changed. */
+  /** @deprecated The desktop navigation no longer stores a collapse preference; kept for compatibility. */
   sidebarCookieDomain?: string;
   activeItem?: string;
   isAdmin?: boolean;
@@ -74,18 +77,8 @@ export const AppShell = ({
   const notificationCount = notificationReceipt?.owner === accountKey ? notificationReceipt.count : undefined;
   const receiveNotificationCount = React.useCallback((count: number) => setNotificationReceipt({ owner:accountKey,count }), [accountKey]);
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [collapsed, setCollapsed] = React.useState(false);
-  const [footerHeight, setFooterHeight] = React.useState(76);
-  const shellRef = React.useRef<HTMLDivElement>(null);
+  const [collapsed, setCollapsed] = React.useState(true);
   configureSidebarCookieDomain(sidebarCookieDomain);
-  React.useEffect(() => {
-    if (!collapsibleSidebar || typeof ResizeObserver === 'undefined') return;
-    const footer = shellRef.current?.querySelector('footer.app-accessible-footer');
-    if (!footer) return;
-    const measure = () => setFooterHeight(Math.ceil(footer.getBoundingClientRect().height));
-    const observer = new ResizeObserver(measure); observer.observe(footer); measure();
-    return () => observer.disconnect();
-  }, [collapsibleSidebar]);
   const effectiveFooterPlacement = collapsibleSidebar ? 'content' : footerPlacement;
   const mainId = React.useId();
   const mainRef = React.useRef<HTMLElement>(null);
@@ -176,7 +169,7 @@ export const AppShell = ({
   );
 
   return (
-    <div {...props} ref={shellRef} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[var(--mairie-background)] font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame' : undefined, className)} style={collapsibleSidebar ? { ...props.style, '--app-footer-height': `${footerHeight}px` } as React.CSSProperties : props.style}>
+    <div {...props} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('h-screen overflow-hidden bg-[var(--mairie-background)] font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame flex flex-col' : undefined, className)}>
       <div inert={skipLinkInactive || sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}
@@ -186,10 +179,10 @@ export const AppShell = ({
           Aller au contenu
         </a>
       </div>
-      {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={skipLinkInactive || sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
       {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
-      <div className="flex h-screen">
-        <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>
+      <div className={collapsibleSidebar ? 'app-shell-body flex min-h-0 flex-1' : 'flex h-screen'}>
+        {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={skipLinkInactive || sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
+        {!collapsibleSidebar && <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>}
 
         {sidebarOpen && (
           <div ref={drawerRef} tabIndex={-1} className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation mobile">
@@ -231,12 +224,15 @@ export const AppShell = ({
             showSettings={canNavigate('settings')}
             showAdministration={canNavigate('admin')}
           />
-          <main id={mainId} ref={mainRef} tabIndex={-1} className="min-h-0 flex-1 overflow-auto px-4 py-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)] sm:px-6 lg:px-8 lg:py-8">
+          <main id={mainId} ref={mainRef} tabIndex={-1} className={joinClasses('min-h-0 flex-1 overflow-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', collapsibleSidebar ? 'app-shell-main' : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
             {children}
           </main>
-          {effectiveFooterPlacement === 'content' && <Footer {...footerProps} className={joinClasses(collapsibleSidebar ? "app-accessible-footer" : undefined, footerProps?.className)} variant="horizontal" />}
+          {!collapsibleSidebar && effectiveFooterPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}
         </div>
       </div>
+      {collapsibleSidebar && <div className="app-shell-footer shrink-0" inert={sidebarOpen || notificationsOpen}>
+        <Footer {...footerProps} className={joinClasses('app-accessible-footer', footerProps?.className)} variant="horizontal" />
+      </div>}
     </div>
   );
 };

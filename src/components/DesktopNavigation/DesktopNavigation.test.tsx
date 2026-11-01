@@ -4,26 +4,29 @@ import { AppShell } from '../AppShell';
 
 beforeEach(() => { document.cookie = 'mairie360_sidebar=; Max-Age=0; Path=/'; });
 
-test('collapsed commands retain their names and an Escape-dismissible focus tooltip', () => {
-  render(<DesktopNavigation hrefs={{ settings: '/settings' }} onCollapsedChange={() => undefined} />);
-  fireEvent.click(screen.getByRole('button', { name: 'Réduire la navigation' }));
-  expect(screen.getByRole('button', { name: 'Développer la navigation' })).toHaveAttribute('aria-expanded', 'false');
+test('MAIR-548 collapsed commands keep their accessible names and labels stay in the DOM', () => {
+  const { container } = render(<DesktopNavigation hrefs={{ settings: '/settings' }} onCollapsedChange={() => undefined} />);
+  expect(container.querySelector('aside')).toHaveAttribute('data-expanded', 'false');
   const command = screen.getByRole('button', { name: 'Paramètres' });
-  fireEvent.focus(command);
-  expect(screen.getByRole('tooltip')).toHaveTextContent('Paramètres');
-  expect(command).toHaveAttribute('aria-describedby', screen.getByRole('tooltip').id);
-  fireEvent.keyDown(command, { key: 'Escape' });
-  expect(screen.queryByRole('tooltip')).toBeNull();
-  expect(document.cookie).toContain('mairie360_sidebar=v1:collapsed');
+  expect(command.querySelector('.app-navigation-label')).toHaveTextContent('Paramètres');
+  expect(command).not.toHaveAttribute('aria-describedby');
+  expect(document.cookie).not.toContain('mairie360_sidebar=v1');
 });
 
-test('AppShell opts into collapse, keeps one main and a contentinfo outside navigation', () => {
+test('MAIR-548 AppShell keeps one main, one full-width footer outside the navigation row', () => {
   const { container } = render(<AppShell collapsibleSidebar hrefs={{ settings: '/settings' }}><h1>Paramètres</h1></AppShell>);
-  fireEvent.click(screen.getByRole('button', { name: 'Réduire la navigation' }));
-  expect(container.querySelector('.app-shell-frame')).toHaveAttribute('data-sidebar-collapsed', 'true');
+  const frame = container.querySelector('.app-shell-frame')!;
+  expect(frame).toHaveAttribute('data-sidebar-collapsed', 'true');
+  fireEvent.mouseEnter(container.querySelector('aside.app-desktop-navigation')!);
+  expect(frame).toHaveAttribute('data-sidebar-collapsed', 'false');
   expect(screen.getAllByRole('main')).toHaveLength(1);
-  expect(screen.getByRole('contentinfo').closest('aside')).toBeNull();
-  expect(container.querySelector('aside.app-desktop-navigation')).not.toHaveAttribute('inert');
+  expect(screen.getAllByRole('contentinfo')).toHaveLength(1);
+  const footer = screen.getByRole('contentinfo');
+  expect(footer.closest('aside')).toBeNull();
+  expect(footer.closest('.app-shell-body')).toBeNull();
+  expect(footer.parentElement!.parentElement).toBe(frame);
+  expect(container.querySelector('.app-shell-body > aside.app-desktop-navigation')).not.toHaveAttribute('inert');
+  expect(screen.getByRole('main')).toHaveClass('app-shell-main');
 });
 
 test('the desktop menu rejects unsafe destinations and filters administration by role', () => {
