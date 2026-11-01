@@ -40,9 +40,9 @@
   --mairie-action-background: #70c1b3;
   --mairie-action-hover-background: #60a69a;
   --mairie-on-action: #383f51;
-  --mairie-background: #fcfbfc;
+  --mairie-background: #f1f6f5;
   --mairie-surface: #ffffff;
-  --mairie-surface-raised: #f8f7f8;
+  --mairie-surface-raised: #f1f6f5;
   --mairie-control-background: #ffffff;
   --mairie-error-surface: #fff0f1;
   --mairie-error-text: #a40e26;
@@ -52,17 +52,18 @@
   --mairie-success-action-hover-background: #145735;
   --mairie-purple-surface: #f1e5ff;
   --mairie-purple-text: #6434b5;
-  --mairie-teal-text: #3e6a62;
+  --mairie-teal-text: #2d786c;
   --mairie-warning-surface: #fff8e6;
   --mairie-warning-text: #75520b;
   --mairie-accent-surface: #eef8f6;
   --mairie-density-space: 16px;
   --mairie-text: #383f51;
-  --mairie-muted: #646976;
-  --mairie-accent: #3e6a62;
-  /* Charte mist #c8bfc7 draws dividers and panel borders; control borders use its darker step so the 3:1 non-text contrast holds on white (WCAG 1.4.11). */
+  --mairie-muted: #5a6072;
+  --mairie-accent: #2d786c;
+  /* Neutrals aligned on the showcase website (Figma « Mairie360 — Site vitrine »): page #f1f6f5, dividers and panel borders #d8dce2, muted text #5a6072.
+   * Accent is the showcase #2f7d71 one step darker so 4.5:1 holds on the page background. Control borders keep the darker mist step so the 3:1 non-text contrast holds (WCAG 1.4.11). */
   --mairie-control-border: #8f8290;
-  --mairie-border: #c8bfc7;
+  --mairie-border: #d8dce2;
   --mairie-radius: 16px;
   --mairie-shadow: 0 2px 12px rgb(23 32 51 / 5%);  /* MAIR-608 charte: primary teal #70c1b3, secondary navy #3c4f76, neutral dark ink #383f51, neutral light mist #c8bfc7. */
   --mairie-secondary: #3c4f76;
@@ -73,6 +74,13 @@
   --mairie-info-surface: #e8eaef;
   --mairie-info-text: #344465;
   --mairie-logo-backing: #ffffff;
+  /* Module identity colours from the showcase website: pills, icons, charts — not body text. */
+  --mairie-module-dashboard: #3c4f76;
+  --mairie-module-projects: #3f9c8c;
+  --mairie-module-calendar: #d08a4c;
+  --mairie-module-messaging: #8e7ba0;
+  --mairie-module-workflows: #c0607a;
+  --mairie-module-training: #5e8f5a;
   /* MAIR-608 scale: Size = xs | s | m | l | xl, one scale for every component. */
   --mairie-control-xs: 24px; --mairie-control-s: 32px; --mairie-control-m: 40px; --mairie-control-l: 48px; --mairie-control-xl: 56px;
   --mairie-icon-xs: 12px; --mairie-icon-s: 16px; --mairie-icon-m: 20px; --mairie-icon-l: 24px; --mairie-icon-xl: 32px;
@@ -113,6 +121,7 @@ html[data-theme="dark"] {
   --mairie-navigation-control-border: #303646;
   --mairie-navigation-control-background: #161920;
   --mairie-navigation-hover-background: #1f232d;
+  --mairie-module-dashboard: #9da7ba;
 }
 
 html:has(body.mairie-ui) { font-size: 17px; }
