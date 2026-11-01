@@ -19,6 +19,10 @@
   --mairie-overlay-background: #000000;
   --mairie-navigation-background: #383f51;
   --mairie-navigation-text: #f8f7f8;
+  /* MAIR-547: label and icon of the active and hovered items (white on navy, 8.2:1), and of the
+   * Administration entry and counters (white on red, 6.5:1 and more). Never --mairie-on-action here. */
+  --mairie-navigation-active-text: #ffffff;
+  --mairie-navigation-admin-text: #ffffff;
   --mairie-navigation-border: #303646;
   --mairie-navigation-control-border: #9c9fa8;
   --mairie-navigation-control-background: #303646;
@@ -263,11 +267,11 @@ body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-acces
     color: var(--mairie-navigation-text); background: transparent; text-align: left;
   }
   .app-desktop-navigation nav button svg { flex-shrink: 0; }
-  .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); }
-  .app-desktop-navigation nav button[aria-current="page"] { font-weight: 600; background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-on-action); }
-  .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-on-action); }
+  .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); color: var(--mairie-navigation-active-text); }
+  .app-desktop-navigation nav button[aria-current="page"] { font-weight: 600; background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-navigation-active-text); }
+  .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-navigation-admin-text); }
   .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
-  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-on-action); background: var(--mairie-navigation-admin-background); }
+  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-navigation-admin-text); background: var(--mairie-navigation-admin-background); }
   .app-desktop-navigation:not([data-expanded="true"]):not(:focus-within) .app-navigation-badge { position: absolute; top: -4px; right: -4px; }
 }
 @media (prefers-reduced-motion: reduce) { body.mairie-ui .app-desktop-navigation { transition: none; } }

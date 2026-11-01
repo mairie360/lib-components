@@ -55,7 +55,7 @@ export const Footer = ({
   const FooterContainer = isSidebar ? 'div' : 'footer';
   const renderLink = (link: FooterLink) => {
     const className = isSidebar
-      ? 'rounded-sm text-xs font-medium text-[var(--mairie-navigation-text)] transition-colors hover:text-[var(--mairie-on-action)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-on-action)]'
+      ? 'rounded-sm text-xs font-medium text-[var(--mairie-navigation-text)] transition-colors hover:text-[var(--mairie-navigation-active-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-text)]'
       : 'text-sm font-medium text-[var(--mairie-muted)] transition-colors hover:text-[var(--mairie-accent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mairie-accent)]/30 rounded-sm';
 
     if (link.href) {

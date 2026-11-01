@@ -97,7 +97,7 @@ export const Sidebar = ({
             <span className="break-words text-base font-semibold text-[var(--mairie-navigation-text)]">{brandLabel}</span>
           </div>
         ) : (
-          <div className="text-lg font-semibold tracking-normal text-[var(--mairie-on-action)]">Mairie360</div>
+          <div className="text-lg font-semibold tracking-normal text-[var(--mairie-navigation-text)]">Mairie360</div>
         )}
       </div>
 
@@ -107,13 +107,13 @@ export const Sidebar = ({
           const isActive = activeItem === item.id;
           const isAdministration = item.id === 'admin';
           let appearance = isActive
-            ? 'border-[var(--mairie-navigation-active-border)] bg-[var(--mairie-navigation-active-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)]'
-            : 'border-transparent text-[var(--mairie-navigation-text)] hover:border-[var(--mairie-navigation-border)]/70 hover:bg-[var(--mairie-navigation-hover-background)] hover:text-[var(--mairie-on-action)]';
+            ? 'border-[var(--mairie-navigation-active-border)] bg-[var(--mairie-navigation-active-background)] text-[var(--mairie-navigation-active-text)] shadow-[var(--mairie-shadow)]'
+            : 'border-transparent text-[var(--mairie-navigation-text)] hover:border-[var(--mairie-navigation-border)]/70 hover:bg-[var(--mairie-navigation-hover-background)] hover:text-[var(--mairie-navigation-active-text)]';
 
           if (isAdministration) {
             appearance = isActive
-              ? 'border-[var(--mairie-navigation-admin-active-border)] bg-[var(--mairie-navigation-admin-active-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-navigation-admin-shadow)] hover:bg-[var(--mairie-navigation-admin-active-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]'
-              : 'border-[var(--mairie-navigation-admin-border)] bg-[var(--mairie-navigation-admin-background)] text-[var(--mairie-on-action)] shadow-[var(--mairie-shadow)] hover:bg-[var(--mairie-navigation-admin-hover-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]';
+              ? 'border-[var(--mairie-navigation-admin-active-border)] bg-[var(--mairie-navigation-admin-active-background)] text-[var(--mairie-navigation-admin-text)] shadow-[var(--mairie-navigation-admin-shadow)] hover:bg-[var(--mairie-navigation-admin-active-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]'
+              : 'border-[var(--mairie-navigation-admin-border)] bg-[var(--mairie-navigation-admin-background)] text-[var(--mairie-navigation-admin-text)] shadow-[var(--mairie-shadow)] hover:bg-[var(--mairie-navigation-admin-hover-background)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-navigation-admin-focus)]';
           }
 
           return (
@@ -127,7 +127,7 @@ export const Sidebar = ({
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.9} />
               <span className="min-w-0 truncate">{item.label}</span>
               {item.badge && (
-                <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-[var(--mairie-on-action)] ${isAdministration ? 'bg-[var(--mairie-on-action)]/20' : 'bg-[var(--mairie-error-action-background)]'}`}>
+                <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-[var(--mairie-navigation-admin-text)] ${isAdministration ? 'bg-[var(--mairie-navigation-admin-text)]/20' : 'bg-[var(--mairie-error-action-background)]'}`}>
                   {item.badge}
                 </span>
               )}
