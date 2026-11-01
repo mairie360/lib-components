@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Sidebar } from './Sidebar';
+import { Sidebar, defaultSidebarItems } from './Sidebar';
 import '@testing-library/jest-dom';
 
 describe('Sidebar component', () => {
@@ -33,6 +33,22 @@ describe('Sidebar component', () => {
 
     expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]', 'border-[var(--mairie-navigation-admin-active-border)]');
+  });
+
+  it('writes the active item label in the readable navigation-active-text colour', () => {
+    render(<Sidebar activeItem="projects" />);
+
+    const active = screen.getByRole('button', { name: 'Projets' });
+    expect(active).toHaveClass('text-[var(--mairie-navigation-active-text)]', 'font-semibold');
+    expect(active).not.toHaveClass('text-[var(--mairie-on-action)]');
+  });
+
+  it('shows item badges in the navigation-active-text colour', () => {
+    const items = defaultSidebarItems.map((item) => (item.id === 'messages' ? { ...item, badge: '3' } : item));
+    render(<Sidebar items={items} />);
+
+    const badge = screen.getByText('3');
+    expect(badge).toHaveClass('text-[var(--mairie-navigation-active-text)]', 'bg-[var(--mairie-error-action-background)]');
   });
 
   it('hides Administration when the user is not an administrator', () => {
