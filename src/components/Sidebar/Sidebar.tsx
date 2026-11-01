@@ -29,7 +29,7 @@ export interface SidebarProps {
   items?: SidebarItem[];
   /** Callback called when a navigation item is selected */
   onItemSelect?: (item: SidebarItem) => void;
-  /** Sidebar brand label */
+  /** Commune name, shown under « Commune de » next to the logo. Without it the legacy « Mairie360 » label is shown. */
   brandLabel?: string;
   /** Sidebar logo source. Defaults to the bundled Mairie360 logo. Set to null to use the brand initial fallback. */
   brandLogoSrc?: string | null;
@@ -58,7 +58,7 @@ export const Sidebar = ({
   isAdmin = false,
   items = defaultSidebarItems,
   onItemSelect,
-  brandLabel = 'Mairie360',
+  brandLabel,
   brandLogoSrc = mairie360LogoSrc,
   brandLogoAlt = 'Logo Mairie360',
   brandInitial = 'M',
@@ -78,12 +78,12 @@ export const Sidebar = ({
       aria-label="Navigation principale"
       className={`flex min-h-screen w-[260px] flex-col border-r border-[var(--mairie-navigation-border)] bg-[var(--mairie-navigation-background)] text-[var(--mairie-navigation-text)] ${className}`}
     >
-      <div className="flex h-16 items-center gap-2.5 border-b border-[var(--mairie-navigation-border)]/45 px-7">
+      <div className="flex h-16 shrink-0 items-center gap-2.5 px-3">
         {shouldShowLogo ? (
           <img
             src={brandLogoSrc as string}
             alt={brandLogoAlt}
-            className="h-8 w-8 shrink-0 rounded-lg object-contain shadow-[var(--mairie-shadow)]"
+            className="h-12 w-auto shrink-0 object-contain"
             onError={() => setLogoError(true)}
           />
         ) : (
@@ -91,10 +91,17 @@ export const Sidebar = ({
             {brandInitial}
           </div>
         )}
-        <div className="text-lg font-semibold tracking-normal text-[var(--mairie-on-action)]">{brandLabel}</div>
+        {brandLabel?.trim() ? (
+          <div className="flex min-w-0 flex-col border-l border-[var(--mairie-navigation-border)] pl-2.5 leading-tight">
+            <span className="text-xs text-[var(--mairie-navigation-text)]">Commune de</span>
+            <span className="break-words text-base font-semibold text-[var(--mairie-navigation-text)]">{brandLabel}</span>
+          </div>
+        ) : (
+          <div className="text-lg font-semibold tracking-normal text-[var(--mairie-on-action)]">Mairie360</div>
+        )}
       </div>
 
-      <nav className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-4 py-6" aria-label="Menu principal">
+      <nav className="flex min-h-0 flex-1 flex-col items-start gap-2 overflow-y-auto px-3 pb-6 pt-3" aria-label="Menu principal">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeItem === item.id;
@@ -114,11 +121,11 @@ export const Sidebar = ({
               key={item.id}
               type="button"
               aria-current={isActive ? 'page' : undefined}
-              className={`flex h-[42px] w-full shrink-0 items-center gap-3 rounded-md border px-3 text-left text-base transition-colors ${appearance}`}
+              className={`flex h-[42px] w-fit max-w-full shrink-0 items-center gap-3 rounded-md border pl-3 pr-3.5 text-left text-base transition-colors ${appearance} ${isActive ? 'font-semibold' : ''}`}
               onClick={() => onItemSelect?.(item)}
             >
               <Icon className="h-5 w-5 shrink-0" strokeWidth={1.9} />
-              <span className="min-w-0 flex-1 truncate">{item.label}</span>
+              <span className="min-w-0 truncate">{item.label}</span>
               {item.badge && (
                 <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-semibold leading-5 text-[var(--mairie-on-action)] ${isAdministration ? 'bg-[var(--mairie-on-action)]/20' : 'bg-[var(--mairie-error-action-background)]'}`}>
                   {item.badge}

@@ -1,0 +1,37 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// MAIR-548: the hover/focus expansion and the single footer are CSS behaviour jsdom cannot lay out,
+// so the shared theme is checked for the rules the Figma AppShell relies on.
+const css = readFileSync(join(__dirname, '../styles/municipal-theme.css'), 'utf8');
+const desktop = css.slice(css.indexOf('/* MAIR-548: shared shell'), css.indexOf('/* MAIR-526'));
+
+describe('MAIR-548 shared shell stylesheet', () => {
+  it('rests the desktop navigation at 71 px and expands it on hover and keyboard focus', () => {
+    expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 71px;/);
+    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :focus-within\) \{ width: max-content;/);
+    expect(desktop).toMatch(/:not\(\[data-expanded="true"\]\):not\(:focus-within\) :is\(\.app-navigation-label, \.app-navigation-commune\)/);
+  });
+
+  it('pushes the module aside instead of covering it', () => {
+    const rule = desktop.match(/body\.mairie-ui \.app-desktop-navigation \{([^}]*)\}/)![1];
+    expect(rule).toContain('position: relative');
+    expect(rule).not.toMatch(/position: (fixed|absolute)/);
+    expect(css).not.toMatch(/\.app-shell-frame \{ padding-left/);
+  });
+
+  it('removes the expansion animation for reduced motion', () => {
+    expect(desktop).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ body\.mairie-ui \.app-desktop-navigation \{ transition: none; \} \}/);
+  });
+
+  it('keeps one compact full-width footer and a module area without margin', () => {
+    expect(css).not.toMatch(/\.app-accessible-footer \{[^}]*width: 270px/);
+    expect(css).not.toMatch(/position: fixed; left: 0; bottom: 0/);
+    expect(desktop).toMatch(/\.app-accessible-footer \{[^}]*padding: 8px 24px 8px 20px;[^}]*font-size: 12px;/);
+    expect(desktop).toContain('.app-shell-main { padding: 0; }');
+  });
+
+  it('sizes navigation commands as the Figma item: 42 px high, 16 px text', () => {
+    expect(desktop).toMatch(/\.app-desktop-navigation nav button \{[^}]*height: 42px;[^}]*font-size: 16px;/);
+  });
+});

@@ -11,7 +11,7 @@ it('offers the skip link before built-in desktop commands and moves the keyboard
   const skip = screen.getByRole('link', { name: 'Aller au contenu' });
   expect(skip).toHaveFocus();
   await keyboard.tab();
-  expect(screen.getByRole('button', { name: 'Réduire la navigation' })).toHaveFocus();
+  expect(screen.getByRole('button', { name: 'Paramètres' })).toHaveFocus();
   await keyboard.tab({ shift: true });
   await keyboard.keyboard('{Enter}');
   expect(screen.getByRole('main')).toHaveFocus();
@@ -29,7 +29,7 @@ it('places a supplied desktop navigation after the same skip link without adding
   expect(skip).toHaveFocus();
   await keyboard.tab();
   expect(screen.getByRole('button', { name: 'Formations municipales' })).toHaveFocus();
-  expect(screen.queryByRole('button', { name: 'Réduire la navigation' })).not.toBeInTheDocument();
+  expect(document.querySelector('aside.app-desktop-navigation')).toBeNull();
   expect(screen.getAllByRole('link', { name: 'Aller au contenu' })).toHaveLength(1);
   await keyboard.tab({ shift: true });
   await keyboard.keyboard('{Enter}');
