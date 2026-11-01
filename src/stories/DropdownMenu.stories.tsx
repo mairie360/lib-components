@@ -6,7 +6,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-} from "../components/DropdownMenu";
+} from '../components/DropdownMenu';
 import { MoreHorizontal } from "lucide-react";
 
 const meta: Meta<typeof DropdownMenu> = {
