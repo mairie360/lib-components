@@ -7,10 +7,15 @@ const css = readFileSync(join(__dirname, '../styles/municipal-theme.css'), 'utf8
 const desktop = css.slice(css.indexOf('/* MAIR-548: shared shell'), css.indexOf('/* MAIR-526'));
 
 describe('MAIR-548 shared shell stylesheet', () => {
+  // CodeRabbit on #500: a click focuses a command; only keyboard focus (:focus-visible) may keep the band open.
+  it('never expands on pointer focus (:focus-within)', () => {
+    expect(desktop).not.toContain(':focus-within');
+  });
+
   it('rests the desktop navigation at 71 px and expands it on hover and keyboard focus', () => {
     expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 71px;/);
-    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :focus-within\) \{ width: max-content;/);
-    expect(desktop).toMatch(/:not\(\[data-expanded="true"\]\):not\(:focus-within\) :is\(\.app-navigation-label, \.app-navigation-commune\)/);
+    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :has\(:focus-visible\)\) \{ width: max-content;/);
+    expect(desktop).toMatch(/:not\(\[data-expanded="true"\]\):not\(:has\(:focus-visible\)\) :is\(\.app-navigation-label, \.app-navigation-commune\)/);
   });
 
   it('pushes the module aside instead of covering it', () => {
