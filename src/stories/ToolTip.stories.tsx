@@ -36,7 +36,7 @@ export const WithIcon: Story = {
   },
   render: (args) => (
     <ToolTip {...args}>
-      <span className="text-xl cursor-help">❓</span>
+      <button type="button" aria-label="Aide" className="text-xl cursor-help">❓</button>
     </ToolTip>
   ),
 };

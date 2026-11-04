@@ -62,6 +62,17 @@ describe('ToolTip component', () => {
       expect(screen.getByRole('tooltip')).toBeVisible();
     });
 
+    it('stays shown when the pointer leaves while the trigger keeps the focus (CodeRabbit on #508)', () => {
+      renderTooltip();
+      const trigger = screen.getByRole('button', { name: 'Hover me' });
+      fireEvent.focus(trigger);
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseLeave(trigger);
+      expect(screen.getByRole('tooltip')).toBeVisible();
+      fireEvent.keyDown(document.body, { key: 'Escape' });
+      expect(screen.queryByRole('tooltip')).toBeNull();
+    });
+
     it('describes the trigger with the tooltip and keeps an existing description', () => {
       render(
         <ToolTip text="Tooltip content">

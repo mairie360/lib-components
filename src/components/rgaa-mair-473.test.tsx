@@ -8,6 +8,7 @@ import { FormSection } from './FormSection';
 import { MultiSelect } from './MultiSelect';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './Select';
 import { SessionList } from './SessionList';
+import { Tabs } from './Tabs';
 import { TextField } from './TextField';
 
 /**
@@ -74,6 +75,11 @@ describe('MAIR-473 RGAA defects of lib-components', () => {
     render(<><TextField label="Courriel" type="email" /><MultiSelect label="Membres" options={[{ value: 'a', label: 'Alpha' }]} value={[]} onChange={() => undefined} /></>);
     expect(screen.getByLabelText('Courriel').className).toMatch(/focus-within:shadow-\[inset_0_-2px_0_var\(--mairie-accent\)\]/);
     expect(screen.getByRole('searchbox').className).toMatch(/focus-within:shadow-\[inset_0_-2px_0_var\(--mairie-accent\)\]/);
+  });
+
+  it('10.11: the Tabs row wraps instead of overflowing a 320 px canvas (CodeRabbit on #508)', () => {
+    render(<Tabs label="Sections" value="a" onChange={() => undefined} items={[{ key: 'a', label: 'Utilisateurs' }, { key: 'b', label: 'Rôles' }]} panels={{ a: <p>A</p>, b: <p>B</p> }} />);
+    expect(screen.getByRole('tablist', { name: 'Sections' })).toHaveClass('flex-wrap');
   });
 
   it('11.6: the FormSection group is named by a legend holding its title and description', () => {
