@@ -167,7 +167,8 @@ Storybook charge globalement la feuille de styles de la bibliothèque et détect
 2. Exportez un composant nommé comme le fichier : `ComponentName`.
 3. Ajoutez une story Storybook dans `src/stories`.
 4. Ses tests vivent à côté de lui (`ComponentName.test.tsx`) ; `src/__tests__` garde les suites transverses.
-5. Exécutez les tests et le build avant de proposer la modification.
+5. Posez `{...componentMarker('ComponentName', props)}` sur son élément racine et ajoutez une fixture dans `src/__tests__/ComponentMarkers.test.tsx` (marqueur de couverture RGAA, MAIR-318, voir `docs/fr/marqueurs-composants-rgaa.md`).
+6. Exécutez les tests et le build avant de proposer la modification.
 
 Ne maintenez pas manuellement `src/index.tsx` pour les composants de premier niveau. Le script `prebuild` le régénère et écrase les modifications manuelles. Les fichiers placés dans les sous-répertoires de composants ne sont pas ajoutés automatiquement au point d’entrée du package.
 

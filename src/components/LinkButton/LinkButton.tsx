@@ -6,6 +6,7 @@ import type { LucideIcon } from 'lucide-react';
 import type { Size, Tone } from '@mairie360/lib-components/theme';
 import { buttonAppearance, buttonBaseClass, buttonSizing } from '../Button';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export interface LinkButtonProps extends Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'children'> {
   /** Renders an anchor when given, a button otherwise (same look). */
@@ -51,10 +52,10 @@ export const LinkButton = React.forwardRef<HTMLAnchorElement | HTMLButtonElement
     style: { ...buttonSizing(size), ...(image ? { height: 'auto' } : {}), ...appearance.style, ...style },
   };
   if (href && !disabled) {
-    return <a {...props} {...shared} ref={ref as React.Ref<HTMLAnchorElement>} href={href} onClick={onClick}>{body}</a>;
+    return <a {...props} {...shared} {...componentMarker('LinkButton', props)} ref={ref as React.Ref<HTMLAnchorElement>} href={href} onClick={onClick}>{body}</a>;
   }
   return (
-    <button {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)} {...shared} ref={ref as React.Ref<HTMLButtonElement>} type="button" disabled={disabled} onClick={onClick}>
+    <button {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)} {...shared} {...componentMarker('LinkButton', props)} ref={ref as React.Ref<HTMLButtonElement>} type="button" disabled={disabled} onClick={onClick}>
       {body}
     </button>
   );

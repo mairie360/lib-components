@@ -1,4 +1,5 @@
 import React from 'react';
+import { componentMarker } from '../component-marker';
 
 export type FooterLink = {
   label: string;
@@ -75,6 +76,7 @@ export const Footer = ({
 
   return (
     <FooterContainer
+      {...componentMarker('Footer')}
       role={isSidebar ? undefined : 'contentinfo'}
       className={`${isSidebar
         ? 'flex w-full flex-col items-center gap-3 border-t border-[var(--mairie-navigation-border)] bg-transparent px-4 py-5 text-[var(--mairie-navigation-text)]'

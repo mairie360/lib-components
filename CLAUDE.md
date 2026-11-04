@@ -80,6 +80,9 @@ Every visible string goes through `Text` or a preset of `src/components/Text.tsx
 
 The Figma library (see above) mirrors this inventory: one `Base/*` set per component plus named presets; a component added here must exist in Figma first.
 
+### RGAA coverage marker (MAIR-318)
+Every exported component puts `data-m360-component="<ExportedName>"` on its root DOM element through `componentMarker(name, props)` of `src/components/component-marker.ts` (spread after `{...props}`; a component that spreads its props on an inner control uses `withoutMarker(props)` there; an `asChild` root takes `asChildMarker(name, props, child.props)`). The value lists the rendering components outermost first (`SaveButton Button`, `ConfirmModal Modal`), so the RGAA engine of `mairie360/CICD` matches `[data-m360-component~="Name"]` and reports the lib components a front imports that no captured state shows. `src/__tests__/ComponentMarkers.test.tsx` renders every export of the root, `primitives` and `shell` entries and fails on a missing marker or a new export without a fixture. Docs: `docs/en/rgaa-component-markers.md`, `docs/fr/marqueurs-composants-rgaa.md`.
+
 ### Language and a11y
 User-facing strings, demo data and story names are in **French**, and Jest tests query by that French text and by ARIA roles/labels (`getByRole`, `getByLabelText`, `aria-pressed`, `data-testid`). Changing a label usually means updating tests. Accessibility is enforced via the Lighthouse check on Storybook docs pages.
 

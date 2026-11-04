@@ -4,6 +4,7 @@ import React from 'react';
 
 // The published `shared` entry holds the instance time zone set by the front's InstanceProvider.
 import { getInstanceTimeZone } from '@mairie360/lib-components/shared';
+import { componentMarker } from '../component-marker';
 
 const emptyOnServer = () => '';
 
@@ -33,7 +34,7 @@ export function formatCurrentDate(date = new Date(), timeZone = getInstanceTimeZ
 export const CurrentDate = ({ date, className = '', ...props }: CurrentDateProps) => {
   const label = React.useSyncExternalStore(subscribe, () => formatCurrentDate(date), emptyOnServer);
   return (
-    <span {...props} className={`page-current-date ${className}`.trim()}>
+    <span {...props} {...componentMarker('CurrentDate', props)} className={`page-current-date ${className}`.trim()}>
       {label}
     </span>
   );

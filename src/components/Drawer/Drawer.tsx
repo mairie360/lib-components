@@ -7,6 +7,7 @@ import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
 import { useDialogFocus } from '../Modal';
 import { ModalTitle } from '../Text';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export type DrawerSize = Extract<Size, 'm' | 'l'>;
 export interface DrawerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title' | 'children'> {
@@ -27,8 +28,8 @@ export const Drawer = ({ open, title, onClose, size = 'm', footer, closeLabel = 
   useDialogFocus(open, panel, onClose);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-[var(--mairie-text)]/40" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
-      <div {...props} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-size={size}
+    <div {...componentMarker('Drawer', props)} className="fixed inset-0 z-50 flex justify-end bg-[var(--mairie-text)]/40" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+      <div {...withoutMarker(props)} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-size={size}
         className={`flex h-full w-full flex-col border-l border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: drawerWidths[size], ...style }}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>

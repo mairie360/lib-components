@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { componentMarker } from '../component-marker';
 
 export interface TooltipProps {
   /** Texte à afficher dans l’infobulle */
@@ -11,7 +12,7 @@ export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
   const [visible, setVisible] = useState(false);
 
   return (
-    <div className="relative inline-block">
+    <div {...componentMarker('ToolTip', props)} className="relative inline-block">
       <div
         onMouseEnter={() => setVisible(true)}
         onMouseLeave={() => setVisible(false)}

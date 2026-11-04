@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { mairie360LogoSrc } from '../../assets/logo';
+import { componentMarker } from '../component-marker';
 
 export type SidebarItem = {
   id: string;
@@ -75,6 +76,7 @@ export const Sidebar = ({
 
   return (
     <aside
+      {...componentMarker('Sidebar')}
       aria-label="Navigation principale"
       className={`flex min-h-screen w-[260px] flex-col border-r border-[var(--mairie-navigation-border)] bg-[var(--mairie-navigation-background)] text-[var(--mairie-navigation-text)] ${className}`}
     >

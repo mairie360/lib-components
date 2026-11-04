@@ -4,6 +4,7 @@ import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Avatar } from '../Avatar';
+import { componentMarker } from '../component-marker';
 
 export type AvatarStackSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface AvatarStackPerson { name: string; src?: string }
@@ -20,7 +21,7 @@ export interface AvatarStackProps extends Omit<React.HTMLAttributes<HTMLUListEle
 export const AvatarStack = ({ label, people, max = 4, size = 'm', className = '', ...props }: AvatarStackProps) => {
   const shown = people.slice(0, max); const hidden = people.length - shown.length;
   return (
-    <ul {...props} aria-label={label} data-size={size} className={`flex items-center ${className}`.trim()}>
+    <ul {...props} {...componentMarker('AvatarStack', props)} aria-label={label} data-size={size} className={`flex items-center ${className}`.trim()}>
       {shown.map((person, index) => (
         <li key={`${person.name}-${index}`} className={index > 0 ? '-ml-2' : undefined} style={{ zIndex: shown.length - index }}>
           <Avatar src={person.src} alt={person.name} size={size} className="ring-2 ring-[var(--mairie-surface)]" />

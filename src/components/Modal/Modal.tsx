@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
 import { Help, ModalTitle } from '../Text';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export interface ModalProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title' | 'children'> {
   open: boolean;
@@ -79,8 +80,8 @@ export const Modal = ({ open, title, description, onClose, size = 'm', footer, i
   useDialogFocus(open, panel, onClose, initialFocusRef);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-text)]/40 p-4 backdrop-blur-sm" onMouseDown={event => { if (closeOnBackdrop && event.target === event.currentTarget) onClose(); }}>
-      <div {...props} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1} data-size={size}
+    <div {...componentMarker('Modal', props)} className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-text)]/40 p-4 backdrop-blur-sm" onMouseDown={event => { if (closeOnBackdrop && event.target === event.currentTarget) onClose(); }}>
+      <div {...withoutMarker(props)} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1} data-size={size}
         className={`flex max-h-full w-full flex-col overflow-hidden border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: modalWidths[size], borderRadius: 'var(--mairie-radius-xl)', ...style }}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>

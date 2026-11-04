@@ -6,6 +6,7 @@ import { Calendar, Eye, EyeOff, Lock, Mail, Phone, Search, X, type LucideIcon } 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Field, controlClass, controlStyle, fieldDescriptionIds } from '../Field';
 import { Icon } from '../Icon';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export type TextFieldType = 'text' | 'password' | 'email' | 'search' | 'number' | 'date' | 'tel';
 
@@ -41,11 +42,11 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(func
   const inputType = type === 'password' && revealed ? 'text' : type;
   const showClear = type === 'search' && Boolean(onClear) && Boolean(props.value ?? props.defaultValue);
   return (
-    <Field htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
+    <Field {...componentMarker('TextField', props)} htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
       <div className={`flex items-center gap-2 ${controlClass(Boolean(error))}`} style={controlStyle(size)} data-type={type}>
         {leading ? <Icon icon={leading} size={size === 'xl' ? 'l' : size === 'xs' ? 'xs' : 's'} className="text-[var(--mairie-muted)]" /> : null}
         <input
-          {...props}
+          {...withoutMarker(props)}
           ref={ref}
           id={inputId}
           type={inputType}

@@ -6,6 +6,7 @@ import { Bell, ChevronLeft, ChevronRight, MoreHorizontal, Pencil, Search, Trash2
 import type { Size, Tone } from '@mairie360/lib-components/theme';
 import { ButtonSpinner, buttonAppearance, buttonBaseClass, buttonSizing } from '../Button';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export type IconButtonPreset = 'close' | 'more' | 'edit' | 'delete' | 'previous' | 'next' | 'search' | 'notifications';
 export type IconButtonTone = Extract<Tone, 'neutral' | 'primary' | 'danger'>;
@@ -49,6 +50,7 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(f
   return (
     <button
       {...props}
+      {...componentMarker('IconButton', props)}
       ref={ref}
       type={type}
       aria-label={name}

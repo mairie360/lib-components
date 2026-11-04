@@ -5,6 +5,7 @@ import React from 'react';
 import { AppShell, type AppShellProps } from '../AppShell';
 // The published `react` entry owns the instance context; bundling src/kit/react here would create a second one.
 import { useInstanceRole, useModalFocusScope } from '@mairie360/lib-components/react';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export type AccessibleShellProps = Omit<AppShellProps, 'collapsibleSidebar' | 'desktopNavigation' | 'skipLinkInactive' | 'isAdmin' | 'footerPlacement'>;
 
@@ -53,9 +54,9 @@ export const AccessibleShell = ({ children, footerProps, sidebarProps, className
   const alertDialogActive = useAlertDialogScope(frame);
   const navigationInactive = modalActive || alertDialogActive;
   return (
-    <div ref={frame} className="app-shell-root" data-navigation-inactive={navigationInactive || undefined}>
+    <div {...componentMarker('AccessibleShell', props)} ref={frame} className="app-shell-root" data-navigation-inactive={navigationInactive || undefined}>
       <AppShell
-        {...props}
+        {...withoutMarker(props)}
         className={className}
         collapsibleSidebar
         isAdmin={role === 'Admin'}

@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { componentMarker } from '../component-marker';
 
 export type TextWeight = 'regular' | 'medium' | 'semibold' | 'bold';
 export type TextTone = 'default' | 'muted' | 'primary' | 'secondary' | 'success' | 'warning' | 'danger' | 'inverse';
@@ -50,6 +51,7 @@ export const Text = React.forwardRef<HTMLElement, TextProps>(function Text(
   return (
     <Element
       {...props}
+      {...componentMarker('Text', props)}
       ref={ref}
       data-size={size}
       data-tone={tone}
@@ -68,7 +70,7 @@ function preset(name: string, defaults: Partial<TextProps>) {
     const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined)) as TextPresetProps;
     // A consumer class adds to the preset classes (a Link keeps its underline).
     const className = [defaults.className, overrides.className].filter(Boolean).join(' ') || undefined;
-    return <Text ref={ref} {...defaults} data-preset={name} {...overrides} className={className} />;
+    return <Text ref={ref} {...defaults} data-preset={name} {...overrides} {...componentMarker(name, props)} className={className} />;
   });
   Preset.displayName = name;
   return Preset;

@@ -4,6 +4,7 @@ import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Field, controlClass, fieldDescriptionIds } from '../Field';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export interface TextAreaProps extends Omit<React.TextareaHTMLAttributes<HTMLTextAreaElement>, 'size'> {
   label: React.ReactNode;
@@ -22,9 +23,9 @@ export const TextArea = React.forwardRef<HTMLTextAreaElement, TextAreaProps>(fun
   const generated = React.useId();
   const inputId = id ?? `field-${generated}`;
   return (
-    <Field htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
+    <Field {...componentMarker('TextArea', props)} htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
       <textarea
-        {...props}
+        {...withoutMarker(props)}
         ref={ref}
         id={inputId}
         required={required}

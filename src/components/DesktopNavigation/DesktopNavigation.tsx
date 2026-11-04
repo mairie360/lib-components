@@ -4,6 +4,7 @@ import { defaultSidebarItems } from '../Sidebar';
 import { mairie360LogoSrc } from '../../assets/logo';
 import type { AppShellProps } from '../AppShell';
 import { useEffect, useRef, useState, type FocusEvent } from 'react';
+import { componentMarker } from '../component-marker';
 
 type Props = Pick<AppShellProps, 'activeItem' | 'isAdmin' | 'hrefs' | 'onNavigate' | 'onPageChange' | 'sidebarProps'> & {
   /** Called with `true` while the navigation rests collapsed and `false` while hover or keyboard focus expands it. */
@@ -55,7 +56,7 @@ export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, h
   const logo = sidebarProps?.brandLogoSrc === undefined ? mairie360LogoSrc : sidebarProps.brandLogoSrc;
   const brandLabel = sidebarProps?.brandLabel?.trim();
 
-  return <aside ref={asideRef} className="app-desktop-navigation" aria-label="Navigation principale" data-expanded={expanded} inert={inactive}
+  return <aside {...componentMarker('DesktopNavigation')} ref={asideRef} className="app-desktop-navigation" aria-label="Navigation principale" data-expanded={expanded} inert={inactive}
     onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
     onPointerDownCapture={() => { pointerPressed.current = true; }} onMouseDownCapture={() => { pointerPressed.current = true; }}
     onKeyDownCapture={() => { pointerPressed.current = false; setFocused(true); }}

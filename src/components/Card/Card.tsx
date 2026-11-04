@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { joinClasses } from '../shared-classes';
+import { componentMarker } from '../component-marker';
 
 export interface CardProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
   title?: React.ReactNode;
@@ -15,6 +16,7 @@ export const Card = ({ title, children, className = '', ...props }: CardProps) =
       className
     )}
     {...props}
+    {...componentMarker('Card', props)}
   >
     {title && <h2 className="px-6 pt-5 text-base font-semibold leading-6 text-[var(--mairie-text)]">{title}</h2>}
     {children}

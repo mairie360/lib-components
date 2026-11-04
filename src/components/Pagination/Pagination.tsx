@@ -4,6 +4,7 @@ import React from 'react';
 
 import { IconButton } from '../IconButton';
 import { BodySmall, Caption } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLElement>, 'onChange'> {
   /** 1-based current page. */
@@ -28,7 +29,7 @@ export const Pagination = ({ page, pageSize, total, onChange, loading = false, i
   const pages = Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
   const state = loading ? 'loading' : page <= 1 && page >= pages ? 'single' : page <= 1 ? 'first' : page >= pages ? 'last' : 'default';
   return (
-    <nav {...props} aria-label={label} aria-busy={loading || undefined} data-state={state} className={`flex flex-wrap items-center justify-between gap-3 ${className}`.trim()}>
+    <nav {...props} {...componentMarker('Pagination', props)} aria-label={label} aria-busy={loading || undefined} data-state={state} className={`flex flex-wrap items-center justify-between gap-3 ${className}`.trim()}>
       <Caption>{paginationSummary(page, pageSize, total, itemsLabel)}</Caption>
       <div className="flex items-center gap-2">
         <IconButton preset="previous" size="s" disabled={loading || page <= 1} onClick={() => onChange(page - 1)} />

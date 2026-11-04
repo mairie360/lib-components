@@ -4,6 +4,7 @@ import React, { useId } from 'react';
 
 import { DataState, type DataStateProps } from '../DataState';
 import { Help, SectionTitle } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export type PanelState = 'default' | 'loading' | 'empty' | 'unavailable';
 export interface PanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title' | 'children'> {
@@ -24,7 +25,7 @@ export interface PanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'tit
 export const Panel = ({ title, description, action, state = 'default', stateProps, flush = false, children, className = '', style, ...props }: PanelProps) => {
   const titleId = useId();
   return (
-    <section {...props} aria-labelledby={titleId} aria-busy={state === 'loading' || undefined} data-state={state}
+    <section {...props} {...componentMarker('Panel', props)} aria-labelledby={titleId} aria-busy={state === 'loading' || undefined} data-state={state}
       className={`flex flex-col rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] ${className}`.trim()} style={{ borderRadius: 'var(--mairie-radius-l)', ...style }}>
       <header className="flex items-start justify-between gap-4 px-5 pt-4" style={{ paddingBottom: 'var(--mairie-space-m)' }}>
         <div className="min-w-0">

@@ -4,6 +4,7 @@ import React from 'react';
 import { Check, ChevronLeft, Download, LogOut, Pencil, Plus, RefreshCw, Send, Trash2, X } from 'lucide-react';
 
 import { Button, type ButtonProps } from '../Button';
+import { componentMarker } from '../component-marker';
 
 /** A preset fixes the label, icon, variant and tone of a button role; every prop can still be overridden. */
 export type ButtonPresetProps = Omit<ButtonProps, 'label'> & { label?: string };
@@ -12,7 +13,7 @@ function preset(name: string, defaults: Partial<Pick<ButtonProps, 'label' | 'ico
   const Preset = React.forwardRef<HTMLButtonElement, ButtonPresetProps>(function Preset(props, ref) {
     // An explicit `undefined` (e.g. `label={maybeLabel}`) keeps the preset default.
     const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined));
-    return <Button ref={ref} {...defaults} data-preset={name} {...overrides} />;
+    return <Button ref={ref} {...defaults} data-preset={name} {...overrides} {...componentMarker(`${name}Button`, props)} />;
   });
   Preset.displayName = `${name}Button`;
   return Preset;

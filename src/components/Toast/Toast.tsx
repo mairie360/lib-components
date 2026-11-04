@@ -5,6 +5,7 @@ import { CircleCheck, CircleX, Info, TriangleAlert, X, type LucideIcon } from 'l
 
 import type { Tone } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 // Internal provider coordination: a visual toast must not announce a second time.
 export const ToastAnnouncementContext = createContext(true);
@@ -41,7 +42,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast({ mes
   const announce = useContext(ToastAnnouncementContext);
   const tone = toastTone(toneProp, variant);
   const urgent = tone === 'danger';
-  return <div {...props} ref={ref} role={announce ? (urgent ? 'alert' : 'status') : 'group'} aria-label={announce ? props['aria-label'] : title ?? message} aria-live={announce ? (urgent ? 'assertive' : 'polite') : undefined} aria-atomic={announce ? true : undefined}
+  return <div {...props} {...componentMarker('Toast', props)} ref={ref} role={announce ? (urgent ? 'alert' : 'status') : 'group'} aria-label={announce ? props['aria-label'] : title ?? message} aria-live={announce ? (urgent ? 'assertive' : 'polite') : undefined} aria-atomic={announce ? true : undefined}
     data-tone={tone}
     onKeyDown={event => { onKeyDown?.(event); if (!event.defaultPrevented && event.key === 'Escape' && onClose) { event.preventDefault(); event.stopPropagation(); onClose(); } }}
     className={`relative flex flex-col overflow-hidden border border-[var(--mairie-border)] shadow-lg ${className}`.trim()}

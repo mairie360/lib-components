@@ -1,6 +1,7 @@
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export type SkeletonShape = 'line' | 'block' | 'circle';
 export interface SkeletonProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'role'> {
@@ -18,15 +19,15 @@ const blockHeights: Record<Size, number> = { xs: 40, s: 64, m: 96, l: 160, xl: 2
 /** Loading bone with a shimmer (MAIR-608, Figma `Base/Skeleton`). Prefer `Skeleton.TextBlock`, `.Card`, `.TableRow`, `.UserIdentity`. */
 function SkeletonBase({ shape = 'line', size = 'm', label, animated = true, className = '', style, ...props }: SkeletonProps) {
   const dimension = shape === 'circle' ? { width: `var(--mairie-avatar-${size})`, height: `var(--mairie-avatar-${size})` } : shape === 'block' ? { height: blockHeights[size] } : { height: lineHeights[size] };
-  const visual = <div {...props} aria-hidden="true" data-shape={shape} data-size={size}
+  const visual = <div {...withoutMarker(props)} {...(label ? {} : componentMarker('Skeleton', props))} aria-hidden="true" data-shape={shape} data-size={size}
     className={`mairie-skeleton ${shape === 'circle' ? 'shrink-0 rounded-full' : 'w-full'} ${animated ? 'mairie-skeleton-animated' : ''} ${className}`.replace(/\s+/g, ' ').trim()}
     style={{ borderRadius: shape === 'circle' ? '9999px' : `var(--mairie-radius-${shape === 'block' ? 'l' : 's'})`, ...dimension, ...style }} />;
-  return label ? <div role="status" aria-live="polite"><span className="sr-only">{label}</span>{visual}</div> : visual;
+  return label ? <div {...componentMarker('Skeleton', props)} role="status" aria-live="polite"><span className="sr-only">{label}</span>{visual}</div> : visual;
 }
 
 type PresetProps = Pick<SkeletonProps, 'label' | 'animated' | 'className'>;
 const wrap = (label: string | undefined, children: React.ReactNode, className: string, style?: React.CSSProperties) =>
-  label ? <div role="status" aria-live="polite" className={className} style={style}><span className="sr-only">{label}</span>{children}</div> : <div aria-hidden="true" className={className} style={style}>{children}</div>;
+  label ? <div {...componentMarker('Skeleton')} role="status" aria-live="polite" className={className} style={style}><span className="sr-only">{label}</span>{children}</div> : <div {...componentMarker('Skeleton')} aria-hidden="true" className={className} style={style}>{children}</div>;
 
 /** Three text lines (Figma Skeleton/TextBlock). */
 const TextBlock = ({ label, animated, className = '' }: PresetProps) => wrap(label, <>

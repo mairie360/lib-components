@@ -4,6 +4,7 @@ import React, { useId } from 'react';
 
 import type { Size, Tone } from '@mairie360/lib-components/theme';
 import { BodySmall, Caption } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export type ProgressSize = Extract<Size, 's' | 'm' | 'l'>;
 export type ProgressTone = Extract<Tone, 'primary' | 'success' | 'warning' | 'danger'>;
@@ -24,7 +25,7 @@ export const ProgressMeter = ({ label, value, size = 'm', tone = 'primary', show
   const id = useId();
   const percent = Math.round(Math.min(100, Math.max(0, Number.isFinite(value) ? value : 0)));
   return (
-    <div {...props} data-size={size} data-tone={tone} className={`flex flex-col gap-1 ${className}`.trim()}>
+    <div {...props} {...componentMarker('ProgressMeter', props)} data-size={size} data-tone={tone} className={`flex flex-col gap-1 ${className}`.trim()}>
       <div className="flex items-baseline justify-between gap-2">
         <BodySmall as="span" id={id} weight="medium">{label}</BodySmall>
         {showValue && <Caption tone="default">{percent} %</Caption>}

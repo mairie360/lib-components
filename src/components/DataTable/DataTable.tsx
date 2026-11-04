@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react';
 import { DataState, type DataStateProps } from '../DataState';
 import { Icon } from '../Icon';
 import { Skeleton } from '../Skeleton';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export type SortDirection = 'asc' | 'desc';
 export interface DataTableColumn<Row> {
@@ -46,8 +47,8 @@ export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default'
   };
   const empty = state === 'empty' || (state === 'default' && rows.length === 0);
   return (
-    <div className="w-full overflow-x-auto" data-state={state}>
-      <table {...props} aria-busy={state === 'loading' || undefined} className={`w-full border-collapse text-left ${className}`.trim()} style={{ fontSize: 'var(--mairie-text-s)', ...style }}>
+    <div {...componentMarker('DataTable', props)} className="w-full overflow-x-auto" data-state={state}>
+      <table {...withoutMarker(props)} aria-busy={state === 'loading' || undefined} className={`w-full border-collapse text-left ${className}`.trim()} style={{ fontSize: 'var(--mairie-text-s)', ...style }}>
         <caption className="sr-only">{label}</caption>
         <thead className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]">
           <tr>

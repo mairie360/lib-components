@@ -8,6 +8,7 @@ import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
 import { Metric, Overline, Caption } from '../Text';
 import { Skeleton } from '../Skeleton';
+import { componentMarker } from '../component-marker';
 
 export type MetricSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLElement>, 'children'> {
@@ -29,7 +30,7 @@ const padding: Record<MetricSize, string> = { s: 'var(--mairie-space-s)', m: 'va
 export const MetricCard = ({ label, value, icon, size = 'm', trend = 'none', trendLabel, loading = false, className = '', style, ...props }: MetricCardProps) => {
   const trendTone = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'muted';
   return (
-    <section {...props} aria-label={label} aria-busy={loading || undefined} data-size={size} data-trend={trend}
+    <section {...props} {...componentMarker('MetricCard', props)} aria-label={label} aria-busy={loading || undefined} data-size={size} data-trend={trend}
       className={`flex flex-col gap-2 rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)] ${className}`.trim()}
       style={{ padding: padding[size], borderRadius: 'var(--mairie-radius-l)', ...style }}>
       <div className="flex items-center justify-between gap-2">

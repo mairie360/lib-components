@@ -6,6 +6,7 @@ import { ChevronDown } from 'lucide-react';
 import type { Size } from '@mairie360/lib-components/theme';
 import { Field, controlClass, controlStyle, fieldDescriptionIds } from '../Field';
 import { Icon } from '../Icon';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export interface SelectOption<T extends string = string> {
   value: T;
@@ -33,10 +34,10 @@ function SelectFieldInner<T extends string = string>(
   const generated = React.useId();
   const selectId = id ?? `select-${generated}`;
   return (
-    <Field htmlFor={selectId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
+    <Field {...componentMarker('SelectField', props)} htmlFor={selectId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
       <div className={`relative ${controlClass(Boolean(error))}`} style={controlStyle(size)}>
         <select
-          {...props}
+          {...withoutMarker(props)}
           ref={ref}
           id={selectId}
           value={value}
