@@ -47,6 +47,9 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(func
         {leading ? <Icon icon={leading} size={size === 'xl' ? 'l' : size === 'xs' ? 'xs' : 's'} className="text-[var(--mairie-muted)]" /> : null}
         <input
           {...withoutMarker(props)}
+          // RGAA 10.7 (MAIR-473): the frame shows the focus through focus-within; the input also shows
+          // its own indicator, so the focus is visible on the element that holds it. `focus-within:`: on a
+          // date input, the last Tab stop is the picker button of its shadow tree, where :focus no longer matches.
           ref={ref}
           id={inputId}
           type={inputType}
@@ -54,7 +57,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(func
           disabled={disabled}
           aria-invalid={error ? true : undefined}
           aria-describedby={fieldDescriptionIds(inputId, hint, error)}
-          className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mairie-muted)]"
+          className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mairie-muted)] focus-within:shadow-[inset_0_-2px_0_var(--mairie-accent)]"
           style={{ fontSize: 'inherit', height: '100%' }}
         />
         {type === 'password' ? (

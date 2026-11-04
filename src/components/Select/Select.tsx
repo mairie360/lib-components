@@ -97,6 +97,8 @@ function SelectTrigger({
         viewBox="0 0 16 16"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
       >
         <path
           d="M4 6L8 10L12 6"
@@ -279,6 +281,8 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
           >
             <path
               d="M13.3332 4L5.99984 11.3333L2.6665 8"

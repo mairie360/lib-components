@@ -20,7 +20,7 @@ export default meta;
 export const Default: StoryObj<typeof DropdownMenu> = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger className="px-4 py-2 text-gray-700 rounded">
+      <DropdownMenuTrigger className="px-4 py-2 text-[var(--mairie-text)] rounded" aria-label="Plus d'actions">
         <MoreHorizontal size={20} />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -35,7 +35,7 @@ export const Default: StoryObj<typeof DropdownMenu> = {
 export const WithLabel: StoryObj<typeof DropdownMenu> = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger className="px-4 py-2 bg-green-500 text-white rounded">
+      <DropdownMenuTrigger className="px-4 py-2 bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)] rounded">
         Actions
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -52,7 +52,7 @@ export const WithLabel: StoryObj<typeof DropdownMenu> = {
 export const WithDeleteAction: StoryObj<typeof DropdownMenu> = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger className="px-4 py-2 bg-gray-700 text-white rounded">
+      <DropdownMenuTrigger className="px-4 py-2 bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)] rounded">
         Options
       </DropdownMenuTrigger>
       <DropdownMenuContent>
@@ -68,7 +68,7 @@ export const WithDeleteAction: StoryObj<typeof DropdownMenu> = {
 export const WithIcons: StoryObj<typeof DropdownMenu> = {
   render: () => (
     <DropdownMenu>
-      <DropdownMenuTrigger className="px-4 py-2 bg-purple-500 text-white rounded">
+      <DropdownMenuTrigger className="px-4 py-2 bg-[var(--mairie-action-background)] text-[var(--mairie-on-action)] rounded">
         Menu avec icônes
       </DropdownMenuTrigger>
       <DropdownMenuContent>

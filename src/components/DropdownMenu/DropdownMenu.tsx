@@ -321,6 +321,8 @@ function DropdownMenuCheckboxItem({
             viewBox="0 0 16 16"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
           >
             <path
               d="M13.3332 4L5.99984 11.3333L2.6665 8"
@@ -400,6 +402,8 @@ function DropdownMenuRadioItem({
             viewBox="0 0 8 8"
             fill="currentColor"
             xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+            focusable="false"
           >
             <circle cx="4" cy="4" r="4" />
           </svg>
@@ -447,6 +451,8 @@ function DropdownMenuSubTrigger({
         viewBox="0 0 16 16"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+        focusable="false"
       >
         <path
           d="M6 12L10 8L6 4"

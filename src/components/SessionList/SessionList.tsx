@@ -66,6 +66,8 @@ export interface SessionListProps extends Omit<React.HTMLAttributes<HTMLDivEleme
   /** Column label for the identifier shown under the device, omitted for end users. */
   showIds?: boolean;
   timeZone?: string;
+  /** Title of the table (RGAA 5.4), read by screen readers only: the page heading shows it on screen. */
+  caption?: string;
   /** Test hook: the instant used to compute states; defaults to the live clock with one expiry timer. */
   now?: number;
 }
@@ -101,7 +103,7 @@ function useNow(sessions: readonly SessionRecord[] | null, fixed?: number) {
  * user, Settings lists the caller's own sessions with a revoke action. Same
  * columns, same state badges, same empty / loading / unavailable states.
  */
-export const SessionList = ({ sessions, loading = false, currentSessionId = null, onRevoke, revokingId = null, onRetry, emptyMessage = 'Aucune session à afficher.', unavailableMessage = 'Les sessions sont temporairement indisponibles.', showIds = false, timeZone, now: fixedNow, className = '', ...props }: SessionListProps) => {
+export const SessionList = ({ sessions, loading = false, currentSessionId = null, onRevoke, revokingId = null, onRetry, emptyMessage = 'Aucune session à afficher.', unavailableMessage = 'Les sessions sont temporairement indisponibles.', showIds = false, timeZone, caption = 'Sessions de connexion', now: fixedNow, className = '', ...props }: SessionListProps) => {
   const now = useNow(sessions, fixedNow);
   const frame = joinClasses('session-list overflow-hidden rounded-lg border border-[var(--mairie-border)] bg-[var(--mairie-surface)]', className);
 
@@ -137,6 +139,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
   return (
     <div {...props} {...componentMarker('SessionList', props)} className={joinClasses(frame, 'overflow-x-auto')}>
       <table className="min-w-[760px] w-full text-left text-sm">
+        <caption className="sr-only">{caption}</caption>
         <thead className="bg-[var(--mairie-surface-raised)] text-xs font-semibold uppercase tracking-wide text-[var(--mairie-muted)]">
           <tr>
             <th scope="col" className="px-4 py-3">Appareil</th>

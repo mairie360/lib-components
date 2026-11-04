@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
 export const Sizes: Story = { render: (args) => <div className="flex flex-col gap-3">{sizes.map((size) => <UserIdentity key={size} {...args} size={size} />)}</div> };
-export const Variants: Story = { render: (args) => <div className="flex gap-6"><UserIdentity {...args} /><UserIdentity {...args} variant="nameOnly" /><UserIdentity {...args} variant="photo" /></div> };
-export const Avatars: Story = { render: () => <div className="flex items-end gap-3">{sizes.map((size) => <Avatar key={size} alt="Marie Martin" size={size} />)}<Spinner size="l" label="Chargement" /></div> };
+export const Variants: Story = { render: (args) => <div className="flex flex-wrap gap-6"><UserIdentity {...args} /><UserIdentity {...args} variant="nameOnly" /><UserIdentity {...args} variant="photo" /></div> };
+export const Avatars: Story = { render: () => <div className="flex flex-wrap items-end gap-3">{sizes.map((size) => <Avatar key={size} alt="Marie Martin" size={size} />)}<Spinner size="l" label="Chargement" /></div> };
 export const Stack: Story = { render: () => <AvatarStack label="Membres du projet" max={3} people={[{ name: 'Marie Martin' }, { name: 'Paul Durand' }, { name: 'Léa Petit' }, { name: 'Ali Ben' }, { name: 'Nora Diallo' }]} /> };
-export const Notices: Story = { render: () => <div className="flex w-[600px] flex-col gap-6"><SessionExpiredNotice loginHref="#" /><PendingFeatureNotice feature="Pièces jointes" /></div> };
+export const Notices: Story = { render: () => <div className="flex w-full max-w-[600px] flex-col gap-6"><SessionExpiredNotice loginHref="#" /><PendingFeatureNotice feature="Pièces jointes" /></div> };
