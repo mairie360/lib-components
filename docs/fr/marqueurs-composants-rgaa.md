@@ -32,6 +32,10 @@ zones d'annonce et sa liste de toasts, les parties de `Select` et `DropdownMenu`
   composant interne (`<Modal {...props} {...componentMarker('ConfirmModal', props)}>`).
 - `withoutMarker(props)` retire le marqueur de l'appelant, pour un composant qui étale ses props
   sur un contrôle interne (`<input {...withoutMarker(props)} />` dans `TextField`).
+- `asChildMarker(name, props, child.props)` est le marqueur d'une racine `asChild` (l'élément
+  enfant devient la racine du composant) : les noms de l'appelant, puis `name`, puis les noms que
+  l'enfant portait déjà (`DropdownMenuItem asChild` autour d'un lien marqué donne
+  `DropdownMenuItem LinkButton`).
 
 `src/__tests__/ComponentMarkers.test.tsx` rend chaque composant exporté et échoue quand l'un
 d'eux n'a pas de marqueur, ou quand un nouvel export n'y a pas de fixture.

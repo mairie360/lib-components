@@ -186,4 +186,24 @@ describe('MAIR-318: lib component markers for the RGAA coverage report', () => {
     expect(container.querySelector('input')!.hasAttribute(COMPONENT_MARKER)).toBe(false);
     expect(componentMarker('Button', { [COMPONENT_MARKER]: 'SaveButton Button' })).toEqual({ [COMPONENT_MARKER]: 'SaveButton Button' });
   });
+
+  it('TagList marks its empty-state root', () => {
+    const { container } = render(<L.TagList label="Étiquettes" items={[]} emptyText="Aucune étiquette" />);
+    expect(names(container.firstElementChild)).toContain('TagList');
+  });
+
+  it('an asChild item or trigger marks the child it renders: caller, component, then the child names', () => {
+    const { container } = render(
+      <P.DropdownMenu open onOpenChange={noop}>
+        <P.DropdownMenuTrigger asChild {...componentMarker('ProjectMenu')}><span id="trigger">Menu</span></P.DropdownMenuTrigger>
+        <P.DropdownMenuContent>
+          <P.DropdownMenuItem asChild><a id="plain" href="#a">Ouvrir</a></P.DropdownMenuItem>
+          <P.DropdownMenuItem asChild><a id="marked" href="#b" {...componentMarker('Inner')}>Lien</a></P.DropdownMenuItem>
+        </P.DropdownMenuContent>
+      </P.DropdownMenu>,
+    );
+    expect(names(container.querySelector('#trigger'))).toEqual(['ProjectMenu', 'DropdownMenuTrigger']);
+    expect(names(container.ownerDocument.querySelector('#plain'))).toEqual(['DropdownMenuItem']);
+    expect(names(container.ownerDocument.querySelector('#marked'))).toEqual(['DropdownMenuItem', 'Inner']);
+  });
 });

@@ -1,5 +1,5 @@
 import React from "react";
-import { componentMarker } from '../component-marker';
+import { asChildMarker, componentMarker } from '../component-marker';
 
 interface DropdownMenuContextValue {
   open: boolean;
@@ -59,7 +59,7 @@ function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTrigge
     return React.cloneElement(children, {
       onClick: handleClick,
       "data-slot": "dropdown-menu-trigger",
-      ...componentMarker('DropdownMenuTrigger', children.props),
+      ...asChildMarker('DropdownMenuTrigger', props, children.props),
     });
   }
 
@@ -195,6 +195,7 @@ function DropdownMenuItem({
         )}
         {React.cloneElement(child, {
           ...props,
+          ...asChildMarker("DropdownMenuItem", props, child.props as object),
           "data-slot": "dropdown-menu-item",
           "data-inset": inset,
           "data-variant": variant,

@@ -32,6 +32,9 @@ render no element of their own.
   (`<Modal {...props} {...componentMarker('ConfirmModal', props)}>`).
 - `withoutMarker(props)` drops the caller's marker, for a component that spreads its props on an
   inner control (`<input {...withoutMarker(props)} />` in `TextField`).
+- `asChildMarker(name, props, child.props)` is the marker of an `asChild` root (the child element
+  becomes the component's root): the caller's names, then `name`, then the names the child already
+  had (`DropdownMenuItem asChild` around a marked link gives `DropdownMenuItem LinkButton`).
 
 `src/__tests__/ComponentMarkers.test.tsx` renders every exported component and fails when one
 has no marker, or when a new export has no fixture there.

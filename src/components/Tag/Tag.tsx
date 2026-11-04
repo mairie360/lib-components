@@ -44,7 +44,7 @@ export interface TagListProps extends Omit<React.HTMLAttributes<HTMLUListElement
 }
 /** Horizontal list of tags (Figma `Base/TagList`). */
 export const TagList = ({ label, items, size = 'm', onRemove, emptyText, className = '', ...props }: TagListProps) => {
-  if (items.length === 0) return emptyText ? <Help>{emptyText}</Help> : null;
+  if (items.length === 0) return emptyText ? <Help {...componentMarker('TagList', props)}>{emptyText}</Help> : null;
   return (
     <ul {...props} {...componentMarker('TagList', props)} aria-label={label} className={`flex flex-wrap gap-2 ${className}`.trim()}>
       {items.map(item => <li key={item}><Tag label={item} size={size} onRemove={onRemove ? () => onRemove(item) : undefined} /></li>)}
