@@ -33,13 +33,16 @@ export const labelSize = (size: Size): Size => (size === 'xs' ? 'xs' : size === 
  * `Base/*Field`). Field components render it; use it directly only for a custom control.
  */
 export const Field = ({ htmlFor, label, hint, error, required = false, size = 'm', disabled = false, children, className = '', ...props }: FieldProps) => (
-  <div {...props} {...componentMarker('Field', props)} data-size={size} data-invalid={error ? 'true' : undefined} className={`mairie-field flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ gap: 'var(--mairie-space-xs)', ...props.style }}>
+  <div {...props} {...componentMarker('Field', props)} data-size={size} data-invalid={error ? 'true' : undefined} data-disabled={disabled ? 'true' : undefined} className={`mairie-field flex flex-col ${className}`.replace(/\s+/g, ' ').trim()} style={{ gap: 'var(--mairie-space-xs)', ...props.style }}>
     {/* The required marker sits beside the label so the control's accessible name stays the label text alone. */}
-    <span className="inline-flex items-baseline gap-1">
+    {/* Disabled: the label and the control are dimmed, never the hint, which must keep a 4.5:1
+        contrast (RGAA 3.2, MAIR-473). */}
+    <span className={`inline-flex items-baseline gap-1 ${disabled ? 'opacity-60' : ''}`.trim()}>
       <label htmlFor={htmlFor} className="font-medium text-[var(--mairie-text)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>{label}</label>
       {required ? <span aria-hidden="true" className="text-[var(--mairie-error-text)]">*</span> : null}
     </span>
-    {children}
+    {/* Always the same wrapper: toggling `disabled` must not remount the control (an uncontrolled input would lose its value). */}
+    <div className={disabled ? 'opacity-60' : undefined}>{children}</div>
     {hint && !error ? <p id={`${htmlFor}-hint`} className="text-[var(--mairie-muted)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>{hint}</p> : null}
     {error ? (
       <p id={`${htmlFor}-error`} role="alert" className="flex items-center gap-1 text-[var(--mairie-error-text)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>

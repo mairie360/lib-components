@@ -41,7 +41,7 @@ export function Tabs<Key extends string = string>({ label, items, value, onChang
   const edge = (last: boolean) => { if (enabled.length) focusTab(enabled[last ? enabled.length - 1 : 0].key); };
   return (
     <div {...props} {...componentMarker('Tabs', props)} id={idProp ? `${idProp}-tabs` : undefined} data-size={size} className={className}>
-      <div role="tablist" aria-label={label} className="flex gap-1 border-b border-[var(--mairie-border)]">
+      <div role="tablist" aria-label={label} className="flex flex-wrap gap-1 border-b border-[var(--mairie-border)]">
         {items.map((item, index) => {
           const selected = item.key === value;
           return (

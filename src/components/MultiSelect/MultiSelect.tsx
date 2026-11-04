@@ -54,7 +54,7 @@ export function MultiSelect<T extends string = string>({ label, options, value, 
           ))}
           <span className="inline-flex flex-1 items-center" style={{ gap: 'var(--mairie-space-xs)', minWidth: 120 }}>
             <Icon icon={Search} size="s" className="text-[var(--mairie-muted)]" />
-            <input id={fieldId} type="search" value={query} disabled={disabled} placeholder={searchPlaceholder} aria-label={typeof label === 'string' ? `${label} : filtrer les options` : 'Filtrer les options'} aria-controls={`${fieldId}-options`} onChange={(event) => setQuery(event.target.value)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mairie-muted)]" style={{ fontSize: 'inherit', minHeight: 'var(--mairie-control-xs)' }} />
+            <input id={fieldId} type="search" value={query} disabled={disabled} placeholder={searchPlaceholder} aria-label={typeof label === 'string' ? `${label} : filtrer les options` : 'Filtrer les options'} aria-controls={`${fieldId}-options`} onChange={(event) => setQuery(event.target.value)} className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-[var(--mairie-muted)] focus-within:shadow-[inset_0_-2px_0_var(--mairie-accent)]" style={{ fontSize: 'inherit', minHeight: 'var(--mairie-control-xs)' }} />
           </span>
         </div>
         <div id={`${fieldId}-options`} role="group" aria-label={typeof label === 'string' ? `Options : ${label}` : 'Options'} className="overflow-y-auto border-t border-[var(--mairie-border)]" style={{ maxHeight: `calc(var(--mairie-control-${size}) * ${visibleOptions})` }}>

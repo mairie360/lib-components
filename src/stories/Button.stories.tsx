@@ -34,7 +34,7 @@ export const VariantsAndTones: Story = {
 };
 
 export const Sizes: Story = {
-  render: (args) => <div className="flex items-end gap-3">{sizes.map((size) => <Button key={size} {...args} label={size} size={size} icon={Calendar} />)}</div>,
+  render: (args) => <div className="flex flex-wrap items-end gap-3">{sizes.map((size) => <Button key={size} {...args} label={size} size={size} icon={Calendar} />)}</div>,
 };
 
 export const Loading: Story = { args: { label: 'Enregistrement…', loading: true } };
@@ -49,7 +49,7 @@ export const Presets: Story = {
 
 export const IconButtons: Story = {
   render: () => (
-    <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center gap-2">
       {(['close', 'more', 'edit', 'delete', 'previous', 'next', 'search', 'notifications'] as const).map((preset) => <IconButton key={preset} preset={preset} />)}
     </div>
   ),
@@ -57,7 +57,7 @@ export const IconButtons: Story = {
 
 export const LinkButtons: Story = {
   render: () => (
-    <div className="flex items-center gap-6">
+    <div className="flex flex-wrap items-center gap-6">
       <LinkButton href="#" label="Mot de passe oublié ?" />
       <LinkButton href="#" label="Voir tout" icon={Calendar} tone="secondary" />
       <LinkButton href="#" icon={Calendar} iconOnly label="Ouvrir le calendrier" />

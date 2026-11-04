@@ -18,12 +18,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {};
-export const Tones: Story = { render: (args) => <div className="flex w-[560px] flex-col gap-3">{tones.map((tone) => <Alert key={tone} {...args} tone={tone} title={tone} />)}</div> };
-export const Presets: Story = { render: () => <div className="flex w-[560px] flex-col gap-3"><ErrorAlert description="L’enregistrement a échoué." /><WarningAlert description="Cette action est irréversible." /><InfoAlert description="Les horaires changent le 1er novembre." /><SuccessAlert /><UnavailableAlert onAction={fn()} /></div> };
-export const DataStates: Story = { render: () => <div className="grid w-[900px] grid-cols-2 gap-4">{(['loading', 'empty', 'unavailable', 'error'] as const).map((state) => <div key={state} className="rounded-lg border border-[var(--mairie-border)]"><DataState state={state} onRetry={fn()} onCreate={fn()} /></div>)}</div> };
+export const Tones: Story = { render: (args) => <div className="flex w-full max-w-[560px] flex-col gap-3">{tones.map((tone) => <Alert key={tone} {...args} tone={tone} title={tone} />)}</div> };
+export const Presets: Story = { render: () => <div className="flex w-full max-w-[560px] flex-col gap-3"><ErrorAlert description="L’enregistrement a échoué." /><WarningAlert description="Cette action est irréversible." /><InfoAlert description="Les horaires changent le 1er novembre." /><SuccessAlert /><UnavailableAlert onAction={fn()} /></div> };
+export const DataStates: Story = { render: () => <div className="grid w-full max-w-[900px] grid-cols-1 gap-4 sm:grid-cols-2">{(['loading', 'empty', 'unavailable', 'error'] as const).map((state) => <div key={state} className="rounded-lg border border-[var(--mairie-border)]"><DataState state={state} onRetry={fn()} onCreate={fn()} /></div>)}</div> };
 function Toasts() {
   const toast = useToast();
-  return <div className="flex gap-2"><Button label="Erreur" tone="danger" onClick={() => toast.error('L’action n’a pas pu être effectuée.')} /><Button label="Succès" tone="success" onClick={() => toast.success('Profil enregistré.')} /><Button label="Avertissement" tone="warning" onClick={() => toast.warning('Mode dégradé : certaines données sont en cache.')} /><Button label="Info" tone="info" onClick={() => toast.info('Nouvelle version disponible.')} /></div>;
+  return <div className="flex flex-wrap gap-2"><Button label="Erreur" tone="danger" onClick={() => toast.error('L’action n’a pas pu être effectuée.')} /><Button label="Succès" tone="success" onClick={() => toast.success('Profil enregistré.')} /><Button label="Avertissement" tone="warning" onClick={() => toast.warning('Mode dégradé : certaines données sont en cache.')} /><Button label="Info" tone="info" onClick={() => toast.info('Nouvelle version disponible.')} /></div>;
 }
 /** `useToast().error/success/warning/info`: errors and warnings persist, success and info count down 5 s with the bar. */
 export const ToastShortcuts: Story = { render: () => <ToastProvider regionLabel="Notifications"><Toasts /></ToastProvider> };
@@ -39,4 +39,4 @@ function DrawerHost() {
   const [open, setOpen] = React.useState(false);
   return <><Button label="Voir la fiche" variant="outline" onClick={() => setOpen(true)} /><Drawer open={open} title="Fiche du projet" onClose={() => setOpen(false)}><p>Détails du projet.</p></Drawer></>;
 }
-export const Overlays: Story = { render: () => <div className="flex gap-3"><ModalHost /><ConfirmHost /><DrawerHost /></div> };
+export const Overlays: Story = { render: () => <div className="flex flex-wrap gap-3"><ModalHost /><ConfirmHost /><DrawerHost /></div> };
