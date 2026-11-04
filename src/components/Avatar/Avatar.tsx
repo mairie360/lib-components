@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { componentMarker } from '../component-marker';
 
 export interface AvatarProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   src?: string;
@@ -25,7 +26,7 @@ export function Avatar({ className = '', src, alt = '', fallback, size = 'm', st
   const [imageError, setImageError] = React.useState(false);
   const showImage = Boolean(src) && !imageError;
   return (
-    <div data-slot="avatar" data-size={size} {...props} className={`relative flex shrink-0 overflow-hidden rounded-full ${className}`.trim()} style={{ width: `var(--mairie-avatar-${size})`, height: `var(--mairie-avatar-${size})`, ...style }}>
+    <div data-slot="avatar" data-size={size} {...props} {...componentMarker('Avatar', props)} className={`relative flex shrink-0 overflow-hidden rounded-full ${className}`.trim()} style={{ width: `var(--mairie-avatar-${size})`, height: `var(--mairie-avatar-${size})`, ...style }}>
       {showImage ? (
         <img data-slot="avatar-image" src={src} alt={alt} className="aspect-square size-full object-cover" onError={() => setImageError(true)} />
       ) : (

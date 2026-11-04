@@ -7,6 +7,7 @@ import type { Size } from '@mairie360/lib-components/theme';
 import { Field, fieldDescriptionIds } from '../Field';
 import { Icon } from '../Icon';
 import { CancelButton } from '../ButtonPresets';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export interface FileFieldProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size' | 'onChange' | 'value'> {
   label: React.ReactNode;
@@ -35,7 +36,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(func
   const [dragging, setDragging] = React.useState(false);
   const emit = (list: FileList | null) => { if (!list || disabled) return; onChange?.(Array.from(list)); };
   return (
-    <Field htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
+    <Field {...componentMarker('FileField', props)} htmlFor={inputId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className} style={style}>
       <div
         data-dragging={dragging || undefined}
         onDragOver={(event) => { event.preventDefault(); if (!disabled) setDragging(true); }}
@@ -44,7 +45,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(func
         className={`flex flex-col items-center justify-center rounded-[var(--mairie-radius-m)] border border-dashed bg-[var(--mairie-surface-raised)] text-center ${error ? 'border-[var(--mairie-error-text)]' : dragging ? 'border-[var(--mairie-accent)]' : 'border-[var(--mairie-control-border)]'}`}
         style={{ gap: 'var(--mairie-space-s)', padding: 'var(--mairie-space-l) var(--mairie-space-m)' }}
       >
-        <input {...props} ref={ref} id={inputId} type="file" multiple={multiple} required={required} disabled={disabled} aria-invalid={error ? true : undefined} aria-describedby={fieldDescriptionIds(inputId, hint, error)} onChange={(event) => { emit(event.target.files); /* the same file can be picked again after « Retirer » */ event.target.value = ''; }} className="sr-only" />
+        <input {...withoutMarker(props)} ref={ref} id={inputId} type="file" multiple={multiple} required={required} disabled={disabled} aria-invalid={error ? true : undefined} aria-describedby={fieldDescriptionIds(inputId, hint, error)} onChange={(event) => { emit(event.target.files); /* the same file can be picked again after « Retirer » */ event.target.value = ''; }} className="sr-only" />
         {files.length > 0 ? (
           <>
             {previewSrc ? (

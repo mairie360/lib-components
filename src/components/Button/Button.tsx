@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 
 import type { Size, Tone } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export type ButtonVariant = 'solid' | 'outline' | 'ghost' | 'link';
 
@@ -102,6 +103,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
   return (
     <button
       {...props}
+      {...componentMarker('Button', props)}
       ref={ref}
       type={type}
       disabled={disabled || loading}

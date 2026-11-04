@@ -6,6 +6,7 @@ import { CancelButton, ConfirmDeleteButton } from '../ButtonPresets';
 import { Button } from '../Button';
 import { Modal, type ModalProps } from '../Modal';
 import { Body } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export interface ConfirmModalProps extends Omit<ModalProps, 'children' | 'footer' | 'open' | 'onClose'> {
   /** Defaults to `onCancel`. */
@@ -28,7 +29,7 @@ export interface ConfirmModalProps extends Omit<ModalProps, 'children' | 'footer
 /** Confirmation of an irreversible action, on `Modal` size xs (MAIR-608, Figma `Modal/Confirm`). */
 export const ConfirmModal = ({ message, onCancel, onConfirm, isOpen, open = isOpen ?? false, confirmLabel, cancelLabel, destructive = true, busy = false, onClose = onCancel, size = 'xs', closeOnBackdrop = true, ...props }: ConfirmModalProps) => (
   // While the request runs, Escape, the backdrop and the header close cannot dismiss the dialog.
-  <Modal {...props} open={open} size={size} onClose={busy ? () => undefined : onClose} closeOnBackdrop={closeOnBackdrop && !busy} footer={<>
+  <Modal {...props} {...componentMarker('ConfirmModal', props)} open={open} size={size} onClose={busy ? () => undefined : onClose} closeOnBackdrop={closeOnBackdrop && !busy} footer={<>
     <CancelButton label={cancelLabel} onClick={onCancel} disabled={busy} />
     {destructive ? <ConfirmDeleteButton label={confirmLabel} onClick={onConfirm} loading={busy} /> : <Button label={confirmLabel ?? 'Confirmer'} onClick={onConfirm} loading={busy} />}
   </>}>

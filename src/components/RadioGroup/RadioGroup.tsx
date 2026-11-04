@@ -4,6 +4,7 @@ import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { choiceBox } from '../Checkbox';
+import { componentMarker } from '../component-marker';
 
 export interface RadioOption<T extends string = string> {
   value: T;
@@ -33,7 +34,7 @@ export function RadioGroup<T extends string = string>({ label, name, options, va
   const generated = React.useId();
   const box = choiceBox[size];
   return (
-    <fieldset {...props} disabled={disabled} aria-invalid={error ? true : undefined} aria-describedby={error ? `${generated}-error` : hint ? `${generated}-hint` : undefined} data-size={size} className={`m-0 min-w-0 border-0 p-0 ${disabled ? 'opacity-60' : ''} ${className}`.trim()} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--mairie-space-xs)', ...style }}>
+    <fieldset {...props} {...componentMarker('RadioGroup', props)} disabled={disabled} aria-invalid={error ? true : undefined} aria-describedby={error ? `${generated}-error` : hint ? `${generated}-hint` : undefined} data-size={size} className={`m-0 min-w-0 border-0 p-0 ${disabled ? 'opacity-60' : ''} ${className}`.trim()} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--mairie-space-xs)', ...style }}>
       <legend className="mb-1 font-medium text-[var(--mairie-text)]" style={{ fontSize: `var(--mairie-text-${size === 'xl' ? 'l' : size === 'xs' ? 'xs' : 's'})` }}>
         {label}
         {required ? <span aria-hidden="true" className="text-[var(--mairie-error-text)]"> *</span> : null}

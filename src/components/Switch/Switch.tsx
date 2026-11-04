@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { componentMarker, withoutMarker } from '../component-marker';
 
 export interface SwitchProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onChange' | 'type'> {
   label: React.ReactNode;
@@ -34,10 +35,10 @@ export const Switch = React.forwardRef<HTMLButtonElement, SwitchProps>(function 
     onChange?.(!on);
   };
   return (
-    <div className={`flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.trim()} style={{ gap: 'var(--mairie-space-xs)', ...style }} data-size={size}>
+    <div {...componentMarker('Switch', props)} className={`flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.trim()} style={{ gap: 'var(--mairie-space-xs)', ...style }} data-size={size}>
       <div className="inline-flex items-center" style={{ gap: 'var(--mairie-space-s)' }}>
         <button
-          {...props}
+          {...withoutMarker(props)}
           ref={ref}
           id={switchId}
           type="button"

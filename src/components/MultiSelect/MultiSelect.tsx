@@ -7,6 +7,7 @@ import type { Size } from '@mairie360/lib-components/theme';
 import { Field, controlClass, controlStyle } from '../Field';
 import { Icon } from '../Icon';
 import type { SelectOption } from '../SelectField';
+import { componentMarker } from '../component-marker';
 
 export interface MultiSelectProps<T extends string = string> {
   label: React.ReactNode;
@@ -41,7 +42,7 @@ export function MultiSelect<T extends string = string>({ label, options, value, 
   const visible = normalized ? options.filter((option) => option.label.toLocaleLowerCase('fr').includes(normalized)) : options;
   const toggle = (option: SelectOption<T>) => onChange(value.includes(option.value) ? value.filter((entry) => entry !== option.value) : [...value, option.value]);
   return (
-    <Field htmlFor={fieldId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className}>
+    <Field {...componentMarker('MultiSelect')} htmlFor={fieldId} label={label} hint={hint} error={error} required={required} size={size} disabled={disabled} className={className}>
       <div className={`flex flex-col ${controlClass(Boolean(error))}`} style={{ ...controlStyle(size), minHeight: undefined, paddingInline: 0 }} data-multiselect>
         <div className="flex flex-wrap items-center" style={{ gap: 'var(--mairie-space-xs)', padding: 'var(--mairie-space-xs) var(--mairie-space-s)' }}>
           {selected.map((option) => (

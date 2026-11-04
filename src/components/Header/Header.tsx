@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '../DropdownMenu';
+import { componentMarker } from '../component-marker';
 
 type User = {
   name?: string;
@@ -135,7 +136,7 @@ export const Header = ({
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-b-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)] px-4 text-[var(--mairie-text)] sm:px-6">
+    <header className="flex h-16 items-center justify-between border-b border-b-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)] px-4 text-[var(--mairie-text)] sm:px-6" {...componentMarker('Header')}>
       <div className="flex flex-1 items-center gap-3 sm:gap-4">
         <button
           ref={menuButtonRef}

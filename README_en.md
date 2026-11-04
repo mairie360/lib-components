@@ -166,7 +166,8 @@ Storybook loads the library stylesheet globally and discovers stories matching `
 2. Export a named component whose name matches the filename: `ComponentName`.
 3. Add a Storybook story under `src/stories`.
 4. Its tests live beside it (`ComponentName.test.tsx`); `src/__tests__` keeps the cross-component suites.
-5. Run the tests and build before submitting the change.
+5. Put `{...componentMarker('ComponentName', props)}` on its root element and add a fixture to `src/__tests__/ComponentMarkers.test.tsx` (RGAA coverage marker, MAIR-318, see `docs/en/rgaa-component-markers.md`).
+6. Run the tests and build before submitting the change.
 
 Do not manually maintain `src/index.tsx` for top-level components. The `prebuild` script regenerates it and will overwrite manual changes. Files inside nested component folders are not added automatically to the package entry point.
 

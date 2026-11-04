@@ -5,6 +5,7 @@ import { AlertCircle } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export interface FieldProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** Id of the control the label points to. */
@@ -32,7 +33,7 @@ export const labelSize = (size: Size): Size => (size === 'xs' ? 'xs' : size === 
  * `Base/*Field`). Field components render it; use it directly only for a custom control.
  */
 export const Field = ({ htmlFor, label, hint, error, required = false, size = 'm', disabled = false, children, className = '', ...props }: FieldProps) => (
-  <div {...props} data-size={size} data-invalid={error ? 'true' : undefined} className={`mairie-field flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ gap: 'var(--mairie-space-xs)', ...props.style }}>
+  <div {...props} {...componentMarker('Field', props)} data-size={size} data-invalid={error ? 'true' : undefined} className={`mairie-field flex flex-col ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ gap: 'var(--mairie-space-xs)', ...props.style }}>
     {/* The required marker sits beside the label so the control's accessible name stays the label text alone. */}
     <span className="inline-flex items-baseline gap-1">
       <label htmlFor={htmlFor} className="font-medium text-[var(--mairie-text)]" style={{ fontSize: `var(--mairie-text-${labelSize(size)})` }}>{label}</label>

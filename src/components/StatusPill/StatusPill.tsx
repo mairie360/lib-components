@@ -3,6 +3,7 @@
 import React from 'react';
 
 import type { Size, Tone } from '@mairie360/lib-components/theme';
+import { componentMarker } from '../component-marker';
 
 export interface StatusPillProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> {
   label: string;
@@ -31,6 +32,7 @@ export const StatusPill = React.forwardRef<HTMLSpanElement, StatusPillProps>(fun
   return (
     <span
       {...props}
+      {...componentMarker('StatusPill', props)}
       ref={ref}
       data-tone={tone}
       data-size={size}
@@ -68,7 +70,7 @@ export interface StatusBadgeProps extends Omit<StatusPillProps, 'label' | 'tone'
 }
 /** `<StatusBadge status="active" />`: the status presets of Figma Status/*. */
 export const StatusBadge = React.forwardRef<HTMLSpanElement, StatusBadgeProps>(function StatusBadge({ status, label, ...props }, ref) {
-  return <StatusPill ref={ref} dot data-status={status} {...props} label={label ?? statuses[status].label} tone={statuses[status].tone} />;
+  return <StatusPill ref={ref} dot data-status={status} {...props} {...componentMarker('StatusBadge', props)} label={label ?? statuses[status].label} tone={statuses[status].tone} />;
 });
 
 export const priorities = { high: { label: 'Haute', tone: 'danger' }, medium: { label: 'Moyenne', tone: 'warning' }, low: { label: 'Basse', tone: 'info' } } as const satisfies Record<string, { label: string; tone: Tone }>;
@@ -76,5 +78,5 @@ export type Priority = keyof typeof priorities;
 export interface PriorityPillProps extends Omit<StatusPillProps, 'label' | 'tone'> { level: Priority; label?: string }
 /** `<PriorityPill level="high" />` (Figma Priority/*). */
 export const PriorityPill = React.forwardRef<HTMLSpanElement, PriorityPillProps>(function PriorityPill({ level, label, ...props }, ref) {
-  return <StatusPill ref={ref} data-priority={level} {...props} label={label ?? priorities[level].label} tone={priorities[level].tone} />;
+  return <StatusPill ref={ref} data-priority={level} {...props} {...componentMarker('PriorityPill', props)} label={label ?? priorities[level].label} tone={priorities[level].tone} />;
 });

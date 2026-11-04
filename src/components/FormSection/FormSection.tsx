@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { componentMarker } from '../component-marker';
 
 export interface FormSectionProps extends Omit<React.HTMLAttributes<HTMLElement>, 'title'> {
   title: React.ReactNode;
@@ -16,7 +17,7 @@ export interface FormSectionProps extends Omit<React.HTMLAttributes<HTMLElement>
 export const FormSection = ({ title, description, busy = false, footer, children, className = '', style, ...props }: FormSectionProps) => {
   const headingId = React.useId();
   return (
-    <section {...props} aria-labelledby={headingId} aria-busy={busy || undefined} className={`rounded-[var(--mairie-radius-l)] border border-[var(--mairie-border)] bg-[var(--mairie-surface)] ${className}`.trim()} style={{ padding: 'var(--mairie-space-l)', display: 'flex', flexDirection: 'column', gap: 'var(--mairie-space-m)', ...style }}>
+    <section {...props} {...componentMarker('FormSection', props)} aria-labelledby={headingId} aria-busy={busy || undefined} className={`rounded-[var(--mairie-radius-l)] border border-[var(--mairie-border)] bg-[var(--mairie-surface)] ${className}`.trim()} style={{ padding: 'var(--mairie-space-l)', display: 'flex', flexDirection: 'column', gap: 'var(--mairie-space-m)', ...style }}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--mairie-space-xs)' }}>
         <h2 id={headingId} className="font-semibold text-[var(--mairie-text)]" style={{ fontSize: 'var(--mairie-text-l)' }}>{title}</h2>
         {description ? <p className="text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>{description}</p> : null}

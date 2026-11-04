@@ -6,6 +6,7 @@ import { X } from 'lucide-react';
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
 import { Help } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export type TagSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface TagProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> {
@@ -20,7 +21,7 @@ const heights: Record<TagSize, number> = { s: 22, m: 26, l: 30 };
 /** Free label (keyword, theme), removable or not (MAIR-608, Figma `Base/Tag`). */
 export const Tag = React.forwardRef<HTMLSpanElement, TagProps>(function Tag({ label, size = 'm', onRemove, removeLabel, className = '', style, ...props }, ref) {
   return (
-    <span {...props} ref={ref} data-size={size} className={`inline-flex shrink-0 items-center gap-1 rounded-md border border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] font-medium leading-none text-[var(--mairie-text)] ${className}`.trim()}
+    <span {...props} {...componentMarker('Tag', props)} ref={ref} data-size={size} className={`inline-flex shrink-0 items-center gap-1 rounded-md border border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] font-medium leading-none text-[var(--mairie-text)] ${className}`.trim()}
       style={{ height: heights[size], paddingInline: 'var(--mairie-space-s)', fontSize: `var(--mairie-text-${size === 'l' ? 'm' : 's'})`, ...style }}>
       {label}
       {onRemove && (
@@ -45,7 +46,7 @@ export interface TagListProps extends Omit<React.HTMLAttributes<HTMLUListElement
 export const TagList = ({ label, items, size = 'm', onRemove, emptyText, className = '', ...props }: TagListProps) => {
   if (items.length === 0) return emptyText ? <Help>{emptyText}</Help> : null;
   return (
-    <ul {...props} aria-label={label} className={`flex flex-wrap gap-2 ${className}`.trim()}>
+    <ul {...props} {...componentMarker('TagList', props)} aria-label={label} className={`flex flex-wrap gap-2 ${className}`.trim()}>
       {items.map(item => <li key={item}><Tag label={item} size={size} onRemove={onRemove ? () => onRemove(item) : undefined} /></li>)}
     </ul>
   );

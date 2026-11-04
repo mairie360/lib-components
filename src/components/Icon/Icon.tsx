@@ -4,6 +4,7 @@ import React from 'react';
 import type { LucideIcon } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { componentMarker } from '../component-marker';
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref' | 'width' | 'height'> {
   /** A lucide icon component, e.g. `Calendar` from `lucide-react`. */
@@ -21,6 +22,7 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref' | '
 export const Icon = ({ icon: Glyph, size = 'm', label, className = '', style, ...props }: IconProps) => (
   <Glyph
     {...props}
+    {...componentMarker('Icon', props)}
     aria-hidden={label ? undefined : true}
     aria-label={label}
     role={label ? 'img' : undefined}

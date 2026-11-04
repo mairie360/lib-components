@@ -5,6 +5,7 @@ import type { Tone } from '@mairie360/lib-components/theme';
 import { ToastAnnouncementContext, type ToastProps } from '../Toast';
 import { TimedToast } from './components/TimedToast';
 import { isDanger, type CloseReason, type Entry } from './toast-entries';
+import { componentMarker } from '../component-marker';
 
 export interface ToastOptions extends Pick<ToastProps, 'message' | 'title' | 'tone' | 'variant' | 'closeLabel'> {
   /** Persistent by default. Danger toasts always remain until dismissed. */
@@ -80,9 +81,9 @@ export function ToastProvider({ children, regionLabel, closeLabel = 'Fermer la n
   return <Context.Provider value={value}>{children}
     {/* Mounted before any receipt. Additions announce complete messages; removing a
         toast also removes its hidden text, without keeping a second history. */}
-    <div className="sr-only" role="status" aria-live="polite" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => !isDanger(entry.options)).map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
-    <div className="sr-only" role="alert" aria-live="assertive" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => isDanger(entry.options)).map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
-    <ToastAnnouncementContext.Provider value={false}>{entries.length > 0 && <section aria-label={regionLabel} className="fixed inset-x-4 top-4 z-50 max-h-[80vh] overflow-y-auto sm:left-auto sm:w-96"><ol className="space-y-3">{entries.map(entry => <li key={entry.id}><TimedToast entry={entry} inactive={!windowActive || !visible} closeLabel={closeLabel} close={close} register={register} /></li>)}</ol></section>}</ToastAnnouncementContext.Provider></Context.Provider>;
+    <div {...componentMarker('ToastProvider')} className="sr-only" role="status" aria-live="polite" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => !isDanger(entry.options)).map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
+    <div {...componentMarker('ToastProvider')} className="sr-only" role="alert" aria-live="assertive" aria-atomic="false" aria-relevant="additions">{entries.filter(entry => isDanger(entry.options)).map(entry => <div key={entry.id}>{entry.options.title ? `${entry.options.title} ` : ''}{entry.options.message}</div>)}</div>
+    <ToastAnnouncementContext.Provider value={false}>{entries.length > 0 && <section {...componentMarker('ToastProvider')} aria-label={regionLabel} className="fixed inset-x-4 top-4 z-50 max-h-[80vh] overflow-y-auto sm:left-auto sm:w-96"><ol className="space-y-3">{entries.map(entry => <li key={entry.id}><TimedToast entry={entry} inactive={!windowActive || !visible} closeLabel={closeLabel} close={close} register={register} /></li>)}</ol></section>}</ToastAnnouncementContext.Provider></Context.Provider>;
 }
 
 export function useToast(): ToastContextValue {

@@ -1,4 +1,5 @@
 import React from "react";
+import { componentMarker } from '../component-marker';
 
 interface SelectContextValue {
   value?: string;
@@ -39,7 +40,7 @@ function Select({ children, value: controlledValue, onValueChange, defaultValue 
 
   return (
     <SelectContext.Provider value={{ value, onValueChange: handleValueChange, open, setOpen, triggerRef }}>
-      <div data-slot="select" className="relative inline-block w-full">
+      <div {...componentMarker("Select")} data-slot="select" className="relative inline-block w-full">
         {children}
       </div>
     </SelectContext.Provider>
@@ -69,6 +70,7 @@ function SelectTrigger({
   return (
     <button
       {...props}
+      {...componentMarker('SelectTrigger', props)}
       ref={triggerRef}
       aria-haspopup="listbox"
       aria-expanded={open}
@@ -119,7 +121,7 @@ function SelectValue({ placeholder }: SelectValueProps) {
   const selectedItem = itemsContext.items.find((item) => item.value === value);
 
   return (
-    <span data-slot="select-value" className="flex items-center gap-2 line-clamp-1">
+    <span {...componentMarker("SelectValue")} data-slot="select-value" className="flex items-center gap-2 line-clamp-1">
       {selectedItem ? selectedItem.label : placeholder || "Sélectionner..."}
     </span>
   );
@@ -176,6 +178,7 @@ function SelectContent({
       data-slot="select-content"
       className={`absolute z-50 mt-1 max-h-60 min-w-[8rem] w-full overflow-auto rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] shadow-md text-[var(--mairie-text)] p-1 ${className}`}
       {...props}
+      {...componentMarker('SelectContent', props)}
       onBlur={event => {
         props.onBlur?.(event);
         const next = event.relatedTarget as Node | null;
@@ -254,6 +257,7 @@ function SelectItem({ className = "", value, children, ...props }: SelectItemPro
       data-slot="select-item"
       className={`relative flex w-full cursor-default items-center gap-2 rounded px-2 py-1.5 pr-8 text-sm outline-none select-none hover:bg-[var(--mairie-surface-raised)] focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] ${className}`}
       {...props}
+      {...componentMarker('SelectItem', props)}
       onClick={event => {
         props.onClick?.(event);
         if (!event.defaultPrevented) handleClick();
@@ -299,6 +303,7 @@ function SelectLabel({ className = "", ...props }: SelectLabelProps) {
       data-slot="select-label"
       className={`px-2 py-1.5 text-xs text-[var(--mairie-muted)] ${className}`}
       {...props}
+      {...componentMarker('SelectLabel', props)}
     />
   );
 }
@@ -311,6 +316,7 @@ function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
       data-slot="select-separator"
       className={`-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)] pointer-events-none ${className}`}
       {...props}
+      {...componentMarker('SelectSeparator', props)}
     />
   );
 }
@@ -318,7 +324,7 @@ function SelectSeparator({ className = "", ...props }: SelectSeparatorProps) {
 type SelectGroupProps = React.HTMLAttributes<HTMLDivElement>;
 
 function SelectGroup({ ...props }: SelectGroupProps) {
-  return <div data-slot="select-group" {...props} />;
+  return <div data-slot="select-group" {...props} {...componentMarker('SelectGroup', props)} />;
 }
 
 function SelectScrollUpButton() {

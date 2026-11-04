@@ -4,6 +4,7 @@ import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { mairie360LogoSrc } from '../../assets/logo';
+import { componentMarker } from '../component-marker';
 
 export interface LogoProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src' | 'width' | 'height' | 'alt'> {
   /** Height on the logo scale (16 / 24 / 32 / 48 / 64 px): `l` in the sidebar, `xl` on the login page, `m` in compact bars. */
@@ -19,6 +20,7 @@ export const Logo = ({ size = 'm', alt = 'Mairie 360', src = mairie360LogoSrc, c
   // eslint-disable-next-line @next/next/no-img-element -- consumers choose their image loader; the asset is a bundled data URL.
   <img
     {...props}
+    {...componentMarker('Logo', props)}
     src={src}
     alt={alt}
     data-size={size}

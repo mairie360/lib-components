@@ -7,6 +7,7 @@ import { Header, type HeaderProps } from '../Header';
 import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } from '../Sidebar';
 import { NotificationCenter, type NotificationSource } from '../NotificationCenter';
 import { joinClasses } from '../shared-classes';
+import { componentMarker } from '../component-marker';
 
 export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
   /**
@@ -169,7 +170,7 @@ export const AppShell = ({
   );
 
   return (
-    <div {...props} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('app-shell-veil h-screen overflow-hidden font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame flex flex-col' : undefined, className)}>
+    <div {...props} {...componentMarker('AppShell', props)} data-sidebar-collapsed={collapsibleSidebar ? collapsed : undefined} className={joinClasses('app-shell-veil h-screen overflow-hidden font-sans text-[var(--mairie-text)]', collapsibleSidebar ? 'app-shell-frame flex flex-col' : undefined, className)}>
       <div inert={skipLinkInactive || sidebarOpen || notificationsOpen}>
         <a
           href={`#${mainId}`}

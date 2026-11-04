@@ -10,6 +10,7 @@ import { Skeleton } from '../Skeleton';
 import { SessionDate } from './components/SessionDate';
 import { parseSessionTimestamp } from './session-dates';
 import { joinClasses } from '../shared-classes';
+import { componentMarker } from '../component-marker';
 
 /** One session as the BFF User contract returns it (Administrator and Settings share this shape). */
 export interface SessionRecord {
@@ -106,14 +107,14 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
 
   if (loading && !sessions) {
     return (
-      <div {...props} className={frame} aria-busy="true">
+      <div {...props} {...componentMarker('SessionList', props)} className={frame} aria-busy="true">
         <div className="p-4"><Skeleton.TableRow label="Chargement des sessions…" columns={5} /></div>
       </div>
     );
   }
   if (!sessions) {
     return (
-      <div {...props} className={frame}>
+      <div {...props} {...componentMarker('SessionList', props)} className={frame}>
         <DataState
           state="unavailable"
           size="s"
@@ -127,14 +128,14 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
   }
   if (sessions.length === 0) {
     return (
-      <div {...props} className={frame}>
+      <div {...props} {...componentMarker('SessionList', props)} className={frame}>
         <DataState state="empty" size="s" title={emptyMessage} description={null} />
       </div>
     );
   }
 
   return (
-    <div {...props} className={joinClasses(frame, 'overflow-x-auto')}>
+    <div {...props} {...componentMarker('SessionList', props)} className={joinClasses(frame, 'overflow-x-auto')}>
       <table className="min-w-[760px] w-full text-left text-sm">
         <thead className="bg-[var(--mairie-surface-raised)] text-xs font-semibold uppercase tracking-wide text-[var(--mairie-muted)]">
           <tr>

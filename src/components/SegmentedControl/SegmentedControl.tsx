@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export type SegmentedSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface SegmentedOption<Key extends string = string> { key: Key; label: string; icon?: LucideIcon; disabled?: boolean }
@@ -25,7 +26,7 @@ export function SegmentedControl<Key extends string = string>({ label, options, 
   // Focus follows the selection (WAI-ARIA radio group).
   const step = (direction: number) => { const index = enabled.findIndex(option => option.key === value); const next = enabled[(index + direction + enabled.length) % enabled.length]; if (next) { onChange(next.key); buttons.current.get(next.key)?.focus(); } };
   return (
-    <div {...props} role="radiogroup" aria-label={label} data-size={size} className={`inline-flex items-center gap-0.5 rounded-md border border-[var(--mairie-control-border)] bg-[var(--mairie-surface-raised)] p-0.5 ${className}`.trim()} style={{ height: heights[size], ...style }}
+    <div {...props} {...componentMarker('SegmentedControl', props)} role="radiogroup" aria-label={label} data-size={size} className={`inline-flex items-center gap-0.5 rounded-md border border-[var(--mairie-control-border)] bg-[var(--mairie-surface-raised)] p-0.5 ${className}`.trim()} style={{ height: heights[size], ...style }}
       onKeyDown={event => { if (event.key === 'ArrowRight' || event.key === 'ArrowDown') { event.preventDefault(); step(1); } if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') { event.preventDefault(); step(-1); } }}>
       {options.map(option => {
         const checked = option.key === value;

@@ -4,6 +4,7 @@ import React from 'react';
 
 import { getInstanceTimeZone } from '@mairie360/lib-components/shared';
 import { Caption, Text, type TextProps } from '../Text';
+import { componentMarker } from '../component-marker';
 
 export type DateTimeFormat = 'short' | 'medium' | 'long' | 'relative' | 'dateOnly';
 export interface DateTimeProps extends Omit<TextProps, 'as' | 'children' | 'dateTime'> {
@@ -44,8 +45,8 @@ export function formatDateTime(value: DateTimeProps['value'], format: DateTimeFo
 /** A date or time in the instance time zone (MAIR-608, Figma `Base/DateTime`); machine-readable `<time>`. */
 export const DateTime = ({ value, format = 'medium', now, timeZone, unavailableText = 'Indisponible', size = 's', tone = 'default', ...props }: DateTimeProps) => {
   const date = parseDateValue(value);
-  if (!date) return <Caption {...props} data-format="unavailable" size={size}>{unavailableText}</Caption>;
+  if (!date) return <Caption {...props} {...componentMarker('DateTime', props)} data-format="unavailable" size={size}>{unavailableText}</Caption>;
   const text = formatDateTime(date, format, timeZone, now)!;
   const title = format === 'relative' ? formatDateTime(date, 'long', timeZone)! : undefined;
-  return <Text {...props} as="time" size={size} tone={tone} dateTime={date.toISOString()} title={title} data-format={format}>{text}</Text>;
+  return <Text {...props} {...componentMarker('DateTime', props)} as="time" size={size} tone={tone} dateTime={date.toISOString()} title={title} data-format={format}>{text}</Text>;
 };

@@ -5,6 +5,7 @@ import type { LucideIcon } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { componentMarker } from '../component-marker';
 
 export type TabsSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface TabItem<Key extends string = string> { key: Key; label: string; icon?: LucideIcon; disabled?: boolean; /** Optional counter shown after the label. */ count?: number }
@@ -39,7 +40,7 @@ export function Tabs<Key extends string = string>({ label, items, value, onChang
   };
   const edge = (last: boolean) => { if (enabled.length) focusTab(enabled[last ? enabled.length - 1 : 0].key); };
   return (
-    <div {...props} id={idProp ? `${idProp}-tabs` : undefined} data-size={size} className={className}>
+    <div {...props} {...componentMarker('Tabs', props)} id={idProp ? `${idProp}-tabs` : undefined} data-size={size} className={className}>
       <div role="tablist" aria-label={label} className="flex gap-1 border-b border-[var(--mairie-border)]">
         {items.map((item, index) => {
           const selected = item.key === value;

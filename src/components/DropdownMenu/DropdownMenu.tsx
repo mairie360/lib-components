@@ -1,4 +1,5 @@
 import React from "react";
+import { componentMarker } from '../component-marker';
 
 interface DropdownMenuContextValue {
   open: boolean;
@@ -29,7 +30,7 @@ function DropdownMenu({ children, open: controlledOpen, onOpenChange }: Dropdown
 
   return (
     <DropdownMenuContext.Provider value={{ open, setOpen }}>
-      <div data-slot="dropdown-menu" className="relative inline-block">
+      <div {...componentMarker('DropdownMenu')} data-slot="dropdown-menu" className="relative inline-block">
         {children}
       </div>
     </DropdownMenuContext.Provider>
@@ -58,12 +59,14 @@ function DropdownMenuTrigger({ children, asChild, ...props }: DropdownMenuTrigge
     return React.cloneElement(children, {
       onClick: handleClick,
       "data-slot": "dropdown-menu-trigger",
+      ...componentMarker('DropdownMenuTrigger', children.props),
     });
   }
 
   return (
     <button
       {...props}
+      {...componentMarker('DropdownMenuTrigger', props)}
       type="button"
       data-slot="dropdown-menu-trigger"
       aria-expanded={open}
@@ -129,7 +132,7 @@ function DropdownMenuContent({
         right: align === "end" ? 0 : undefined,
         transform: align === "center" ? "translateX(-50%)" : undefined,
       }}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuContent', props)}
     >
       {children}
     </div>
@@ -217,7 +220,7 @@ function DropdownMenuItem({
         data-variant={variant}
         className={itemClassName}
         onClick={handleClick}
-        {...props}
+        {...props} {...componentMarker('DropdownMenuItem', props)}
       >
         {children}
       </div>
@@ -240,7 +243,7 @@ function DropdownMenuLabel({
       data-slot="dropdown-menu-label"
       data-inset={inset}
       className={`px-2 py-1.5 text-sm font-medium ${inset ? "pl-8" : ""} ${className}`}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuLabel', props)}
     >
       {children}
     </div>
@@ -257,7 +260,7 @@ function DropdownMenuSeparator({
     <div
       data-slot="dropdown-menu-separator"
       className={`-mx-1 my-1 h-px bg-[var(--mairie-surface-raised)] ${className}`}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuSeparator', props)}
     />
   );
 }
@@ -266,7 +269,7 @@ type DropdownMenuGroupProps = React.HTMLAttributes<HTMLDivElement>;
 
 function DropdownMenuGroup({ children, ...props }: DropdownMenuGroupProps) {
   return (
-    <div data-slot="dropdown-menu-group" {...props}>
+    <div data-slot="dropdown-menu-group" {...props} {...componentMarker('DropdownMenuGroup', props)}>
       {children}
     </div>
   );
@@ -282,7 +285,7 @@ function DropdownMenuShortcut({
     <span
       data-slot="dropdown-menu-shortcut"
       className={`ml-auto text-xs tracking-widest text-[var(--mairie-text)] ${className}`}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuShortcut', props)}
     />
   );
 }
@@ -307,7 +310,7 @@ function DropdownMenuCheckboxItem({
         disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${className}`}
       onClick={onClick}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuCheckboxItem', props)}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         {checked && (
@@ -351,7 +354,7 @@ function DropdownMenuRadioGroup({
 }: DropdownMenuRadioGroupProps) {
   return (
     <DropdownMenuRadioContext.Provider value={{ value, onValueChange }}>
-      <div data-slot="dropdown-menu-radio-group" {...props}>
+      <div data-slot="dropdown-menu-radio-group" {...props} {...componentMarker('DropdownMenuRadioGroup', props)}>
         {children}
       </div>
     </DropdownMenuRadioContext.Provider>
@@ -386,7 +389,7 @@ function DropdownMenuRadioItem({
         disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${className}`}
       onClick={handleClick}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuRadioItem', props)}
     >
       <span className="pointer-events-none absolute left-2 flex size-3.5 items-center justify-center">
         {isSelected && (
@@ -411,7 +414,7 @@ interface DropdownMenuSubProps {
 }
 
 function DropdownMenuSub({ children }: DropdownMenuSubProps) {
-  return <div data-slot="dropdown-menu-sub">{children}</div>;
+  return <div {...componentMarker('DropdownMenuSub')} data-slot="dropdown-menu-sub">{children}</div>;
 }
 
 interface DropdownMenuSubTriggerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -433,7 +436,7 @@ function DropdownMenuSubTrigger({
       className={`flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-none select-none ${
         disabled ? "pointer-events-none opacity-50" : "hover:bg-[var(--mairie-surface-raised)]"
       } ${inset ? "pl-8" : ""} ${className}`}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuSubTrigger', props)}
     >
       {children}
       <svg
@@ -467,7 +470,7 @@ function DropdownMenuSubContent({
     <div
       data-slot="dropdown-menu-sub-content"
       className={`z-50 min-w-[8rem] overflow-hidden rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface)] p-1 shadow-lg ${className}`}
-      {...props}
+      {...props} {...componentMarker('DropdownMenuSubContent', props)}
     >
       {children}
     </div>

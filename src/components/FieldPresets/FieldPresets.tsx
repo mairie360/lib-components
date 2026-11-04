@@ -3,6 +3,7 @@
 import React from 'react';
 
 import { TextField, type TextFieldProps } from '../TextField';
+import { componentMarker } from '../component-marker';
 
 export type FieldPresetProps = Omit<TextFieldProps, 'type' | 'label'> & { label?: React.ReactNode };
 
@@ -10,7 +11,7 @@ function preset(name: string, defaults: Partial<TextFieldProps> & { type: TextFi
   const Preset = React.forwardRef<HTMLInputElement, FieldPresetProps>(function Preset(props, ref) {
     // An explicit `undefined` keeps the preset default (label, placeholder, autocomplete).
     const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined));
-    return <TextField ref={ref} {...defaults} label={defaults.label} data-preset={name} {...overrides} />;
+    return <TextField ref={ref} {...defaults} label={defaults.label} data-preset={name} {...overrides} {...componentMarker(`${name}Field`, props)} />;
   });
   Preset.displayName = `${name}Field`;
   return Preset;
