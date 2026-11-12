@@ -68,7 +68,8 @@ const menuScene = (
 
 const textPresets = ['Body', 'BodySmall', 'Caption', 'ErrorText', 'Help', 'Label', 'Link', 'Metric', 'ModalTitle', 'Overline', 'PageTitle', 'PanelTitle', 'SectionTitle'] as const;
 const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
-const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField'] as const;
+const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NewPasswordField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField', 'TimeField'] as const;
+const iconButtonPresets = ['CloseIconButton', 'DeleteIconButton', 'EditIconButton', 'MoreIconButton', 'NextIconButton', 'NotificationsIconButton', 'PreviousIconButton', 'SearchIconButton'] as const;
 const alertPresets = ['ErrorAlert', 'InfoAlert', 'SuccessAlert', 'UnavailableAlert', 'WarningAlert'] as const;
 
 const fixtures: Record<string, Fixture> = {
@@ -78,6 +79,16 @@ const fixtures: Record<string, Fixture> = {
   Avatar: { element: <L.Avatar alt="Camille Martin" /> },
   AvatarStack: { element: <L.AvatarStack label="Membres" people={[{ name: 'Camille Martin' }]} /> },
   Button: { element: <L.Button label="Valider" /> },
+  DescriptionList: { element: <L.DescriptionList items={[{ label: 'Navigateur', value: 'Firefox 132' }]} /> },
+  Gantt: { element: <L.Gantt from="2026-09-01" to="2026-12-01" rows={[{ id: 'a', label: 'Cadrage', state: 'done', start: '2026-09-01', end: '2026-09-20' }]} /> },
+  GanttBar: { element: <L.GanttBar state="doing" start="2026-09-01" end="2026-09-20" label="Cadrage" /> },
+  GanttMilestone: { element: <L.GanttMilestone date="2026-09-20" label="Jalon" /> },
+  GanttToday: { element: <L.GanttToday /> },
+  ProfilePhotoField: { element: <L.ProfilePhotoField label="Photo de profil" initials="QT" onChange={noop} /> },
+  Rating: { element: <L.Rating label="Note" value={4} /> },
+  SessionDetails: { element: <L.SessionDetails session={{ id: 's1', device_info: 'Firefox/132.0', ip_address: '192.0.2.1', created_at: '2026-11-12T08:00:00Z', expires_at: '2026-11-19T08:00:00Z' }} now={0} /> },
+  SettingToggle: { element: <L.SettingToggle label="Mentions" checked onChange={noop} /> },
+  SettingToggleGroup: { element: <L.SettingToggleGroup title="Notifications"><p>Ligne</p></L.SettingToggleGroup> },
   Card: { element: <L.Card>Contenu</L.Card> },
   Checkbox: { element: <L.Checkbox label="Accepter" /> },
   ConfirmModal: { element: <L.ConfirmModal open title="Supprimer ?" message="Confirmer la suppression." onCancel={noop} onConfirm={noop} /> },
@@ -143,6 +154,7 @@ const fixtures: Record<string, Fixture> = {
   ...Object.fromEntries(textPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset>Texte</Preset> }]; })),
   ...Object.fromEntries(buttonPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(fieldPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
+  ...Object.fromEntries(iconButtonPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(alertPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(['DropdownMenuCheckboxItem', 'DropdownMenuContent', 'DropdownMenuGroup', 'DropdownMenuItem', 'DropdownMenuLabel', 'DropdownMenuRadioGroup', 'DropdownMenuRadioItem', 'DropdownMenuSeparator', 'DropdownMenuShortcut', 'DropdownMenuSub', 'DropdownMenuSubContent', 'DropdownMenuSubTrigger', 'DropdownMenuTrigger']
     .map(name => [name, { element: menuScene, root: false }])),

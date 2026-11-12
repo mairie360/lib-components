@@ -26,8 +26,14 @@ export interface ModalProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   children?: React.ReactNode;
   /** Clicking the backdrop closes the dialog (default true). */
   closeOnBackdrop?: boolean;
+  /** `alertdialog` for a confirmation that interrupts the user (logout, deletion). */
+  role?: 'dialog' | 'alertdialog';
 }
-export const modalWidths: Record<Size, number> = { xs: 320, s: 400, m: 520, l: 720, xl: 960 };
+/** MAIR-857: max widths of the Figma `Base/Modal` sizes (the user sheet uses l, 800 px). */
+export const modalWidths: Record<Size, number> = { xs: 360, s: 480, m: 640, l: 800, xl: 1040 };
+/** MAIR-857: the veil of Modal, ConfirmModal and Drawer (Figma `Overlay`, --mairie-overlay-background at 35 %). */
+export const dialogBackdropClass = 'fixed inset-0 z-50 bg-[var(--mairie-overlay-background)]/35';
+const DIALOG = ':is([role="dialog"], [role="alertdialog"])[aria-modal="true"]';
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 /** Keeps Tab inside the panel and restores focus to the opener on close. */
@@ -45,12 +51,12 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
     const opener = active && active !== doc.body && !node.contains(active) ? active : null;
     // Controls disabled by a surrounding fieldset are not tab stops either.
     // Own tab stops only: not disabled by a fieldset, not inside a nested dialog.
-    const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => !element.matches(':disabled') && element.closest('[role="dialog"][aria-modal="true"]') === node);
+    const focusables = () => Array.from(node.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(element => !element.matches(':disabled') && element.closest(DIALOG) === node);
     // A busy dialog whose controls are all disabled still takes focus, on its panel.
     (initialFocusRef?.current ?? focusables()[0] ?? node).focus();
     const keydown = (event: KeyboardEvent) => {
       // A dialog nested inside this one owns its own keys (Tab scope, Escape).
-      const owner = (event.target as Element | null)?.closest?.('[role="dialog"][aria-modal="true"]');
+      const owner = (event.target as Element | null)?.closest?.(DIALOG);
       if (owner && owner !== node) return;
       if (event.key === 'Escape') { event.stopPropagation(); close.current(); return; }
       if (event.key !== 'Tab') return;
@@ -68,20 +74,22 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
       // (a details dialog replaced by its editor keeps focus inside the editor).
       const current = doc.activeElement;
       const lost = !current || current === doc.body || node.contains(current);
-      const otherDialog = Array.from(doc.querySelectorAll('[role="dialog"][aria-modal="true"]')).some(dialog => dialog !== node && dialog.isConnected);
+      const otherDialog = Array.from(doc.querySelectorAll(DIALOG)).some(dialog => dialog !== node && dialog.isConnected);
       if (lost && !otherDialog && opener?.isConnected) opener.focus();
     };
   }, [open, panel, initialFocusRef]);
 }
 
 /** Centred window over a veil: header (title, close), free content, actions footer (MAIR-608, Figma `Base/Modal`). */
-export const Modal = ({ open, title, description, onClose, size = 'm', footer, initialFocusRef, closeLabel = 'Fermer la fenêtre', children, closeOnBackdrop = true, className = '', style, ...props }: ModalProps) => {
+export const Modal = ({ open, title, description, onClose, size = 'm', footer, initialFocusRef, closeLabel = 'Fermer la fenêtre', children, closeOnBackdrop = true, role = 'dialog', className = '', style, ...props }: ModalProps) => {
   const titleId = useId(); const descriptionId = useId(); const panel = useRef<HTMLDivElement>(null);
   useDialogFocus(open, panel, onClose, initialFocusRef);
   if (!open) return null;
   return (
-    <div {...componentMarker('Modal', props)} className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--mairie-text)]/40 p-4 backdrop-blur-sm" onMouseDown={event => { if (closeOnBackdrop && event.target === event.currentTarget) onClose(); }}>
-      <div {...withoutMarker(props)} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1} data-size={size}
+    // Full-window veil from 360 to 1920 px, dialog centred on both axes; on a short window the dialog
+    // keeps a 16 px margin and its body scrolls (max-h-full).
+    <div {...componentMarker('Modal', props)} className={`${dialogBackdropClass} flex items-center justify-center p-4`} onMouseDown={event => { if (closeOnBackdrop && event.target === event.currentTarget) onClose(); }}>
+      <div {...withoutMarker(props)} ref={panel} role={role} aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1} data-size={size}
         className={`flex max-h-full w-full flex-col overflow-hidden border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: modalWidths[size], borderRadius: 'var(--mairie-radius-xl)', ...style }}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>

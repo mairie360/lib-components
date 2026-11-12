@@ -4,7 +4,7 @@ import { Calendar } from 'lucide-react';
 
 import { Button } from '../components/Button';
 import { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';
-import { IconButton } from '../components/IconButton';
+import { CloseIconButton, DeleteIconButton, EditIconButton, IconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from '../components/IconButton';
 import { LinkButton } from '../components/LinkButton';
 import { sizes, tones } from '../kit/theme';
 
@@ -51,6 +51,31 @@ export const IconButtons: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-2">
       {(['close', 'more', 'edit', 'delete', 'previous', 'next', 'search', 'notifications'] as const).map((preset) => <IconButton key={preset} preset={preset} />)}
+    </div>
+  ),
+};
+
+/** MAIR-843 / MAIR-862: the IconButton/* presets as components, and the disabled state in every size. */
+export const IconButtonPresets: Story = {
+  render: () => (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <PreviousIconButton onClick={fn()} /><NextIconButton onClick={fn()} /><CloseIconButton /><EditIconButton /><DeleteIconButton /><SearchIconButton /><NotificationsIconButton /><MoreIconButton />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {sizes.map((size) => <NextIconButton key={size} size={size} disabled />)}
+      </div>
+    </div>
+  ),
+};
+
+/** MAIR-842: with `href`, a button or a preset renders a real link (same look). */
+export const AsLink: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3">
+      <BackButton href="#connexion" label="Retour à la connexion" />
+      <Button href="#aide" label="Aide en ligne" variant="outline" tone="secondary" />
+      <Button href="#aide" label="Lien désactivé" disabled />
     </div>
   ),
 };

@@ -24,7 +24,13 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   activeItem?: string;
   isAdmin?: boolean;
   user?: HeaderProps['user'];
-  onLogout?: () => void;
+  onLogout?: () => void | Promise<unknown>;
+  /**
+   * MAIR-901: `scroll` (default) lets the page scroll inside the main area; `fill` gives a full-height
+   * module (messaging, calendar, board): the main area fills the height without overflowing and only
+   * the module's own panels scroll.
+   */
+  mainLayout?: 'scroll' | 'fill';
   /** Destinations supplied by the consuming frontend; the library reads no environment variables. */
   hrefs: Record<string, string | undefined>;
   /** Optional client-side router for relative destinations; otherwise use a full-page navigation. */
@@ -59,6 +65,7 @@ export const AppShell = ({
   isAdmin = false,
   user,
   onLogout,
+  mainLayout = 'scroll',
   hrefs,
   onNavigate,
   onPageChange,
@@ -225,7 +232,7 @@ export const AppShell = ({
             showSettings={canNavigate('settings')}
             showAdministration={canNavigate('admin')}
           />
-          <main id={mainId} ref={mainRef} tabIndex={-1} className={joinClasses('min-h-0 flex-1 overflow-auto focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', collapsibleSidebar ? 'app-shell-main' : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
+          <main id={mainId} ref={mainRef} tabIndex={-1} data-layout={mainLayout} className={joinClasses('app-shell-main-area min-h-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', mainLayout === 'fill' ? undefined : 'overflow-auto', collapsibleSidebar ? 'app-shell-main' : mainLayout === 'fill' ? undefined : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
             {children}
           </main>
           {!collapsibleSidebar && effectiveFooterPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}

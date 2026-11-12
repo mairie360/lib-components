@@ -64,3 +64,31 @@ describe('MAIR-765 teal application frame', () => {
     expect(css).toMatch(/--mairie-navigation-shadow: none;/);
   });
 });
+
+describe('MAIR-886 / MAIR-890 shared stylesheet scope', () => {
+  // MAIR-886: the active, hovered and Administration items keep their background and border:
+  // their rules are as specific as the base `nav button` rule that resets them to transparent.
+  it.each([
+    'nav button:hover',
+    'nav button[aria-current="page"]',
+    'nav button[data-admin="true"]',
+    'nav button[data-admin="true"][aria-current="page"]',
+  ])('scopes .app-desktop-navigation %s under body.mairie-ui', selector => {
+    expect(desktop).toContain(`body.mairie-ui .app-desktop-navigation ${selector} {`);
+    expect(desktop).not.toMatch(new RegExp(`\\n\\s+\\.app-desktop-navigation ${selector.replace(/[[\]().*+?^$|]/g, '\\$&')} \\{`));
+  });
+
+  // MAIR-890: the AppShell frame is self-sufficient; no rule targets a front's root class or the
+  // internal structure of the frame.
+  it('targets no class owned by a front', () => {
+    expect(css).not.toMatch(/projects-shell|calendar-scroll-shell|calendar-board|calendar-title-bar|messages-app-root|messages-module|elearning-|settings-shell|settings-file-picker|dashboard-app-shell|dashboard-panel-action|dashboard-recent-projects|administration-shell|administration-panel|administration-console|login-page/);
+    expect(css).not.toContain('> .flex > .flex >');
+  });
+});
+
+describe('MAIR-901 full-height module', () => {
+  it('gives the fill main area the charte padding, no scroll and the whole height to its content', () => {
+    expect(css).toMatch(/\.app-shell-main-area\[data-layout="fill"\] \{ display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 20px 24px; \}/);
+    expect(css).toMatch(/\.app-shell-main-area\[data-layout="fill"\] > :is\(\.app-main-content, :only-child\) \{ display: flex; flex: 1; flex-direction: column; min-height: 0; \}/);
+  });
+});

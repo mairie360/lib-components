@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { fn } from 'storybook/test';
 
 import { Checkbox } from '../components/Checkbox';
-import { DateField, EmailField, NameField, NumberField, PasswordField, PhoneField, SearchField } from '../components/FieldPresets';
+import { DateField, EmailField, NameField, NewPasswordField, NumberField, PasswordField, PhoneField, SearchField, TimeField } from '../components/FieldPresets';
+import { checkNewPassword } from '../kit/password';
 import { FileField } from '../components/FileField';
 import { FilterSelect } from '../components/FilterSelect';
 import { FormActions } from '../components/FormActions';
@@ -45,10 +46,17 @@ export const Sizes: Story = {
 export const Presets: Story = {
   render: () => (
     <div className="grid max-w-3xl gap-6 md:grid-cols-2">
-      <EmailField /><PasswordField /><SearchField onClear={fn()} /><PhoneField /><DateField /><NumberField /><NameField />
+      <EmailField /><PasswordField /><NewPasswordField /><SearchField onClear={fn()} /><PhoneField /><DateField /><TimeField label="Heure de début" step={900} /><NumberField /><NameField />
     </div>
   ),
 };
+
+function NewPasswordDemo() {
+  const [value, setValue] = useState('mairie');
+  return <NewPasswordField value={value} onChange={(event) => setValue(event.target.value)} error={checkNewPassword(value) ?? undefined} />;
+}
+/** MAIR-837: the shared rule (12 characters, digits and letters) checked as the agent types. */
+export const NewPassword: Story = { render: () => <div className="max-w-sm"><NewPasswordDemo /></div> };
 
 const options = [{ value: 'dashboard', label: 'Tableau de bord' }, { value: 'projects', label: 'Projets' }, { value: 'calendar', label: 'Calendrier' }, { value: 'messages', label: 'Messagerie' }];
 
@@ -66,6 +74,7 @@ function ChoiceDemo() {
         <Switch label="Ouverture automatique des notifications" defaultChecked />
         <Slider label="Taille de police" min={14} max={24} defaultValue={16} format={(v) => `${v} px`} />
         <FilterSelect label="Statut" options={[{ value: 'active', label: 'Actif' }, { value: 'inactive', label: 'Inactif' }]} value={status} onChange={setStatus} />
+        <FilterSelect mode="menu" label="Statut (menu)" options={[{ value: 'active', label: 'Actif' }, { value: 'inactive', label: 'Inactif' }]} value={status} onChange={setStatus} />
       </div>
       <FileField label="Photo de profil" constraint="PNG, JPG · 2 Mo max" onChange={fn()} />
     </div>
