@@ -66,6 +66,7 @@ function ChoiceDemo() {
         <Switch label="Ouverture automatique des notifications" defaultChecked />
         <Slider label="Taille de police" min={14} max={24} defaultValue={16} format={(v) => `${v} px`} />
         <FilterSelect label="Statut" options={[{ value: 'active', label: 'Actif' }, { value: 'inactive', label: 'Inactif' }]} value={status} onChange={setStatus} />
+        <FilterSelect mode="menu" label="Statut (menu)" options={[{ value: 'active', label: 'Actif' }, { value: 'inactive', label: 'Inactif' }]} value={status} onChange={setStatus} />
       </div>
       <FileField label="Photo de profil" constraint="PNG, JPG · 2 Mo max" onChange={fn()} />
     </div>
