@@ -200,6 +200,11 @@ tsup.config.ts            # Configuration de la compilation JavaScript et des ty
 ## CI et publication
 
 GitHub Actions exécute le workflow partagé des bibliothèques frontend Mairie360 lors des pushs, des pull requests et des lancements manuels. Les métadonnées du package publient `dist` sur GitHub Packages sous le nom `@mairie360/lib-components`.
+
+### Version (MAIR-861)
+
+La version publiée est **calculée par la CI**, pas lue dans `package.json` : à chaque push sur `main`, le job `package` de `mairie360/CICD` (`front-libs-cicd.yml`) lance semantic-release sur les commits conventionnels (`fix` → correctif, `feat` → mineure, `BREAKING CHANGE` → majeure), crée le tag `vX.Y.Z`, réécrit la version avec `npm version --no-git-tag-version` puis publie. Cette réécriture n'est jamais commitée : la `version` de `package.json` sur `main` est seulement indicative, alignée sur la dernière version publiée quand une version est documentée dans [`CHANGELOG.md`](./CHANGELOG.md). Pour savoir ce qu'un front reçoit, lisez les tags ou le changelog, jamais `package.json`.
+
 ## Vérification complète des types — 8 octobre 2026
 
 `npm run typecheck` contrôle les composants, tests et exemples Storybook sans exclusion. Le workflow qualité existant appelle ce script. Les types HTML reflètent la transmission déjà présente dans Paragraph/Title ; les exemples utilisent le renderer installé et des valeurs d’entrée valides. Huit diagnostics hérités ont été reproduits avant correction ; la vérification complète passe désormais. Aucun changement du rendu typographique, de l’agencement, des API/BFF ou de la configuration RGAA.
