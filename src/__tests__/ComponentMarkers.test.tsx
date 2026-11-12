@@ -68,7 +68,8 @@ const menuScene = (
 
 const textPresets = ['Body', 'BodySmall', 'Caption', 'ErrorText', 'Help', 'Label', 'Link', 'Metric', 'ModalTitle', 'Overline', 'PageTitle', 'PanelTitle', 'SectionTitle'] as const;
 const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
-const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField'] as const;
+const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NewPasswordField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField', 'TimeField'] as const;
+const iconButtonPresets = ['CloseIconButton', 'DeleteIconButton', 'EditIconButton', 'MoreIconButton', 'NextIconButton', 'NotificationsIconButton', 'PreviousIconButton', 'SearchIconButton'] as const;
 const alertPresets = ['ErrorAlert', 'InfoAlert', 'SuccessAlert', 'UnavailableAlert', 'WarningAlert'] as const;
 
 const fixtures: Record<string, Fixture> = {
@@ -143,6 +144,7 @@ const fixtures: Record<string, Fixture> = {
   ...Object.fromEntries(textPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset>Texte</Preset> }]; })),
   ...Object.fromEntries(buttonPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(fieldPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
+  ...Object.fromEntries(iconButtonPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(alertPresets.map(name => { const Preset = L[name]; return [name, { element: <Preset /> }]; })),
   ...Object.fromEntries(['DropdownMenuCheckboxItem', 'DropdownMenuContent', 'DropdownMenuGroup', 'DropdownMenuItem', 'DropdownMenuLabel', 'DropdownMenuRadioGroup', 'DropdownMenuRadioItem', 'DropdownMenuSeparator', 'DropdownMenuShortcut', 'DropdownMenuSub', 'DropdownMenuSubContent', 'DropdownMenuSubTrigger', 'DropdownMenuTrigger']
     .map(name => [name, { element: menuScene, root: false }])),

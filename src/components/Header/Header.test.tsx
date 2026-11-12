@@ -48,6 +48,9 @@ describe('Header component', () => {
     expect(onSearch).toHaveBeenCalledWith('projet');
     expect(onNotificationsClick).toHaveBeenCalledTimes(1);
     expect(screen.getByText('2')).toBeInTheDocument();
+    // MAIR-832: white figure on the red counter, never the dark --mairie-on-action ink.
+    expect(screen.getByText('2')).toHaveClass('text-[var(--mairie-navigation-admin-text)]', 'bg-[var(--mairie-error-action-background)]');
+    expect(screen.getByText('2').className).not.toContain('--mairie-on-action');
   });
 
   it('opens the sidebar from the navigation button', () => {

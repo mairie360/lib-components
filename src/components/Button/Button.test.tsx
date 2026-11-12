@@ -121,3 +121,35 @@ describe('LinkButton (MAIR-608)', () => {
     expect(image.querySelector('img')).toHaveAttribute('src', '/doc.png');
   });
 });
+
+describe('Button href (MAIR-842)', () => {
+  it('renders a real link with the button look, and a button without href', async () => {
+    const { BackButton } = await import('../ButtonPresets');
+    render(<>
+      <BackButton href="/login" label="Retour à la connexion" />
+      <Button href="https://mairie360.fr/aide" target="_blank" label="Aide" variant="outline" />
+      <BackButton label="Retour" />
+    </>);
+    const link = screen.getByRole('link', { name: 'Retour à la connexion' });
+    expect(link).toHaveAttribute('href', '/login');
+    expect(link).not.toHaveAttribute('type');
+    expect(link).toHaveAttribute('data-variant', 'ghost');
+    expect(link).toHaveAttribute('data-m360-component', 'BackButton Button');
+    expect(link.querySelector('svg')).not.toBeNull();
+    expect(screen.getByRole('link', { name: 'Aide' })).toHaveAttribute('rel', 'noopener noreferrer');
+    expect(screen.getByRole('button', { name: 'Retour' })).toHaveAttribute('type', 'button');
+  });
+
+  it('falls back to a disabled button when disabled or loading', () => {
+    render(<><Button href="/a" label="Désactivé" disabled /><Button href="/b" label="En cours" loading /></>);
+    expect(screen.queryByRole('link')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Désactivé' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /En cours/ })).toHaveAttribute('aria-busy', 'true');
+  });
+
+  it('keeps the link underline for the link variant only', () => {
+    render(<><Button href="/x" label="Lien" variant="link" /><Button href="/y" label="Plein" /></>);
+    expect(screen.getByRole('link', { name: 'Lien' }).classList.contains('no-underline')).toBe(false);
+    expect(screen.getByRole('link', { name: 'Plein' }).classList.contains('no-underline')).toBe(true);
+  });
+});

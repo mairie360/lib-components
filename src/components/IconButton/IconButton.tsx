@@ -68,3 +68,27 @@ export const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(f
     </button>
   );
 });
+
+export type IconButtonPresetProps = Omit<IconButtonProps, 'preset' | 'icon'> & { icon?: LucideIcon };
+
+function iconPreset(name: string, preset: IconButtonPreset, label?: string) {
+  const Preset = React.forwardRef<HTMLButtonElement, IconButtonPresetProps>(function Preset(props, ref) {
+    // An explicit `undefined` (e.g. `label={maybeLabel}`) keeps the preset default.
+    const overrides = Object.fromEntries(Object.entries(props).filter(([, value]) => value !== undefined));
+    return <IconButton ref={ref} preset={preset} label={label} {...overrides} {...componentMarker(`${name}IconButton`, props)} />;
+  });
+  Preset.displayName = `${name}IconButton`;
+  return Preset;
+}
+
+/** MAIR-843: Figma `IconButton/*` presets as components; every prop of IconButton can still be overridden. */
+export const CloseIconButton = iconPreset('Close', 'close');
+export const MoreIconButton = iconPreset('More', 'more');
+export const EditIconButton = iconPreset('Edit', 'edit');
+export const DeleteIconButton = iconPreset('Delete', 'delete');
+/** « Période précédente »: period navigation (calendar toolbar, pagination, carousels). */
+export const PreviousIconButton = iconPreset('Previous', 'previous', 'Période précédente');
+/** « Période suivante ». */
+export const NextIconButton = iconPreset('Next', 'next', 'Période suivante');
+export const SearchIconButton = iconPreset('Search', 'search');
+export const NotificationsIconButton = iconPreset('Notifications', 'notifications');

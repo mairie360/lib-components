@@ -25,6 +25,14 @@ export interface ButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonE
   icon?: LucideIcon;
   iconPosition?: 'start' | 'end';
   fullWidth?: boolean;
+  /**
+   * MAIR-842: navigation target. With `href` (and not disabled nor loading) the button renders a
+   * real `<a>` with the same look: new tab, address on hover, link role for screen readers.
+   */
+  href?: string;
+  target?: React.AnchorHTMLAttributes<HTMLAnchorElement>['target'];
+  rel?: string;
+  download?: React.AnchorHTMLAttributes<HTMLAnchorElement>['download'];
 }
 
 /** Horizontal padding per size, in px (Figma Base/Button). */
@@ -95,11 +103,36 @@ export const ButtonSpinner = ({ size }: { size: Size }) => (
  * back to this base for a new case.
  */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { label, children, variant = 'solid', tone = 'primary', size = 'm', loading = false, icon, iconPosition = 'start', fullWidth = false, className = '', style, type = 'button', disabled, ...props },
+  { label, children, variant = 'solid', tone = 'primary', size = 'm', loading = false, icon, iconPosition = 'start', fullWidth = false, className = '', style, type = 'button', disabled, href, target, rel, download, ...props },
   ref,
 ) {
   const appearance = buttonAppearance(variant, tone);
   const glyph = loading ? <ButtonSpinner size={size} /> : icon ? <Icon icon={icon} size={size} /> : null;
+  if (href && !disabled && !loading) {
+    // The ref then points at the anchor; the button-only attributes (type, form…) do not apply.
+    const anchorProps: Record<string, unknown> = { ...props };
+    for (const key of ['form', 'formAction', 'formMethod', 'formNoValidate', 'formTarget', 'formEncType', 'name', 'value']) delete anchorProps[key];
+    return (
+      <a
+        {...(anchorProps as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+        {...componentMarker('Button', props)}
+        ref={ref as unknown as React.Ref<HTMLAnchorElement>}
+        href={href}
+        target={target}
+        rel={rel ?? (target === '_blank' ? 'noopener noreferrer' : undefined)}
+        download={download}
+        data-variant={variant}
+        data-tone={tone}
+        data-size={size}
+        className={`${buttonBaseClass} ${variant === 'link' ? '' : 'no-underline'} ${appearance.className} ${fullWidth ? 'w-full' : ''} ${variant === 'link' ? '!px-0' : ''} ${className}`.replace(/\s+/g, ' ').trim()}
+        style={{ ...buttonSizing(size), ...appearance.style, ...style }}
+      >
+        {iconPosition === 'start' ? glyph : null}
+        {children ?? label}
+        {iconPosition === 'end' ? glyph : null}
+      </a>
+    );
+  }
   return (
     <button
       {...props}
