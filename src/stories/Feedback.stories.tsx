@@ -23,9 +23,13 @@ export const Presets: Story = { render: () => <div className="flex w-full max-w-
 export const DataStates: Story = { render: () => <div className="grid w-full max-w-[900px] grid-cols-1 gap-4 sm:grid-cols-2">{(['loading', 'empty', 'unavailable', 'error'] as const).map((state) => <div key={state} className="rounded-lg border border-[var(--mairie-border)]"><DataState state={state} onRetry={fn()} onCreate={fn()} /></div>)}</div> };
 function Toasts() {
   const toast = useToast();
-  return <div className="flex flex-wrap gap-2"><Button label="Erreur" tone="danger" onClick={() => toast.error('L’action n’a pas pu être effectuée.')} /><Button label="Succès" tone="success" onClick={() => toast.success('Profil enregistré.')} /><Button label="Avertissement" tone="warning" onClick={() => toast.warning('Mode dégradé : certaines données sont en cache.')} /><Button label="Info" tone="info" onClick={() => toast.info('Nouvelle version disponible.')} /></div>;
+  return <div className="flex flex-wrap gap-2"><Button label="Erreur" tone="danger" onClick={() => toast.error('L’action n’a pas pu être effectuée.')} /><Button label="Succès" tone="success" onClick={() => toast.success('Profil enregistré.')} /><Button label="Avertissement" tone="warning" onClick={() => toast.warning('Mode dégradé : certaines données sont en cache.')} /><Button label="Info" tone="info" onClick={() => toast.info('Nouvelle version disponible.')} /><Button label="Supprimer (annulable)" variant="outline" tone="danger" onClick={() => toast.success('Le projet a été supprimé.', { action: { label: 'Annuler la suppression', onClick: () => toast.info('Projet restauré.') } })} /></div>;
 }
-/** `useToast().error/success/warning/info`: errors and warnings persist, success and info count down 5 s with the bar. */
+/**
+ * `useToast().error/success/warning/info`: errors and warnings persist, success and info count down 5 s with the bar.
+ * MAIR-903: `action` adds a ghost button (« Annuler la suppression ») that runs then closes the toast.
+ * MAIR-906: toasts float bottom right, above the AppShell footer (`placement="top-end"` puts them under the top bar).
+ */
 export const ToastShortcuts: Story = { render: () => <ToastProvider regionLabel="Notifications"><Toasts /></ToastProvider> };
 function ModalHost() {
   const [open, setOpen] = React.useState(false);

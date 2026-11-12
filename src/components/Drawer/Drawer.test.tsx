@@ -12,3 +12,10 @@ describe('Drawer (MAIR-608)', () => {
     rerender(<Drawer open={false} title="Fiche du projet" onClose={close} />); expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
+
+it('lays the drawer on the shared full-window veil, glued to the right at full height (MAIR-857)', () => {
+  render(<Drawer open title="Membres du groupe" onClose={() => undefined}><p>Liste</p></Drawer>);
+  const panel = screen.getByRole('dialog', { name: 'Membres du groupe' });
+  expect(panel).toHaveClass('h-full');
+  expect(panel.parentElement).toHaveClass('fixed', 'inset-0', 'bg-[var(--mairie-overlay-background)]/35', 'justify-end');
+});

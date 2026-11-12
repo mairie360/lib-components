@@ -32,3 +32,11 @@ it('honors controlled keyboard handlers and optional presentation without insert
   rerender(<Toast message="Information disponible" />);
   expect(screen.queryByRole('button')).not.toBeInTheDocument(); expect(screen.getByRole('status')).toHaveTextContent('Information disponible');
 });
+
+it('offers an optional action that runs then closes the toast (MAIR-903)', () => {
+  const undo = jest.fn(); const close = jest.fn();
+  render(<Toast tone="success" message="Le projet a été supprimé." action={{ label: 'Annuler la suppression', onClick: undo }} onClose={close} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Annuler la suppression' }));
+  expect(undo).toHaveBeenCalledTimes(1);
+  expect(close).toHaveBeenCalledTimes(1);
+});

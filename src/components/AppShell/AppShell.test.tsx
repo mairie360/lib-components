@@ -200,3 +200,24 @@ describe('AppShell', () => {
     expect(screen.queryByRole('button', { name: 'Paramètres' })).not.toBeInTheDocument();
   });
 });
+
+describe('AppShell main layout (MAIR-901)', () => {
+  it('keeps the scrolling main area by default', () => {
+    render(<AppShell hrefs={{}} collapsibleSidebar><p>Contenu</p></AppShell>);
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('data-layout', 'scroll');
+    expect(main).toHaveClass('overflow-auto', 'app-shell-main', 'app-shell-main-area');
+  });
+
+  it('fills the height without scrolling the page in fill mode', () => {
+    render(<AppShell hrefs={{}} collapsibleSidebar mainLayout="fill"><div>Messagerie</div></AppShell>);
+    const main = screen.getByRole('main');
+    expect(main).toHaveAttribute('data-layout', 'fill');
+    expect(main).not.toHaveClass('overflow-auto');
+  });
+
+  it('drops the legacy padding of the non-collapsible frame in fill mode', () => {
+    render(<AppShell hrefs={{}} mainLayout="fill"><div>Calendrier</div></AppShell>);
+    expect(screen.getByRole('main')).not.toHaveClass('px-4');
+  });
+});
