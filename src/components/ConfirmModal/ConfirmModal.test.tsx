@@ -25,3 +25,16 @@ describe('ConfirmModal (MAIR-608)', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
+
+it('focuses « Annuler » first, shows the confirm icon and blocks dismissal while busy (MAIR-834)', async () => {
+  const { LogOut } = await import('lucide-react');
+  const { ConfirmModal } = await import('./ConfirmModal');
+  const onCancel = jest.fn();
+  const { rerender } = render(<ConfirmModal open role="alertdialog" title="Se déconnecter ?" message="Message" destructive={false} confirmLabel="Se déconnecter" confirmIcon={LogOut} initialFocus="cancel" onCancel={onCancel} onConfirm={jest.fn()} />);
+  expect(screen.getByRole('button', { name: 'Annuler' })).toHaveFocus();
+  expect(screen.getByRole('button', { name: 'Se déconnecter' }).querySelector('svg')).not.toBeNull();
+  rerender(<ConfirmModal open role="alertdialog" title="Se déconnecter ?" message="Message" destructive={false} confirmLabel="Se déconnecter" busy onCancel={onCancel} onConfirm={jest.fn()} />);
+  fireEvent.keyDown(screen.getByRole('alertdialog'), { key: 'Escape' });
+  fireEvent.mouseDown(screen.getByRole('alertdialog').parentElement!);
+  expect(onCancel).not.toHaveBeenCalled();
+});

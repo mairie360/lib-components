@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Drawer } from './Drawer';
 
@@ -18,4 +18,13 @@ it('lays the drawer on the shared full-window veil, glued to the right at full h
   const panel = screen.getByRole('dialog', { name: 'Membres du groupe' });
   expect(panel).toHaveClass('h-full');
   expect(panel.parentElement).toHaveClass('fixed', 'inset-0', 'bg-[var(--mairie-overlay-background)]/35', 'justify-end');
+});
+
+it('closes on the veil but not on the panel (MAIR-857)', () => {
+  const close = jest.fn();
+  render(<Drawer open title="Membres" onClose={close}><p>Liste</p></Drawer>);
+  fireEvent.mouseDown(screen.getByText('Liste'));
+  expect(close).not.toHaveBeenCalled();
+  fireEvent.mouseDown(screen.getByRole('dialog').parentElement!);
+  expect(close).toHaveBeenCalledTimes(1);
 });

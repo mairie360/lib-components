@@ -185,6 +185,8 @@ describe('ToastProvider placement and actions (MAIR-903, MAIR-906)', () => {
     const footer = document.createElement('div'); footer.className = 'app-shell-footer';
     footer.getBoundingClientRect = () => ({ height: 37, width: 0, top: 0, left: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) });
     document.body.appendChild(footer);
+    const observe = jest.fn(); const disconnect = jest.fn();
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver = jest.fn(() => ({ observe, disconnect }));
     const user = userEvent.setup();
     render(<ToastProvider regionLabel="Notifications"><Undo /></ToastProvider>);
     await user.click(screen.getByRole('button', { name: 'Supprimer' }));
@@ -192,6 +194,8 @@ describe('ToastProvider placement and actions (MAIR-903, MAIR-906)', () => {
     expect(region).toHaveAttribute('data-placement', 'bottom-end');
     expect(region.style.bottom).toBe('53px');
     expect(region).toHaveClass('fixed', 'z-50');
+    expect(observe).toHaveBeenCalledWith(footer);
+    delete (globalThis as { ResizeObserver?: unknown }).ResizeObserver;
     footer.remove();
   });
 
