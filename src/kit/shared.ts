@@ -1,5 +1,6 @@
 export { buildContentSecurityPolicy, createNonce, NONCE_REQUEST_HEADER } from './csp';
 export * from './front-urls';
+export { checkNewPassword, NEW_PASSWORD_HINT, NEW_PASSWORD_MIN_LENGTH, NEW_PASSWORD_RULE_MESSAGE } from './password';
 export { serviceBase, publicOrigin } from '../server/config';
 
 export function publicFrontHref(value: string | undefined): string | undefined {

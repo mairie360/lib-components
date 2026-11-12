@@ -16,4 +16,11 @@ describe('StatusPill (MAIR-608)', () => {
     expect(Object.keys(statuses)).toContain('revoked');
     expect((await axe(container)).violations).toEqual([]);
   });
+
+  it('aligns review, paused and late on the Figma Status/* tones (MAIR-898)', () => {
+    render(<><StatusBadge status="review" /><StatusBadge status="paused" /><StatusBadge status="late" /></>);
+    expect(screen.getByText('En revue')).toHaveAttribute('data-tone', 'secondary');
+    expect(screen.getByText('Suspendu')).toHaveAttribute('data-tone', 'warning');
+    expect(screen.getByText('En retard')).toHaveAttribute('data-tone', 'danger');
+  });
 });

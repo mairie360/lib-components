@@ -54,7 +54,9 @@ export const statuses = {
   revoked: { label: 'Révoqué', tone: 'danger' },
   todo: { label: 'À faire', tone: 'neutral' },
   inprogress: { label: 'En cours', tone: 'primary' },
-  review: { label: 'En revue', tone: 'warning' },
+  // MAIR-898: Figma Status/Review is secondary; « Suspendu » is the Kanban column of Projets.
+  review: { label: 'En revue', tone: 'secondary' },
+  paused: { label: 'Suspendu', tone: 'warning' },
   done: { label: 'Terminé', tone: 'success' },
   late: { label: 'En retard', tone: 'danger' },
   draft: { label: 'Brouillon', tone: 'neutral' },

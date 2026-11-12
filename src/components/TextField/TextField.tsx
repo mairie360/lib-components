@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { Calendar, Eye, EyeOff, Lock, Mail, Phone, Search, X, type LucideIcon } from 'lucide-react';
+import { Calendar, Clock, Eye, EyeOff, Lock, Mail, Phone, Search, X, type LucideIcon } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Field, controlClass, controlStyle, fieldDescriptionIds } from '../Field';
 import { Icon } from '../Icon';
 import { componentMarker, withoutMarker } from '../component-marker';
 
-export type TextFieldType = 'text' | 'password' | 'email' | 'search' | 'number' | 'date' | 'tel';
+export type TextFieldType = 'text' | 'password' | 'email' | 'search' | 'number' | 'date' | 'time' | 'tel';
 
 export interface TextFieldProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type' | 'size'> {
   label: React.ReactNode;
@@ -24,7 +24,7 @@ export interface TextFieldProps extends Omit<React.InputHTMLAttributes<HTMLInput
   trailing?: React.ReactNode;
 }
 
-const typeIcons: Partial<Record<TextFieldType, LucideIcon>> = { email: Mail, password: Lock, tel: Phone, date: Calendar, search: Search };
+const typeIcons: Partial<Record<TextFieldType, LucideIcon>> = { email: Mail, password: Lock, tel: Phone, date: Calendar, time: Clock, search: Search };
 
 /**
  * Single-line field with label, hint, error and required marker (MAIR-608, Figma

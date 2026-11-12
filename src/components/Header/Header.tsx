@@ -173,7 +173,7 @@ export const Header = ({
           onClick={onNotificationsClick}
         >
           <Bell className="h-[17px] w-[17px]" strokeWidth={1.8} />
-          {typeof notificationCount === 'number' && notificationCount > 0 && <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-md border border-[var(--mairie-surface)]/70 bg-[var(--mairie-error-action-background)] px-0.5 text-[11px] font-semibold leading-none text-[var(--mairie-on-action)] shadow-md">
+          {typeof notificationCount === 'number' && notificationCount > 0 && <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-md border border-[var(--mairie-surface)]/70 bg-[var(--mairie-error-action-background)] px-0.5 text-[11px] font-semibold leading-none text-[var(--mairie-navigation-admin-text)] shadow-md">
             {notificationCount > 99 ? '99+' : notificationCount}
           </span>}
         </button>}
