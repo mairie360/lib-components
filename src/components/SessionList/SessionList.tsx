@@ -20,6 +20,10 @@ export interface SessionRecord {
   created_at: string;
   expires_at: string | null;
   revoked_at?: string | null;
+  /** MAIR-930: approximate place of the connection (« Lyon, France »), when the BFF knows it. */
+  location?: string | null;
+  /** MAIR-930: last request seen for the session (ISO 8601). */
+  last_active_at?: string | null;
 }
 
 export type SessionState = 'active' | 'expired' | 'revoked' | 'unknown';
@@ -45,8 +49,8 @@ export function nextSessionExpiryDelay(sessions: readonly SessionDates[], now: n
   return Number.isFinite(earliest) ? Math.min(earliest - now + 1, 2_147_483_647) : null;
 }
 
-const stateLabels: Record<SessionState, string> = { active: 'Active', expired: 'Expirée', revoked: 'Révoquée', unknown: 'État indéterminé' };
-const stateStatuses: Record<SessionState, Status> = { active: 'active', expired: 'expired', revoked: 'revoked', unknown: 'unknown' };
+export const sessionStateLabels: Record<SessionState, string> = { active: 'Active', expired: 'Expirée', revoked: 'Révoquée', unknown: 'État indéterminé' };
+export const sessionStateStatuses: Record<SessionState, Status> = { active: 'active', expired: 'expired', revoked: 'revoked', unknown: 'unknown' };
 
 export interface SessionListProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   /** `null` means the sessions could not be loaded (unavailable state); `[]` is the empty state. */
@@ -169,7 +173,7 @@ export const SessionList = ({ sessions, loading = false, currentSessionId = null
                     ? <>Révoquée le <SessionDate value={session.revoked_at} timeZone={timeZone} /></>
                     : <SessionDate value={session.expires_at} timeZone={timeZone} />}
                 </td>
-                <td className="px-4 py-3.5"><StatusBadge status={stateStatuses[state]} label={stateLabels[state]} size="s" /></td>
+                <td className="px-4 py-3.5"><StatusBadge status={sessionStateStatuses[state]} label={sessionStateLabels[state]} size="s" /></td>
                 {onRevoke ? (
                   <td className="px-4 py-3.5 text-right">
                     {revocable ? (
