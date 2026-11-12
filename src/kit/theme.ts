@@ -23,14 +23,25 @@ export function scaleVar(kind: keyof typeof scale, size: Size): string { return 
 export function isSize(value: unknown): value is Size { return typeof value === 'string' && (sizes as readonly string[]).includes(value); }
 export function isTone(value: unknown): value is Tone { return typeof value === 'string' && (tones as readonly string[]).includes(value); }
 
+/**
+ * @deprecated MAIR-933 (decision of 12/11/2026): the product fronts are always light and the theme choice
+ * is gone. A `theme` still sent by an older Settings or read from a v1 cookie is accepted and ignored.
+ * Removed at the next major version.
+ */
 export type AppearanceTheme = 'light' | 'dark' | 'system';
 export type AppearanceDensity = 'compact' | 'normal' | 'comfortable';
-export type Appearance = { theme: AppearanceTheme | null; density: AppearanceDensity | null; font_family: string | null };
+export type Appearance = {
+  /** @deprecated MAIR-933: ignored, the fronts are always light. */
+  theme?: AppearanceTheme | null;
+  density: AppearanceDensity | null;
+  font_family: string | null;
+};
 export const APPEARANCE_COOKIE = 'mairie360_appearance';
 const APPEARANCE_EVENT = 'mairie360:appearance';
 let configuredCookieDomain: string | undefined;
 type Environment = { document?: Document; window?: Window; cookieDomain?: string };
-const defaults: Appearance = { theme: 'system', density: null, font_family: null };
+const defaults: Appearance = { density: null, font_family: null };
+const themes: readonly unknown[] = ['light', 'dark', 'system', null, undefined];
 
 /** Same parent-host boundary as the existing public sidebar preference. */
 export function validAppearanceCookieDomain(value: string | undefined, hostname: string): string | undefined {
@@ -47,13 +58,12 @@ export function safeFontFamily(value: unknown): string | undefined {
   const family = value.trim();
   return family.split(',').every(part => /^(?:[A-Za-z][A-Za-z\d _-]*|"[A-Za-z][A-Za-z\d _-]*"|'[A-Za-z][A-Za-z\d _-]*')$/.test(part.trim())) ? family : undefined;
 }
-/** Derive safe display values from a confirmed receipt, retaining its theme. */
+/** Derive safe display values from a confirmed receipt; a legacy `theme` is validated then dropped (MAIR-933). */
 export function appearanceFromSettings(value: unknown): Appearance | undefined {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
   const record = value as Record<string, unknown>;
-  if (record.theme !== null && !['light', 'dark', 'system'].includes(record.theme as string)) return undefined;
+  if (!themes.includes(record.theme)) return undefined;
   return {
-    theme: record.theme as Appearance['theme'],
     density: ['compact', 'normal', 'comfortable'].includes(record.density as string) ? record.density as AppearanceDensity : null,
     font_family: safeFontFamily(record.font_family) ?? null,
   };
@@ -67,7 +77,9 @@ export function parseAppearanceCookie(cookie: string | undefined): Appearance | 
   if (matches.length !== 1 || matches[0].length > 2048) return undefined;
   try {
     const raw = JSON.parse(decodeURIComponent(matches[0].slice(APPEARANCE_COOKIE.length + 1)));
-    if (!raw || raw.v !== 1 || Object.keys(raw).sort().join(',') !== 'density,font_family,theme,v') return undefined;
+    // v2 (MAIR-933) has no theme; a v1 cookie is still read and its theme ignored.
+    const keys = raw && Object.keys(raw).sort().join(',');
+    if (!raw || !((raw.v === 2 && keys === 'density,font_family,v') || (raw.v === 1 && keys === 'density,font_family,theme,v'))) return undefined;
     const appearance = appearanceFromSettings(raw);
     if (!appearance || appearance.density !== raw.density || appearance.font_family !== raw.font_family) return undefined;
     return appearance;
@@ -77,7 +89,7 @@ export function appearancePreferenceCookie(value: unknown, hostname: string, pro
   const appearance = appearanceFromSettings(value);
   if (!appearance) return '';
   const parent = validAppearanceCookieDomain(domain, hostname);
-  return `${APPEARANCE_COOKIE}=${encodeURIComponent(JSON.stringify({ v: 1, ...appearance }))}; Path=/; Max-Age=31536000; SameSite=Lax${parent ? `; Domain=${parent}` : ''}${protocol === 'https:' ? '; Secure' : ''}`;
+  return `${APPEARANCE_COOKIE}=${encodeURIComponent(JSON.stringify({ v: 2, density: appearance.density, font_family: appearance.font_family }))}; Path=/; Max-Age=31536000; SameSite=Lax${parent ? `; Domain=${parent}` : ''}${protocol === 'https:' ? '; Secure' : ''}`;
 }
 function environment(options: Environment) {
   return { document: options.document ?? (typeof document !== 'undefined' ? document : undefined), window: options.window ?? (typeof window !== 'undefined' ? window : undefined) };
@@ -85,13 +97,13 @@ function environment(options: Environment) {
 function cachedAppearance(document: Document): { readable: boolean; value?: Appearance } {
   try { return { readable: true, value: parseAppearanceCookie(document.cookie) }; } catch { return { readable: false }; }
 }
-function renderAppearance(appearance: Appearance, document: Document, window: Window) {
-  const dark = appearance.theme === 'dark' || ((!appearance.theme || appearance.theme === 'system') && window.matchMedia?.('(prefers-color-scheme: dark)').matches === true);
+/** MAIR-933: always light, whatever the cookie, the saved setting or prefers-color-scheme. */
+function renderAppearance(appearance: Appearance, document: Document) {
   const root = document.documentElement;
-  root.dataset.theme = dark ? 'dark' : 'light';
-  root.dataset.appearanceMode = appearance.theme ?? 'system';
+  root.dataset.theme = 'light';
+  root.dataset.appearanceMode = 'light';
   root.dataset.density = appearance.density ?? 'normal';
-  root.style.colorScheme = dark ? 'dark' : 'light';
+  root.style.colorScheme = 'light';
   if (appearance.font_family) root.style.setProperty('--mairie-user-font', appearance.font_family);
   else root.style.removeProperty('--mairie-user-font');
 }
@@ -100,12 +112,12 @@ export function applyConfirmedAppearance(value: unknown, options: Environment = 
   const appearance = appearanceFromSettings(value);
   const env = environment(options);
   if (!appearance || !env.document || !env.window) return false;
-  renderAppearance(appearance, env.document, env.window);
+  renderAppearance(appearance, env.document);
   try { env.document.cookie = appearancePreferenceCookie(appearance, env.window.location.hostname, env.window.location.protocol, options.cookieDomain ?? configuredCookieDomain); } catch { /* Public cache is optional; confirmed display still applies. */ }
   env.window.dispatchEvent(new CustomEvent(APPEARANCE_EVENT, { detail: appearance }));
   return true;
 }
-/** Rehydrate on navigation/focus and follow OS changes while system mode is selected. */
+/** Rehydrate density and font on navigation/focus (the theme no longer follows the OS: MAIR-933). */
 export function startAppearanceSync(options: Environment & { appearance?: Appearance } = {}): () => void {
   const env = environment(options);
   if (!env.document || !env.window) return () => undefined;
@@ -113,7 +125,7 @@ export function startAppearanceSync(options: Environment & { appearance?: Appear
   const window = env.window;
   let observed = cachedAppearance(document);
   let current = appearanceFromSettings(options.appearance) ?? observed.value ?? defaults;
-  const render = () => renderAppearance(current, document, window);
+  const render = () => renderAppearance(current, document);
   const refresh = () => {
     const next = cachedAppearance(document);
     // A blocked/unchanged optional cache cannot undo the confirmed in-memory
@@ -126,20 +138,15 @@ export function startAppearanceSync(options: Environment & { appearance?: Appear
   };
   const visible = () => { if (document.visibilityState === 'visible') refresh(); };
   const receive = (event: Event) => { const appearance = appearanceFromSettings((event as CustomEvent).detail); if (appearance) { current = appearance; render(); } };
-  const media = window.matchMedia?.('(prefers-color-scheme: dark)');
   render();
   window.addEventListener('focus', refresh);
   window.addEventListener('pageshow', refresh);
   window.addEventListener(APPEARANCE_EVENT, receive);
   document.addEventListener('visibilitychange', visible);
-  if (media?.addEventListener) media.addEventListener('change', render);
-  else media?.addListener(render);
   return () => {
     window.removeEventListener('focus', refresh);
     window.removeEventListener('pageshow', refresh);
     window.removeEventListener(APPEARANCE_EVENT, receive);
     document.removeEventListener('visibilitychange', visible);
-    if (media?.removeEventListener) media.removeEventListener('change', render);
-    else media?.removeListener(render);
   };
 }

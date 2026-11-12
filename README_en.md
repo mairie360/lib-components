@@ -199,6 +199,11 @@ tsup.config.ts            # JavaScript and declaration bundle configuration
 ## CI and publishing
 
 GitHub Actions runs the shared Mairie360 frontend-library workflow for pushes, pull requests, and manual executions. The package metadata publishes `dist` to GitHub Packages using the `@mairie360/lib-components` package name.
+
+### Version (MAIR-861)
+
+The published version is **computed by the CI**, not read from `package.json`: on every push to `main`, the `package` job of `mairie360/CICD` (`front-libs-cicd.yml`) runs semantic-release on the conventional commits (`fix` → patch, `feat` → minor, `BREAKING CHANGE` → major), creates the `vX.Y.Z` tag, rewrites the version with `npm version --no-git-tag-version` and publishes. That rewrite is never committed, so the `version` of `package.json` on `main` is only informative: it is set to the last published version when a release is documented in [`CHANGELOG.md`](./CHANGELOG.md). To know what a front gets, read the tags or the changelog, never `package.json`.
+
 ## Full library type validation — 8 October 2026
 
 `npm run typecheck` validates component sources, tests and Storybook examples without exclusions. The existing quality workflow invokes this script. HTML attribute types now match the existing Paragraph/Title passthrough; stories use the installed renderer types and valid input values. Eight inherited diagnostics were reproduced before correction and the full check now passes. No runtime typography, layout, API/BFF or RGAA configuration changes.
