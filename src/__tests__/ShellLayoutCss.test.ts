@@ -83,6 +83,8 @@ describe('MAIR-886 / MAIR-890 shared stylesheet scope', () => {
   it('targets no class owned by a front', () => {
     expect(css).not.toMatch(/projects-shell|calendar-scroll-shell|calendar-board|calendar-title-bar|messages-app-root|messages-module|elearning-|settings-shell|settings-file-picker|dashboard-app-shell|dashboard-panel-action|dashboard-recent-projects|administration-shell|administration-panel|administration-console|login-page/);
     expect(css).not.toContain('> .flex > .flex >');
+  });
+});
 
 describe('MAIR-901 full-height module', () => {
   it('gives the fill main area the charte padding, no scroll and the whole height to its content', () => {

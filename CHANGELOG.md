@@ -4,9 +4,10 @@ Versions published to GitHub Packages. The CI computes them from the conventiona
 (see « Version (MAIR-861) » in the README); this file says what each upgrade brings to a front.
 Dependency updates (Renovate) are left out.
 
-## Unreleased — epic MAIR-819 « V2 front lib »
+## 2.0.0 (major, unreleased) — epic MAIR-819 « V2 front lib »
 
-Light-only theme, new logo and the components of the V2 fronts, in five pull requests:
+Light-only theme, new logo and the components of the V2 fronts, gathered on `epic/MAIR-819-v2-front-lib`
+from five pull requests:
 
 - **Lot 1 (#509)**: readable notification counter (MAIR-832), active navigation item keeps its background
   (MAIR-886), no more front-specific rules in `municipal-theme.css` (MAIR-890), `StatusPill` « En revue »
@@ -24,7 +25,7 @@ Light-only theme, new logo and the components of the V2 fronts, in five pull req
 - **Lot 5**: new « mairie / 360 » logo (MAIR-831), light-only appearance with cookie v2 (MAIR-933),
   version rule and this changelog (MAIR-861).
 
-### Migration notes for the fronts
+### Breaking changes and migration notes for the fronts
 
 - **MAIR-933 — always light.** `applyConfirmedAppearance` and `startAppearanceSync` always render
   `data-theme="light"` and `color-scheme: light`. The appearance cookie is now `v: 2` without `theme`;
