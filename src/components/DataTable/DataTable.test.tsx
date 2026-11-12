@@ -29,3 +29,46 @@ describe('DataTable (MAIR-608)', () => {
     expect(screen.getByRole('table').style.marginTop).toBe('4px');
   });
 });
+
+describe('DataTable interactive rows and cell kinds (MAIR-850, MAIR-869)', () => {
+  type User = { id: string; name: string; role: string };
+  const people: User[] = [{ id: 'u1', name: 'Marie Martin', role: 'Agent' }, { id: 'u2', name: 'Paul Durand', role: 'Maire' }];
+  const columns = [
+    { key: 'name', header: 'Nom', kind: 'strong' as const, sortable: true },
+    { key: 'role', header: 'Rôle', kind: 'content' as const, cell: (row: User) => <span data-testid={`tag-${row.id}`}>{row.role}</span> },
+    { key: 'actions', header: 'Actions', kind: 'actions' as const, hideHeader: true, cell: (row: User) => <button type="button" onClick={() => remove(row)}>Supprimer {row.name}</button> },
+  ];
+  const remove = jest.fn();
+
+  it('opens a row with the mouse, Entrée or Espace, never from its action buttons', async () => {
+    const user = userEvent.setup(); const open = jest.fn();
+    render(<DataTable label="Utilisateurs" rows={people} rowKey={row => row.id} columns={columns} onRowClick={open} rowLabel={row => `Ouvrir la fiche de ${row.name}`} sort={{ key: 'name', direction: 'asc' }} onSort={jest.fn()} />);
+    const row = screen.getByRole('row', { name: 'Ouvrir la fiche de Marie Martin' });
+    expect(row).toHaveAttribute('tabindex', '0');
+    expect(row).toHaveAttribute('data-interactive', 'true');
+    expect(row.className).toContain('focus-visible:bg-[var(--mairie-surface-raised)]');
+    await user.click(screen.getByTestId('tag-u1'));
+    expect(open).toHaveBeenLastCalledWith(people[0]);
+    screen.getByRole('row', { name: 'Ouvrir la fiche de Paul Durand' }).focus();
+    await user.keyboard('{Enter}');
+    expect(open).toHaveBeenLastCalledWith(people[1]);
+    await user.keyboard(' ');
+    expect(open).toHaveBeenCalledTimes(3);
+    await user.click(screen.getByRole('button', { name: 'Supprimer Marie Martin' }));
+    expect(remove).toHaveBeenCalledWith(people[0]);
+    screen.getByRole('button', { name: 'Supprimer Paul Durand' }).focus();
+    await user.keyboard('{Enter}');
+    expect(open).toHaveBeenCalledTimes(3);
+    expect(screen.getByRole('columnheader', { name: /Nom/ })).toHaveAttribute('aria-sort', 'ascending');
+  });
+
+  it('marks each cell with its kind: strong text, free content, end-aligned actions', () => {
+    render(<DataTable label="Utilisateurs" rows={people} rowKey={row => row.id} columns={columns} />);
+    const cells = screen.getAllByRole('row')[1].querySelectorAll('td');
+    expect(cells[0]).toHaveAttribute('data-kind', 'strong');
+    expect(cells[0]).toHaveClass('font-semibold');
+    expect(cells[1]).toHaveAttribute('data-kind', 'content');
+    expect(cells[2]).toHaveClass('text-right');
+    expect(screen.getAllByRole('row')[1]).not.toHaveAttribute('tabindex');
+  });
+});

@@ -50,10 +50,11 @@ describe('SessionList (MAIR-607)', () => {
     const rows = screen.getAllByRole('row').slice(1);
     expect(rows).toHaveLength(4);
     expect(rows[0]).toHaveAttribute('data-session-state', 'active');
-    expect(within(rows[0]).getByText('Session actuelle')).toBeInTheDocument();
+    expect(within(rows[0]).getByText('Cet appareil')).toHaveAttribute('data-tone', 'primary');
     expect(within(rows[0]).queryByRole('button')).toBeNull();
     expect(within(rows[1]).getByText('Active')).toBeInTheDocument();
     expect(within(rows[2]).getByText('Expirée')).toBeInTheDocument();
+    expect(within(rows[2]).getByText(/Expirée le/)).toBeInTheDocument();
     expect(within(rows[3]).getByText('Révoquée')).toBeInTheDocument();
     expect(within(rows[3]).getByText(/Révoquée le/)).toBeInTheDocument();
     expect(screen.getAllByRole('button')).toHaveLength(1);
@@ -70,7 +71,8 @@ describe('SessionList (MAIR-607)', () => {
     expect(screen.getByText('Aucune session à afficher.')).toBeInTheDocument();
     rerender(<SessionList sessions={null} onRetry={onRetry} />);
     expect(screen.getByRole('status')).toHaveTextContent('Les sessions sont temporairement indisponibles.');
-    await user.click(screen.getByRole('button', { name: 'Actualiser' }));
+    expect(screen.getByRole('status')).not.toHaveTextContent('Utilisez Actualiser');
+    await user.click(screen.getByRole('button', { name: 'Réessayer' }));
     expect(onRetry).toHaveBeenCalledTimes(1);
   });
 
@@ -101,5 +103,71 @@ describe('SessionList without a browser window (MAIR-607)', () => {
     } finally {
       globalThis.window = originalWindow;
     }
+  });
+});
+
+describe('SessionList V2 (MAIR-845, MAIR-1000)', () => {
+  it('puts the current session first, opens a session from its row or its device button, and keeps revoke apart', async () => {
+    const user = userEvent.setup();
+    const onSelect = jest.fn(); const onRevoke = jest.fn();
+    const ordered = [sessions[1], sessions[0], sessions[2]];
+    render(<SessionList sessions={ordered} currentSessionId="cur" onSelect={onSelect} onRevoke={onRevoke} now={NOW} timeZone="Europe/Paris" />);
+    const rows = screen.getAllByRole('row').slice(1);
+    expect(rows[0]).toHaveAttribute('data-current', 'true');
+    await user.click(rows[2]);
+    expect(onSelect).toHaveBeenLastCalledWith(sessions[2]);
+    screen.getByRole('button', { name: 'Voir le détail de la session Safari · iPhone' }).focus();
+    await user.keyboard('{Enter}');
+    expect(onSelect).toHaveBeenLastCalledWith(sessions[1]);
+    await user.click(screen.getByRole('button', { name: 'Déconnecter la session Safari · iPhone' }));
+    expect(onRevoke).toHaveBeenCalledWith(sessions[1]);
+    expect(onSelect).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the given order with currentFirst={false} and names the history column', () => {
+    render(<SessionList sessions={[sessions[1], sessions[0]]} currentSessionId="cur" currentFirst={false} dateColumnLabel="Fin" now={NOW} />);
+    expect(screen.getAllByRole('row')[1]).not.toHaveAttribute('data-current');
+    expect(screen.getByRole('columnheader', { name: 'Fin' })).toBeInTheDocument();
+  });
+
+  it('shows two lines per session without a header row in the compact layout', async () => {
+    const user = userEvent.setup();
+    const onSelect = jest.fn();
+    render(<SessionList layout="compact" caption="Sessions de Marie" sessions={sessions} currentSessionId="cur" onRevoke={jest.fn()} onSelect={onSelect} now={NOW} timeZone="Europe/Paris"
+      deviceLabel={session => session.device_info.split(' · ')[0]} />);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    const items = within(screen.getByRole('list', { name: 'Sessions de Marie' })).getAllByRole('listitem');
+    expect(items).toHaveLength(4);
+    expect(within(items[0]).getByText('Cet appareil')).toBeInTheDocument();
+    expect(within(items[0]).getByText(/Expire le/)).toBeInTheDocument();
+    expect(within(items[3]).getByText(/Révoquée le/)).toBeInTheDocument();
+    expect(within(items[1]).getByRole('button', { name: 'Déconnecter la session Safari' })).toBeInTheDocument();
+    await user.click(within(items[2]).getByText('10.0.0.9'));
+    expect(onSelect).toHaveBeenCalledWith(sessions[2]);
+    expect(within(items[0]).queryByRole('button', { name: /^Déconnecter/ })).toBeNull();
+  });
+
+  it('offers the four states in the compact layout with configurable texts', () => {
+    const { rerender, container } = render(<SessionList layout="compact" sessions={null} loading />);
+    expect(container.firstElementChild).toHaveAttribute('data-layout', 'compact');
+    rerender(<SessionList layout="compact" sessions={[]} emptyTitle="Aucune session dans l’historique" emptyDescription="Les sessions terminées apparaîtront ici." />);
+    expect(screen.getByText('Aucune session dans l’historique')).toBeInTheDocument();
+    expect(screen.getByText('Les sessions terminées apparaîtront ici.')).toBeInTheDocument();
+    expect(screen.queryByRole('button')).toBeNull();
+    rerender(<SessionList layout="compact" sessions={null} unavailableTitle="Sessions indisponibles" unavailableDescription="Réessayez dans un instant." />);
+    expect(screen.getByRole('status')).toHaveTextContent('Sessions indisponiblesRéessayez dans un instant.');
+    expect(screen.queryByRole('button', { name: 'Réessayer' })).toBeNull();
+  });
+
+  it('switches to cards below 640 px', () => {
+    const listeners: Array<() => void> = [];
+    const query = { matches: true, addEventListener: (_: string, listener: () => void) => listeners.push(listener), removeEventListener: jest.fn() };
+    const original = window.matchMedia;
+    window.matchMedia = jest.fn().mockReturnValue(query) as unknown as typeof window.matchMedia;
+    try {
+      render(<SessionList sessions={sessions} now={NOW} />);
+      expect(screen.queryByRole('table')).not.toBeInTheDocument();
+      expect(screen.getByRole('list', { name: 'Sessions de connexion' })).toBeInTheDocument();
+    } finally { window.matchMedia = original; }
   });
 });

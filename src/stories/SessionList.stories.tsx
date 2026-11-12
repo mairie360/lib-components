@@ -31,3 +31,10 @@ export const Loading: Story = { args: { sessions: null, loading: true } };
 export const Empty: Story = { args: { sessions: [] } };
 
 export const Unavailable: Story = { args: { sessions: null } };
+
+/** MAIR-845: two lines per session, no header row, for a user sheet (800 px modal) or a side panel. */
+export const Compact: Story = { args: { layout: 'compact', currentSessionId: sessions[0].id }, render: (args) => <div className="max-w-[752px]"><SessionList {...args} /></div> };
+
+/** MAIR-1000: clickable rows (detail), « Cet appareil » first, history column and configurable states. */
+export const ClickableHistory: Story = { args: { currentSessionId: sessions[0].id, onSelect: fn(), dateColumnLabel: 'Fin', onRevoke: undefined } };
+export const UnavailableWithRetry: Story = { args: { sessions: null, unavailableTitle: 'Impossible de charger vos sessions', unavailableDescription: 'Vérifiez votre connexion puis réessayez.', onRetry: fn() } };
