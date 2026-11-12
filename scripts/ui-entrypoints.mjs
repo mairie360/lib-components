@@ -3,7 +3,7 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'DataState', 'DataTable', 'DateTime', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Icon', 'IconButton', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'PageHeader', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProgressMeter', 'RadioGroup', 'SegmentedControl', 'SelectField', 'SessionExpiredNotice', 'SessionList', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
+    components: ['Alert', 'Avatar', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'PageHeader', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'RadioGroup', 'Rating', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
@@ -24,6 +24,11 @@ export const uiEntryPoints = {
       "export { initialsOf } from '../components/Avatar';",
       "export { modalWidths, useDialogFocus } from '../components/Modal';",
       "export { drawerWidths } from '../components/Drawer';",
+      "export { SettingToggleGroup } from '../components/SettingToggle';",
+      "export { GanttBar, GanttMilestone, GanttToday, formatGanttDate, ganttPercent, ganttStates } from '../components/Gantt';",
+      "export { describeUserAgent } from '../components/SessionDetails';",
+      "export { PROFILE_PHOTO_FORMAT_ERROR, PROFILE_PHOTO_SIZE_ERROR } from '../components/ProfilePhotoField';",
+      "export { sessionStateLabels, sessionStateStatuses } from '../components/SessionList';",
     ],
   },
   shell: {
@@ -58,6 +63,17 @@ export const rootExtraExports = [
   "export { initialsOf } from './components/Avatar';",
   "export { modalWidths, useDialogFocus } from './components/Modal';",
   "export { drawerWidths } from './components/Drawer';",
+  "export { SettingToggleGroup } from './components/SettingToggle';",
+  "export { GanttBar, GanttMilestone, GanttToday, formatGanttDate, ganttPercent, ganttStates } from './components/Gantt';",
+  "export { describeUserAgent } from './components/SessionDetails';",
+  "export { PROFILE_PHOTO_FORMAT_ERROR, PROFILE_PHOTO_SIZE_ERROR } from './components/ProfilePhotoField';",
+  "export { sessionStateLabels, sessionStateStatuses } from './components/SessionList';",
+  "export type { DescribedUserAgent, SessionDetailsProps } from './components/SessionDetails';",
+  "export type { GanttDate, GanttMilestoneItem, GanttProps, GanttRow, GanttState } from './components/Gantt';",
+  "export type { RatingProps } from './components/Rating';",
+  "export type { SettingToggleGroupProps, SettingToggleProps } from './components/SettingToggle';",
+  "export type { DescriptionItem, DescriptionListProps } from './components/DescriptionList';",
+  "export type { ProfilePhotoFieldProps } from './components/ProfilePhotoField';",
   "export type { SkeletonProps } from './components/Skeleton';",
   "export type { ToastProps, ToastVariant } from './components/Toast';",
   "export { useToast } from './components/ToastProvider';",
