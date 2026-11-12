@@ -5,7 +5,7 @@ import { X } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
-import { useDialogFocus } from '../Modal';
+import { dialogBackdropClass, useDialogFocus } from '../Modal';
 import { ModalTitle } from '../Text';
 import { componentMarker, withoutMarker } from '../component-marker';
 
@@ -28,7 +28,7 @@ export const Drawer = ({ open, title, onClose, size = 'm', footer, closeLabel = 
   useDialogFocus(open, panel, onClose);
   if (!open) return null;
   return (
-    <div {...componentMarker('Drawer', props)} className="fixed inset-0 z-50 flex justify-end bg-[var(--mairie-text)]/40" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+    <div {...componentMarker('Drawer', props)} className={`${dialogBackdropClass} flex justify-end`} onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
       <div {...withoutMarker(props)} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-size={size}
         className={`flex h-full w-full flex-col border-l border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: drawerWidths[size], ...style }}>

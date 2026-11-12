@@ -92,9 +92,9 @@ export { TextField } from '../components/TextField';
 export type { TextFieldType, TextFieldProps } from '../components/TextField';
 export { Select } from '../components/Select';
 export { Toast } from '../components/Toast';
-export type { ToastVariant, ToastProps } from '../components/Toast';
+export type { ToastVariant, ToastProps, ToastAction } from '../components/Toast';
 export { ToastProvider } from '../components/ToastProvider';
-export type { ToastOptions, ToastContextValue, ToastProviderProps } from '../components/ToastProvider';
+export type { ToastOptions, ToastContextValue, ToastProviderProps, ToastPlacement } from '../components/ToastProvider';
 export { ToolTip } from '../components/ToolTip';
 export type { TooltipProps } from '../components/ToolTip';
 export { UserIdentity } from '../components/UserIdentity';
@@ -117,5 +117,5 @@ export { formatDateTime, formatRelative, parseDateValue } from '../components/Da
 export { paginationSummary } from '../components/Pagination';
 export { tabsIds } from '../components/Tabs';
 export { initialsOf } from '../components/Avatar';
-export { modalWidths, useDialogFocus } from '../components/Modal';
+export { dialogBackdropClass, modalWidths, useDialogFocus } from '../components/Modal';
 export { drawerWidths } from '../components/Drawer';

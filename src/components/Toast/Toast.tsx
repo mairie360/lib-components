@@ -5,6 +5,7 @@ import { CircleCheck, CircleX, Info, TriangleAlert, X, type LucideIcon } from 'l
 
 import type { Tone } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { Button } from '../Button';
 import { componentMarker } from '../component-marker';
 
 // Internal provider coordination: a visual toast must not announce a second time.
@@ -24,7 +25,13 @@ export interface ToastProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   progress?: number;
   /** Duration of the countdown transition (ms), 0 while paused. */
   progressDuration?: number;
+  /**
+   * MAIR-903: optional action of a reversible operation (« Annuler la suppression »). Rendered as a
+   * ghost button; it runs `onClick` then closes the toast.
+   */
+  action?: ToastAction;
 }
+export interface ToastAction { label: string; onClick: () => void }
 export const toastTone = (tone: Tone | undefined, variant: ToastVariant | undefined): Tone => tone ?? (variant === 'error' ? 'danger' : variant ?? 'info');
 const icons: Record<Tone, LucideIcon> = { primary: Info, secondary: Info, neutral: Info, success: CircleCheck, warning: TriangleAlert, danger: CircleX, info: Info };
 const colours: Record<Tone, { background: string; color: string }> = {
@@ -38,7 +45,7 @@ const colours: Record<Tone, { background: string; color: string }> = {
 };
 
 /** Ephemeral overlay notification after an action (MAIR-608, Figma `Base/Toast`). Use `useToast().error/success/warning/info`. */
-export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast({ message, title, tone: toneProp, variant, closeLabel = 'Fermer la notification', onClose, progress, progressDuration = 0, className = '', style, onKeyDown, ...props }, ref) {
+export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast({ message, title, tone: toneProp, variant, closeLabel = 'Fermer la notification', onClose, progress, progressDuration = 0, action, className = '', style, onKeyDown, ...props }, ref) {
   const announce = useContext(ToastAnnouncementContext);
   const tone = toastTone(toneProp, variant);
   const urgent = tone === 'danger';
@@ -50,6 +57,7 @@ export const Toast = forwardRef<HTMLDivElement, ToastProps>(function Toast({ mes
     <div className="flex items-start gap-3" style={{ padding: 'var(--mairie-space-m)' }}>
       <span className="shrink-0 pt-0.5"><Icon icon={icons[tone]} size="m" /></span>
       <div className="min-w-0 flex-1 break-words">{title && <p className="font-semibold" style={{ fontSize: 'var(--mairie-text-s)' }}>{title}</p>}<p style={{ fontSize: 'var(--mairie-text-s)' }}>{message}</p></div>
+      {action && <Button variant="ghost" tone={tone === 'danger' ? 'danger' : 'primary'} size="s" label={action.label} onClick={() => { action.onClick(); onClose?.(); }} className="shrink-0 self-center" />}
       {onClose && <button type="button" aria-label={closeLabel} onClick={onClose} className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"><Icon icon={X} size="s" /></button>}
     </div>
     {typeof progress === 'number' && (

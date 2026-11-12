@@ -75,9 +75,9 @@ export { formatDateTime, formatRelative, parseDateValue } from './components/Dat
 export { paginationSummary } from './components/Pagination';
 export { tabsIds } from './components/Tabs';
 export { initialsOf } from './components/Avatar';
-export { modalWidths, useDialogFocus } from './components/Modal';
+export { dialogBackdropClass, modalWidths, useDialogFocus } from './components/Modal';
 export { drawerWidths } from './components/Drawer';
 export type { SkeletonProps } from './components/Skeleton';
-export type { ToastProps, ToastVariant } from './components/Toast';
+export type { ToastAction, ToastProps, ToastVariant } from './components/Toast';
 export { useToast } from './components/ToastProvider';
-export type { ToastOptions, ToastContextValue, ToastProviderProps } from './components/ToastProvider';
+export type { ToastOptions, ToastContextValue, ToastPlacement, ToastProviderProps } from './components/ToastProvider';

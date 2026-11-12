@@ -220,6 +220,11 @@ body.mairie-ui header > div > button svg { width: 20px; height: 20px; }
 .app-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .app-desktop-navigation { display: none; }
 .app-shell-main { padding: 0; }
+/* MAIR-901: full-height module. The main area keeps the charte padding, never scrolls itself and
+ * hands the whole height to its content; only the module's inner panels scroll. */
+.app-shell-main-area[data-layout="fill"] { display: flex; flex-direction: column; min-height: 0; overflow: hidden; padding: 20px 24px; }
+.app-shell-main-area[data-layout="fill"] > :is(.app-main-content, :only-child) { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+@media (max-width: 639px) { .app-shell-main-area[data-layout="fill"] { padding: 16px; } }
 /* MAIR-765: the frame carries the teal veil; translucent band and bars are drawn over it, and the
  * mobile drawer gets the same opaque backing so the page never shows through the band. */
 .app-shell-veil, .app-shell-drawer { background: linear-gradient(var(--mairie-shell-background), var(--mairie-shell-background)), var(--mairie-background); }

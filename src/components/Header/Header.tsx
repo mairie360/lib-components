@@ -7,7 +7,8 @@ import {
   User as UserIcon,
   Settings,
   Shield,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 
 import { Avatar } from '../Avatar';
@@ -18,6 +19,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator
 } from '../DropdownMenu';
+import { ConfirmModal } from '../ConfirmModal';
 import { componentMarker } from '../component-marker';
 
 type User = {
@@ -86,11 +88,23 @@ export interface HeaderProps {
   onPageChange?: (page: string) => void;
   /** URL of the user profile page. Used when no client-side page handler is provided. */
   profileHref?: string | null;
-  /** Callback function to handle user logout */
-  onLogout?: () => void;
+  /** Callback function to handle user logout; a returned promise keeps « Se déconnecter » loading. */
+  onLogout?: () => void | Promise<unknown>;
+  /**
+   * MAIR-834: « Déconnexion » first opens a confirmation (default true); `false` calls `onLogout` at once.
+   */
+  confirmLogout?: boolean;
   /** Indicates if the logged-in user is an administrator */
   isAdmin?: boolean;
+  /** Called when the search form is submitted (Entrée). */
   onSearch?: (query: string) => void;
+  /** MAIR-835: called on every keystroke and with '' when the search is cleared (✕ or Échap). */
+  onSearchChange?: (query: string) => void;
+  /** Controlled search value (with `onSearchChange`). */
+  searchValue?: string;
+  /** Accessible name of the search field (default « Rechercher »). */
+  searchLabel?: string;
+  searchPlaceholder?: string;
   onNotificationsClick?: () => void;
   notificationCount?: number;
   showProfile?: boolean;
@@ -105,15 +119,45 @@ export const Header = ({
   onPageChange,
   profileHref = null,
   onLogout,
+  confirmLogout = true,
   isAdmin = false,
   onSearch,
+  onSearchChange,
+  searchValue,
+  searchLabel = 'Rechercher',
+  searchPlaceholder = 'Rechercher...',
   onNotificationsClick,
   notificationCount,
   showProfile,
   showSettings,
   showAdministration,
 }: HeaderProps) => {
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const [ownQuery, setOwnQuery] = React.useState('');
+  const searchQuery = searchValue ?? ownQuery;
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
+  const updateSearch = (query: string) => {
+    if (searchValue === undefined) setOwnQuery(query);
+    onSearchChange?.(query);
+  };
+  const clearSearch = () => { updateSearch(''); searchInputRef.current?.focus(); };
+  const showSearch = Boolean(onSearch || onSearchChange);
+
+  // MAIR-834: the menu item hands focus back to the account trigger before the confirmation opens,
+  // so the dialog restores focus there on Annuler, the close button or Échap.
+  const accountTriggerRef = React.useRef<HTMLButtonElement>(null);
+  const [logoutOpen, setLogoutOpen] = React.useState(false);
+  const [loggingOut, setLoggingOut] = React.useState(false);
+  const requestLogout = () => {
+    if (!confirmLogout) { void onLogout?.(); return; }
+    accountTriggerRef.current?.focus();
+    setLogoutOpen(true);
+  };
+  const confirmAndLogout = async () => {
+    setLoggingOut(true);
+    // A failed logout keeps the dialog open; the front reports the error (toast).
+    try { await onLogout?.(); setLogoutOpen(false); } catch { /* stays open */ }
+    finally { setLoggingOut(false); }
+  };
   const hasIdentity = Boolean(
     user?.name?.trim() || user?.first_name?.trim() || user?.last_name?.trim() || user?.email?.trim(),
   );
@@ -148,20 +192,31 @@ export const Header = ({
           <Menu className="h-4 w-4" />
         </button>
 
-        {onSearch && <form
+        {showSearch && <form
           role="search"
+          aria-label={searchLabel}
           className="relative"
-          onSubmit={(event) => { event.preventDefault(); onSearch(searchQuery); }}
+          onSubmit={(event) => { event.preventDefault(); onSearch?.(searchQuery); }}
         >
-          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
+          <Search aria-hidden="true" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
           <input
+            ref={searchInputRef}
             type="search"
-            aria-label="Rechercher"
-            placeholder="Rechercher..."
+            aria-label={searchLabel}
+            placeholder={searchPlaceholder}
             value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-9 w-40 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] pl-10 pr-3 text-sm text-[var(--mairie-text)] shadow-none outline-none transition-colors placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/15 sm:w-64"
+            onChange={(event) => updateSearch(event.target.value)}
+            onKeyDown={(event) => { if (event.key === 'Escape' && searchQuery) { event.preventDefault(); updateSearch(''); } }}
+            className="h-9 w-40 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] pl-10 pr-9 text-sm text-[var(--mairie-text)] shadow-none outline-none transition-colors placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/15 sm:w-64 [&::-webkit-search-cancel-button]:hidden"
           />
+          {searchQuery && <button
+            type="button"
+            aria-label="Effacer la recherche"
+            onClick={clearSearch}
+            className="absolute right-1.5 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
+          >
+            <X aria-hidden="true" className="h-3.5 w-3.5" />
+          </button>}
         </form>}
       </div>
 
@@ -181,6 +236,7 @@ export const Header = ({
         {hasIdentity && <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
+              ref={accountTriggerRef}
               type="button"
               className="inline-flex h-9 items-center justify-center gap-3 rounded-md border border-transparent px-1 text-sm font-medium text-[var(--mairie-text)] transition-colors hover:border-[var(--mairie-accent)]/30 hover:bg-[var(--mairie-success-action-background)]/10"
             >
@@ -282,7 +338,7 @@ export const Header = ({
             )}
             {onLogout && <><DropdownMenuSeparator className="mx-0 my-0 bg-[var(--mairie-surface-raised)]" />
             <DropdownMenuItem
-              onClick={onLogout}
+              onClick={requestLogout}
               className="cursor-pointer !gap-3 !rounded-none !px-3 !py-2.5 text-sm font-normal !text-[var(--mairie-error-text)] hover:!bg-[var(--mairie-error-surface)]"
             >
               <LogOut className="h-4 w-4 shrink-0 text-[var(--mairie-muted)]" strokeWidth={1.7} />
@@ -291,6 +347,20 @@ export const Header = ({
           </DropdownMenuContent>
         </DropdownMenu>}
       </div>
+      {onLogout && confirmLogout && <ConfirmModal
+        open={logoutOpen}
+        role="alertdialog"
+        size="s"
+        title={<span className="inline-flex items-center gap-2"><LogOut aria-hidden="true" className="h-5 w-5 text-[var(--mairie-muted)]" />Se déconnecter ?</span>}
+        message="Vous allez être déconnecté de Mairie360 sur cet appareil. Pensez à enregistrer vos modifications en cours."
+        destructive={false}
+        confirmLabel="Se déconnecter"
+        confirmIcon={LogOut}
+        initialFocus="cancel"
+        busy={loggingOut}
+        onCancel={() => setLogoutOpen(false)}
+        onConfirm={() => { void confirmAndLogout(); }}
+      />}
     </header>
   );
 };

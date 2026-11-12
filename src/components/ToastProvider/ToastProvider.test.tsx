@@ -174,3 +174,50 @@ it('mounts stable empty announcement regions before notifications and preserves 
   screen.getAllByRole('button', { name: 'Fermer la notification' }).forEach(button => fireEvent.click(button));
   expect(polite).toBeEmptyDOMElement(); expect(assertive).toBeEmptyDOMElement();
 });
+
+describe('ToastProvider placement and actions (MAIR-903, MAIR-906)', () => {
+  function Undo() {
+    const toast = useToast(); const [restored, setRestored] = React.useState(false);
+    return <><button onClick={() => toast.success('Le projet a été supprimé.', { action: { label: 'Annuler la suppression', onClick: () => setRestored(true) } })}>Supprimer</button>{restored && <p>Projet restauré</p>}</>;
+  }
+
+  it('floats bottom right above the shell footer by default', async () => {
+    const footer = document.createElement('div'); footer.className = 'app-shell-footer';
+    footer.getBoundingClientRect = () => ({ height: 37, width: 0, top: 0, left: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => ({}) });
+    document.body.appendChild(footer);
+    const observe = jest.fn(); const disconnect = jest.fn();
+    (globalThis as { ResizeObserver?: unknown }).ResizeObserver = jest.fn(() => ({ observe, disconnect }));
+    const user = userEvent.setup();
+    render(<ToastProvider regionLabel="Notifications"><Undo /></ToastProvider>);
+    await user.click(screen.getByRole('button', { name: 'Supprimer' }));
+    const region = screen.getByRole('region', { name: 'Notifications' });
+    expect(region).toHaveAttribute('data-placement', 'bottom-end');
+    expect(region.style.bottom).toBe('53px');
+    expect(region).toHaveClass('fixed', 'z-50');
+    expect(observe).toHaveBeenCalledWith(footer);
+    delete (globalThis as { ResizeObserver?: unknown }).ResizeObserver;
+    footer.remove();
+  });
+
+  it('can sit top right under the top bar', async () => {
+    const user = userEvent.setup();
+    render(<ToastProvider regionLabel="Notifications" placement="top-end"><Undo /></ToastProvider>);
+    await user.click(screen.getByRole('button', { name: 'Supprimer' }));
+    expect(screen.getByRole('region', { name: 'Notifications' }).style.top).toBe('80px');
+  });
+
+  it('runs the action from the keyboard, closes the toast and keeps it while the action has focus', async () => {
+    jest.useFakeTimers();
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+    render(<ToastProvider regionLabel="Notifications"><Undo /></ToastProvider>);
+    await user.click(screen.getByRole('button', { name: 'Supprimer' }));
+    const action = screen.getByRole('button', { name: 'Annuler la suppression' });
+    act(() => { action.focus(); });
+    act(() => { jest.advanceTimersByTime(TOAST_DEFAULT_DURATION * 2); });
+    expect(screen.getByRole('button', { name: 'Annuler la suppression' })).toBeInTheDocument();
+    await user.keyboard('{Enter}');
+    expect(screen.getByText('Projet restauré')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Annuler la suppression' })).not.toBeInTheDocument();
+    jest.useRealTimers();
+  });
+});

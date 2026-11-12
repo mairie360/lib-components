@@ -21,7 +21,7 @@ describe('Modal (MAIR-608)', () => {
     const { container } = render(<Host size="l" />);
     await user.click(screen.getByRole('button', { name: 'Ouvrir' }));
     const dialog = screen.getByRole('dialog', { name: 'Nouveau projet' });
-    expect(dialog).toHaveAttribute('aria-modal', 'true'); expect(dialog).toHaveAttribute('data-size', 'l'); expect(dialog.style.maxWidth).toBe('720px');
+    expect(dialog).toHaveAttribute('aria-modal', 'true'); expect(dialog).toHaveAttribute('data-size', 'l'); expect(dialog.style.maxWidth).toBe('800px');
     expect(screen.getByRole('button', { name: 'Fermer la fenêtre' })).toHaveFocus();
     await user.tab(); expect(screen.getByLabelText('Adresse e-mail')).toHaveFocus();
     await user.tab(); expect(screen.getByRole('button', { name: 'Enregistrer' })).toHaveFocus();
@@ -80,5 +80,31 @@ describe('Modal (MAIR-608)', () => {
     expect(last).toHaveFocus();
     fireEvent.keyDown(last, { key: 'Escape' });
     expect(close).not.toHaveBeenCalled();
+  });
+});
+
+describe('Modal, full-window veil and centred dialog (MAIR-857)', () => {
+  it.each([['xs', 360], ['s', 480], ['m', 640], ['l', 800], ['xl', 1040]] as const)('caps the %s size at %i px like Figma Base/Modal', (size, width) => {
+    render(<Modal open title="Fiche" size={size} onClose={() => undefined}><p>Contenu</p></Modal>);
+    expect(screen.getByRole('dialog', { name: 'Fiche' }).style.maxWidth).toBe(`${width}px`);
+  });
+
+  it('covers the whole window with the 35 % overlay token and centres the dialog', () => {
+    const close = jest.fn();
+    render(<Modal open title="Fiche" onClose={close}><p>Contenu</p></Modal>);
+    const veil = screen.getByRole('dialog').parentElement!;
+    expect(veil).toHaveClass('fixed', 'inset-0', 'z-50', 'bg-[var(--mairie-overlay-background)]/35', 'items-center', 'justify-center');
+    fireEvent.mouseDown(veil);
+    expect(close).toHaveBeenCalledTimes(1);
+  });
+
+  it('can be an alert dialog that keeps the focus trap and Escape', () => {
+    const close = jest.fn();
+    render(<Modal open role="alertdialog" title="Se déconnecter ?" onClose={close} footer={<button>Annuler</button>}><p>Message</p></Modal>);
+    const dialog = screen.getByRole('alertdialog', { name: 'Se déconnecter ?' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Annuler' }), { key: 'Tab' });
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(close).toHaveBeenCalledTimes(1);
   });
 });
