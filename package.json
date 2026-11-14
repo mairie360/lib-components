@@ -58,7 +58,7 @@
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
     "@hookform/resolvers": "^3.10.0",
-    "@lhci/cli": "^0.15.0",
+    "@lhci/cli": "^0.16.0",
     "@storybook/addon-docs": "^10.4.6",
     "@storybook/addon-onboarding": "^10.4.6",
     "@storybook/addon-vitest": "^10.4.6",
@@ -82,12 +82,12 @@
     "daisyui": "^5.0.35",
     "dotenv-cli": "^11.0.0",
     "eslint": "^9.39.5",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.6",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^30.0.4",
     "jest-axe": "11.0.0",
     "jest-environment-jsdom": "^30.0.4",
-    "next": "16.4.3",
+    "next": "16.4.6",
     "playwright": "^1.52.0",
     "postcss": "^8.5.3",
     "postcss-cli": "^12.0.0",
@@ -114,10 +114,10 @@
       "sharp": "^0.35.5"
     },
     "get-uri": {
-      "basic-ftp": "6.2.4"
+      "basic-ftp": "6.2.6"
     },
     "postcss": "$postcss",
-    "puppeteer-core": "25.16.0",
+    "puppeteer-core": "25.17.0",
     "qs": "6.17.1",
     "storybook": "$storybook",
     "tmp": "0.2.7",
