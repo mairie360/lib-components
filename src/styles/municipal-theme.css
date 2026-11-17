@@ -16,7 +16,8 @@
   --mairie-file-image: var(--mairie-purple-text);
   --mairie-error-action-background: #a40e26;
   --mairie-error-action-hover-background: #891827;
-  --mairie-overlay-background: #000000;
+  /* MAIR-1066: Figma `Base/Modal` Overlay colour (slate #383f51), shown at 35 % by the veils. */
+  --mairie-overlay-background: #383f51;
   /* MAIR-765 (Figma « Proposition C »): the application frame is a translucent teal (#70c1b3) veil.
    * Layers: shell veil over --mairie-background; navigation band and top/bottom bars over the veil;
    * hover and active items over the band. Rendered in Light: veil #e4f1ee, band #d5eae7, bars #cde7e3,

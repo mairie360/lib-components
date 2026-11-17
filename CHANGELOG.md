@@ -4,7 +4,13 @@ Versions published to GitHub Packages. The CI computes them from the conventiona
 (see « Version (MAIR-861) » in the README); this file says what each upgrade brings to a front.
 Dependency updates (Renovate) are left out.
 
-## 2.0.0 (major, unreleased) — epic MAIR-819 « V2 front lib »
+## 2.0.1 (patch, unreleased) — MAIR-1066
+
+- The veil of `Modal`, `ConfirmModal`, `Drawer`, `NotificationCenter` and the mobile menu uses the Figma
+  `Base/Modal` Overlay slate (`--mairie-overlay-background: #383f51`) instead of black, still at 35 %.
+- CHANGELOG: 2.0.0 is released (tag `v2.0.0`, 2026-11-12).
+
+## 2.0.0 (major) — 2026-11-12 — epic MAIR-819 « V2 front lib »
 
 Light-only theme, new logo and the components of the V2 fronts, gathered on `epic/MAIR-819-v2-front-lib`
 from five pull requests:
