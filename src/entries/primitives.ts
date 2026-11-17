@@ -121,8 +121,9 @@ export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownBu
 export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';
 export { useToast } from '../components/ToastProvider';
 export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../components/SessionList';
-export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';
+export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from '../components/ButtonPresets';
 export { buttonAppearance, buttonSizing } from '../components/Button';
+export { passkeyIcon } from '../components/Icon';
 export { CloseIconButton, DeleteIconButton, EditIconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from '../components/IconButton';
 export { DateField, EmailField, NameField, NewPasswordField, NumberField, PasswordField, PhoneField, SearchField, TimeField } from '../components/FieldPresets';
 export { controlClass, controlStyle, fieldDescriptionIds } from '../components/Field';

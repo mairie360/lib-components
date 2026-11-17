@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Check, ChevronLeft, Download, LogOut, Pencil, Plus, RefreshCw, Send, Trash2, X } from 'lucide-react';
+import { Check, ChevronLeft, Download, KeyRound, LogOut, Pencil, Plus, RefreshCw, Send, Trash2, X } from 'lucide-react';
 
 import { Button, type ButtonProps } from '../Button';
 import { componentMarker } from '../component-marker';
@@ -43,6 +43,10 @@ export const BackButton = preset('Back', { label: 'Retour', icon: ChevronLeft, v
 export const SendButton = preset('Send', { label: 'Envoyer', icon: Send, variant: 'solid', tone: 'primary' });
 /** Télécharger: downloads a file or an export. */
 export const DownloadButton = preset('Download', { label: 'Télécharger', icon: Download, variant: 'outline', tone: 'secondary' });
+/** MAIR-1071: Se connecter avec une passkey (Figma `Button/Passkey`): signs in with a WebAuthn credential. */
+export const PasskeyButton = preset('Passkey', { label: 'Se connecter avec une passkey', icon: KeyRound, variant: 'outline', tone: 'secondary' });
+/** MAIR-1071: Créer une passkey (Figma `Button/CreatePasskey`): registers a WebAuthn credential. */
+export const CreatePasskeyButton = preset('CreatePasskey', { label: 'Créer une passkey', icon: KeyRound, variant: 'solid', tone: 'primary' });
 /** Déconnexion. */
 export const LogoutButton = preset('Logout', { label: 'Déconnexion', icon: LogOut, variant: 'ghost', tone: 'danger' });
 
@@ -61,4 +65,6 @@ export const ButtonPresets = {
   send: SendButton,
   download: DownloadButton,
   logout: LogoutButton,
+  passkey: PasskeyButton,
+  createPasskey: CreatePasskeyButton,
 } as const;
