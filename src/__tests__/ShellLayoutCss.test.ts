@@ -92,3 +92,12 @@ describe('MAIR-901 full-height module', () => {
     expect(css).toMatch(/\.app-shell-main-area\[data-layout="fill"\] > :is\(\.app-main-content, :only-child\) \{ display: flex; flex: 1; flex-direction: column; min-height: 0; \}/);
   });
 });
+
+// MAIR-1066: the veil colour of Modal, ConfirmModal, Drawer, NotificationCenter and the mobile menu is the
+// Figma `Base/Modal` Overlay slate (#383f51), not black; the 35 % opacity stays on the components.
+describe('MAIR-1066 overlay colour', () => {
+  it('uses the Figma slate for --mairie-overlay-background', () => {
+    expect(css).toMatch(/--mairie-overlay-background: #383f51;/);
+    expect(css).not.toMatch(/--mairie-overlay-background: #000/);
+  });
+});
