@@ -88,6 +88,7 @@ const fixtures: Record<string, Fixture> = {
   GanttToday: { element: <L.GanttToday /> },
   ProfilePhotoField: { element: <L.ProfilePhotoField label="Photo de profil" initials="QT" onChange={noop} /> },
   RecoveryCodes: { element: <L.RecoveryCodes codes={['AAAA-1111', 'BBBB-2222']} /> },
+  QrCode: { element: <L.QrCode value="abc" /> },
   Rating: { element: <L.Rating label="Note" value={4} /> },
   SessionDetails: { element: <L.SessionDetails session={{ id: 's1', device_info: 'Firefox/132.0', ip_address: '192.0.2.1', created_at: '2026-11-12T08:00:00Z', expires_at: '2026-11-19T08:00:00Z' }} now={0} /> },
   SettingToggle: { element: <L.SettingToggle label="Mentions" checked onChange={noop} /> },

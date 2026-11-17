@@ -11,6 +11,7 @@ Components of the Login and Settings two-factor screens (Figma lib `Mairie360 �
 - `CopyField`: read-only monospace value with a copy button and « Copié » feedback; `SessionDetails` now uses it for the session identifier (MAIR-1069).
 - `RecoveryCodes`: numbered two-column list of one-time codes with « Copier les codes » and « Télécharger (.txt) » (MAIR-1070).
 - `PasskeyButton` (« Se connecter avec une passkey ») and `CreatePasskeyButton` (« Créer une passkey »), and the `passkeyIcon` glyph (pass it to `Icon`) (MAIR-1071).
+- `QrCode`: inline-SVG QR code, always black on white (MAIR-1068). New dependency: `qrcode-generator` 2.0.4 (no dependency of its own).
 - `Divider`: line with an optional label such as « ou » (MAIR-1072).
 
 ## 2.0.1 (patch, unreleased) — MAIR-1066
