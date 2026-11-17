@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import type { LucideIcon } from 'lucide-react';
+import { KeyRound, type LucideIcon } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { componentMarker } from '../component-marker';
@@ -32,3 +32,9 @@ export const Icon = ({ icon: Glyph, size = 'm', label, className = '', style, ..
     style={{ width: `var(--mairie-icon-${size})`, height: `var(--mairie-icon-${size})`, ...style }}
   />
 );
+
+/**
+ * MAIR-1071: the passkey glyph (Figma `Icon/key-round`). The FIDO Alliance passkey icon is not used until its
+ * licence is cleared; the lucide key stands in everywhere (`<Icon icon={passkeyIcon} />`).
+ */
+export const passkeyIcon: LucideIcon = KeyRound;
