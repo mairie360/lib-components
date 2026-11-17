@@ -43,6 +43,7 @@ export { ProfilePhotoField } from './components/ProfilePhotoField';
 export { ProgressMeter } from './components/ProgressMeter';
 export { RadioGroup } from './components/RadioGroup';
 export { Rating } from './components/Rating';
+export { RecoveryCodes } from './components/RecoveryCodes';
 export { SegmentedControl } from './components/SegmentedControl';
 export { Select } from './components/Select';
 export { SelectField } from './components/SelectField';
