@@ -31,10 +31,10 @@ describe('NewPasswordField and TimeField (MAIR-837, MAIR-839)', () => {
     const input = screen.getByLabelText('Nouveau mot de passe');
     expect(input).toHaveAttribute('autocomplete', 'new-password');
     expect(input).toHaveAttribute('type', 'password');
-    expect(input).toHaveAccessibleDescription('12 caractères minimum, avec chiffres et lettres.');
+    expect(input).toHaveAccessibleDescription('12 caractères minimum. Évitez les mots de passe courants, votre e-mail, votre prénom et votre nom.');
     rerender(<NewPasswordField error={checkNewPassword('court1') ?? undefined} />);
     expect(screen.getByLabelText('Nouveau mot de passe')).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByLabelText('Nouveau mot de passe')).toHaveAccessibleDescription(expect.stringContaining('Utilisez au moins 12 caractères, avec des chiffres et des lettres.'));
+    expect(screen.getByLabelText('Nouveau mot de passe')).toHaveAccessibleDescription(expect.stringContaining('Utilisez au moins 12 caractères.'));
   });
 
   it('renders a native time input with its clock icon and range', async () => {
