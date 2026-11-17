@@ -87,6 +87,7 @@ const fixtures: Record<string, Fixture> = {
   GanttMilestone: { element: <L.GanttMilestone date="2026-09-20" label="Jalon" /> },
   GanttToday: { element: <L.GanttToday /> },
   ProfilePhotoField: { element: <L.ProfilePhotoField label="Photo de profil" initials="QT" onChange={noop} /> },
+  RecoveryCodes: { element: <L.RecoveryCodes codes={['AAAA-1111', 'BBBB-2222']} /> },
   Rating: { element: <L.Rating label="Note" value={4} /> },
   SessionDetails: { element: <L.SessionDetails session={{ id: 's1', device_info: 'Firefox/132.0', ip_address: '192.0.2.1', created_at: '2026-11-12T08:00:00Z', expires_at: '2026-11-19T08:00:00Z' }} now={0} /> },
   SettingToggle: { element: <L.SettingToggle label="Mentions" checked onChange={noop} /> },

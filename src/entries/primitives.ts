@@ -74,6 +74,8 @@ export { RadioGroup } from '../components/RadioGroup';
 export type { RadioOption, RadioGroupProps } from '../components/RadioGroup';
 export { Rating } from '../components/Rating';
 export type { RatingSize, RatingProps } from '../components/Rating';
+export { RecoveryCodes } from '../components/RecoveryCodes';
+export type { RecoveryCodesProps } from '../components/RecoveryCodes';
 export { SegmentedControl } from '../components/SegmentedControl';
 export type { SegmentedSize, SegmentedOption, SegmentedControlProps } from '../components/SegmentedControl';
 export { SelectField } from '../components/SelectField';
