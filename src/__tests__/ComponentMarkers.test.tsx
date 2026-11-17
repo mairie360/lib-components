@@ -80,6 +80,7 @@ const fixtures: Record<string, Fixture> = {
   AvatarStack: { element: <L.AvatarStack label="Membres" people={[{ name: 'Camille Martin' }]} /> },
   Button: { element: <L.Button label="Valider" /> },
   DescriptionList: { element: <L.DescriptionList items={[{ label: 'Navigateur', value: 'Firefox 132' }]} /> },
+  CopyField: { element: <L.CopyField label="Clé" value="abc" /> },
   Divider: { element: <L.Divider label="ou" /> },
   Gantt: { element: <L.Gantt from="2026-09-01" to="2026-12-01" rows={[{ id: 'a', label: 'Cadrage', state: 'done', start: '2026-09-01', end: '2026-09-20' }]} /> },
   GanttBar: { element: <L.GanttBar state="doing" start="2026-09-01" end="2026-09-20" label="Cadrage" /> },

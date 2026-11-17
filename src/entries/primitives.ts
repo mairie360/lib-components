@@ -17,6 +17,8 @@ export { Checkbox } from '../components/Checkbox';
 export type { CheckboxProps } from '../components/Checkbox';
 export { ConfirmModal } from '../components/ConfirmModal';
 export type { ConfirmModalProps } from '../components/ConfirmModal';
+export { CopyField } from '../components/CopyField';
+export type { CopyFieldProps } from '../components/CopyField';
 export { DataState } from '../components/DataState';
 export type { DataStateKind, DataStateSize, DataStateProps } from '../components/DataState';
 export { DataTable } from '../components/DataTable';

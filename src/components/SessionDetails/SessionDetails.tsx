@@ -1,11 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Copy } from 'lucide-react';
 
 import { InfoAlert } from '../Alert';
+import { CopyField } from '../CopyField';
 import { DescriptionList } from '../DescriptionList';
-import { IconButton } from '../IconButton';
 import { formatSessionDate, sessionState, sessionStateLabels, sessionStateStatuses, type SessionRecord } from '../SessionList';
 import { StatusBadge, StatusPill } from '../StatusPill';
 import { componentMarker } from '../component-marker';
@@ -28,15 +27,11 @@ const unknown = <span className="text-[var(--mairie-muted)]">Non disponible</spa
  * (describeUserAgent) and the dates, in a DescriptionList; the identifier can be copied.
  */
 export function SessionDetails({ session, current = false, timeZone, now, className = '', ...props }: SessionDetailsProps) {
-  const [copied, setCopied] = React.useState(false);
   // The reference time is read once, when the details open (a lazy initialiser, not every render).
   const [openedAt] = React.useState(() => Date.now());
   const state = sessionState(session, now ?? openedAt);
   const device = describeUserAgent(session.device_info);
   const date = (value: string | null | undefined) => formatSessionDate(value, timeZone) ?? unknown;
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(session.id); setCopied(true); } catch { setCopied(false); }
-  };
   return (
     <div {...props} {...componentMarker('SessionDetails', props)} className={`flex flex-col ${className}`.trim()} style={{ gap: 'var(--mairie-space-m)' }}>
       <div className="flex flex-wrap items-center" style={{ gap: 'var(--mairie-space-s)' }}>
@@ -55,13 +50,7 @@ export function SessionDetails({ session, current = false, timeZone, now, classN
         { label: state === 'revoked' ? 'Déconnectée le' : state === 'expired' ? 'Expirée le' : 'Expiration', value: date(state === 'revoked' ? session.revoked_at : session.expires_at) },
         {
           label: 'Identifiant',
-          value: (
-            <span className="inline-flex max-w-full items-center" style={{ gap: 'var(--mairie-space-xs)' }}>
-              <code className="min-w-0 break-all font-mono">{session.id}</code>
-              <IconButton icon={Copy} label="Copier l’identifiant" size="xs" onClick={() => { void copy(); }} />
-              <span role="status" className="sr-only">{copied ? 'Identifiant copié' : ''}</span>
-            </span>
-          ),
+          value: <CopyField label="Identifiant" hideLabel value={session.id} copyLabel="Copier l’identifiant" copiedLabel="Identifiant copié" />,
         },
       ]} />
     </div>

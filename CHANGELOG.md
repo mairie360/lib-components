@@ -8,6 +8,7 @@ Dependency updates (Renovate) are left out.
 
 Components of the Login and Settings two-factor screens (Figma lib `Mairie360 – lib-components`, MAIR-1074).
 
+- `CopyField`: read-only monospace value with a copy button and « Copié » feedback; `SessionDetails` now uses it for the session identifier (MAIR-1069).
 - `Divider`: line with an optional label such as « ou » (MAIR-1072).
 
 ## 2.0.1 (patch, unreleased) — MAIR-1066
