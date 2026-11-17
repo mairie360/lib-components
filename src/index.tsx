@@ -8,6 +8,7 @@ export { ButtonPresets } from './components/ButtonPresets';
 export { Card } from './components/Card';
 export { Checkbox } from './components/Checkbox';
 export { ConfirmModal } from './components/ConfirmModal';
+export { CopyField } from './components/CopyField';
 export { CurrentDate } from './components/CurrentDate';
 export { DataState } from './components/DataState';
 export { DataTable } from './components/DataTable';
