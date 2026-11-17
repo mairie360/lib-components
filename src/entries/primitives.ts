@@ -25,6 +25,8 @@ export { DateTime } from '../components/DateTime';
 export type { DateTimeFormat, DateTimeProps } from '../components/DateTime';
 export { DescriptionList } from '../components/DescriptionList';
 export type { DescriptionItem, DescriptionListProps } from '../components/DescriptionList';
+export { Divider } from '../components/Divider';
+export type { DividerProps } from '../components/Divider';
 export { Drawer } from '../components/Drawer';
 export type { DrawerSize, DrawerProps } from '../components/Drawer';
 export { DropdownMenu } from '../components/DropdownMenu';

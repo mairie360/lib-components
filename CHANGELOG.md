@@ -4,6 +4,12 @@ Versions published to GitHub Packages. The CI computes them from the conventiona
 (see « Version (MAIR-861) » in the README); this file says what each upgrade brings to a front.
 Dependency updates (Renovate) are left out.
 
+## 2.1.0 (minor, unreleased) — two-factor authentication and passkeys
+
+Components of the Login and Settings two-factor screens (Figma lib `Mairie360 – lib-components`, MAIR-1074).
+
+- `Divider`: line with an optional label such as « ou » (MAIR-1072).
+
 ## 2.0.1 (patch, unreleased) — MAIR-1066
 
 - The veil of `Modal`, `ConfirmModal`, `Drawer`, `NotificationCenter` and the mobile menu uses the Figma

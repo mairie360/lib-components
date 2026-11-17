@@ -14,6 +14,7 @@ export { DataTable } from './components/DataTable';
 export { DateTime } from './components/DateTime';
 export { DescriptionList } from './components/DescriptionList';
 export { DesktopNavigation } from './components/DesktopNavigation';
+export { Divider } from './components/Divider';
 export { Drawer } from './components/Drawer';
 export { DropdownMenu } from './components/DropdownMenu';
 export { Field } from './components/Field';
