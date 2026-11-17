@@ -35,6 +35,7 @@ export { MetricCard } from './components/MetricCard';
 export { Modal } from './components/Modal';
 export { MultiSelect } from './components/MultiSelect';
 export { NotificationCenter } from './components/NotificationCenter';
+export { OneTimeCodeField } from './components/OneTimeCodeField';
 export { PageHeader } from './components/PageHeader';
 export { Pagination } from './components/Pagination';
 export { Panel } from './components/Panel';
