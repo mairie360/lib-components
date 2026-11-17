@@ -41,6 +41,7 @@ export { Panel } from './components/Panel';
 export { PendingFeatureNotice } from './components/PendingFeatureNotice';
 export { ProfilePhotoField } from './components/ProfilePhotoField';
 export { ProgressMeter } from './components/ProgressMeter';
+export { QrCode } from './components/QrCode';
 export { RadioGroup } from './components/RadioGroup';
 export { Rating } from './components/Rating';
 export { RecoveryCodes } from './components/RecoveryCodes';

@@ -45,6 +45,9 @@
   --mairie-navigation-admin-focus: #ffccd1;
   --mairie-navigation-shadow: none;
   --mairie-navigation-admin-shadow: inset 3px 0 0 var(--mairie-navigation-admin-focus), 0 2px 6px rgb(0 0 0 / 20%);
+  /* MAIR-1068: QrCode is black on white in both modes (scanners need the contrast); not redefined in Dark. */
+  --mairie-qr-light: #ffffff;
+  --mairie-qr-dark: #000000;
   --mairie-preview-light-background: #ffffff;
   --mairie-preview-light-text: #383f51;
   --mairie-preview-dark-background: #161920;

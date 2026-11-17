@@ -70,6 +70,8 @@ export { ProfilePhotoField } from '../components/ProfilePhotoField';
 export type { ProfilePhotoFieldProps } from '../components/ProfilePhotoField';
 export { ProgressMeter } from '../components/ProgressMeter';
 export type { ProgressSize, ProgressTone, ProgressMeterProps } from '../components/ProgressMeter';
+export { QrCode } from '../components/QrCode';
+export type { QrCodeProps } from '../components/QrCode';
 export { RadioGroup } from '../components/RadioGroup';
 export type { RadioOption, RadioGroupProps } from '../components/RadioGroup';
 export { Rating } from '../components/Rating';
