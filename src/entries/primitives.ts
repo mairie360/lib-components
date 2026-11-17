@@ -58,6 +58,8 @@ export { Modal } from '../components/Modal';
 export type { ModalProps } from '../components/Modal';
 export { MultiSelect } from '../components/MultiSelect';
 export type { MultiSelectProps } from '../components/MultiSelect';
+export { OneTimeCodeField } from '../components/OneTimeCodeField';
+export type { OneTimeCodeKind, OneTimeCodeFieldProps } from '../components/OneTimeCodeField';
 export { PageHeader } from '../components/PageHeader';
 export type { PageHeaderProps } from '../components/PageHeader';
 export { Pagination } from '../components/Pagination';
