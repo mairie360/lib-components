@@ -21,7 +21,7 @@ export function usePageUrlState(schema: UrlSchema, initialSearch?: string) {
     if (!browser?.history?.pushState || !browser.location.href) {
       // Standalone renderers can exercise the same validated state without a
       // browser. Production navigation always uses the native history below.
-      const accepted = Object.fromEntries(Object.entries(patch).filter(([key]) => schema[key]).map(([key, value]) => [key, schema[key].accept(value) ? value : schema[key].defaultValue]));
+      const accepted = Object.fromEntries(Object.entries(patch).filter(([key]) => Object.prototype.hasOwnProperty.call(schema, key)).map(([key, value]) => [key, schema[key].accept(value) ? value : schema[key].defaultValue]));
       setState(current => ({ ...current, ...accepted }));
       return;
     }

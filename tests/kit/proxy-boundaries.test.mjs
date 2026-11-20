@@ -80,3 +80,12 @@ test('mair-690: a body is relayed only in a media type the published operation d
   assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', {}), ['typed'], declared)).status, 200);
   assert.equal((await proxyPublishedBffRequest(request('/free', 'POST', { 'content-type': 'text/plain' }, 'x'), ['free'], declared)).status, 200);
 });
+
+test('mair-690: the media type is checked as sent upstream and declared types are case-insensitive', async () => {
+  let calls = 0; globalThis.fetch = async () => { calls++; return Response.json({ ok: true }); };
+  const declared = { ...config, paths: { '/typed': { post: { requestBody: { content: { 'Application/JSON': {} } } } } } };
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'application/json' }, '{}'), ['typed'], declared)).status, 200);
+  const overridden = { ...declared, trustedHeaders: () => ({ 'Content-Type': 'text/plain' }) };
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'application/json' }, '{}'), ['typed'], overridden)).status, 415);
+  assert.equal(calls, 1);
+});

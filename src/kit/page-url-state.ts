@@ -13,7 +13,7 @@ export function readPageUrlState(search: string, schema: UrlSchema): Record<stri
 export function pageStateUrl(href: string, patch: Record<string, string>, schema: UrlSchema): string {
   const url = new URL(href);
   for (const [key, value] of Object.entries(patch)) {
-    const field = schema[key];
+    const field = Object.prototype.hasOwnProperty.call(schema, key) ? schema[key] : undefined;
     if (!field) continue;
     if (!field.accept(value) || value === field.defaultValue) url.searchParams.delete(key);
     else url.searchParams.set(key, value);

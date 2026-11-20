@@ -64,14 +64,13 @@ export async function proxyPublishedBffRequest(request: NextRequest, path: strin
     try {
       const read=await readBoundedBody(request,config.maxBodyBytes ?? 1024*1024);
       if(read===null) return errorResponse(413,'Le corps de la requête est trop volumineux.');
-      // A body is relayed only in a media type the published operation declares.
-      const declared = Object.keys((route[1][request.method.toLowerCase()] as { requestBody?: { content?: Record<string, unknown> } } | undefined)?.requestBody?.content ?? {});
-      if (declared.length > 0 && read.byteLength > 0) {
-        const received = request.headers.get('content-type')?.split(';')[0].trim().toLowerCase() ?? '';
-        if (!declared.includes(received)) return errorResponse(415,'Type de contenu non pris en charge.');
-      }
       body=read;
     } catch {return errorResponse(400,'Le corps de la requête est invalide.');}
+  }
+  if (body && body.byteLength > 0) {
+    // A body is relayed only in a media type the published operation declares; the value checked is the one sent upstream.
+    const declared = Object.keys((route[1][request.method.toLowerCase()] as { requestBody?: { content?: Record<string, unknown> } } | undefined)?.requestBody?.content ?? {}).map(type => type.split(';')[0].trim().toLowerCase());
+    if (declared.length > 0 && !declared.includes(headers.get('content-type')?.split(';')[0].trim().toLowerCase() ?? '')) return errorResponse(415,'Type de contenu non pris en charge.');
   }
   let renewedCookies: string[] = [];
   try {

@@ -47,3 +47,7 @@ test('mair-690: usePageUrlState renders its initial search on the server without
   const Plain = () => { const { state, ready } = usePageUrlState(schema); return createElement('output', null, `${state.view} ${ready}`); };
   assert.equal(renderToStaticMarkup(createElement(Plain)), '<output>month false</output>');
 });
+
+test('mair-690: pageStateUrl ignores keys inherited from Object.prototype', () => {
+  assert.equal(pageStateUrl('https://x.test/p', { constructor: 'x', toString: 'y' }, { page: urlPage }), '/p');
+});
