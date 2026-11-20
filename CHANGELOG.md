@@ -4,6 +4,14 @@ Versions published to GitHub Packages. The CI computes them from the conventiona
 (see « Version (MAIR-861) » in the README); this file says what each upgrade brings to a front.
 Dependency updates (Renovate) are left out.
 
+## 2.2.0 (minor, unreleased) — shared front plumbing
+
+Modules that every front copied are now exported once; the fronts delete their copies.
+
+- `/shared`: `readPageUrlState`, `pageStateUrl`, `urlChoice`, `urlText`, `urlPage`, `urlDate` (page state kept in the URL), `subscribePageReturn` (refresh when the tab comes back) and `parseFrontUrl`.
+- `/react`: `usePageUrlState(schema, initialSearch?)`; the optional `initialSearch` renders the first frame with the server's search string.
+- `proxyPublishedBffRequest` answers 415 when a body is sent in a media type the published operation does not declare (an empty body or an operation without a declared body is unchanged). Callers that post a body must send its `Content-Type`.
+
 ## 2.1.0 (minor, unreleased) — two-factor authentication and passkeys
 
 Components of the Login and Settings two-factor screens (Figma lib `Mairie360 – lib-components`, MAIR-1074).

@@ -74,3 +74,7 @@ export function formatInstanceDate(value: string, timeZone = getInstanceTimeZone
   if (!Number.isFinite(date.valueOf())) return value;
   return new Intl.DateTimeFormat('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', timeZone: civil ? 'UTC' : instanceTimeZone(timeZone) }).format(date);
 }
+
+export { parseFrontUrl } from './parse-front-url';
+export { readPageUrlState, pageStateUrl, urlChoice, urlText, urlPage, urlDate, type UrlField, type UrlSchema } from './page-url-state';
+export { subscribePageReturn } from './page-return';

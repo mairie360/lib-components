@@ -69,3 +69,23 @@ test('refresh peer rejects missing credentials, invalid receipts and unavailable
   const invalid=await handle(req());assert.equal(invalid.status,502);assert.equal(invalid.headers.get('set-cookie'),null);
   globalThis.fetch=async()=>{throw new Error('private owner detail');};const offline=await handle(req());assert.equal(offline.status,503);assert.equal(offline.headers.get('set-cookie'),null);
 });
+
+test('mair-690: a body is relayed only in a media type the published operation declares', async () => {
+  let calls = 0; globalThis.fetch = async () => { calls++; return Response.json({ ok: true }); };
+  const declared = { ...config, paths: { '/typed': { post: { requestBody: { content: { 'application/json': {} } } } }, '/free': { post: {} } } };
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'text/plain' }, 'x'), ['typed'], declared)).status, 415);
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', {}, '{}'), ['typed'], declared)).status, 415);
+  assert.equal(calls, 0);
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'Application/JSON; charset=utf-8' }, '{}'), ['typed'], declared)).status, 200);
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', {}), ['typed'], declared)).status, 200);
+  assert.equal((await proxyPublishedBffRequest(request('/free', 'POST', { 'content-type': 'text/plain' }, 'x'), ['free'], declared)).status, 200);
+});
+
+test('mair-690: the media type is checked as sent upstream and declared types are case-insensitive', async () => {
+  let calls = 0; globalThis.fetch = async () => { calls++; return Response.json({ ok: true }); };
+  const declared = { ...config, paths: { '/typed': { post: { requestBody: { content: { 'Application/JSON': {} } } } } } };
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'application/json' }, '{}'), ['typed'], declared)).status, 200);
+  const overridden = { ...declared, trustedHeaders: () => ({ 'Content-Type': 'text/plain' }) };
+  assert.equal((await proxyPublishedBffRequest(request('/typed', 'POST', { 'content-type': 'application/json' }, '{}'), ['typed'], overridden)).status, 415);
+  assert.equal(calls, 1);
+});
