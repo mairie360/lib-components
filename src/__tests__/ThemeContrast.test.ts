@@ -29,6 +29,9 @@ const graphics: [string, string][] = [
   ['navigation-control-border', 'navigation-background'], ['navigation-active-border', 'navigation-background'],
   ['navigation-active-indicator', 'navigation-active-background'], ['danger', 'surface'], ['counter-background', 'surface'],
   ...['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'].map(module => [`module-${module}`, 'surface'] as [string, string]),
+  // MAIR-1108: icon of a module IconChip. MAIR-1115: module fill of a ProgressMeter on its track.
+  ...['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'].map(module => ['on-module', `module-${module}`] as [string, string]),
+  ...['dashboard', 'projects', 'calendar', 'messaging', 'training'].map(module => [`module-${module}`, 'surface-raised'] as [string, string]),
 ];
 
 describe.each(themes)('%s palette', (_mode, theme) => {
