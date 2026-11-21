@@ -34,7 +34,7 @@ export const uiEntryPoints = {
     ],
   },
   shell: {
-    components: ['AppShell', 'AccessibleShell', 'CurrentDate', 'DesktopNavigation', 'Footer', 'Header', 'Logo', 'NotificationCenter', 'Sidebar'],
+    components: ['AppShell', 'AccessibleShell', 'CurrentDate', 'DesktopNavigation', 'Footer', 'Header', 'Logo', 'NotificationCenter', 'PublicBackdrop', 'Sidebar'],
     extra: [
       "export { defaultSidebarItems } from '../components/Sidebar';",
       "export { mairie360LogoSrc } from '../assets/logo';",
