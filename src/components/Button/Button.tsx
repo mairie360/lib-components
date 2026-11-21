@@ -44,7 +44,7 @@ const surfaces: Record<Tone, string> = {
   neutral: 'var(--mairie-surface-raised)',
   success: 'var(--mairie-success-surface)',
   warning: 'var(--mairie-warning-surface)',
-  danger: 'var(--mairie-error-surface)',
+  danger: 'var(--mairie-danger-surface)',
   info: 'var(--mairie-info-surface)',
 };
 const inks: Record<Tone, string> = {

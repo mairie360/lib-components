@@ -3,7 +3,7 @@ import { fn } from 'storybook/test';
 import { Calendar } from 'lucide-react';
 
 import { Button } from '../components/Button';
-import { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';
+import { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, DeleteGhostButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton } from '../components/ButtonPresets';
 import { CloseIconButton, DeleteIconButton, EditIconButton, IconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from '../components/IconButton';
 import { LinkButton } from '../components/LinkButton';
 import { sizes, tones } from '../kit/theme';
@@ -42,7 +42,7 @@ export const Loading: Story = { args: { label: 'Enregistrement…', loading: tru
 export const Presets: Story = {
   render: () => (
     <div className="flex flex-wrap items-center gap-3">
-      <CreateButton /><SaveButton /><CancelButton /><EditButton /><DeleteButton /><ConfirmDeleteButton /><RefreshButton /><RetryButton /><CloseButton /><BackButton /><SendButton /><DownloadButton /><LogoutButton />
+      <CreateButton /><SaveButton /><CancelButton /><EditButton /><DeleteButton /><DeleteGhostButton /><ConfirmDeleteButton /><RefreshButton /><RetryButton /><CloseButton /><BackButton /><SendButton /><DownloadButton /><LogoutButton />
     </div>
   ),
 };
@@ -86,6 +86,15 @@ export const LinkButtons: Story = {
       <LinkButton href="#" label="Mot de passe oublié ?" />
       <LinkButton href="#" label="Voir tout" icon={Calendar} tone="secondary" />
       <LinkButton href="#" icon={Calendar} iconOnly label="Ouvrir le calendrier" />
+    </div>
+  ),
+};
+
+/** MAIR-1095 the red rule: red is kept for deletions. Solid = critical (in the confirmation), outline = not critical, ghost = discreet (rows, toolbars). */
+export const RedRule: Story = {
+  render: () => (
+    <div className="flex flex-wrap items-center gap-3">
+      <ConfirmDeleteButton /><DeleteButton /><DeleteGhostButton size="s" />
     </div>
   ),
 };

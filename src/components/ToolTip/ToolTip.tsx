@@ -54,7 +54,7 @@ export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
       {/* The transparent bottom padding replaces a margin: it bridges the gap above the trigger, so
           the pointer can move onto the bubble without leaving the wrapper (RGAA 10.13). */}
       <div id={id} role="tooltip" hidden={!visible} className="absolute bottom-full pb-2">
-        <div className="p-2 bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] text-sm rounded shadow-lg">{text}</div>
+        <div className="mairie-tooltip-bubble whitespace-nowrap bg-[var(--mairie-neutral-action)] font-medium text-[var(--mairie-on-neutral)] shadow-lg" style={{ padding: '6px 10px', borderRadius: 'var(--mairie-radius-s)', fontSize: 13 }}>{text}</div>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ButtonPresets, CancelButton, CreatePasskeyButton, PasskeyButton, CreateButton, DeleteButton } from './ButtonPresets';
+import { ButtonPresets, CancelButton, ConfirmDeleteButton, CreatePasskeyButton, PasskeyButton, CreateButton, DeleteButton, DeleteGhostButton } from './ButtonPresets';
 
 describe('ButtonPresets (MAIR-608)', () => {
   it('names every role preset in French and reports the click', async () => {
@@ -24,5 +24,22 @@ describe('ButtonPresets (MAIR-608)', () => {
     expect(signIn.querySelector('svg')).toBeInTheDocument();
     expect(ButtonPresets.passkey).toBe(PasskeyButton);
     expect(ButtonPresets.createPasskey).toBe(CreatePasskeyButton);
+  });
+
+  // MAIR-1095: Figma `Button/DeleteGhost` and the red rule (solid = critical, outline = not critical, ghost = discreet).
+  it('MAIR-1095 adds the discreet DeleteGhostButton and keeps every red button on the danger tokens', () => {
+    render(<><DeleteGhostButton /><DeleteButton /><ConfirmDeleteButton /></>);
+    const [ghost, outline] = screen.getAllByRole('button', { name: 'Supprimer' });
+    expect(ghost).toHaveAttribute('data-preset', 'DeleteGhost');
+    expect(ghost).toHaveAttribute('data-variant', 'ghost');
+    expect(ghost).toHaveAttribute('data-tone', 'danger');
+    expect(ghost).toHaveAttribute('data-m360-component', 'DeleteGhostButton Button');
+    expect(ghost.style.getPropertyValue('--button-hover-surface')).toBe('var(--mairie-danger-surface)');
+    expect(outline).toHaveAttribute('data-variant', 'outline');
+    expect(outline.style.getPropertyValue('--button-hover-surface')).toBe('var(--mairie-danger-surface)');
+    const solid = screen.getByRole('button', { name: 'Confirmer la suppression' });
+    expect(solid).toHaveAttribute('data-variant', 'solid');
+    expect(solid).toHaveClass('bg-[var(--mairie-danger)]', 'text-[var(--mairie-on-danger)]');
+    expect(ButtonPresets.deleteGhost).toBe(DeleteGhostButton);
   });
 });

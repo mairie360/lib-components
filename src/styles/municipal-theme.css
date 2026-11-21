@@ -523,3 +523,15 @@ body.mairie-ui .app-focus-content, .app-focus-content { grid-area: content; min-
 .app-shell-root[data-backdrop="ribbons"] { position: relative; isolation: isolate; }
 .app-shell-root[data-backdrop="ribbons"] > .mairie-public-backdrop { z-index: -1; }
 .app-shell-root[data-backdrop="ribbons"] :is(.app-shell-veil, .app-shell-main-area) { background: transparent; }
+
+/* MAIR-1095: the tooltip shows at once and fades in over 80 ms (0 ms under prefers-reduced-motion). */
+@keyframes mairie-tooltip-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+.mairie-tooltip-bubble { animation: mairie-tooltip-in var(--mairie-motion-instant) var(--mairie-ease-standard) var(--mairie-tooltip-delay) both; }
+
+/* MAIR-1112: in a hovered DataTable row (surface-raised), the hovered ghost IconButton takes the surface and a
+   1 px inset control border, so the targeted button stands out. Danger and disabled buttons, and the keyboard
+   focus ring (an outline), are unchanged. */
+.mairie-data-table tbody tr:hover button[data-m360-component~="IconButton"]:not([data-tone="danger"]):not(:disabled):hover {
+  background-color: var(--mairie-surface);
+  box-shadow: inset 0 0 0 1px var(--mairie-control-border);
+}
