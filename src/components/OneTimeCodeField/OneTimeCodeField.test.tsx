@@ -76,4 +76,25 @@ describe('MAIR-1067 OneTimeCodeField', () => {
     expect(container.querySelector('[data-m360-component~="OneTimeCodeField"]')).not.toBeNull();
     expect((await axe(container)).violations).toEqual([]);
   });
+  // MAIR-1104: State=Error of Figma `Field/OneTimeCode`, as Base/TextField.
+  it.each(['totp', 'recovery'] as const)('MAIR-1104 shows the error in place of the hint, red border, linked to the %s code', async (kind) => {
+    const { container } = render(<OneTimeCodeField kind={kind} error="Code incorrect." />);
+    const input = screen.getByRole('textbox');
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Code incorrect.');
+    expect(input.getAttribute('aria-describedby')?.split(' ')).toContain(alert.id);
+    expect(screen.queryByText(kind === 'totp' ? 'Saisissez le code affiché par votre application d’authentification.' : 'Chaque code de secours ne sert qu’une fois.')).toBeNull();
+    expect(container.querySelector('[data-invalid="true"]')).not.toBeNull();
+    expect(input.parentElement?.className).toContain('border-[var(--mairie-error-text)]');
+    expect((await axe(container)).violations).toEqual([]);
+  });
+
+  it('MAIR-1104 goes back to the hint once the error is cleared', () => {
+    const { rerender } = render(<OneTimeCodeField error="Code incorrect." />);
+    rerender(<OneTimeCodeField />);
+    expect(screen.getByRole('textbox')).not.toHaveAttribute('aria-invalid');
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByText('Saisissez le code affiché par votre application d’authentification.')).toBeInTheDocument();
+  });
 });

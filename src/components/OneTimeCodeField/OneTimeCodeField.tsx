@@ -28,7 +28,8 @@ const kinds = {
  * Field for a one-time code (MAIR-1067, Figma `Field/OneTimeCode`): the authenticator code (6 digits, spaced
  * placeholder, numeric keypad, `autocomplete="one-time-code"`) or a recovery code (`A1B2-C3D4`, monospace).
  * Typed and pasted text is cleaned on the way in (spaces, dashes, case), so the value is always ready to send.
- * Works controlled, uncontrolled or with react-hook-form `register`.
+ * Works controlled, uncontrolled or with react-hook-form `register`. `error` is the Figma `State=Error` (MAIR-1104):
+ * red border, the message in place of the hint, `aria-invalid` and `aria-describedby` on the code, like `TextField`.
  */
 export const OneTimeCodeField = React.forwardRef<HTMLInputElement, OneTimeCodeFieldProps>(function OneTimeCodeField(
   { kind = 'totp', label, hint, placeholder, onChange, onValueChange, onComplete, className = '', style, ...props },
