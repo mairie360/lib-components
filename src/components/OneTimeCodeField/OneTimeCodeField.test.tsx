@@ -71,6 +71,20 @@ describe('MAIR-1067 OneTimeCodeField', () => {
     expect(input.getAttribute('aria-describedby')).toContain('-error');
   });
 
+  it('MAIR-1104 replaces the hint with the error, on the error border, and links only the message', async () => {
+    const { container, rerender } = render(<OneTimeCodeField kind="recovery" />);
+    const input = screen.getByLabelText('Code de secours');
+    expect(input).toHaveAccessibleDescription('Chaque code de secours ne sert qu’une fois.');
+    expect(input).not.toHaveAttribute('aria-invalid');
+    rerender(<OneTimeCodeField kind="recovery" error="Ce code de secours a déjà servi." />);
+    expect(screen.queryByText('Chaque code de secours ne sert qu’une fois.')).not.toBeInTheDocument();
+    expect(input).toHaveAttribute('aria-invalid', 'true');
+    expect(input).toHaveAccessibleDescription('Ce code de secours a déjà servi.');
+    expect(input.getAttribute('aria-describedby')!.split(' ')).toHaveLength(1);
+    expect(input.parentElement).toHaveClass('border-[var(--mairie-error-text)]');
+    expect((await axe(container)).violations).toEqual([]);
+  });
+
   it('marks its root and has no accessibility violation in both kinds', async () => {
     const { container } = render(<><OneTimeCodeField /><OneTimeCodeField kind="recovery" /></>);
     expect(container.querySelector('[data-m360-component~="OneTimeCodeField"]')).not.toBeNull();
