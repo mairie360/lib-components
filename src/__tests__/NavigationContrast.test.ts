@@ -38,7 +38,7 @@ it('MAIR-547 styles the desktop navigation with the readable navigation text tok
   expect(rule('.app-desktop-navigation nav button:hover')).toContain('color: var(--mairie-navigation-active-text)');
   expect(rule('.app-desktop-navigation nav button[aria-current="page"]')).toContain('color: var(--mairie-navigation-active-text)');
   expect(rule('.app-desktop-navigation nav button[data-admin="true"]')).toContain('color: var(--mairie-navigation-admin-text)');
-  expect(rule('.app-navigation-badge')).toContain('color: var(--mairie-navigation-admin-text)');
+  expect(rule('.app-navigation-badge')).toContain('color: var(--mairie-on-counter)');
   const navigationRules = [...css.matchAll(/[^{}]*\.app-(?:desktop-)?navigation(?!-initial)[^{}]*\{[^}]*\}/g)].map(([text]) => text);
   expect(navigationRules.length).toBeGreaterThan(0);
   expect(navigationRules.filter(text => text.includes('--mairie-on-action'))).toEqual([]);
@@ -54,16 +54,18 @@ it('MAIR-547 keeps --mairie-on-action out of the Sidebar and Footer navigation i
   expect(footer).not.toContain('--mairie-on-action');
 });
 
-// MAIR-765: the translucent teal layers render the Figma « Proposition C » colours.
+// MAIR-1091: the frame is white (Figma « Jetons et mouvement », lib 2.3): sidebar, top bar and footer on
+// the surface, the Administration entry styled like the other destinations.
 it.each([
-  ['light', 'shell-background', '#e4f1ee'], ['light', 'navigation-background', '#d5eae7'], ['light', 'shell-bar-background', '#cde7e3'],
-  ['light', 'navigation-hover-background', '#bde1da'], ['light', 'navigation-active-background', '#addad2'],
-  ['dark', 'shell-background', '#171e22'], ['dark', 'navigation-background', '#1f2d2f'], ['dark', 'shell-bar-background', '#253839'],
-  ['dark', 'navigation-hover-background', '#2f4a49'], ['dark', 'navigation-active-background', '#3a5f5c'],
-] as const)('MAIR-765 %s %s renders %s', (mode, token, expected) => {
+  ['light', 'shell-background', '#ffffff'], ['light', 'navigation-background', '#ffffff'], ['light', 'shell-bar-background', '#ffffff'],
+  ['light', 'navigation-hover-background', '#f1f6f5'], ['light', 'navigation-active-background', '#e3f3f0'],
+  ['dark', 'shell-background', '#161920'], ['dark', 'navigation-background', '#161920'], ['dark', 'shell-bar-background', '#161920'],
+  ['dark', 'navigation-hover-background', '#1f232d'], ['dark', 'navigation-active-background', '#233a37'],
+] as const)('MAIR-1091 %s %s renders %s', (mode, token, expected) => {
   const theme = themes.find(([name]) => name === mode)![1];
-  const [r, g, b] = [1, 3, 5].map(i => parseInt(rendered(theme, token).slice(i, i + 2), 16));
-  const [er, eg, eb] = [1, 3, 5].map(i => parseInt(expected.slice(i, i + 2), 16));
-  // One unit of rounding tolerance per channel against the Figma swatches.
-  expect([Math.abs(r - er), Math.abs(g - eg), Math.abs(b - eb)].every(d => d <= 1)).toBe(true);
+  expect(rendered(theme, token)).toBe(expected);
+});
+
+it.each(['background', 'hover-background', 'active-background', 'text'])('MAIR-1091 aligns navigation-admin-%s on the other destinations', suffix => {
+  for (const [, theme] of themes) expect(rendered(theme, `navigation-admin-${suffix}`)).toBe(rendered(theme, `navigation-${suffix}`));
 });

@@ -16,10 +16,18 @@ const text: [string, string][] = [
   ['info-text', 'info-surface'], ['purple-text', 'purple-surface'],
   ['navigation-text', 'navigation-background'], ['navigation-text', 'navigation-hover-background'],
   ['text', 'shell-bar-background'], ['muted', 'shell-bar-background'],
+  // MAIR-1091: tokens of lib 2.3.
+  ['on-counter', 'counter-background'], ['on-danger', 'danger'], ['on-danger', 'danger-hover'],
+  ['error-text', 'danger-surface'], ['on-neutral', 'neutral-action'],
+  ['navigation-active-text', 'navigation-active-background'], ['navigation-text', 'shell-background'],
+  ['text', 'illustration-background'], ['muted', 'illustration-background'],
+  // MAIR-1152: own message bubbles.
+  ['message-own-on', 'message-own-background'],
 ];
 const graphics: [string, string][] = [
   ['control-border', 'control-background'], ['control-border', 'surface'],
   ['navigation-control-border', 'navigation-background'], ['navigation-active-border', 'navigation-background'],
+  ['navigation-active-indicator', 'navigation-active-background'], ['danger', 'surface'], ['counter-background', 'surface'],
   ...['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'].map(module => [`module-${module}`, 'surface'] as [string, string]),
 ];
 

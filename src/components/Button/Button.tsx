@@ -62,7 +62,7 @@ const solid: Record<Tone, string> = {
   neutral: 'bg-[var(--mairie-surface-raised)] text-[var(--mairie-text)] hover:bg-[var(--mairie-border)]',
   success: 'bg-[var(--mairie-success-action-background)] text-[var(--mairie-on-secondary)] hover:bg-[var(--mairie-success-action-hover-background)]',
   warning: 'bg-[var(--mairie-warning-surface)] text-[var(--mairie-warning-text)] hover:brightness-95',
-  danger: 'bg-[var(--mairie-error-action-background)] text-[var(--mairie-on-secondary)] hover:bg-[var(--mairie-error-action-hover-background)]',
+  danger: 'bg-[var(--mairie-danger)] text-[var(--mairie-on-danger)] hover:bg-[var(--mairie-danger-hover)]',
   info: 'bg-[var(--mairie-info-surface)] text-[var(--mairie-info-text)] hover:brightness-95',
 };
 const outlineBorder: Record<Tone, string> = { ...inks, neutral: 'var(--mairie-control-border)' };

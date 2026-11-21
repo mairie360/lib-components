@@ -75,7 +75,7 @@ export type { AppShellProps } from './components/AppShell';
 export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from './components/SessionList';
 export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from './components/ButtonPresets';
 export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';
-export { passkeyIcon } from './components/Icon';
+export { icons, passkeyIcon } from './components/Icon';
 export { CloseIconButton, DeleteIconButton, EditIconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from './components/IconButton';
 export { DateField, EmailField, NameField, NewPasswordField, NumberField, PasswordField, PhoneField, SearchField, TimeField } from './components/FieldPresets';
 export { Body, BodySmall, Caption, ErrorText, Help, Label, Link, Metric, ModalTitle, Overline, PageTitle, PanelTitle, SectionTitle, TextPresets } from './components/Text';

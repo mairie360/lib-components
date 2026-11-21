@@ -14,37 +14,66 @@
   --mairie-file-document: var(--mairie-accent);
   --mairie-file-spreadsheet: var(--mairie-success-text);
   --mairie-file-image: var(--mairie-purple-text);
-  --mairie-error-action-background: #a40e26;
-  --mairie-error-action-hover-background: #891827;
+  --mairie-error-action-background: var(--mairie-danger);
+  --mairie-error-action-hover-background: var(--mairie-danger-hover);
   /* MAIR-1066: Figma `Base/Modal` Overlay colour (slate #383f51), shown at 35 % by the veils. */
   --mairie-overlay-background: #383f51;
-  /* MAIR-765 (Figma « Proposition C »): the application frame is a translucent teal (#70c1b3) veil.
-   * Layers: shell veil over --mairie-background; navigation band and top/bottom bars over the veil;
-   * hover and active items over the band. Rendered in Light: veil #e4f1ee, band #d5eae7, bars #cde7e3,
-   * hover #bde1da, active #addad2. Text stays ink (8.4:1 on the band, 6.9:1 on the active item). */
-  --mairie-shell-background: rgb(112 193 179 / 10%);
-  --mairie-shell-bar-background: rgb(112 193 179 / 20%);
-  --mairie-shell-bar-border: rgb(112 193 179 / 50%);
-  --mairie-navigation-background: rgb(112 193 179 / 13%);
+  /* MAIR-1091 (lib 2.3, Figma « Jetons et mouvement »): white frame. The sidebar, the top bar and the
+   * footer sit on the surface with a neutral border; the active item is a pale teal with a teal
+   * indicator bar. The Administration entry follows the other destinations (no red any more). */
+  --mairie-shell-background: #ffffff;
+  --mairie-shell-border: #d8dce2;
+  --mairie-shell-bar-background: #ffffff;
+  --mairie-shell-bar-border: #d8dce2;
+  --mairie-navigation-background: #ffffff;
   --mairie-navigation-text: #383f51;
-  /* MAIR-547: label and icon of the active and hovered items, and of the Administration entry and
-   * counters (white on red, 6.5:1 and more). Never --mairie-on-action here. */
-  --mairie-navigation-active-text: #383f51;
-  --mairie-navigation-admin-text: #ffffff;
-  --mairie-navigation-border: rgb(112 193 179 / 30%);
+  --mairie-navigation-active-text: #1f5c52;
+  --mairie-navigation-active-indicator: #2d786c;
+  --mairie-navigation-admin-text: var(--mairie-navigation-text);
+  --mairie-navigation-border: #d8dce2;
   --mairie-navigation-control-border: #6a6f7d;
-  --mairie-navigation-control-background: rgb(112 193 179 / 24%);
-  --mairie-navigation-hover-background: rgb(112 193 179 / 24%);
-  --mairie-navigation-active-background: rgb(112 193 179 / 40%);
+  --mairie-navigation-control-background: #f1f6f5;
+  --mairie-navigation-hover-background: #f1f6f5;
+  --mairie-navigation-active-background: #e3f3f0;
   --mairie-navigation-active-border: #2d786c;
-  --mairie-navigation-admin-background: #b4232f;
-  --mairie-navigation-admin-hover-background: #951c28;
-  --mairie-navigation-admin-border: #db5260;
-  --mairie-navigation-admin-active-background: #891827;
-  --mairie-navigation-admin-active-border: #ffb0b7;
-  --mairie-navigation-admin-focus: #ffccd1;
+  --mairie-navigation-admin-background: var(--mairie-navigation-background);
+  --mairie-navigation-admin-hover-background: var(--mairie-navigation-hover-background);
+  --mairie-navigation-admin-border: transparent;
+  --mairie-navigation-admin-active-background: var(--mairie-navigation-active-background);
+  --mairie-navigation-admin-active-border: var(--mairie-navigation-active-border);
+  --mairie-navigation-admin-focus: var(--mairie-accent);
   --mairie-navigation-shadow: none;
-  --mairie-navigation-admin-shadow: inset 3px 0 0 var(--mairie-navigation-admin-focus), 0 2px 6px rgb(0 0 0 / 20%);
+  --mairie-navigation-admin-shadow: none;
+  /* MAIR-1094: notification counter (bell, navigation entries). */
+  --mairie-counter-background: #a40e26;
+  --mairie-on-counter: #ffffff;
+  /* MAIR-1095: red is for deletions only (solid = critical, outline = not critical, ghost = discreet). */
+  --mairie-danger: #a40e26;
+  --mairie-danger-hover: #891827;
+  --mairie-on-danger: #ffffff;
+  --mairie-danger-surface: #fff0f1;
+  /* Neutral solid action (tooltips, neutral buttons). */
+  --mairie-neutral-action: #383f51;
+  --mairie-on-neutral: #ffffff;
+  /* MAIR-1098: background of the illustrations (DataState, Onboarding). */
+  --mairie-illustration-background: #f6f7f9;
+  /* MAIR-1152: bubbles of the messages written by the signed-in agent. */
+  --mairie-message-own-background: #efebe2;
+  --mairie-message-own-on: #383f51;
+  --mairie-message-own-border: #d6d0c3;
+  /* MAIR-1097, MAIR-1108: text and icons on a module colour (avatars, IconChip tone module). */
+  --mairie-on-module: #ffffff;
+  /* MAIR-1091 motion: durations and easings shared by every component; all cut under prefers-reduced-motion. */
+  --mairie-motion-instant: 80ms;
+  --mairie-motion-fast: 150ms;
+  --mairie-motion-base: 240ms;
+  --mairie-motion-slow: 400ms;
+  --mairie-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --mairie-ease-enter: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --mairie-ease-exit: cubic-bezier(0.3, 0, 0.8, 0.15);
+  --mairie-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --mairie-tooltip-delay: 0ms;
+  --mairie-shadow-pop: 0 12px 32px rgb(23 32 51 / 16%);
   /* MAIR-1068: QrCode is black on white in both modes (scanners need the contrast); not redefined in Dark. */
   --mairie-qr-light: #ffffff;
   --mairie-qr-dark: #000000;
@@ -52,10 +81,10 @@
   --mairie-preview-light-text: #383f51;
   --mairie-preview-dark-background: #161920;
   --mairie-preview-dark-text: #f8f7f8;
-  --mairie-action-background: #70c1b3;
-  /* Hover is one step lighter (teal/400) so the dark --mairie-on-action text keeps 6:1, as in Dark. */
-  --mairie-action-hover-background: #94d0c6;
-  --mairie-on-action: #383f51;
+  /* MAIR-1091: lighter action green, slightly darker text on it. */
+  --mairie-action-background: #8ad0c4;
+  --mairie-action-hover-background: #a3dbd1;
+  --mairie-on-action: #2a303f;
   --mairie-background: #f1f6f5;
   --mairie-surface: #ffffff;
   --mairie-surface-raised: #f1f6f5;
@@ -108,46 +137,70 @@
 }
 
 html[data-theme="dark"] {
+  /* MAIR-1091: pastel dark palette of lib 2.3. */
   --mairie-teal-text: #b8e0d9;
   --mairie-background: #0f1015;
   --mairie-surface: #161920;
   --mairie-surface-raised: #1f232d;
   --mairie-control-background: #0f1015;
-  --mairie-error-surface: #48232b;
-  --mairie-error-text: #ffc1c8;
-  --mairie-success-surface: #173b31;
-  --mairie-success-text: #b5eed1;
-  --mairie-purple-surface: #38264f;
-  --mairie-purple-text: #e2ccff;
-  --mairie-warning-surface: #42351a;
-  --mairie-warning-text: #ffe0a0;
+  --mairie-error-surface: #3d242a;
+  --mairie-error-text: #f7bec6;
+  --mairie-success-surface: #1f3a31;
+  --mairie-success-text: #bfe9d2;
+  --mairie-purple-surface: #33284a;
+  --mairie-purple-text: #dccdf5;
+  --mairie-warning-surface: #3c3322;
+  --mairie-warning-text: #f3dcaa;
   --mairie-accent-surface: #1d322f;
   --mairie-text: #f8f7f8;
-  --mairie-muted: #e3dfe3;
-  --mairie-accent: #b8e0d9;
+  --mairie-muted: #c9c4ca;
+  --mairie-accent: #a9dcd2;
   --mairie-control-border: #8c868b;
-  --mairie-border: #272c39;  --mairie-action-hover-background: #94d1c6;
-  --mairie-secondary: #9ea7bb;
-  --mairie-secondary-surface: #10151f;
-  --mairie-secondary-action-hover-background: #5a6a8a;
-  --mairie-info-surface: #10151f;
-  --mairie-info-text: #c8ced9;
-  /* MAIR-765 Dark: veil #171e22, band #1f2d2f, bars #253839, hover #2f4a49, active #3a5f5c. */
-  --mairie-shell-background: rgb(112 193 179 / 8%);
-  --mairie-shell-bar-background: rgb(112 193 179 / 16%);
-  --mairie-shell-bar-border: rgb(112 193 179 / 30%);
-  --mairie-navigation-background: rgb(112 193 179 / 9%);
+  --mairie-border: #272c39;
+  --mairie-action-background: #a9dcd2;
+  --mairie-action-hover-background: #bfe6de;
+  --mairie-on-action: #1f2430;
+  --mairie-secondary: #a9b6d6;
+  --mairie-secondary-surface: #222a3b;
+  --mairie-secondary-action-background: #a9b6d6;
+  --mairie-secondary-action-hover-background: #bcc7e2;
+  --mairie-on-secondary: #161920;
+  --mairie-info-surface: #222a3b;
+  --mairie-info-text: #cdd5e6;
+  --mairie-shell-background: #161920;
+  --mairie-shell-border: #272c39;
+  --mairie-shell-bar-background: #161920;
+  --mairie-shell-bar-border: #272c39;
+  --mairie-navigation-background: #161920;
   --mairie-navigation-text: #f8f7f8;
-  --mairie-navigation-active-text: #f8f7f8;
-  --mairie-navigation-border: rgb(112 193 179 / 18%);
-  --mairie-navigation-active-background: rgb(112 193 179 / 34%);
-  --mairie-navigation-active-border: #70c1b3;
+  --mairie-navigation-active-text: #d2efe9;
+  --mairie-navigation-active-indicator: #a9dcd2;
+  --mairie-navigation-border: #272c39;
+  --mairie-navigation-hover-background: #1f232d;
+  --mairie-navigation-active-background: #233a37;
+  --mairie-navigation-active-border: #a9dcd2;
   --mairie-navigation-control-border: #8c868b;
-  /* Calendar keeps the showcase orange on dark surfaces (6.2:1); Light uses one step darker for 3:1 on white. */
-  --mairie-module-calendar: #d08a4c;
-  --mairie-navigation-control-background: rgb(112 193 179 / 20%);
-  --mairie-navigation-hover-background: rgb(112 193 179 / 20%);
-  --mairie-module-dashboard: #9da7ba;
+  --mairie-navigation-control-background: #1f232d;
+  --mairie-counter-background: #f2a7b1;
+  --mairie-on-counter: #3a1018;
+  --mairie-danger: #f2a7b1;
+  --mairie-danger-hover: #f7bec6;
+  --mairie-on-danger: #3a1018;
+  --mairie-danger-surface: #3d242a;
+  --mairie-neutral-action: #e9e7ea;
+  --mairie-on-neutral: #161920;
+  --mairie-illustration-background: #1f232d;
+  --mairie-message-own-background: #2a2720;
+  --mairie-message-own-on: #f3eee3;
+  --mairie-message-own-border: #4a4436;
+  --mairie-shadow-pop: 0 12px 32px rgb(0 0 0 / 45%);
+  --mairie-module-dashboard: #b4bfd8;
+  --mairie-module-projects: #9fd6cb;
+  --mairie-module-calendar: #ecc49d;
+  --mairie-module-messaging: #cbbfe0;
+  --mairie-module-workflows: #eeb3c2;
+  --mairie-module-training: #b5d4ae;
+  --mairie-on-module: #161920;
 }
 
 html:has(body.mairie-ui) { font-size: 17px; }
@@ -200,6 +253,10 @@ body.mairie-ui main [class~="text-[#dc2626]"] { color: var(--mairie-error-text);
   body.mairie-ui main h1 + p { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
+  /* MAIR-1091: every motion token collapses, so a component bound to them never animates. */
+  :root {
+    --mairie-motion-instant: 0ms; --mairie-motion-fast: 0ms; --mairie-motion-base: 0ms; --mairie-motion-slow: 0ms;
+  }
   body.mairie-ui *, body.mairie-ui *::before, body.mairie-ui *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
@@ -271,7 +328,7 @@ body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-acces
   body.mairie-ui .app-desktop-navigation nav button[aria-current="page"] { font-weight: 600; background: var(--mairie-navigation-active-background); border-color: var(--mairie-navigation-active-border); color: var(--mairie-navigation-active-text); }
   body.mairie-ui .app-desktop-navigation nav button[data-admin="true"] { background: var(--mairie-navigation-admin-background); border-color: var(--mairie-navigation-admin-border); color: var(--mairie-navigation-admin-text); }
   body.mairie-ui .app-desktop-navigation nav button[data-admin="true"][aria-current="page"] { background: var(--mairie-navigation-admin-active-background); border-color: var(--mairie-navigation-admin-active-border); }
-  .app-navigation-badge { padding: 1px 5px; border-radius: 5px; font-size: 12px; color: var(--mairie-navigation-admin-text); background: var(--mairie-navigation-admin-background); }
+  .app-navigation-badge { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1; color: var(--mairie-on-counter); background: var(--mairie-counter-background); box-shadow: 0 0 0 2px var(--mairie-surface); }
   .app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) .app-navigation-badge { position: absolute; top: -4px; right: -4px; }
 }
 @media (prefers-reduced-motion: reduce) { body.mairie-ui .app-desktop-navigation { transition: none; } }
