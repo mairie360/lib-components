@@ -3,7 +3,7 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'AvatarGroup', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'IconChip', 'KanbanColumn', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'NotificationList', 'Onboarding', 'OneTimeCodeField', 'PageHeader', 'PageHero', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'StepProgress', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
+    components: ['Alert', 'Avatar', 'AvatarGroup', 'AvatarStack', 'Button', 'ButtonPresets', 'Calendar', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DatePicker', 'DateRangePicker', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'IconChip', 'KanbanColumn', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'NotificationList', 'Onboarding', 'OneTimeCodeField', 'PageHeader', 'PageHero', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'StepProgress', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
@@ -13,6 +13,12 @@ export const uiEntryPoints = {
       "export { buttonAppearance, buttonSizing } from '../components/Button';",
       "export { icons, passkeyIcon } from '../components/Icon';",
       "export { counterText } from '../components/Counter';",
+      "export { addDays, addMonths, clampIso, endOfMonth, formatDateRange, formatDayCount, formatFullDate, formatMonthYear, formatShortDate, frenchMonths, frenchWeekdayInitials, frenchWeekdays, isDateDisabled, maxIso, minIso, monthWeeks, parseIsoDate, rangeDayCount, startOfMonth, startOfWeek, toIsoDate, todayIso, weekdayIndex } from '../components/Calendar';",
+      "export type { DateBounds, DisabledDates } from '../components/Calendar';",
+      "export { datePickerShortcuts } from '../components/DatePicker';",
+      "export type { DateDisplay, DateShortcut } from '../components/DatePicker';",
+      "export { dateRangePresets } from '../components/DateRangePicker';",
+      "export type { DateRangePreset } from '../components/DateRangePicker';",
       "export { CloseIconButton, DeleteIconButton, EditIconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from '../components/IconButton';",
       "export { DateField, EmailField, NameField, NewPasswordField, NumberField, PasswordField, PhoneField, SearchField, TimeField } from '../components/FieldPresets';",
       "export { controlClass, controlStyle, fieldDescriptionIds } from '../components/Field';",
