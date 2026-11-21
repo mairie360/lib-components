@@ -3,7 +3,7 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'AvatarGroup', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'IconChip', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'OneTimeCodeField', 'PageHeader', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
+    components: ['Alert', 'Avatar', 'AvatarGroup', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'IconChip', 'KanbanColumn', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'NotificationList', 'Onboarding', 'OneTimeCodeField', 'PageHeader', 'PageHero', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'StepProgress', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
@@ -32,6 +32,9 @@ export const uiEntryPoints = {
       "export { describeUserAgent } from '../components/SessionDetails';",
       "export { PROFILE_PHOTO_FORMAT_ERROR, PROFILE_PHOTO_SIZE_ERROR } from '../components/ProfilePhotoField';",
       "export { sessionStateLabels, sessionStateStatuses } from '../components/SessionList';",
+      "export { groupNotifications, notificationGroup, notificationGroupLabels } from '../components/NotificationList';",
+      "export { onboardingSlides } from '../components/Onboarding';",
+      "export { stepProgressSteps } from '../components/StepProgress';",
     ],
   },
   shell: {
@@ -82,5 +85,12 @@ export const rootExtraExports = [
   "export type { SkeletonProps } from './components/Skeleton';",
   "export type { ToastAction, ToastProps, ToastVariant } from './components/Toast';",
   "export { useToast } from './components/ToastProvider';",
-  "export type { ToastOptions, ToastContextValue, ToastPlacement, ToastProviderProps } from './components/ToastProvider';",
+  "export type { ToastOptions, ToastContextValue, ToastPlacement, ToastProviderProps } from './components/ToastProvider';",  "export { groupNotifications, notificationGroup, notificationGroupLabels } from './components/NotificationList';",
+  "export type { NotificationGroup, NotificationListFilter, NotificationListProps, NotificationListState, NotificationListVariant } from './components/NotificationList';",
+  "export { onboardingSlides } from './components/Onboarding';",
+  "export type { OnboardingArtName, OnboardingProps, OnboardingResult, OnboardingSlide } from './components/Onboarding';",
+  "export { stepProgressSteps } from './components/StepProgress';",
+  "export type { StepProgressProps, StepProgressSize, StepProgressStep, StepProgressTone } from './components/StepProgress';",
+  "export type { PageHeroProps, PageHeroStatDot, PageHeroStatProps } from './components/PageHero';",
+  "export type { KanbanColumnProps } from './components/KanbanColumn';",
 ];
