@@ -451,3 +451,7 @@ html[data-theme="dark"] body.mairie-ui span[class~="bg-[#f4f2ef]"] { background-
   }
 }
 @media (prefers-reduced-motion: reduce) { .mairie-toast-progress { transition: none !important; } }
+
+/* MAIR-1094: the counter pops when it appears (motion tokens: 0 ms under prefers-reduced-motion). */
+@keyframes mairie-pop { 0% { transform: scale(0.6); } 100% { transform: scale(1); } }
+.mairie-counter-pop { animation: mairie-pop var(--mairie-motion-base) var(--mairie-ease-spring); }

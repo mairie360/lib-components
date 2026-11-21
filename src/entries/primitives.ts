@@ -19,6 +19,8 @@ export { ConfirmModal } from '../components/ConfirmModal';
 export type { ConfirmModalProps } from '../components/ConfirmModal';
 export { CopyField } from '../components/CopyField';
 export type { CopyFieldProps } from '../components/CopyField';
+export { Counter } from '../components/Counter';
+export type { CounterProps } from '../components/Counter';
 export { DataState } from '../components/DataState';
 export type { DataStateKind, DataStateSize, DataStateProps } from '../components/DataState';
 export { DataTable } from '../components/DataTable';
@@ -128,6 +130,7 @@ export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../
 export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from '../components/ButtonPresets';
 export { buttonAppearance, buttonSizing } from '../components/Button';
 export { icons, passkeyIcon } from '../components/Icon';
+export { counterText } from '../components/Counter';
 export { CloseIconButton, DeleteIconButton, EditIconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from '../components/IconButton';
 export { DateField, EmailField, NameField, NewPasswordField, NumberField, PasswordField, PhoneField, SearchField, TimeField } from '../components/FieldPresets';
 export { controlClass, controlStyle, fieldDescriptionIds } from '../components/Field';

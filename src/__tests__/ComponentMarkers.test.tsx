@@ -81,6 +81,7 @@ const fixtures: Record<string, Fixture> = {
   Button: { element: <L.Button label="Valider" /> },
   DescriptionList: { element: <L.DescriptionList items={[{ label: 'Navigateur', value: 'Firefox 132' }]} /> },
   CopyField: { element: <L.CopyField label="Clé" value="abc" /> },
+  Counter: { element: <L.Counter value={3} /> },
   Divider: { element: <L.Divider label="ou" /> },
   Gantt: { element: <L.Gantt from="2026-09-01" to="2026-12-01" rows={[{ id: 'a', label: 'Cadrage', state: 'done', start: '2026-09-01', end: '2026-09-20' }]} /> },
   GanttBar: { element: <L.GanttBar state="doing" start="2026-09-01" end="2026-09-20" label="Cadrage" /> },
