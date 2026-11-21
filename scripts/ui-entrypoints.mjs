@@ -3,13 +3,13 @@
  * barrel. Source-declared public types are retained. */
 export const uiEntryPoints = {
   primitives: {
-    components: ['Alert', 'Avatar', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'OneTimeCodeField', 'PageHeader', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
+    components: ['Alert', 'Avatar', 'AvatarGroup', 'AvatarStack', 'Button', 'ButtonPresets', 'Card', 'Checkbox', 'ConfirmModal', 'CopyField', 'Counter', 'DataState', 'DataTable', 'DateTime', 'DescriptionList', 'Divider', 'Drawer', 'DropdownMenu', 'Field', 'FieldPresets', 'FileField', 'FilterSelect', 'FormActions', 'FormSection', 'Gantt', 'Icon', 'IconButton', 'IconChip', 'LinkButton', 'MetricCard', 'Modal', 'MultiSelect', 'OneTimeCodeField', 'PageHeader', 'Pagination', 'Panel', 'PendingFeatureNotice', 'ProfilePhotoField', 'ProgressMeter', 'QrCode', 'RadioGroup', 'Rating', 'RecoveryCodes', 'SegmentedControl', 'SelectField', 'SessionDetails', 'SessionExpiredNotice', 'SessionList', 'SettingToggle', 'Skeleton', 'Slider', 'Spinner', 'StatusPill', 'Switch', 'Tabs', 'Tag', 'Text', 'TextArea', 'TextField', 'Select', 'Toast', 'ToastProvider', 'ToolTip', 'UserIdentity'],
     extra: [
       "export { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger, SelectValue } from '../components/Select';",
       "export { DropdownMenuPortal, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuGroup, DropdownMenuLabel, DropdownMenuItem, DropdownMenuCheckboxItem, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from '../components/DropdownMenu';",
       "export { useToast } from '../components/ToastProvider';",
       "export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from '../components/SessionList';",
-      "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from '../components/ButtonPresets';",
+      "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DeleteGhostButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from '../components/ButtonPresets';",
       "export { buttonAppearance, buttonSizing } from '../components/Button';",
       "export { icons, passkeyIcon } from '../components/Icon';",
       "export { counterText } from '../components/Counter';",
@@ -52,7 +52,7 @@ export const rootExtraExports = [
   "export type { NotificationItem, NotificationSource } from './components/NotificationCenter';",
   "export type { AppShellProps } from './components/AppShell';",
   "export { nextSessionExpiryDelay, parseSessionTimestamp, sessionState } from './components/SessionList';",
-  "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from './components/ButtonPresets';",
+  "export { BackButton, CancelButton, CloseButton, ConfirmDeleteButton, CreateButton, DeleteButton, DeleteGhostButton, DownloadButton, EditButton, LogoutButton, RefreshButton, RetryButton, SaveButton, SendButton, PasskeyButton, CreatePasskeyButton } from './components/ButtonPresets';",
   "export type { SessionListProps, SessionRecord, SessionState } from './components/SessionList';",
   "export { icons, passkeyIcon } from './components/Icon';",
   "export { CloseIconButton, DeleteIconButton, EditIconButton, MoreIconButton, NextIconButton, NotificationsIconButton, PreviousIconButton, SearchIconButton } from './components/IconButton';",

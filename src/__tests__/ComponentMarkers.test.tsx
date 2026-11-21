@@ -67,7 +67,7 @@ const menuScene = (
 );
 
 const textPresets = ['Body', 'BodySmall', 'Caption', 'ErrorText', 'Help', 'Label', 'Link', 'Metric', 'ModalTitle', 'Overline', 'PageTitle', 'PanelTitle', 'SectionTitle'] as const;
-const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'PasskeyButton', 'CreatePasskeyButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
+const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DeleteGhostButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'PasskeyButton', 'CreatePasskeyButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
 const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NewPasswordField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField', 'TimeField'] as const;
 const iconButtonPresets = ['CloseIconButton', 'DeleteIconButton', 'EditIconButton', 'MoreIconButton', 'NextIconButton', 'NotificationsIconButton', 'PreviousIconButton', 'SearchIconButton'] as const;
 const alertPresets = ['ErrorAlert', 'InfoAlert', 'SuccessAlert', 'UnavailableAlert', 'WarningAlert'] as const;
@@ -77,6 +77,7 @@ const fixtures: Record<string, Fixture> = {
   Alert: { element: <L.Alert title="Information" /> },
   AppShell: { element: <L.AppShell hrefs={{}}><p>Contenu</p></L.AppShell> },
   Avatar: { element: <L.Avatar alt="Camille Martin" /> },
+  AvatarGroup: { element: <L.AvatarGroup people={[{ name: 'Camille Martin' }]} count={6} /> },
   AvatarStack: { element: <L.AvatarStack label="Membres" people={[{ name: 'Camille Martin' }]} /> },
   Button: { element: <L.Button label="Valider" /> },
   DescriptionList: { element: <L.DescriptionList items={[{ label: 'Navigateur', value: 'Firefox 132' }]} /> },
@@ -114,6 +115,7 @@ const fixtures: Record<string, Fixture> = {
   Header: { element: <L.Header /> },
   Icon: { element: <L.Icon icon={Info} label="Information" /> },
   IconButton: { element: <L.IconButton preset="close" /> },
+  IconChip: { element: <L.IconChip icon={Info} /> },
   LinkButton: { element: <L.LinkButton href="/aide" label="Aide" /> },
   Logo: { element: <L.Logo /> },
   MetricCard: { element: <L.MetricCard label="Projets" value={3} /> },
