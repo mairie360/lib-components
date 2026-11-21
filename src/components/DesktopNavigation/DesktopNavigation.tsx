@@ -1,12 +1,14 @@
 "use client";
 
-import { defaultSidebarItems } from '../Sidebar';
+import { defaultSidebarItems, navigationCount, navigationLabel } from '../Sidebar';
+import { Counter } from '../Counter';
 import { mairie360LogoSrc } from '../../assets/logo';
 import type { AppShellProps } from '../AppShell';
 import { useEffect, useRef, useState, type FocusEvent } from 'react';
 import { componentMarker } from '../component-marker';
 
-type Props = Pick<AppShellProps, 'activeItem' | 'isAdmin' | 'hrefs' | 'onNavigate' | 'onPageChange' | 'sidebarProps'> & {
+type Props = Pick<AppShellProps, 'activeItem' | 'isAdmin' | 'onNavigate' | 'onPageChange' | 'sidebarProps'> & {
+  hrefs: NonNullable<AppShellProps['hrefs']>;
   /** Called with `true` while the navigation rests collapsed and `false` while hover or keyboard focus expands it. */
   onCollapsedChange: (value: boolean) => void;
   inactive?: boolean;
@@ -23,8 +25,8 @@ function safeDestination(value: string | undefined) {
 
 /**
  * Desktop navigation of the shared shell (MAIR-548, Figma `DesktopNavigation`).
- * It rests collapsed (logo and module icons) and expands to the width of its
- * commands while the pointer is over it or keyboard focus is inside it (a click
+ * It rests collapsed at 72 px (logo and module icons) and opens to 248 px in 280 ms, labels
+ * fading in with a delay (MAIR-1092), while the pointer is over it or keyboard focus is inside it (a click
  * focuses a command without keeping the band open once the pointer leaves), pushing
  * the module aside rather than covering it. Mobile navigation stays in AppShell.
  */
@@ -73,10 +75,11 @@ export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, h
     <nav aria-label="Menu principal">
       {items.map(item => {
         const Icon = item.icon;
-        return <button key={item.id} type="button" aria-label={`${item.label}${item.badge ? ` (${item.badge})` : ''}`} aria-current={activeItem === item.id ? 'page' : undefined} data-admin={item.id === 'admin'} onClick={() => navigate(item)}>
-          <Icon aria-hidden="true" size={20} />
+        const count = navigationCount(item);
+        return <button key={item.id} type="button" aria-label={navigationLabel(item)} aria-current={activeItem === item.id ? 'page' : undefined} data-admin={item.id === 'admin'} data-nav-anim={item.animation ?? item.id} onClick={() => navigate(item)}>
+          <Icon aria-hidden="true" size={20} className="mairie-nav-icon" />
           <span className="app-navigation-label">{item.label}</span>
-          {item.badge && <span className="app-navigation-badge" aria-hidden="true">{item.badge}</span>}
+          {count !== undefined && <Counter value={count} className="app-navigation-badge" />}
         </button>;
       })}
     </nav>

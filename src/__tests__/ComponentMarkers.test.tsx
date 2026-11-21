@@ -139,6 +139,7 @@ const fixtures: Record<string, Fixture> = {
   SelectValue: { element: selectScene, root: false },
   SessionExpiredNotice: { element: <L.SessionExpiredNotice loginHref="/login" /> },
   SessionList: { element: <L.SessionList sessions={[]} /> },
+  PublicBackdrop: { element: <S.PublicBackdrop /> },
   Sidebar: { element: <L.Sidebar /> },
   Skeleton: { element: <L.Skeleton /> },
   Slider: { element: <L.Slider label="Taille" min={0} max={10} /> },

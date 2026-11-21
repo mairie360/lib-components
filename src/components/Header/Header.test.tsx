@@ -1,5 +1,6 @@
 import { act, render, screen, fireEvent } from '@testing-library/react';
-import { Header } from './Header';
+import { axe } from 'jest-axe';
+import { Header, notificationsLabel } from './Header';
 import '@testing-library/jest-dom';
 
 const adminUser = {
@@ -43,14 +44,24 @@ describe('Header component', () => {
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Rechercher' }), { target: { value: 'projet' } });
     fireEvent.submit(screen.getByRole('search'));
-    fireEvent.click(screen.getByRole('button', { name: 'Notifications' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Notifications, 2 non lues' }));
 
     expect(onSearch).toHaveBeenCalledWith('projet');
     expect(onNotificationsClick).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('2')).toBeInTheDocument();
-    // MAIR-832: white figure on the red counter, never the dark --mairie-on-action ink.
-    expect(screen.getByText('2')).toHaveClass('text-[var(--mairie-navigation-admin-text)]', 'bg-[var(--mairie-error-action-background)]');
-    expect(screen.getByText('2').className).not.toContain('--mairie-on-action');
+    // MAIR-1094: the bell counter is the Counter component (counter tokens, never --mairie-on-action).
+    const counter = screen.getByText('2');
+    expect(counter).toHaveAttribute('data-m360-component', 'Counter');
+    expect(counter).toHaveStyle({ background: 'var(--mairie-counter-background)', color: 'var(--mairie-on-counter)' });
+    expect(counter.className).not.toContain('--mairie-on-action');
+  });
+
+  it('MAIR-1094 caps the bell counter at « 9+ » and names it', () => {
+    const { rerender } = render(<Header onNotificationsClick={jest.fn()} notificationCount={12} />);
+    expect(screen.getByRole('button', { name: 'Notifications, plus de 9 non lues' })).toHaveTextContent('9+');
+    rerender(<Header onNotificationsClick={jest.fn()} notificationCount={0} />);
+    expect(screen.getByRole('button', { name: 'Notifications' }).querySelector('[data-m360-component~="Counter"]')).toBeNull();
+    expect(notificationsLabel(3)).toBe('Notifications, 3 non lues');
+    expect(notificationsLabel(undefined)).toBe('Notifications');
   });
 
   it('opens the sidebar from the navigation button', () => {
@@ -245,5 +256,55 @@ describe('Header component', () => {
     expect(screen.getByText('Groupe ou service')).toBeInTheDocument();
     expect(screen.getByText('Direction générale')).toBeInTheDocument();
     expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();
+  });
+
+  describe('commune and date (MAIR-1109)', () => {
+    it('shows « Mairie de Saint-André » by default, left of the search, with a separator', () => {
+      const { container } = render(<Header onSearch={jest.fn()} />);
+      const block = container.querySelector('[data-header-commune]')!;
+      expect(block).toHaveTextContent('Mairie de Saint-André');
+      expect(screen.getByText('Saint-André').tagName).toBe('STRONG');
+      expect(screen.getByText('Saint-André')).toHaveClass('truncate', 'sm:text-xl');
+      expect(block.compareDocumentPosition(screen.getByRole('search')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(container.querySelector('[data-header-separator]')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('keeps the caption for assistive technologies on mobile and truncates a long name', () => {
+      render(<Header commune="Saint-Remy-en-Bouzemont-Saint-Genest-et-Isson" />);
+      expect(screen.getByText('Mairie de')).toHaveClass('sr-only', 'sm:not-sr-only');
+      expect(screen.getByText('Saint-Remy-en-Bouzemont-Saint-Genest-et-Isson')).toHaveClass('truncate');
+      expect(screen.getByText('Saint-Remy-en-Bouzemont-Saint-Genest-et-Isson').parentElement).toHaveClass('min-w-0');
+    });
+
+    it('hides the commune block on demand and without separator when there is no search', () => {
+      const { container, rerender } = render(<Header showCommune={false} onSearch={jest.fn()} />);
+      expect(container.querySelector('[data-header-commune]')).toBeNull();
+      expect(container.querySelector('[data-header-separator]')).toBeNull();
+      rerender(<Header />);
+      expect(container.querySelector('[data-header-commune]')).not.toBeNull();
+      expect(container.querySelector('[data-header-separator]')).toBeNull();
+    });
+
+    it('hides the date by default and shows the given text at the start of the right zone', () => {
+      const { container, rerender } = render(<Header date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
+      expect(screen.queryByText('jeudi 19 novembre')).toBeNull();
+      rerender(<Header showDate date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
+      const date = screen.getByText('jeudi 19 novembre');
+      expect(date).toHaveClass('text-sm', 'text-[var(--mairie-muted)]');
+      expect(date.parentElement!.firstElementChild).toBe(date);
+      expect(container.querySelector('[data-header-date]')).toBe(date);
+    });
+
+    it('falls back to today in the instance time zone when no date text is given', () => {
+      const { container } = render(<Header showDate />);
+      const date = container.querySelector('[data-header-date]')!;
+      expect(date).toHaveAttribute('data-m360-component', 'CurrentDate');
+      expect(date.textContent).not.toBe('');
+    });
+
+    it('has no axe violation', async () => {
+      const { container } = render(<Header showDate date="jeudi 19 novembre" onSearch={jest.fn()} onNotificationsClick={jest.fn()} notificationCount={4} />);
+      expect((await axe(container)).violations).toEqual([]);
+    });
   });
 });

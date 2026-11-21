@@ -6,7 +6,7 @@ beforeEach(() => { document.cookie = 'mairie360_sidebar=; Max-Age=0; Path=/'; })
 afterEach(() => jest.restoreAllMocks());
 
 it('MAIR-548 lays out one full-width footer after the navigation row, with no measured offsets', () => {
-  const { container } = render(<AppShell collapsibleSidebar hrefs={{ settings: '/settings' }} footerProps={{ year: 2026, version: '1.3.0' }} style={{ color: 'red' }}><h1>Paramètres</h1></AppShell>);
+  const { container } = render(<AppShell collapsibleSidebar showFooter hrefs={{ settings: '/settings' }} footerProps={{ year: 2026, version: '1.3.0' }} style={{ color: 'red' }}><h1>Paramètres</h1></AppShell>);
   const frame = container.firstElementChild as HTMLElement;
   expect(frame).toHaveClass('app-shell-frame', 'flex', 'flex-col');
   expect(frame.style.color).toBe('red');
@@ -21,7 +21,7 @@ it('MAIR-548 lays out one full-width footer after the navigation row, with no me
 });
 
 it('keeps the desktop navigation inactive and collapsed while the mobile drawer is open and restores it on Escape', () => {
-  const { container } = render(<AppShell collapsibleSidebar hrefs={{ settings: '/settings' }}><h1>Paramètres</h1></AppShell>);
+  const { container } = render(<AppShell collapsibleSidebar showFooter hrefs={{ settings: '/settings' }}><h1>Paramètres</h1></AppShell>);
   const desktop = container.querySelector('aside.app-desktop-navigation') as HTMLElement;
   const menu = screen.getByRole('button', { name: 'Ouvrir la navigation' });
   fireEvent.click(menu);
