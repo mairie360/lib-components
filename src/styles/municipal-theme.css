@@ -61,6 +61,18 @@
   --mairie-message-own-background: #efebe2;
   --mairie-message-own-on: #383f51;
   --mairie-message-own-border: #d6d0c3;
+  /* MAIR-1105: PageHero, the slate band at the top of a page: white text at 80 %, tiles white 6 % / 14 %
+   * flattened over the slate (contrasts measured on what is shown), tile border raised to 3:1. */
+  --mairie-hero-background: #383f51;
+  --mairie-on-hero: #ffffff;
+  --mairie-on-hero-muted: #d7d9dc;
+  --mairie-hero-overline: #70c1b3;
+  --mairie-hero-tile-background: #444a5b;
+  --mairie-hero-tile-hover-background: #545a69;
+  --mairie-hero-tile-border: #8d929e;
+  --mairie-hero-dot-success: #8fd6a8;
+  --mairie-hero-dot-warning: #f0c96b;
+  --mairie-hero-dot-danger: #f2a7b1;
   /* MAIR-1097, MAIR-1108: text and icons on a module colour (avatars, IconChip tone module). */
   --mairie-on-module: #ffffff;
   /* MAIR-1091 motion: durations and easings shared by every component; all cut under prefers-reduced-motion. */
@@ -201,6 +213,16 @@ html[data-theme="dark"] {
   --mairie-module-workflows: #eeb3c2;
   --mairie-module-training: #b5d4ae;
   --mairie-on-module: #161920;
+  --mairie-hero-background: #222736;
+  --mairie-on-hero: #f8f7f8;
+  --mairie-on-hero-muted: #c9c4ca;
+  --mairie-hero-overline: #a9dcd2;
+  --mairie-hero-tile-background: #2b3142;
+  --mairie-hero-tile-hover-background: #343b4f;
+  --mairie-hero-tile-border: #6f768a;
+  --mairie-hero-dot-success: #bfe9d2;
+  --mairie-hero-dot-warning: #f3dcaa;
+  --mairie-hero-dot-danger: #f7bec6;
 }
 
 html:has(body.mairie-ui) { font-size: 17px; }
@@ -535,3 +557,81 @@ body.mairie-ui .app-focus-content, .app-focus-content { grid-area: content; min-
   background-color: var(--mairie-surface);
   box-shadow: inset 0 0 0 1px var(--mairie-control-border);
 }
+/* MAIR-1098: DataState illustration (town hall, flag, envelope, sparkles) and loading dots. Token colours only;
+ * the motion runs for users allowing it. */
+.mairie-ill-stroke { fill: none; stroke: var(--mairie-accent); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.mairie-ill-soft { fill: var(--mairie-accent-surface); }
+.mairie-ill-flag { fill: var(--mairie-module-calendar); transform-box: fill-box; transform-origin: left center; }
+.mairie-ill-tray { fill: var(--mairie-surface); }
+.mairie-ill-faint { opacity: 0.45; }
+.mairie-ill-trail { fill: none; stroke: var(--mairie-control-border); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 3 5; }
+.mairie-ill-envelope { fill: var(--mairie-surface); stroke: var(--mairie-module-messaging); stroke-width: 2.5; }
+.mairie-ill-envelope-line { fill: none; stroke: var(--mairie-module-messaging); stroke-width: 2.5; stroke-linejoin: round; }
+.mairie-ill-spark { fill: var(--mairie-module-calendar); transform-box: fill-box; transform-origin: center; }
+.mairie-ill-spark-accent { fill: var(--mairie-accent); transform-box: fill-box; transform-origin: center; }
+.mairie-ill-float { transform-box: fill-box; transform-origin: center; }
+.mairie-loading-dot { display: inline-block; border-radius: 999px; background: var(--mairie-accent); opacity: 0.5; }
+@keyframes mairie-wave { 0%, 100% { transform: skewY(0); } 50% { transform: skewY(-8deg) scaleX(0.92); } }
+@keyframes mairie-trail { to { stroke-dashoffset: -16; } }
+@keyframes mairie-twinkle { 0%, 100% { opacity: 0.35; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes mairie-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes mairie-dot-rise { 0%, 80%, 100% { transform: translateY(0); opacity: 0.5; } 40% { transform: translateY(-3px); opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  .mairie-ill-flag { animation: mairie-wave 2.4s ease-in-out infinite; }
+  .mairie-ill-trail { animation: mairie-trail 1.8s linear infinite; }
+  .mairie-ill-spark, .mairie-ill-spark-accent { animation: mairie-twinkle 2.2s ease-in-out infinite; }
+  .mairie-ill-float { animation: mairie-float 3s ease-in-out infinite; }
+  .mairie-ill-delay-1 { animation-delay: -0.7s; }
+  .mairie-ill-delay-2 { animation-delay: -1.4s; }
+  /* Three dots rising 3 px, 1.2 s, 150 ms apart. */
+  .mairie-loading-dot { animation: mairie-dot-rise 1.2s var(--mairie-ease-standard) infinite; }
+  .mairie-loading-dot:nth-child(2) { animation-delay: 150ms; }
+  .mairie-loading-dot:nth-child(3) { animation-delay: 300ms; }
+}
+
+/* MAIR-1097: Onboarding. Slides enter from the side of the move; the first slide plays the logo intro once
+ * (3 s: the stroke drawn from the centre, « mairie » rises, « 360 » comes down, a light bounce, one shine).
+ * Without motion the logo is shown whole and nothing moves. */
+.mairie-logo-intro { position: relative; height: 104px; aspect-ratio: 334 / 256; }
+.mairie-logo-intro img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+.mairie-logo-intro-shine { position: absolute; inset: 0; mask-size: 100% 100%; -webkit-mask-size: 100% 100%; opacity: 0; pointer-events: none; }
+@keyframes mairie-logo-line { to { transform: scaleX(1); } }
+@keyframes mairie-logo-top { to { clip-path: inset(0 0 58.2% 0); transform: none; } }
+@keyframes mairie-logo-bottom { to { clip-path: inset(40.2% 0 0 0); transform: none; } }
+@keyframes mairie-logo-settle { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.05); } }
+@keyframes mairie-logo-shine { from { opacity: 1; background-position: 130% 0; } to { opacity: 1; background-position: -30% 0; } }
+@keyframes mairie-slide-next { from { opacity: 0; transform: translateX(36px); } to { opacity: 1; transform: none; } }
+@keyframes mairie-slide-previous { from { opacity: 0; transform: translateX(-36px); } to { opacity: 1; transform: none; } }
+@keyframes mairie-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes mairie-grow-x { from { transform: scaleX(0); } to { transform: none; } }
+@keyframes mairie-grow-y { from { transform: scaleY(0); } to { transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  .mairie-logo-intro { animation: mairie-logo-settle 500ms cubic-bezier(0.34, 1.4, 0.64, 1) 1.35s both; }
+  .mairie-logo-intro-line { clip-path: inset(40.2% 0 58.2% 0); transform: scaleX(0); animation: mairie-logo-line 550ms cubic-bezier(0.65, 0, 0.35, 1) 150ms forwards; }
+  .mairie-logo-intro-top { clip-path: inset(40.2% 0 59.8% 0); transform: translateY(10px); animation: mairie-logo-top 650ms cubic-bezier(0.2, 0.8, 0.2, 1) 600ms forwards; }
+  .mairie-logo-intro-bottom { clip-path: inset(41.8% 0 58.2% 0); transform: translateY(-10px); animation: mairie-logo-bottom 650ms cubic-bezier(0.2, 0.8, 0.2, 1) 780ms forwards; }
+  .mairie-logo-intro-shine {
+    background: linear-gradient(105deg, transparent 35%, color-mix(in srgb, var(--mairie-surface) 85%, transparent) 50%, transparent 65%) no-repeat;
+    background-size: 250% 100%;
+    animation: mairie-logo-shine 1100ms ease-in-out 1.9s;
+  }
+  .mairie-slide-next { animation: mairie-slide-next var(--mairie-motion-slow) var(--mairie-ease-enter) both; }
+  .mairie-slide-previous { animation: mairie-slide-previous var(--mairie-motion-slow) var(--mairie-ease-enter) both; }
+  .mairie-onboarding-art .mairie-rise { animation: mairie-rise var(--mairie-motion-slow) var(--mairie-ease-enter) both; }
+  .mairie-onboarding-art .mairie-grow-x { transform-box: fill-box; transform-origin: left; animation: mairie-grow-x 700ms var(--mairie-ease-enter) both; }
+  .mairie-onboarding-art .mairie-grow-y { transform-box: fill-box; transform-origin: bottom; animation: mairie-grow-y 700ms var(--mairie-ease-enter) both; }
+  .mairie-onboarding-art .mairie-pop { transform-box: fill-box; transform-origin: center; animation: mairie-pop var(--mairie-motion-base) var(--mairie-ease-spring) both; }
+}
+
+/* MAIR-1132: the leading avatar of a RadioGroup card pops when its card gets selected (240 ms spring). */
+@media (prefers-reduced-motion: no-preference) {
+  [data-card="true"]:has(input:checked) .mairie-radio-leading { animation: mairie-pop 240ms var(--mairie-ease-spring); }
+}
+
+/* MAIR-1131: Modal steps keep their body scrollable without showing the bar. */
+.mairie-scroll-hidden { scrollbar-width: none; }
+.mairie-scroll-hidden::-webkit-scrollbar { display: none; }
+/* MAIR-1099: the chosen day springs in, the date popovers drop in (motion tokens: 0 ms under prefers-reduced-motion). */
+.mairie-calendar-pick { animation: mairie-pop var(--mairie-motion-base) var(--mairie-ease-spring); }
+@keyframes mairie-popover-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.mairie-popover-in { transform-origin: top left; animation: mairie-popover-in var(--mairie-motion-base) var(--mairie-ease-enter); }
