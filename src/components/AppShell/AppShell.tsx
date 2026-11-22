@@ -8,8 +8,29 @@ import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } fro
 import { NotificationCenter, type NotificationSource } from '../NotificationCenter';
 import { joinClasses } from '../shared-classes';
 import { componentMarker } from '../component-marker';
+import { FocusLayout } from './components/FocusLayout';
 
-export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate'> {
+export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onNavigate' | 'content'> {
+  /**
+   * MAIR-1139: `default` is the application shell (navigation band, Header); `focus` is a focused task
+   * without navigation band nor Header, built from the `bar`, `aside`, `content` and `footer` slots.
+   */
+  layout?: 'default' | 'focus';
+  /** Focus layout: top bar (64 px). */
+  bar?: React.ReactNode;
+  /** Focus layout: optional table of contents column (300 px), folded behind « Sommaire » below 900 px. */
+  aside?: React.ReactNode;
+  /** Focus layout: name of the table of contents (« Sommaire » by default). */
+  asideLabel?: string;
+  /** Focus layout: main content; `children` when omitted. */
+  content?: React.ReactNode;
+  /** Focus layout: sticky action bar. */
+  footer?: React.ReactNode;
+  /**
+   * MAIR-1092: the footer is no longer part of the page base; `true` renders it where `footerPlacement`
+   * (or the collapsible shell) puts it. False by default.
+   */
+  showFooter?: boolean;
   /**
    * Opt into the shared municipal shell (MAIR-548): desktop navigation collapsed at rest and
    * expanded on hover or keyboard focus, one full-width footer and a full-bleed module area.
@@ -31,8 +52,8 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
    * the module's own panels scroll.
    */
   mainLayout?: 'scroll' | 'fill';
-  /** Destinations supplied by the consuming frontend; the library reads no environment variables. */
-  hrefs: Record<string, string | undefined>;
+  /** Destinations supplied by the consuming frontend; the library reads no environment variables. Not used by the focus layout. */
+  hrefs?: Record<string, string | undefined>;
   /** Optional client-side router for relative destinations; otherwise use a full-page navigation. */
   onNavigate?: (href: string, itemId: string) => void;
   /** Compatibility callback for pages that already navigate by item id. */
@@ -46,8 +67,10 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   footerProps?: FooterProps;
   /** Sidebar placement matches the frontend prototype; content preserves the legacy horizontal layout. */
   footerPlacement?: 'sidebar' | 'content';
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
+
+const noDestinations: Record<string, string | undefined> = {};
 
 const isAbsoluteWebUrl = (href: string) => /^https?:\/\//i.test(href);
 const isSafeRelativeUrl = (href: string) =>
@@ -58,6 +81,13 @@ const safeHref = (href: string | undefined) => {
 };
 
 export const AppShell = ({
+  layout = 'default',
+  bar,
+  aside,
+  asideLabel,
+  content,
+  footer,
+  showFooter = false,
   collapsibleSidebar = false, sidebarCookieDomain,
   desktopNavigation,
   skipLinkInactive = false,
@@ -66,7 +96,7 @@ export const AppShell = ({
   user,
   onLogout,
   mainLayout = 'scroll',
-  hrefs,
+  hrefs = noDestinations,
   onNavigate,
   onPageChange,
   headerProps,
@@ -135,6 +165,14 @@ export const AppShell = ({
     };
   }, [sidebarOpen]);
 
+  if (layout === 'focus') {
+    return (
+      <FocusLayout {...props} {...componentMarker('AppShell', props)} className={className} bar={bar} aside={aside} asideLabel={asideLabel} footer={footer} skipLinkInactive={skipLinkInactive}>
+        {content ?? children}
+      </FocusLayout>
+    );
+  }
+
   const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, ...restSidebarProps } = sidebarProps ?? {};
   const canNavigate = (itemId: string) => {
     return Boolean(safeHref(hrefs[itemId]) || onPageChange);
@@ -171,7 +209,7 @@ export const AppShell = ({
       isAdmin={isAdmin}
       items={visibleItems}
       onItemSelect={handleSidebarItemSelect}
-      footer={effectiveFooterPlacement === 'sidebar' ? <Footer {...footerProps} variant="sidebar" /> : undefined}
+      footer={showFooter && effectiveFooterPlacement === 'sidebar' ? <Footer {...footerProps} variant="sidebar" /> : undefined}
       className={joinClasses('h-full', collapsibleSidebar ? 'app-published-sidebar' : undefined, sidebarClassName)}
     />
   );
@@ -235,10 +273,10 @@ export const AppShell = ({
           <main id={mainId} ref={mainRef} tabIndex={-1} data-layout={mainLayout} className={joinClasses('app-shell-main-area min-h-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', mainLayout === 'fill' ? undefined : 'overflow-auto', collapsibleSidebar ? 'app-shell-main' : mainLayout === 'fill' ? undefined : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
             {children}
           </main>
-          {!collapsibleSidebar && effectiveFooterPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}
+          {showFooter && !collapsibleSidebar && effectiveFooterPlacement === 'content' && <Footer {...footerProps} variant="horizontal" />}
         </div>
       </div>
-      {collapsibleSidebar && <div className="app-shell-footer shrink-0" inert={sidebarOpen || notificationsOpen}>
+      {showFooter && collapsibleSidebar && <div className="app-shell-footer shrink-0" inert={sidebarOpen || notificationsOpen}>
         <Footer {...footerProps} className={joinClasses('app-accessible-footer', footerProps?.className)} variant="horizontal" />
       </div>}
     </div>

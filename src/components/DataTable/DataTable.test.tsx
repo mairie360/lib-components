@@ -1,7 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'jest-axe';
-import { DataTable } from './DataTable';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+import { DataTable, sortRows } from './DataTable';
 
 type Row = { id: string; name: string; role: string };
 const rows: Row[] = [{ id: '1', name: 'Marie Martin', role: 'Admin' }, { id: '2', name: 'Paul Durand', role: 'Agent' }];
@@ -70,5 +73,71 @@ describe('DataTable interactive rows and cell kinds (MAIR-850, MAIR-869)', () =>
     expect(cells[1]).toHaveAttribute('data-kind', 'content');
     expect(cells[2]).toHaveClass('text-right');
     expect(screen.getAllByRole('row')[1]).not.toHaveAttribute('tabindex');
+  });
+});
+
+describe('MAIR-1129 sortable headers', () => {
+  type Person = { id: string; name: string; seen: number | null };
+  const people: Person[] = [
+    { id: '1', name: 'Paul Durand', seen: 3 },
+    { id: '2', name: '', seen: null },
+    { id: '3', name: 'Élise Bernard', seen: 10 },
+    { id: '4', name: 'Marie Martin', seen: 1 },
+  ];
+  const cols = [{ key: 'name', header: 'Nom' }, { key: 'seen', header: 'Connexions' }, { key: 'actions', header: 'Actions', sortable: false, hideHeader: true, cell: () => null }];
+  const names = () => screen.getAllByRole('row').slice(1).map(row => row.querySelector('td')?.textContent);
+
+  it('sorts ascending on the first click, descending on the second, empty values last', async () => {
+    const user = userEvent.setup(); const change = jest.fn();
+    const { container } = render(<DataTable label="Agents" sortable columns={cols} rows={people} rowKey={row => row.id} onSortChange={change} />);
+    const header = screen.getByRole('columnheader', { name: 'Nom' });
+    expect(header).toHaveAttribute('aria-sort', 'none');
+    expect(screen.getByRole('columnheader', { name: 'Actions' })).not.toHaveAttribute('aria-sort');
+    expect(screen.queryByRole('button', { name: 'Actions' })).toBeNull();
+    const button = screen.getByRole('button', { name: 'Nom' });
+    expect(button).toHaveAttribute('data-sort', 'none');
+    expect(button.querySelector('svg')).toHaveClass('opacity-35', 'group-hover:opacity-80');
+    await user.click(button);
+    expect(change).toHaveBeenLastCalledWith('name', 'asc');
+    expect(header).toHaveAttribute('aria-sort', 'ascending');
+    expect(names()).toEqual(['Élise Bernard', 'Marie Martin', 'Paul Durand', '']);
+    expect(button).toHaveClass('text-[var(--mairie-text)]');
+    await user.click(button);
+    expect(change).toHaveBeenLastCalledWith('name', 'desc');
+    expect(header).toHaveAttribute('aria-sort', 'descending');
+    expect(names()).toEqual(['Paul Durand', 'Marie Martin', 'Élise Bernard', '']);
+    expect((await axe(container)).violations).toEqual([]);
+  });
+
+  it('follows a controlled sort and is reachable with the keyboard', async () => {
+    const user = userEvent.setup(); const change = jest.fn();
+    const { rerender } = render(<DataTable label="Agents" sortable columns={cols} rows={people} rowKey={row => row.id} sortKey="seen" sortDirection="desc" onSortChange={change} />);
+    expect(screen.getByRole('columnheader', { name: 'Connexions' })).toHaveAttribute('aria-sort', 'descending');
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Nom' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(change).toHaveBeenCalledWith('name', 'asc');
+    expect(screen.getByRole('columnheader', { name: 'Connexions' })).toHaveAttribute('aria-sort', 'descending');
+    rerender(<DataTable label="Agents" sortable columns={cols} rows={people} rowKey={row => row.id} sortKey={null} sortDirection={null} onSortChange={change} />);
+    expect(screen.getByRole('columnheader', { name: 'Connexions' })).toHaveAttribute('aria-sort', 'none');
+    expect(names()).toEqual(['Paul Durand', '', 'Élise Bernard', 'Marie Martin']);
+  });
+
+  it('sortRows compares numbers, dates and French text and keeps empty values last', () => {
+    expect(sortRows(people, { key: 'seen' }, 'asc').map(row => row.seen)).toEqual([1, 3, 10, null]);
+    expect(sortRows(people, { key: 'seen' }, 'desc').map(row => row.seen)).toEqual([10, 3, 1, null]);
+    const dated = [{ d: new Date('2026-03-01') }, { d: undefined }, { d: new Date('2025-01-01') }];
+    expect(sortRows(dated, { key: 'd' }, 'asc').map(row => row.d?.getFullYear())).toEqual([2025, 2026, undefined]);
+  });
+});
+
+describe('MAIR-1112 IconButton hovered in a hovered row', () => {
+  it('styles only the non-danger, enabled IconButton under the pointer in a hovered row', () => {
+    const css = readFileSync(join(__dirname, '../../styles/municipal-theme.css'), 'utf8');
+    const rule = css.match(/\.mairie-data-table tbody tr:hover button\[data-m360-component~="IconButton"\]:not\(\[data-tone="danger"\]\):not\(:disabled\):hover \{([^}]*)\}/);
+    expect(rule?.[1]).toContain('background-color: var(--mairie-surface)');
+    expect(rule?.[1]).toContain('box-shadow: inset 0 0 0 1px var(--mairie-control-border)');
+    const { container } = render(<DataTable label="T" columns={[{ key: 'a', header: 'A' }]} rows={[]} rowKey={() => 'k'} />);
+    expect(container.firstElementChild).toHaveClass('mairie-data-table');
   });
 });

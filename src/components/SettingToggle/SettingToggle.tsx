@@ -1,7 +1,9 @@
 'use client';
 
 import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 
+import { IconChip, type IconChipColor, type IconChipTone } from '../IconChip';
 import { Switch } from '../Switch';
 import { Overline } from '../Text';
 import { componentMarker } from '../component-marker';
@@ -22,10 +24,21 @@ export interface SettingToggleProps {
   disabled?: boolean;
   id?: string;
   className?: string;
+  /** MAIR-1116: icon chip (IconChip m) left of the label. */
+  icon?: LucideIcon;
+  /** `neutral` (default) or `module` (notification types take their module colour). */
+  iconTone?: IconChipTone;
+  /** Module colour of a `module` chip. */
+  iconColor?: IconChipColor;
 }
 
-/** A setting applied immediately: switch, label and description on one line (MAIR-941, Figma `Base/SettingToggle`). */
-export function SettingToggle({ label, description, checked, onChange, onError, disabled = false, id, className = '' }: SettingToggleProps) {
+/**
+ * A setting applied immediately: switch, label and description on one line (MAIR-941, Figma `Base/SettingToggle`).
+ * MAIR-1116: the whole row toggles the switch (one toggle per click, the label stays bound to the switch),
+ * with a hover background; the row adds no tab stop and has no hover while disabled or saving.
+ */
+export function SettingToggle({ label, description, checked, onChange, onError, disabled = false, id, className = '', icon, iconTone = 'neutral', iconColor }: SettingToggleProps) {
+  const control = React.useRef<HTMLButtonElement>(null);
   const [optimistic, setOptimistic] = React.useState<boolean | null>(null);
   const [saving, setSaving] = React.useState(false);
   const shown = optimistic ?? checked;
@@ -35,22 +48,41 @@ export function SettingToggle({ label, description, checked, onChange, onError, 
     catch (error) { onError?.(error); }
     finally { setOptimistic(null); setSaving(false); }
   };
+  const interactive = !disabled && !saving;
+  // The switch and its label toggle by themselves (the label activates the switch): only a click
+  // elsewhere on the row is forwarded, so one click never toggles twice.
+  const onRowClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!interactive) return;
+    const target = event.target as Element;
+    if (target.closest('button, label, a, input')) return;
+    control.current?.click();
+  };
   return (
-    <Switch
+    // The row is a pointer shortcut only: keyboard users reach the switch itself (no extra tab stop).
+    <div
       {...componentMarker('SettingToggle')}
-      id={id}
-      layout="row"
-      label={label}
-      hint={description}
-      checked={shown}
-      disabled={disabled}
-      aria-busy={saving || undefined}
-      data-saving={saving || undefined}
-      // Locked while saving, without `disabled`: the switch keeps the keyboard focus.
-      onClick={event => { if (saving) event.preventDefault(); }}
-      onChange={next => { void change(next); }}
-      className={`py-3 ${saving ? 'cursor-progress' : ''} ${className}`.trim()}
-    />
+      data-interactive={interactive || undefined}
+      onClick={onRowClick}
+      className={`-mx-3 flex items-center px-3 py-3 transition-colors ${interactive ? 'cursor-pointer hover:bg-[var(--mairie-accent-surface)] active:brightness-95' : ''} ${saving ? 'cursor-progress' : ''} ${className}`.replace(/\s+/g, ' ').trim()}
+      style={{ gap: 12, borderRadius: 'var(--mairie-radius-m)', transitionDuration: 'var(--mairie-motion-fast)' }}
+    >
+      {icon ? <IconChip icon={icon} tone={iconTone} color={iconColor} /> : null}
+      <Switch
+        ref={control}
+        id={id}
+        layout="row"
+        label={label}
+        hint={description}
+        checked={shown}
+        disabled={disabled}
+        aria-busy={saving || undefined}
+        data-saving={saving || undefined}
+        // Locked while saving, without `disabled`: the switch keeps the keyboard focus.
+        onClick={event => { if (saving) event.preventDefault(); }}
+        onChange={next => { void change(next); }}
+        className="min-w-0 flex-1"
+      />
+    </div>
   );
 }
 

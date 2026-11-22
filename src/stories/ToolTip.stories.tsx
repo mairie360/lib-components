@@ -40,3 +40,13 @@ export const WithIcon: Story = {
     </ToolTip>
   ),
 };
+
+/** MAIR-1095: shown at once (0 ms delay) with an 80 ms fade, on the neutral solid tokens; no fade under reduced motion. */
+export const Immediate: Story = {
+  args: { text: 'Supprimer le document' },
+  render: (args) => (
+    <ToolTip {...args}>
+      <button type="button" className="rounded border border-[var(--mairie-control-border)] px-3 py-2">Supprimer</button>
+    </ToolTip>
+  ),
+};

@@ -9,12 +9,17 @@ import { Skeleton } from '../Skeleton';
 import { componentMarker, withoutMarker } from '../component-marker';
 
 export type SortDirection = 'asc' | 'desc';
+/** Cell value a column sorts on; empty values (`null`, `undefined`, `''`) always go last. */
+export type SortValue = string | number | Date | boolean | null | undefined;
 export interface DataTableColumn<Row> {
   key: string;
   header: React.ReactNode;
   /** Cell content; defaults to `row[key]`. */
   cell?: (row: Row) => React.ReactNode;
+  /** Sortable header; with the table-level `sortable`, a column opts out with `sortable: false`. */
   sortable?: boolean;
+  /** MAIR-1129: value the table sorts this column on (default `row[key]`). */
+  sortValue?: (row: Row) => SortValue;
   align?: 'start' | 'end';
   /** Column width hint (CSS). */
   width?: string;
@@ -36,8 +41,18 @@ export interface DataTableProps<Row> extends Omit<React.TableHTMLAttributes<HTML
   state?: 'default' | 'loading' | 'empty' | 'error';
   /** Props of the DataState shown for `empty` / `error`. */
   stateProps?: Partial<Omit<DataStateProps, 'state'>>;
+  /** Server-side sort (the rows arrive sorted): current sort of the header, `onSort` asks for another. */
   sort?: { key: string; direction: SortDirection };
   onSort?: (key: string, direction: SortDirection) => void;
+  /**
+   * MAIR-1129: the table sorts its rows itself (empty values last). `sortable` makes every column
+   * sortable (`sortable: false` on a column opts out); `sortKey` / `sortDirection` control the sort,
+   * otherwise the table keeps it; `onSortChange` reports each change. First click ascending, second descending.
+   */
+  sortable?: boolean;
+  sortKey?: string | null;
+  sortDirection?: SortDirection | null;
+  onSortChange?: (key: string, direction: SortDirection) => void;
   /** Skeleton rows while loading. */
   skeletonRows?: number;
   /**
@@ -59,27 +74,65 @@ const fromInnerControl = (event: React.SyntheticEvent<HTMLTableRowElement>) => {
   return Boolean(control && control !== event.currentTarget && event.currentTarget.contains(control));
 };
 
-export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default', stateProps, sort, onSort, skeletonRows = 4, onRowClick, rowLabel, rowProps, className = '', style, ...props }: DataTableProps<Row>) {
+const emptyValue = (value: SortValue) => value === null || value === undefined || value === '' || (typeof value === 'number' && Number.isNaN(value));
+const collator = new Intl.Collator('fr', { numeric: true, sensitivity: 'base' });
+
+/** MAIR-1129: rows sorted on one column, French collation, empty values last whatever the direction. */
+export function sortRows<Row>(rows: Row[], column: Pick<DataTableColumn<Row>, 'key' | 'sortValue'>, direction: SortDirection): Row[] {
+  const valueOf = (row: Row): SortValue => (column.sortValue ? column.sortValue(row) : (row as Record<string, SortValue>)[column.key]);
+  const sign = direction === 'asc' ? 1 : -1;
+  return rows
+    .map((row, index) => ({ row, index, value: valueOf(row) }))
+    .sort((a, b) => {
+      const aEmpty = emptyValue(a.value); const bEmpty = emptyValue(b.value);
+      if (aEmpty || bEmpty) return aEmpty === bEmpty ? a.index - b.index : aEmpty ? 1 : -1;
+      const left = a.value instanceof Date ? a.value.getTime() : a.value;
+      const right = b.value instanceof Date ? b.value.getTime() : b.value;
+      const order = typeof left === 'number' && typeof right === 'number' ? left - right
+        : typeof left === 'boolean' && typeof right === 'boolean' ? Number(left) - Number(right)
+        : collator.compare(String(left), String(right));
+      return order === 0 ? a.index - b.index : order * sign;
+    })
+    .map(entry => entry.row);
+}
+
+export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default', stateProps, sort, onSort, sortable = false, sortKey, sortDirection, onSortChange, skeletonRows = 4, onRowClick, rowLabel, rowProps, className = '', style, ...props }: DataTableProps<Row>) {
+  // MAIR-1129: the table sorts by itself when asked to (table `sortable`, a controlled key or `onSortChange`).
+  const ownSort = sortable || sortKey !== undefined || sortDirection !== undefined || Boolean(onSortChange);
+  const [internalSort, setInternalSort] = React.useState<{ key: string; direction: SortDirection } | null>(null);
+  const controlled = sortKey !== undefined || sortDirection !== undefined;
+  const ownCurrent = controlled ? (sortKey && sortDirection ? { key: sortKey, direction: sortDirection } : null) : internalSort;
+  const current = ownSort ? ownCurrent : sort ?? null;
+  const isSortable = (column: DataTableColumn<Row>) => (ownSort ? (column.sortable ?? sortable) : Boolean(column.sortable && onSort));
   const toggle = (column: DataTableColumn<Row>) => {
-    if (!column.sortable || !onSort) return;
-    onSort(column.key, sort?.key === column.key && sort.direction === 'asc' ? 'desc' : 'asc');
+    if (!isSortable(column)) return;
+    const direction: SortDirection = current?.key === column.key && current.direction === 'asc' ? 'desc' : 'asc';
+    if (!ownSort) { onSort?.(column.key, direction); return; }
+    if (!controlled) setInternalSort({ key: column.key, direction });
+    onSortChange?.(column.key, direction);
   };
+  const sortedColumn = ownSort && current ? columns.find(column => column.key === current.key) : undefined;
+  const shownRows = sortedColumn && current ? sortRows(rows, sortedColumn, current.direction) : rows;
   const empty = state === 'empty' || (state === 'default' && rows.length === 0);
   return (
-    <div {...componentMarker('DataTable', props)} className="w-full overflow-x-auto" data-state={state}>
+    <div {...componentMarker('DataTable', props)} className="mairie-data-table w-full overflow-x-auto" data-state={state}>
       <table {...withoutMarker(props)} aria-busy={state === 'loading' || undefined} className={`w-full border-collapse text-left ${className}`.trim()} style={{ fontSize: 'var(--mairie-text-s)', ...style }}>
         <caption className="sr-only">{label}</caption>
         <thead className="bg-[var(--mairie-surface-raised)] text-[var(--mairie-muted)]">
           <tr>
             {columns.map(column => {
-              const active = sort?.key === column.key;
+              const active = current?.key === column.key ? current.direction : null;
+              const canSort = isSortable(column);
               return (
-                <th key={column.key} scope="col" aria-sort={column.sortable ? (active ? (sort!.direction === 'asc' ? 'ascending' : 'descending') : 'none') : undefined}
+                <th key={column.key} scope="col" aria-sort={column.sortable || (ownSort && canSort) ? (active ? (active === 'asc' ? 'ascending' : 'descending') : 'none') : undefined}
                   className={`px-4 py-3 font-semibold uppercase tracking-wide ${column.align === 'end' || column.kind === 'actions' ? 'text-right' : ''}`} style={{ width: column.width, fontSize: 'var(--mairie-text-xs)' }}>
-                  {column.sortable && onSort ? (
-                    <button type="button" onClick={() => toggle(column)} className="inline-flex items-center gap-1 uppercase hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]">
+                  {canSort ? (
+                    // MAIR-1129: none = faint double arrow (35 %, 80 % on hover), asc / desc = arrow in the text colour.
+                    <button type="button" onClick={() => toggle(column)} data-sort={active ?? 'none'}
+                      className={`group -mx-1.5 inline-flex items-center gap-1 px-1.5 py-0.5 uppercase transition-colors hover:bg-[var(--mairie-surface)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] ${active ? 'text-[var(--mairie-text)]' : ''}`.trim()}
+                      style={{ borderRadius: 'var(--mairie-radius-s)', transitionDuration: 'var(--mairie-motion-fast)' }}>
                       <span className={column.hideHeader ? 'sr-only' : undefined}>{column.header}</span>
-                      <Icon icon={active ? (sort!.direction === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown} size="xs" />
+                      <Icon icon={active ? (active === 'asc' ? ArrowUp : ArrowDown) : ArrowUpDown} size="xs" className={active ? '' : 'opacity-35 transition-opacity group-hover:opacity-80'} />
                     </button>
                   ) : <span className={column.hideHeader ? 'sr-only' : undefined}>{column.header}</span>}
                 </th>
@@ -91,7 +144,7 @@ export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default'
           {state === 'loading' && Array.from({ length: skeletonRows }, (_, index) => (
             <tr key={`skeleton-${index}`} aria-hidden="true">{columns.map(column => <td key={column.key} className="px-4 py-3"><Skeleton size="s" /></td>)}</tr>
           ))}
-          {state === 'default' && rows.map(row => {
+          {state === 'default' && shownRows.map(row => {
             const extra = rowProps?.(row);
             const interactive = Boolean(onRowClick);
             return (

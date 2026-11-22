@@ -7,7 +7,9 @@ import { BodySmall, Caption } from '../Text';
 import { componentMarker } from '../component-marker';
 
 export type ProgressSize = Extract<Size, 's' | 'm' | 'l'>;
-export type ProgressTone = Extract<Tone, 'primary' | 'success' | 'warning' | 'danger'>;
+/** MAIR-1115: the module identity colours a meter can take (`--mairie-module-*`). */
+export type ProgressModuleTone = 'module-dashboard' | 'module-projects' | 'module-calendar' | 'module-messaging' | 'module-training';
+export type ProgressTone = Extract<Tone, 'primary' | 'success' | 'warning' | 'danger'> | ProgressModuleTone;
 export interface ProgressMeterProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children'> {
   label: string;
   /** 0–100; values outside are clamped. */
@@ -18,7 +20,11 @@ export interface ProgressMeterProps extends Omit<React.HTMLAttributes<HTMLDivEle
   showValue?: boolean;
 }
 const heights: Record<ProgressSize, number> = { s: 4, m: 8, l: 12 };
-const fills: Record<ProgressTone, string> = { primary: 'var(--mairie-action-background)', success: 'var(--mairie-success-action-background)', warning: 'var(--mairie-warning-text)', danger: 'var(--mairie-error-action-background)' };
+const fills: Record<ProgressTone, string> = {
+  primary: 'var(--mairie-action-background)', success: 'var(--mairie-success-action-background)', warning: 'var(--mairie-warning-text)', danger: 'var(--mairie-error-action-background)',
+  'module-dashboard': 'var(--mairie-module-dashboard)', 'module-projects': 'var(--mairie-module-projects)', 'module-calendar': 'var(--mairie-module-calendar)',
+  'module-messaging': 'var(--mairie-module-messaging)', 'module-training': 'var(--mairie-module-training)',
+};
 
 /** Progress bar with label and percentage (MAIR-608, Figma `Base/ProgressMeter`). */
 export const ProgressMeter = ({ label, value, size = 'm', tone = 'primary', showValue = true, className = '', ...props }: ProgressMeterProps) => {

@@ -92,3 +92,20 @@ export const Section: Story = {
     </form>
   ),
 };
+
+function DirtyFormDemo() {
+  const [name, setName] = useState('Marie Martin');
+  const [service, setService] = useState('État civil');
+  const changed = Number(name !== 'Marie Martin') + Number(service !== 'État civil');
+  return (
+    <form className="flex max-h-72 max-w-xl flex-col gap-4 overflow-y-auto rounded-lg border border-[var(--mairie-border)] p-4" onSubmit={(event) => event.preventDefault()}>
+      <TextField label="Nom" value={name} onChange={(event) => setName(event.target.value)} />
+      <TextField label="Service" value={service} onChange={(event) => setService(event.target.value)} />
+      <p className="h-40 text-[var(--mairie-muted)]">Faites défiler : la barre d’actions reste collée en bas.</p>
+      <FormActions sticky dirty={changed > 0} status={changed > 0 ? `${changed} ${changed > 1 ? 'champs modifiés' : 'champ modifié'}.` : undefined}
+        onCancel={() => { setName('Marie Martin'); setService('État civil'); }} />
+    </form>
+  );
+}
+/** MAIR-1118: clean = buttons disabled and « Aucune modification à enregistrer. »; dirty = accent bar, buttons enabled; `sticky` keeps it at the bottom. */
+export const DirtyFormActions: Story = { render: () => <DirtyFormDemo /> };

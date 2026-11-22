@@ -44,3 +44,20 @@ function DrawerHost() {
   return <><Button label="Voir la fiche" variant="outline" onClick={() => setOpen(true)} /><Drawer open={open} title="Fiche du projet" onClose={() => setOpen(false)}><p>Détails du projet.</p></Drawer></>;
 }
 export const Overlays: Story = { render: () => <div className="flex flex-wrap gap-3"><ModalHost /><ConfirmHost /><DrawerHost /></div> };
+
+/** MAIR-1098: the illustrated empty state at m and l, the three rising dots while loading. */
+export const DataStateSizes: Story = { render: () => <div className="grid w-full max-w-[900px] grid-cols-1 gap-4 sm:grid-cols-3">{(['s', 'm', 'l'] as const).flatMap((size) => (['empty', 'loading'] as const).map((state) => <div key={`${size}-${state}`} className="rounded-lg border border-[var(--mairie-border)]"><DataState state={state} size={size} /></div>))}</div> };
+
+const agentSteps = [{ label: 'Identité' }, { label: 'Rôle' }, { label: 'Pièces jointes', optional: true }, { label: 'Vérification' }];
+function SteppedModalHost() {
+  const [open, setOpen] = React.useState(false); const [step, setStep] = React.useState(0);
+  const last = step === agentSteps.length - 1;
+  return <><Button label="Nouvel agent" onClick={() => { setStep(0); setOpen(true); }} /><Modal open={open} title="Nouvel agent" onClose={() => setOpen(false)} steps={agentSteps} currentStep={step} onStepChange={setStep}
+    footerStart={step > 0 ? <Button variant="outline" tone="neutral" label="Précédent" onClick={() => setStep(step - 1)} /> : null}
+    footer={<CancelButton onClick={() => setOpen(false)} />}
+    footerEnd={last ? <SaveButton onClick={() => setOpen(false)} /> : <Button label="Suivant" onClick={() => setStep(step + 1)} />}>
+    {step === 0 ? <EmailField /> : <p>Contenu de l’étape « {agentSteps[step].label} ».</p>}
+  </Modal></>;
+}
+/** MAIR-1131: step header (clickable StepProgress, « Étape n sur N ») and the footerStart / footerEnd slots. */
+export const SteppedModal: Story = { render: () => <SteppedModalHost /> };
