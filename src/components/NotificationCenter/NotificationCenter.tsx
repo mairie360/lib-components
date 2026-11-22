@@ -8,6 +8,10 @@ export interface NotificationItem {
   category: 'messages' | 'projects' | 'calendar' | 'other';
   read: boolean;
   href?: string;
+  /** MAIR-1096: NotificationList makes the row a link only with `clickable: true` and a safe `href`. */
+  clickable?: boolean;
+  /** MAIR-1096: when it happened (ISO 8601); NotificationList groups by it and shows the relative time. */
+  date?: string;
 }
 
 /** Frontend view port. A consumer must map a published backend contract to it. */

@@ -14,7 +14,7 @@ test('MAIR-548 collapsed commands keep their accessible names and labels stay in
 });
 
 test('MAIR-548 AppShell keeps one main, one full-width footer outside the navigation row', () => {
-  const { container } = render(<AppShell collapsibleSidebar hrefs={{ settings: '/settings' }}><h1>Paramètres</h1></AppShell>);
+  const { container } = render(<AppShell collapsibleSidebar showFooter hrefs={{ settings: '/settings' }}><h1>Paramètres</h1></AppShell>);
   const frame = container.querySelector('.app-shell-frame')!;
   expect(frame).toHaveAttribute('data-sidebar-collapsed', 'true');
   fireEvent.mouseEnter(container.querySelector('aside.app-desktop-navigation')!);

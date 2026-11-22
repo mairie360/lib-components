@@ -36,7 +36,7 @@ const parse = (name: string, value: string): Rgba => {
 
 const declared = (theme: Theme, name: string): Rgba => {
   let value = theme[name];
-  for (let depth = 0; value?.startsWith('var(') && depth < 5; depth += 1) value = theme[value.slice(12, -1)];
+  for (let depth = 0; value?.startsWith('var(') && depth < 5; depth += 1) value = theme[value.slice('var(--mairie-'.length, -1)];
   if (!value || value.startsWith('var(')) throw new Error(`--mairie-${name} does not resolve to a colour`);
   return parse(name, value);
 };

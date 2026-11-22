@@ -13,13 +13,15 @@ export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref' | '
   size?: Size;
   /** Accessible name; without it the icon is decorative (hidden from assistive technology). */
   label?: string;
+  /** MAIR-1151: turns the glyph (e.g. `icons['loader-circle']`) while something is in progress; still under `prefers-reduced-motion`. */
+  spin?: boolean;
 }
 
 /**
  * The only way to render an icon in the fronts (MAIR-608, Figma `Base/Icon`):
  * lucide glyph, typed size bound to the `--mairie-icon-*` tokens, current text colour.
  */
-export const Icon = ({ icon: Glyph, size = 'm', label, className = '', style, ...props }: IconProps) => (
+export const Icon = ({ icon: Glyph, size = 'm', label, spin = false, className = '', style, ...props }: IconProps) => (
   <Glyph
     {...props}
     {...componentMarker('Icon', props)}
@@ -28,7 +30,8 @@ export const Icon = ({ icon: Glyph, size = 'm', label, className = '', style, ..
     role={label ? 'img' : undefined}
     focusable="false"
     data-size={size}
-    className={`mairie-icon shrink-0 ${className}`.trim()}
+    data-spin={spin || undefined}
+    className={`mairie-icon shrink-0 ${spin ? 'motion-safe:animate-spin ' : ''}${className}`.trim()}
     style={{ width: `var(--mairie-icon-${size})`, height: `var(--mairie-icon-${size})`, ...style }}
   />
 );

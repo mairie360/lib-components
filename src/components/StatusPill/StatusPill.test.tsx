@@ -23,4 +23,13 @@ describe('StatusPill (MAIR-608)', () => {
     expect(screen.getByText('Suspendu')).toHaveAttribute('data-tone', 'warning');
     expect(screen.getByText('En retard')).toHaveAttribute('data-tone', 'danger');
   });
+
+  it('MAIR-1124 offers the purple and strong secondary tones', async () => {
+    const { container } = render(<><StatusPill label="Autre" tone="purple" /><StatusPill label="Réunion" tone="secondary-strong" dot /></>);
+    expect(screen.getByText('Autre')).toHaveAttribute('data-tone', 'purple');
+    expect(screen.getByText('Autre').style.color).toBe('var(--mairie-purple-text)');
+    expect(screen.getByText('Réunion').style.background).toBe('var(--mairie-secondary-action-background)');
+    expect(screen.getByText('Réunion').style.color).toBe('var(--mairie-on-secondary)');
+    expect((await axe(container)).violations).toEqual([]);
+  });
 });

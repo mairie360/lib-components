@@ -20,6 +20,39 @@ export const scale = {
 export const charteTokens = { primary: 'var(--mairie-action-background)', onPrimary: 'var(--mairie-on-action)', secondary: 'var(--mairie-secondary)', text: 'var(--mairie-text)', border: 'var(--mairie-control-border)' } as const;
 /** CSS custom property of one scale entry, e.g. `var(--mairie-icon-m)`. */
 export function scaleVar(kind: keyof typeof scale, size: Size): string { return `var(--mairie-${kind}-${size})`; }
+/**
+ * MAIR-1091 motion tokens (Figma « Jetons et mouvement », lib 2.3): the durations in ms and the easings
+ * of `--mairie-motion-*` / `--mairie-ease-*`. Every duration falls to 0 under `prefers-reduced-motion`.
+ */
+export const motion = {
+  duration: { instant: 80, fast: 150, base: 240, slow: 400 },
+  easing: {
+    standard: 'cubic-bezier(0.2, 0, 0, 1)',
+    enter: 'cubic-bezier(0.05, 0.7, 0.1, 1)',
+    exit: 'cubic-bezier(0.3, 0, 0.8, 0.15)',
+    spring: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+  },
+  tooltipDelay: 0,
+} as const;
+/** CSS custom property of a motion token, e.g. `motionVar('duration', 'base')` = `var(--mairie-motion-base)`. */
+export function motionVar(kind: 'duration' | 'easing', name: string): string {
+  return kind === 'duration' ? `var(--mairie-motion-${name})` : `var(--mairie-ease-${name})`;
+}
+/**
+ * MAIR-1119: named fonts of the display preference (Settings › Apparence). `geist` is the default; a front
+ * that offers Lora loads it (e.g. `next/font/google` with `variable: '--font-lora'`, weights 400–700,
+ * `display: 'swap'`); without it the browser falls back to Georgia.
+ */
+export const fontFamilies = {
+  geist: 'var(--font-geist-sans, "Geist"), system-ui, sans-serif',
+  lora: 'var(--font-lora, "Lora"), Georgia, "Times New Roman", serif',
+} as const;
+export type FontFamilyName = keyof typeof fontFamilies;
+/** The CSS stack of a preference: a named font (`lora`, `geist`) or a validated family list as is. */
+export function resolveFontFamily(value: string): string {
+  const name = value.trim().toLowerCase();
+  return Object.prototype.hasOwnProperty.call(fontFamilies, name) ? fontFamilies[name as FontFamilyName] : value;
+}
 export function isSize(value: unknown): value is Size { return typeof value === 'string' && (sizes as readonly string[]).includes(value); }
 export function isTone(value: unknown): value is Tone { return typeof value === 'string' && (tones as readonly string[]).includes(value); }
 
@@ -104,7 +137,7 @@ function renderAppearance(appearance: Appearance, document: Document) {
   root.dataset.appearanceMode = 'light';
   root.dataset.density = appearance.density ?? 'normal';
   root.style.colorScheme = 'light';
-  if (appearance.font_family) root.style.setProperty('--mairie-user-font', appearance.font_family);
+  if (appearance.font_family) root.style.setProperty('--mairie-user-font', resolveFontFamily(appearance.font_family));
   else root.style.removeProperty('--mairie-user-font');
 }
 /** Call only after a validated bootstrap or successful, verified write receipt. */

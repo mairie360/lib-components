@@ -49,4 +49,29 @@ describe('RadioGroup (MAIR-608)', () => {
       expect((await axe(container)).violations).toEqual([]);
     });
   });
+
+  describe('MAIR-1132 card leading and footer', () => {
+    it('puts a leading avatar in place of the icon and a footer under the hint', async () => {
+      const user = userEvent.setup(); const change = jest.fn();
+      const { container } = render(
+        <RadioGroup label="Responsable" name="owner" variant="card" onChange={change} options={[
+          { value: 'camille', label: 'Camille Martin', icon: KeyRound, leading: <span data-testid="avatar">CM</span>, hint: 'Urbanisme', footer: <span>Charge : 60 %</span> },
+          { value: 'leo', label: 'Léo Roux', icon: Smartphone },
+        ]} />,
+      );
+      const camille = screen.getByRole('radio', { name: /Camille Martin/ });
+      const card = camille.closest('label')!;
+      expect(card.querySelector('[data-leading]')).toContainElement(screen.getByTestId('avatar'));
+      expect(card.querySelector('[data-leading]')).toHaveClass('mairie-radio-leading');
+      // The leading node replaces the icon.
+      expect(card.querySelectorAll('svg')).toHaveLength(0);
+      expect(card.querySelector('[data-card-footer]')).toHaveTextContent('Charge : 60 %');
+      expect(screen.getByRole('radio', { name: 'Léo Roux' }).closest('label')!.querySelectorAll('svg')).toHaveLength(1);
+      await user.click(camille);
+      expect(change).toHaveBeenCalledWith('camille');
+      await user.keyboard('{ArrowDown}');
+      expect(change).toHaveBeenLastCalledWith('leo');
+      expect((await axe(container)).violations).toEqual([]);
+    });
+  });
 });
