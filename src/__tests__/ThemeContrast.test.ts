@@ -23,12 +23,21 @@ const text: [string, string][] = [
   ['text', 'illustration-background'], ['muted', 'illustration-background'],
   // MAIR-1152: own message bubbles.
   ['message-own-on', 'message-own-background'],
+  // MAIR-1105: PageHero slate band and its stat tiles.
+  ['on-hero', 'hero-background'], ['on-hero-muted', 'hero-background'], ['hero-overline', 'hero-background'],
+  ['on-hero', 'hero-tile-background'], ['on-hero-muted', 'hero-tile-background'],
+  ['on-hero', 'hero-tile-hover-background'], ['on-hero-muted', 'hero-tile-hover-background'],
 ];
 const graphics: [string, string][] = [
   ['control-border', 'control-background'], ['control-border', 'surface'],
   ['navigation-control-border', 'navigation-background'], ['navigation-active-border', 'navigation-background'],
   ['navigation-active-indicator', 'navigation-active-background'], ['danger', 'surface'], ['counter-background', 'surface'],
+  ['hero-tile-border', 'hero-background'], ['hero-overline', 'hero-tile-background'],
+  ...['success', 'warning', 'danger'].map(tone => [`hero-dot-${tone}`, 'hero-tile-background'] as [string, string]),
   ...['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'].map(module => [`module-${module}`, 'surface'] as [string, string]),
+  // MAIR-1108: icon of a module IconChip. MAIR-1115: module fill of a ProgressMeter on its track.
+  ...['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'].map(module => ['on-module', `module-${module}`] as [string, string]),
+  ...['dashboard', 'projects', 'calendar', 'messaging', 'training'].map(module => [`module-${module}`, 'surface-raised'] as [string, string]),
 ];
 
 describe.each(themes)('%s palette', (_mode, theme) => {

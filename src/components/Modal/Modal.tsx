@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { Icon } from '../Icon';
+import { StepProgress, type StepProgressStep } from '../StepProgress';
 import { Help, ModalTitle } from '../Text';
 import { componentMarker, withoutMarker } from '../component-marker';
 
@@ -19,6 +20,16 @@ export interface ModalProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   size?: Size;
   /** Actions row; use `FormActions` or the preset buttons. */
   footer?: React.ReactNode;
+  /** MAIR-1131: actions pinned to the start of the footer (« Précédent », a secondary link). */
+  footerStart?: React.ReactNode;
+  /** MAIR-1131: actions at the end of the footer, after `footer` (the main action). */
+  footerEnd?: React.ReactNode;
+  /** MAIR-1131: a multi-step dialog: StepProgress, « Étape n sur N » and the step name under the title. */
+  steps?: readonly StepProgressStep[];
+  /** Index of the current step, from 0. */
+  currentStep?: number;
+  /** Makes the steps clickable. */
+  onStepChange?: (index: number) => void;
   /** Initial focus; defaults to the first focusable control, then the close button. */
   initialFocusRef?: React.RefObject<HTMLElement | null>;
   closeLabel?: string;
@@ -81,26 +92,59 @@ export function useDialogFocus(open: boolean, panel: React.RefObject<HTMLElement
 }
 
 /** Centred window over a veil: header (title, close), free content, actions footer (MAIR-608, Figma `Base/Modal`). */
-export const Modal = ({ open, title, description, onClose, size = 'm', footer, initialFocusRef, closeLabel = 'Fermer la fenêtre', children, closeOnBackdrop = true, role = 'dialog', className = '', style, ...props }: ModalProps) => {
-  const titleId = useId(); const descriptionId = useId(); const panel = useRef<HTMLDivElement>(null);
+export const Modal = ({ open, title, description, onClose, size = 'm', footer, footerStart, footerEnd, steps, currentStep = 0, onStepChange, initialFocusRef, closeLabel = 'Fermer la fenêtre', children, closeOnBackdrop = true, role = 'dialog', className = '', style, ...props }: ModalProps) => {
+  const titleId = useId(); const descriptionId = useId(); const stepId = useId(); const panel = useRef<HTMLDivElement>(null);
+  const heading = useRef<HTMLElement>(null); const body = useRef<HTMLDivElement>(null);
   useDialogFocus(open, panel, onClose, initialFocusRef);
+  const stepped = Boolean(steps?.length);
+  const step = stepped ? Math.min(Math.max(0, currentStep), steps!.length - 1) : 0;
+  // MAIR-1131: the body keeps the height of its tallest step so far, so the dialog does not jump between steps.
+  const [bodyHeight, setBodyHeight] = useState(0);
+  useLayoutEffect(() => {
+    if (!open || !stepped || !body.current) return;
+    const height = body.current.offsetHeight;
+    setBodyHeight(previous => Math.max(previous, height));
+  }, [open, stepped, step]);
+  // Each step change hands the focus to the title, so the new step is read from its start.
+  const shownStep = useRef(step);
+  useEffect(() => {
+    if (!open) return;
+    if (shownStep.current !== step) heading.current?.focus();
+    shownStep.current = step;
+  }, [open, step]);
   if (!open) return null;
+  const hasFooter = Boolean(footer || footerStart || footerEnd);
   return (
     // Full-window veil from 360 to 1920 px, dialog centred on both axes; on a short window the dialog
     // keeps a 16 px margin and its body scrolls (max-h-full).
     <div {...componentMarker('Modal', props)} className={`${dialogBackdropClass} flex items-center justify-center p-4`} onMouseDown={event => { if (closeOnBackdrop && event.target === event.currentTarget) onClose(); }}>
-      <div {...withoutMarker(props)} ref={panel} role={role} aria-modal="true" aria-labelledby={titleId} aria-describedby={description ? descriptionId : undefined} tabIndex={-1} data-size={size}
+      <div {...withoutMarker(props)} ref={panel} role={role} aria-modal="true" aria-labelledby={titleId} aria-describedby={[description ? descriptionId : '', stepped ? stepId : ''].filter(Boolean).join(' ') || undefined} tabIndex={-1} data-size={size}
         className={`flex max-h-full w-full flex-col overflow-hidden border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: modalWidths[size], borderRadius: 'var(--mairie-radius-xl)', ...style }}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
-          <div className="min-w-0">
-            <ModalTitle id={titleId}>{title}</ModalTitle>
+          <div className="min-w-0 flex-1">
+            <ModalTitle id={titleId} ref={heading} tabIndex={stepped ? -1 : undefined} className={stepped ? 'outline-none' : undefined}>{title}</ModalTitle>
             {description ? <Help id={descriptionId} as="div" className="mt-1">{description}</Help> : null}
+            {stepped ? (
+              <div data-modal-steps className="mt-3 flex flex-col gap-1.5">
+                <div id={stepId} className="flex items-baseline justify-between gap-3 text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>
+                  <span className="font-medium text-[var(--mairie-text)]">{steps![step].label}{steps![step].optional ? ' (facultative)' : ''}</span>
+                  <span className="shrink-0 tabular-nums">Étape {step + 1} sur {steps!.length}</span>
+                </div>
+                <StepProgress steps={steps!} current={step} onStepChange={onStepChange} size="s" label="Étapes" />
+              </div>
+            ) : null}
           </div>
           <button type="button" aria-label={closeLabel} onClick={onClose} className="-mr-2 inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"><Icon icon={X} size="m" /></button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto" style={{ padding: 'var(--mairie-space-l)' }}>{children}</div>
-        {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>{footer}</footer>}
+        <div ref={body} className={`min-h-0 flex-1 overflow-y-auto ${stepped ? 'mairie-scroll-hidden' : ''}`.trim()} style={{ padding: 'var(--mairie-space-l)', minHeight: stepped && bodyHeight ? bodyHeight : undefined }}>{children}</div>
+        {hasFooter && (
+          <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
+            {footerStart ? <div data-footer-start className="mr-auto flex flex-wrap items-center gap-2">{footerStart}</div> : null}
+            {footer}
+            {footerEnd}
+          </footer>
+        )}
       </div>
     </div>
   );
