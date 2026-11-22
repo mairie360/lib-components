@@ -631,3 +631,7 @@ body.mairie-ui .app-focus-content, .app-focus-content { grid-area: content; min-
 /* MAIR-1131: Modal steps keep their body scrollable without showing the bar. */
 .mairie-scroll-hidden { scrollbar-width: none; }
 .mairie-scroll-hidden::-webkit-scrollbar { display: none; }
+/* MAIR-1099: the chosen day springs in, the date popovers drop in (motion tokens: 0 ms under prefers-reduced-motion). */
+.mairie-calendar-pick { animation: mairie-pop var(--mairie-motion-base) var(--mairie-ease-spring); }
+@keyframes mairie-popover-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } to { opacity: 1; transform: none; } }
+.mairie-popover-in { transform-origin: top left; animation: mairie-popover-in var(--mairie-motion-base) var(--mairie-ease-enter); }

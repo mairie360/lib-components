@@ -32,7 +32,10 @@ export const NewPasswordField = preset('NewPassword', { type: 'password', label:
 export const SearchField = preset('Search', { type: 'search', label: 'Rechercher', placeholder: 'Rechercher…', autoComplete: 'off' });
 /** Téléphone (French format accepted with spaces). */
 export const PhoneField = preset('Phone', { type: 'tel', label: 'Téléphone', autoComplete: 'tel', inputMode: 'tel' });
-/** Date in the instance time zone. */
+/**
+ * Date in the instance time zone (native date input, Figma `Field/Date`).
+ * @deprecated MAIR-1099: use `DatePicker` (date in full, calendar, shortcuts, `min` / `max` / `disabledDates`).
+ */
 export const DateField = preset('Date', { type: 'date', label: 'Date' });
 /** MAIR-839: Heure (`min`, `max`, `step` are passed to the native input). */
 export const TimeField = preset('Time', { type: 'time', label: 'Heure' });
