@@ -17,6 +17,8 @@ export interface OneTimeCodeFieldProps extends Omit<TextFieldProps, 'type' | 'ic
   onValueChange?: (value: string) => void;
   /** TOTP only: called once the sixth digit is typed or pasted, so the form can submit. */
   onComplete?: (value: string) => void;
+  /** MAIR-1104: error message (« Code incorrect. »), shown under the field in place of the hint. */
+  error?: React.ReactNode;
 }
 
 const kinds = {
@@ -29,6 +31,8 @@ const kinds = {
  * placeholder, numeric keypad, `autocomplete="one-time-code"`) or a recovery code (`A1B2-C3D4`, monospace).
  * Typed and pasted text is cleaned on the way in (spaces, dashes, case), so the value is always ready to send.
  * Works controlled, uncontrolled or with react-hook-form `register`.
+ * MAIR-1104: `error` (Figma `State=Error`) gives the error border, replaces the hint with the error message
+ * (role=alert) and sets `aria-invalid` + `aria-describedby` on the code, like every Field.
  */
 export const OneTimeCodeField = React.forwardRef<HTMLInputElement, OneTimeCodeFieldProps>(function OneTimeCodeField(
   { kind = 'totp', label, hint, placeholder, onChange, onValueChange, onComplete, className = '', style, ...props },

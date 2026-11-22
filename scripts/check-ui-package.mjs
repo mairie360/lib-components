@@ -109,7 +109,7 @@ for (const format of ['module', 'commonjs']) {
       assert.match(renderToString(React.createElement(primitives.Toast, { message: 'Reçu du serveur' })), /Reçu du serveur/);
       // MAIR-578: the packed shell renders with its built-in desktop navigation (0.10.2 shipped classic JSX without React).
       ${loadStatement(`${packageName}/react`, format, 'kit')}
-      const shellHtml = renderToString(React.createElement(kit.InstanceProvider, { role: 'Admin', timeZone: 'Europe/Paris' }, React.createElement(shell.AccessibleShell, { hrefs: { admin: '/admin', settings: '/settings' } }, React.createElement('h1', null, 'Contenu'))));
+      const shellHtml = renderToString(React.createElement(kit.InstanceProvider, { role: 'Admin', timeZone: 'Europe/Paris' }, React.createElement(shell.AccessibleShell, { showFooter: true, hrefs: { admin: '/admin', settings: '/settings' } }, React.createElement('h1', null, 'Contenu'))));
       assert.match(shellHtml, /app-desktop-navigation/); assert.match(shellHtml, /data-admin="true"/); assert.match(shellHtml, /app-accessible-footer/);
       assert.match(renderToString(React.createElement(shell.CurrentDate, { date: new Date('2026-10-20T10:00:00Z') })), /class="page-current-date"><[/]span>/);
     `, format);

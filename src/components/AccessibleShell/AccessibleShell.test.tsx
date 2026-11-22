@@ -7,10 +7,10 @@ import { InstanceProvider } from '../../kit/react';
 
 const hrefs = { dashboard: '/dashboard', admin: '/admin', settings: '/settings' };
 
-function shell(role: 'Admin' | 'User', children: React.ReactNode = <h1>Contenu</h1>) {
+function shell(role: 'Admin' | 'User', children: React.ReactNode = <h1>Contenu</h1>, props: Partial<React.ComponentProps<typeof AccessibleShell>> = {}) {
   return render(
     <InstanceProvider role={role} timeZone="Europe/Paris">
-      <AccessibleShell activeItem="dashboard" hrefs={hrefs}>{children}</AccessibleShell>
+      <AccessibleShell activeItem="dashboard" hrefs={hrefs} {...props}>{children}</AccessibleShell>
     </InstanceProvider>,
   );
 }
@@ -26,8 +26,28 @@ describe('AccessibleShell (MAIR-578)', () => {
     expect(screen.getAllByRole('button', { name: 'Administration' }).length).toBeGreaterThan(0);
   });
 
-  it('renders the collapsible lib shell with the content footer and one main landmark', () => {
+  it('MAIR-1092 renders no footer by default', () => {
+    shell('User');
+    expect(screen.queryByRole('contentinfo')).toBeNull();
+  });
+
+  it('MAIR-1103 draws no backdrop by default: the shell cannot tell a public page', () => {
     const { container } = shell('User');
+    expect(container.querySelector('[data-m360-component~="PublicBackdrop"]')).toBeNull();
+    expect(container.querySelector('[data-backdrop]')).toBeNull();
+  });
+
+  it('MAIR-1103 lays the ribbons behind the content of a public page', () => {
+    const { container } = shell('User', <h1>Connexion</h1>, { backdrop: 'ribbons' });
+    const root = container.querySelector('.app-shell-root')!;
+    expect(root).toHaveAttribute('data-backdrop', 'ribbons');
+    const backdrop = root.querySelector(':scope > [data-m360-component~="PublicBackdrop"]')!;
+    expect(backdrop).toHaveAttribute('aria-hidden', 'true');
+    expect(backdrop.compareDocumentPosition(screen.getByRole('main')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('renders the collapsible lib shell with the content footer and one main landmark', () => {
+    const { container } = shell('User', undefined, { showFooter: true });
     expect(container.querySelector('aside.app-desktop-navigation')).not.toBeNull();
     expect(container.querySelector('.app-main-content')).toHaveTextContent('Contenu');
     expect(screen.getAllByRole('main')).toHaveLength(1);

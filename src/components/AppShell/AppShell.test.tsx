@@ -1,3 +1,4 @@
+import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
@@ -72,8 +73,17 @@ describe('AppShell', () => {
     expect(onNavigate).toHaveBeenCalledWith('/settings', 'settings');
   });
 
-  it('places copyright in the sidebar rather than below the content by default', () => {
-    render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
+  it('MAIR-1092 renders no footer unless showFooter is set', () => {
+    const { container } = render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
+    expect(screen.queryByText('© 2026 Mairie360')).not.toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
+    const { container: collapsible } = render(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
+    expect(collapsible.querySelector('.app-shell-footer')).toBeNull();
+    expect(container.querySelector('footer')).toBeNull();
+  });
+
+  it('places copyright in the sidebar rather than below the content when the footer is shown', () => {
+    render(<AppShell showFooter hrefs={{ projects: '/projects' }} footerProps={{ year: 2026 }}><h1>Mes projets</h1></AppShell>);
 
     const sidebar = screen.getByRole('complementary', { name: 'Navigation principale' });
     const footer = within(sidebar).getByText('© 2026 Mairie360').parentElement!.parentElement!;
@@ -86,7 +96,7 @@ describe('AppShell', () => {
 
   it('keeps supplied footer information and actions in the mobile navigation', () => {
     const support = jest.fn();
-    render(<AppShell hrefs={{ projects: '/projects' }} footerProps={{ productName: 'Ville Connectée', year: 2027, version: '3.0.0', links: [{ label: 'Assistance', onClick: support }, { label: 'Sans destination' }] }}><p>Contenu</p></AppShell>);
+    render(<AppShell showFooter hrefs={{ projects: '/projects' }} footerProps={{ productName: 'Ville Connectée', year: 2027, version: '3.0.0', links: [{ label: 'Assistance', onClick: support }, { label: 'Sans destination' }] }}><p>Contenu</p></AppShell>);
 
     fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
     const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
@@ -103,7 +113,7 @@ describe('AppShell', () => {
   });
 
   it('retains the horizontal footer when explicitly requested', () => {
-    render(<AppShell hrefs={{ projects: '/projects' }} footerPlacement="content"><p>Contenu</p></AppShell>);
+    render(<AppShell showFooter hrefs={{ projects: '/projects' }} footerPlacement="content"><p>Contenu</p></AppShell>);
 
     expect(screen.getByRole('main').parentElement!.querySelector(':scope > footer')).toBe(screen.getByRole('contentinfo'));
     expect(within(screen.getByRole('complementary', { name: 'Navigation principale' })).queryByRole('contentinfo')).toBeNull();
@@ -114,15 +124,15 @@ describe('AppShell', () => {
 
     expect(screen.getByRole('button', { name: 'Paramètres' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: /Administration/ })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]');
+    expect(screen.getByRole('button', { name: /Administration/ })).toHaveClass('bg-[var(--mairie-navigation-active-background)]');
   });
 
-  it('uses the same highlighted Administration row in the mobile drawer', () => {
+  it('MAIR-1092 styles Administration like the other destinations in the mobile drawer', () => {
     render(<AppShell isAdmin user={user} hrefs={{ admin: '/admin' }} onNavigate={jest.fn()}><p>Contenu</p></AppShell>);
 
     fireEvent.click(screen.getByRole('button', { name: 'Ouvrir la navigation' }));
     const drawer = screen.getByRole('dialog', { name: 'Navigation mobile' });
-    expect(within(drawer).getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-background)]', 'focus-visible:outline-[var(--mairie-navigation-admin-focus)]');
+    expect(within(drawer).getByRole('button', { name: 'Administration' }).className).not.toMatch(/admin/);
   });
 
   it('uses the safe Settings destination when the configured profile URL is unsafe', () => {
@@ -219,5 +229,52 @@ describe('AppShell main layout (MAIR-901)', () => {
   it('drops the legacy padding of the non-collapsible frame in fill mode', () => {
     render(<AppShell hrefs={{}} mainLayout="fill"><div>Calendrier</div></AppShell>);
     expect(screen.getByRole('main')).not.toHaveClass('px-4');
+  });
+});
+
+describe('AppShell focus layout (MAIR-1139)', () => {
+  const focus = (props: Partial<React.ComponentProps<typeof AppShell>> = {}) => render(
+    <AppShell
+      layout="focus"
+      bar={<h1>Nouvelle demande</h1>}
+      aside={<ol><li>Identité</li><li>Pièces</li></ol>}
+      content={<p>Formulaire</p>}
+      footer={<button type="button">Enregistrer</button>}
+      {...props}
+    />,
+  );
+
+  it('renders no navigation band nor Header, only its slots in reading order', () => {
+    const { container } = focus();
+    expect(container.firstElementChild).toHaveAttribute('data-layout', 'focus');
+    expect(container.firstElementChild).toHaveAttribute('data-m360-component', 'AppShell');
+    expect(screen.queryByRole('complementary', { name: 'Navigation principale' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Ouvrir la navigation' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Notifications/ })).toBeNull();
+    expect(screen.getAllByRole('main')).toHaveLength(1);
+    const order = [
+      screen.getByRole('heading', { name: 'Nouvelle demande' }),
+      screen.getByRole('navigation', { name: 'Sommaire' }),
+      screen.getByText('Formulaire'),
+      screen.getByRole('button', { name: 'Enregistrer' }),
+    ];
+    order.slice(1).forEach((element, index) => {
+      expect(order[index].compareDocumentPosition(element) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+  });
+
+  it('uses children as content and leaves the table of contents out when no aside is given', () => {
+    render(<AppShell layout="focus" bar={<span>Barre</span>}><p>Étape 1</p></AppShell>);
+    expect(screen.getByRole('main')).toHaveTextContent('Étape 1');
+    expect(screen.queryByRole('navigation')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Sommaire' })).toBeNull();
+  });
+
+  it('does not leave the page on Escape', () => {
+    const onPageChange = jest.fn();
+    focus({ onPageChange });
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.getByRole('main')).toBeInTheDocument();
+    expect(onPageChange).not.toHaveBeenCalled();
   });
 });

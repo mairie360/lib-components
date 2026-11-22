@@ -18,6 +18,10 @@ export interface RadioOption<T extends string = string> {
   icon?: LucideIcon;
   /** `card` variant: short success pill after the label (« Recommandé »). */
   badge?: string;
+  /** MAIR-1132, `card` variant: an Avatar or an icon before the text, in place of `icon`; it pops when the card gets selected. */
+  leading?: React.ReactNode;
+  /** MAIR-1132, `card` variant: content under the hint (e.g. a ProgressMeter xs with the load read as text). */
+  footer?: React.ReactNode;
 }
 
 export interface RadioGroupProps<T extends string = string> extends Omit<React.FieldsetHTMLAttributes<HTMLFieldSetElement>, 'onChange'> {
@@ -66,14 +70,16 @@ export function RadioGroup<T extends string = string>({ label, name, options, va
                 className={`m-0 shrink-0 cursor-pointer appearance-none rounded-full border border-[var(--mairie-control-border)] bg-[var(--mairie-control-background)] checked:border-[var(--mairie-action-background)] checked:bg-[var(--mairie-action-background)] checked:shadow-[inset_0_0_0_3px_var(--mairie-control-background)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] disabled:cursor-not-allowed ${variant === 'card' ? 'mt-0.5' : ''}`}
                 style={{ width: box, height: box }}
               />
+              {variant === 'card' && option.leading ? <span data-leading className="mairie-radio-leading inline-flex shrink-0 items-center">{option.leading}</span> : null}
               {variant === 'card' ? (
                 <span className="flex min-w-0 flex-1 flex-col" style={{ gap: 'var(--mairie-space-xs)' }}>
                   <span className="flex flex-wrap items-center font-semibold text-[var(--mairie-text)]" style={{ gap: 'var(--mairie-space-s)' }}>
-                    {option.icon ? <Icon icon={option.icon} size="s" /> : null}
+                    {option.icon && !option.leading ? <Icon icon={option.icon} size="s" /> : null}
                     {option.label}
                     {option.badge ? <StatusPill tone="success" label={option.badge} /> : null}
                   </span>
                   {option.hint ? <span className="text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>{option.hint}</span> : null}
+                  {option.footer ? <span data-card-footer className="mt-1 block">{option.footer}</span> : null}
                 </span>
               ) : (
                 <span className="text-[var(--mairie-text)]">{option.label}{option.hint ? <span className="block text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>{option.hint}</span> : null}</span>

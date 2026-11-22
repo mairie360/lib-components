@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Sidebar, SidebarProps } from '../components/Sidebar';
+import { MessageSquare, Shield } from 'lucide-react';
+import { Sidebar, SidebarProps, defaultSidebarItems } from '../components/Sidebar';
 
 const meta: Meta<typeof Sidebar> = {
   title: 'Components/Navigation/Sidebar',
@@ -25,5 +26,18 @@ export const StandardUser: StoryObj<SidebarProps> = {
     activeItem: 'projects',
     isAdmin: false,
     onItemSelect: (item) => alert(`Menu sélectionné : ${item.label}`),
+  },
+};
+
+/** MAIR-1092 / MAIR-1094: white band, active indicator bar, Administration like the others, counters « 4 » and « 9+ ». Hover an entry to see its icon animation (MAIR-1093). */
+export const WithCounters: StoryObj<SidebarProps> = {
+  args: {
+    activeItem: 'admin',
+    isAdmin: true,
+    items: defaultSidebarItems.map((item) => {
+      if (item.id === 'messages') return { ...item, icon: MessageSquare, count: 4 };
+      if (item.id === 'admin') return { ...item, icon: Shield, count: 12 };
+      return item;
+    }),
   },
 };

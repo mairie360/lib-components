@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ToolTip } from './ToolTip';
 
@@ -84,5 +86,15 @@ describe('ToolTip component', () => {
       expect(ids[0]).toBe('other');
       expect(document.getElementById(ids[1])).toHaveTextContent('Tooltip content');
     });
+  });
+
+  it('MAIR-1095 shows at once with the 80 ms fade on the neutral solid tokens', () => {
+    renderTooltip();
+    fireEvent.mouseEnter(screen.getByText('Hover me'));
+    const bubble = screen.getByRole('tooltip').firstElementChild as HTMLElement;
+    expect(bubble).toHaveClass('mairie-tooltip-bubble', 'bg-[var(--mairie-neutral-action)]', 'text-[var(--mairie-on-neutral)]');
+    const css = readFileSync(join(__dirname, '../../styles/municipal-theme.css'), 'utf8');
+    expect(css).toMatch(/\.mairie-tooltip-bubble \{ animation: mairie-tooltip-in var\(--mairie-motion-instant\) var\(--mairie-ease-standard\) var\(--mairie-tooltip-delay\) both; \}/);
+    expect(css).toContain('--mairie-tooltip-delay: 0ms;');
   });
 });

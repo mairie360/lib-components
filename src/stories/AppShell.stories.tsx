@@ -50,3 +50,35 @@ export const MobileKeyboardNavigation: StoryObj<typeof AppShell> = {
     await expect(menuButton).toHaveFocus();
   },
 };
+
+/** MAIR-1092: the footer is no longer part of the page base; `showFooter` brings it back. */
+export const WithFooter: StoryObj<typeof AppShell> = {
+  args: { collapsibleSidebar: true, showFooter: true, footerProps: { year: 2026 } },
+};
+
+/** MAIR-1092 / MAIR-1093: the collapsible white band (72 ↔ 248 px); hover the entries to see their icon animations. */
+export const CollapsibleNavigation: StoryObj<typeof AppShell> = {
+  args: {
+    collapsibleSidebar: true,
+    isAdmin: true,
+    hrefs: { dashboard: '/', projects: '/projects', calendar: '/calendar', messages: '/messages', training: '/training', admin: '/admin', settings: '/settings' },
+    headerProps: { showDate: true, date: 'jeudi 19 novembre', notificationCount: 4 },
+  },
+};
+
+/** MAIR-1139: focus layout, without navigation band nor Header: bar, table of contents, content and sticky actions. */
+export const FocusLayout: StoryObj<typeof AppShell> = {
+  args: {
+    layout: 'focus',
+    bar: <strong>Nouvelle demande d’intervention</strong>,
+    aside: (
+      <ol className="flex flex-col gap-2 text-sm">
+        <li><a href="#identite">Identité du demandeur</a></li>
+        <li><a href="#lieu">Lieu</a></li>
+        <li><a href="#pieces">Pièces jointes</a></li>
+      </ol>
+    ),
+    content: <h1 className="text-2xl font-semibold">Identité du demandeur</h1>,
+    footer: <button type="button">Enregistrer</button>,
+  },
+};

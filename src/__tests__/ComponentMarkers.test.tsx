@@ -67,7 +67,7 @@ const menuScene = (
 );
 
 const textPresets = ['Body', 'BodySmall', 'Caption', 'ErrorText', 'Help', 'Label', 'Link', 'Metric', 'ModalTitle', 'Overline', 'PageTitle', 'PanelTitle', 'SectionTitle'] as const;
-const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'PasskeyButton', 'CreatePasskeyButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
+const buttonPresets = ['BackButton', 'CancelButton', 'CloseButton', 'ConfirmDeleteButton', 'CreateButton', 'DeleteButton', 'DeleteGhostButton', 'DownloadButton', 'EditButton', 'LogoutButton', 'PasskeyButton', 'CreatePasskeyButton', 'RefreshButton', 'RetryButton', 'SaveButton', 'SendButton'] as const;
 const fieldPresets = ['DateField', 'EmailField', 'NameField', 'NewPasswordField', 'NumberField', 'PasswordField', 'PhoneField', 'SearchField', 'TimeField'] as const;
 const iconButtonPresets = ['CloseIconButton', 'DeleteIconButton', 'EditIconButton', 'MoreIconButton', 'NextIconButton', 'NotificationsIconButton', 'PreviousIconButton', 'SearchIconButton'] as const;
 const alertPresets = ['ErrorAlert', 'InfoAlert', 'SuccessAlert', 'UnavailableAlert', 'WarningAlert'] as const;
@@ -77,6 +77,7 @@ const fixtures: Record<string, Fixture> = {
   Alert: { element: <L.Alert title="Information" /> },
   AppShell: { element: <L.AppShell hrefs={{}}><p>Contenu</p></L.AppShell> },
   Avatar: { element: <L.Avatar alt="Camille Martin" /> },
+  AvatarGroup: { element: <L.AvatarGroup people={[{ name: 'Camille Martin' }]} count={6} /> },
   AvatarStack: { element: <L.AvatarStack label="Membres" people={[{ name: 'Camille Martin' }]} /> },
   Button: { element: <L.Button label="Valider" /> },
   DescriptionList: { element: <L.DescriptionList items={[{ label: 'Navigateur', value: 'Firefox 132' }]} /> },
@@ -95,12 +96,15 @@ const fixtures: Record<string, Fixture> = {
   SessionDetails: { element: <L.SessionDetails session={{ id: 's1', device_info: 'Firefox/132.0', ip_address: '192.0.2.1', created_at: '2026-11-12T08:00:00Z', expires_at: '2026-11-19T08:00:00Z' }} now={0} /> },
   SettingToggle: { element: <L.SettingToggle label="Mentions" checked onChange={noop} /> },
   SettingToggleGroup: { element: <L.SettingToggleGroup title="Notifications"><p>Ligne</p></L.SettingToggleGroup> },
+  Calendar: { element: <L.Calendar value="2026-12-03" /> },
   Card: { element: <L.Card>Contenu</L.Card> },
   Checkbox: { element: <L.Checkbox label="Accepter" /> },
   ConfirmModal: { element: <L.ConfirmModal open title="Supprimer ?" message="Confirmer la suppression." onCancel={noop} onConfirm={noop} /> },
   CurrentDate: { element: <L.CurrentDate date={new Date('2026-11-04T10:00:00Z')} /> },
   DataState: { element: <L.DataState state="empty" /> },
   DataTable: { element: <L.DataTable label="Utilisateurs" columns={[{ key: 'name', header: 'Nom' }]} rows={[{ name: 'Camille' }]} rowKey={row => row.name} /> },
+  DatePicker: { element: <L.DatePicker label="Date de début" value="2026-12-03" /> },
+  DateRangePicker: { element: <L.DateRangePicker label="Période" value={{ start: '2026-12-03', end: '2026-12-09' }} /> },
   DateTime: { element: <L.DateTime value="2026-11-04T10:00:00Z" timeZone="Europe/Paris" /> },
   DesktopNavigation: { element: <S.DesktopNavigation hrefs={{ settings: '/settings' }} onCollapsedChange={noop} /> },
   Drawer: { element: <L.Drawer open title="Détails" onClose={noop}>Contenu</L.Drawer> },
@@ -114,13 +118,18 @@ const fixtures: Record<string, Fixture> = {
   Header: { element: <L.Header /> },
   Icon: { element: <L.Icon icon={Info} label="Information" /> },
   IconButton: { element: <L.IconButton preset="close" /> },
+  IconChip: { element: <L.IconChip icon={Info} /> },
+  KanbanColumn: { element: <L.KanbanColumn title="À faire" /> },
   LinkButton: { element: <L.LinkButton href="/aide" label="Aide" /> },
   Logo: { element: <L.Logo /> },
   MetricCard: { element: <L.MetricCard label="Projets" value={3} /> },
   Modal: { element: <L.Modal open title="Fenêtre" onClose={noop}>Contenu</L.Modal> },
   MultiSelect: { element: <L.MultiSelect label="Membres" options={[{ value: 'a', label: 'Camille' }]} value={[]} onChange={noop} /> },
   NotificationCenter: { element: <L.NotificationCenter source={{ list: () => new Promise<never>(noop), markRead: async () => [] }} onClose={noop} /> },
+  NotificationList: { element: <L.NotificationList items={[]} /> },
+  Onboarding: { element: <L.Onboarding onDone={noop} /> },
   PageHeader: { element: <L.PageHeader title="Projets" /> },
+  PageHero: { element: <L.PageHero title="Camille Martin" /> },
   Pagination: { element: <L.Pagination page={1} pageSize={10} total={30} onChange={noop} /> },
   Panel: { element: <L.Panel title="Activité">Contenu</L.Panel> },
   PendingFeatureNotice: { element: <L.PendingFeatureNotice feature="Pièces jointes" /> },
@@ -139,12 +148,14 @@ const fixtures: Record<string, Fixture> = {
   SelectValue: { element: selectScene, root: false },
   SessionExpiredNotice: { element: <L.SessionExpiredNotice loginHref="/login" /> },
   SessionList: { element: <L.SessionList sessions={[]} /> },
+  PublicBackdrop: { element: <S.PublicBackdrop /> },
   Sidebar: { element: <L.Sidebar /> },
   Skeleton: { element: <L.Skeleton /> },
   Slider: { element: <L.Slider label="Taille" min={0} max={10} /> },
   Spinner: { element: <L.Spinner label="Chargement" /> },
   StatusBadge: { element: <L.StatusBadge status="active" /> },
   StatusPill: { element: <L.StatusPill label="Actif" /> },
+  StepProgress: { element: <L.StepProgress steps={3} current={1} /> },
   Switch: { element: <L.Switch label="Notifications" /> },
   Tabs: { element: <L.Tabs label="Paramètres" value="a" onChange={noop} items={[{ key: 'a', label: 'Profil' }]} /> },
   Tag: { element: <L.Tag label="Urgent" /> },
