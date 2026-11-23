@@ -41,14 +41,18 @@ export function motionVar(kind: 'duration' | 'easing', name: string): string {
 /**
  * MAIR-1119: named fonts of the display preference (Settings › Apparence). `geist` is the default; a front
  * that offers Lora loads it (e.g. `next/font/google` with `variable: '--font-lora'`, weights 400–700,
- * `display: 'swap'`); without it the browser falls back to Georgia.
+ * `display: 'swap'`); without it the browser falls back to Georgia. MAIR-1128: the closed list of Settings V2
+ * (`system`, `geist`, `atkinson`, `lora`) is named here too, so every front draws the same stack:
+ * `system` is the operating system's font, `atkinson` Atkinson Hyperlegible (`variable: '--font-atkinson'`).
  */
 export const fontFamilies = {
+  system: 'system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
   geist: 'var(--font-geist-sans, "Geist"), system-ui, sans-serif',
+  atkinson: 'var(--font-atkinson, "Atkinson Hyperlegible"), system-ui, sans-serif',
   lora: 'var(--font-lora, "Lora"), Georgia, "Times New Roman", serif',
 } as const;
 export type FontFamilyName = keyof typeof fontFamilies;
-/** The CSS stack of a preference: a named font (`lora`, `geist`) or a validated family list as is. */
+/** The CSS stack of a preference: a named font (`system`, `geist`, `atkinson`, `lora`) or a validated family list as is. */
 export function resolveFontFamily(value: string): string {
   const name = value.trim().toLowerCase();
   return Object.prototype.hasOwnProperty.call(fontFamilies, name) ? fontFamilies[name as FontFamilyName] : value;
