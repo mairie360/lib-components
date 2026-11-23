@@ -19,3 +19,24 @@ it('names an empty region, defaults its French text and delegates its create act
   expect(screen.getByRole('status')).toHaveTextContent('Chargement des projets');
   expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
 });
+
+describe('MAIR-1098 DataState', () => {
+  it('illustrates the empty state at m and l, keeps the icon at s', () => {
+    const { container, rerender } = render(<DataState state="empty" />);
+    expect(container.querySelector('[data-illustration="empty"]')).not.toBeNull();
+    rerender(<DataState state="empty" size="l" />);
+    expect(container.querySelector('[data-illustration="empty"]')).toHaveAttribute('width', '176');
+    rerender(<DataState state="empty" size="s" />);
+    expect(container.querySelector('[data-illustration="empty"]')).toBeNull();
+    expect(container.querySelector('svg.mairie-icon')).not.toBeNull();
+    rerender(<DataState state="error" size="l" />);
+    expect(container.querySelector('[data-illustration="empty"]')).toBeNull();
+  });
+
+  it('loads with three rising dots instead of a skeleton', async () => {
+    const { container } = render(<DataState state="loading" />);
+    expect(container.querySelectorAll('.mairie-loading-dot')).toHaveLength(3);
+    expect(container.querySelector('.mairie-skeleton')).toBeNull();
+    expect((await axe(container)).violations).toEqual([]);
+  });
+});

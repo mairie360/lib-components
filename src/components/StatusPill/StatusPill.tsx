@@ -5,15 +5,17 @@ import React from 'react';
 import type { Size, Tone } from '@mairie360/lib-components/theme';
 import { componentMarker } from '../component-marker';
 
+/** MAIR-1124: the shared tones plus `purple` and `secondary-strong` (categories without a semantic colour). */
+export type StatusPillTone = Tone | 'purple' | 'secondary-strong';
 export interface StatusPillProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'children'> {
   label: string;
-  tone?: Tone;
+  tone?: StatusPillTone;
   size?: Size;
   /** Leading dot in the tone colour. */
   dot?: boolean;
 }
 
-const surfaces: Record<Tone, { background: string; color: string }> = {
+const surfaces: Record<StatusPillTone, { background: string; color: string }> = {
   primary: { background: 'var(--mairie-accent-surface)', color: 'var(--mairie-accent)' },
   secondary: { background: 'var(--mairie-secondary-surface)', color: 'var(--mairie-secondary)' },
   neutral: { background: 'var(--mairie-surface-raised)', color: 'var(--mairie-text)' },
@@ -21,6 +23,8 @@ const surfaces: Record<Tone, { background: string; color: string }> = {
   warning: { background: 'var(--mairie-warning-surface)', color: 'var(--mairie-warning-text)' },
   danger: { background: 'var(--mairie-error-surface)', color: 'var(--mairie-error-text)' },
   info: { background: 'var(--mairie-info-surface)', color: 'var(--mairie-info-text)' },
+  purple: { background: 'var(--mairie-purple-surface)', color: 'var(--mairie-purple-text)' },
+  'secondary-strong': { background: 'var(--mairie-secondary-action-background)', color: 'var(--mairie-on-secondary)' },
 };
 const heights: Record<Size, number> = { xs: 18, s: 22, m: 26, l: 30, xl: 36 };
 const textSize: Record<Size, Size> = { xs: 'xs', s: 'xs', m: 's', l: 's', xl: 'm' };

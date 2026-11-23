@@ -108,3 +108,38 @@ describe('Modal, full-window veil and centred dialog (MAIR-857)', () => {
     expect(close).toHaveBeenCalledTimes(1);
   });
 });
+
+// MAIR-1131: composable footer and step header.
+describe('MAIR-1131 Modal footer slots and steps', () => {
+  const steps = [{ label: 'Identité' }, { label: 'Rôle' }, { label: 'Pièces jointes', optional: true }, { label: 'Vérification' }];
+
+  it('places footerStart at the start and footerEnd after footer', () => {
+    render(<Modal open title="Nouvel agent" onClose={() => undefined} footerStart={<button type="button">Précédent</button>} footer={<button type="button">Annuler</button>} footerEnd={<button type="button">Suivant</button>}>Contenu</Modal>);
+    const footer = screen.getByRole('button', { name: 'Précédent' }).closest('footer')!;
+    expect(Array.from(footer.querySelectorAll('button')).map(button => button.textContent)).toEqual(['Précédent', 'Annuler', 'Suivant']);
+    expect(screen.getByRole('button', { name: 'Précédent' }).parentElement).toHaveClass('mr-auto');
+  });
+
+  it('shows the steps under the title, moves the focus to the title on each change and keeps Escape', async () => {
+    const user = userEvent.setup(); const change = jest.fn(); const close = jest.fn();
+    const { rerender } = render(<Modal open title="Nouvel agent" onClose={close} steps={steps} currentStep={1} onStepChange={change}>Étape</Modal>);
+    const dialog = screen.getByRole('dialog', { name: 'Nouvel agent' });
+    expect(dialog).toHaveAccessibleDescription('Rôle Étape 2 sur 4');
+    expect(screen.getByRole('button', { name: 'Étape 2 sur 4 : Rôle' })).toHaveAttribute('aria-current', 'step');
+    await user.click(screen.getByRole('button', { name: 'Étape 3 sur 4 : Pièces jointes (facultative)' }));
+    expect(change).toHaveBeenCalledWith(2);
+    rerender(<Modal open title="Nouvel agent" onClose={close} steps={steps} currentStep={2} onStepChange={change}>Étape</Modal>);
+    expect(screen.getByRole('heading', { name: 'Nouvel agent' })).toHaveFocus();
+    expect(dialog).toHaveTextContent('Pièces jointes (facultative)Étape 3 sur 4');
+    expect(dialog.querySelector('.mairie-scroll-hidden')).not.toBeNull();
+    await user.keyboard('{Escape}');
+    expect(close).toHaveBeenCalledTimes(1);
+    expect((await axe(document.body)).violations).toEqual([]);
+  });
+
+  it('has no step header nor footer without them', () => {
+    render(<Modal open title="Simple" onClose={() => undefined}>Contenu</Modal>);
+    expect(document.querySelector('[data-modal-steps]')).toBeNull();
+    expect(document.querySelector('footer')).toBeNull();
+  });
+});

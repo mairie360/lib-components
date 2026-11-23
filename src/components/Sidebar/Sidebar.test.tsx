@@ -1,5 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { Sidebar } from './Sidebar';
+import { Folder } from 'lucide-react';
+import { axe } from 'jest-axe';
+import { Sidebar, defaultSidebarItems, navigationCount, navigationLabel } from './Sidebar';
 import '@testing-library/jest-dom';
 
 describe('Sidebar component', () => {
@@ -20,19 +22,73 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /Paramètres/ })).toBeInTheDocument();
   });
 
-  it('highlights the entire Administration row without changing other destinations', () => {
+  it('MAIR-1092 styles Administration like the other destinations, without red', () => {
     render(<Sidebar isAdmin />);
 
     const administration = screen.getByRole('button', { name: 'Administration' });
-    expect(administration).toHaveClass('bg-[var(--mairie-navigation-admin-background)]', 'border-[var(--mairie-navigation-admin-border)]', 'hover:bg-[var(--mairie-navigation-admin-hover-background)]', 'focus-visible:outline-[var(--mairie-navigation-admin-focus)]');
-    expect(screen.getByRole('button', { name: 'Projets' })).not.toHaveClass('bg-[var(--mairie-navigation-admin-background)]');
+    expect(administration.className).toBe(screen.getByRole('button', { name: 'Projets' }).className);
+    expect(administration.className).not.toMatch(/admin|error|danger/);
   });
 
-  it('keeps the Administration row red when it is active', () => {
-    render(<Sidebar isAdmin activeItem="admin" />);
+  it('MAIR-1092 marks the active destination with its background and the 3 px indicator bar', () => {
+    const { container } = render(<Sidebar isAdmin activeItem="admin" />);
 
-    expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('aria-current', 'page');
-    expect(screen.getByRole('button', { name: 'Administration' })).toHaveClass('bg-[var(--mairie-navigation-admin-active-background)]', 'border-[var(--mairie-navigation-admin-active-border)]');
+    const administration = screen.getByRole('button', { name: 'Administration' });
+    expect(administration).toHaveAttribute('aria-current', 'page');
+    expect(administration).toHaveClass('bg-[var(--mairie-navigation-active-background)]', 'text-[var(--mairie-navigation-active-text)]');
+    const indicators = container.querySelectorAll('[data-nav-indicator]');
+    expect(indicators).toHaveLength(1);
+    expect(administration).toContainElement(indicators[0] as HTMLElement);
+    expect(indicators[0]).toHaveClass('w-[3px]', 'bg-[var(--mairie-navigation-active-indicator)]');
+  });
+
+  it('MAIR-1092 sits on the white frame with the shell border', () => {
+    render(<Sidebar />);
+    expect(screen.getByRole('complementary')).toHaveClass('bg-[var(--mairie-shell-background)]', 'border-[var(--mairie-shell-border)]');
+  });
+
+  it('MAIR-1092 no longer offers Workflows among the default destinations', () => {
+    render(<Sidebar isAdmin />);
+    expect(screen.queryByRole('button', { name: /Workflows/ })).not.toBeInTheDocument();
+    expect(defaultSidebarItems.map((item) => item.id)).toEqual(['dashboard', 'projects', 'messages', 'training', 'calendar', 'admin', 'settings']);
+  });
+
+  it('MAIR-1093 keys the icon animation of each default destination by its id', () => {
+    render(<Sidebar isAdmin />);
+    for (const item of defaultSidebarItems) {
+      const button = screen.getByRole('button', { name: item.label });
+      expect(button).toHaveAttribute('data-nav-anim', item.id);
+      expect(button.querySelector('svg')).toHaveClass('mairie-nav-icon');
+    }
+  });
+
+  it('MAIR-1093 lets an item choose or drop its animation', () => {
+    render(<Sidebar items={[{ id: 'files', label: 'Fichiers', icon: Folder, animation: 'projects' }, { id: 'help', label: 'Aide', icon: Folder, animation: 'none' }]} />);
+    expect(screen.getByRole('button', { name: 'Fichiers' })).toHaveAttribute('data-nav-anim', 'projects');
+    expect(screen.getByRole('button', { name: 'Aide' })).toHaveAttribute('data-nav-anim', 'none');
+  });
+
+  it('MAIR-1094 shows the items to handle with Counter and names them', () => {
+    render(<Sidebar items={[{ id: 'messages', label: 'Messagerie', icon: Folder, count: 4 }, { id: 'admin', label: 'Administration', icon: Folder, badge: '12' }, { id: 'calendar', label: 'Calendrier', icon: Folder, count: 0 }]} isAdmin />);
+    const messages = screen.getByRole('button', { name: 'Messagerie, 4 à traiter' });
+    expect(messages.querySelector('[data-m360-component~="Counter"]')).toHaveTextContent('4');
+    const administration = screen.getByRole('button', { name: 'Administration, plus de 9 à traiter' });
+    expect(administration.querySelector('[data-m360-component~="Counter"]')).toHaveTextContent('9+');
+    expect(screen.getByRole('button', { name: 'Calendrier' }).querySelector('[data-m360-component~="Counter"]')).toBeNull();
+  });
+
+  it('MAIR-1094 derives the count and the accessible name of an entry', () => {
+    expect(navigationCount({ count: 3 })).toBe(3);
+    expect(navigationCount({ badge: ' 7 ' })).toBe(7);
+    expect(navigationCount({ badge: 'Nouveau' })).toBeUndefined();
+    expect(navigationCount({ count: -1 })).toBeUndefined();
+    expect(navigationLabel({ label: 'Projets' })).toBe('Projets');
+    expect(navigationLabel({ label: 'Projets', count: 10 })).toBe('Projets, plus de 9 à traiter');
+  });
+
+  it('has no axe violation', async () => {
+    const { container } = render(<Sidebar isAdmin activeItem="projects" items={[...defaultSidebarItems.slice(0, 2), { id: 'messages', label: 'Messagerie', icon: Folder, count: 2 }]} />);
+    expect((await axe(container)).violations).toEqual([]);
   });
 
   it('hides Administration when the user is not an administrator', () => {

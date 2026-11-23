@@ -129,7 +129,37 @@ test('MAIR-608 the tokens expose the charte, the tone list and one size scale th
   assert.equal(isSize('l'), true); assert.equal(isSize('xxl'), false); assert.equal(isTone('danger'), true); assert.equal(isTone('error'), false);
   const css = readFileSync(new URL('../../src/styles/municipal-theme.css', import.meta.url), 'utf8');
   for (const [kind, entries] of Object.entries(scale)) for (const [size, px] of Object.entries(entries)) assert.match(css, new RegExp(`--mairie-${kind}-${size}: ${px}px;`), `${kind}/${size}`);
-  // The charte itself (teal #70c1b3, navy #3c4f76, ink #383f51, mist #c8bfc7) is declared once, in the stylesheet;
+  // The charte (MAIR-1091 lib 2.3: lighter action teal #8ad0c4, navy #3c4f76, ink #383f51, mist #c8bfc7, white frame) is declared once, in the stylesheet;
   // neutrals, accent and module colours follow the showcase website; control borders use the darker mist step so the 3:1 non-text contrast holds.
-  for (const [name, hex] of [['action-background', '#70c1b3'], ['secondary', '#3c4f76'], ['text', '#383f51'], ['background', '#f1f6f5'], ['border', '#d8dce2'], ['muted', '#5a6072'], ['accent', '#2d786c'], ['control-border', '#8f8290'], ['module-dashboard', '#3c4f76'], ['module-projects', '#3f9c8c'], ['module-calendar', '#bd7a3f'], ['module-messaging', '#8e7ba0'], ['module-workflows', '#c0607a'], ['module-training', '#5e8f5a']]) assert.match(css, new RegExp(`--mairie-${name}: ${hex};`), name);
+  for (const [name, hex] of [['action-background', '#8ad0c4'], ['on-action', '#2a303f'], ['shell-background', '#ffffff'], ['secondary', '#3c4f76'], ['text', '#383f51'], ['background', '#f1f6f5'], ['border', '#d8dce2'], ['muted', '#5a6072'], ['accent', '#2d786c'], ['control-border', '#8f8290'], ['module-dashboard', '#3c4f76'], ['module-projects', '#3f9c8c'], ['module-calendar', '#bd7a3f'], ['module-messaging', '#8e7ba0'], ['module-workflows', '#c0607a'], ['module-training', '#5e8f5a']]) assert.match(css, new RegExp(`--mairie-${name}: ${hex};`), name);
+});
+
+test('MAIR-1128 names every font of the Settings V2 list, so a saved preference draws the same stack everywhere', async () => {
+  const theme = await import('../../dist/theme.js');
+  assert.deepEqual(Object.keys(theme.fontFamilies), ['system', 'geist', 'atkinson', 'lora']);
+  for (const name of Object.keys(theme.fontFamilies)) {
+    assert.equal(theme.safeFontFamily(name), name, name);
+    assert.equal(theme.resolveFontFamily(name), theme.fontFamilies[name], name);
+  }
+  assert.match(theme.fontFamilies.system, /^system-ui,.*sans-serif$/);
+  assert.match(theme.fontFamilies.atkinson, /^var\(--font-atkinson, "Atkinson Hyperlegible"\), system-ui, sans-serif$/);
+  const env = browser(true);
+  assert.equal(applyConfirmedAppearance({ density: null, font_family: 'atkinson' }, env), true);
+  assert.equal(env.properties.get('--mairie-user-font'), theme.fontFamilies.atkinson);
+});
+
+test('MAIR-1119 applies the Lora stack for the named font and exposes the motion tokens', async () => {
+  const theme = await import('../../dist/theme.js');
+  assert.equal(theme.resolveFontFamily('lora'), theme.fontFamilies.lora);
+  assert.equal(theme.resolveFontFamily(' Lora '), theme.fontFamilies.lora);
+  assert.equal(theme.resolveFontFamily('Arial, sans-serif'), 'Arial, sans-serif');
+  assert.match(theme.fontFamilies.lora, /"Lora"\), Georgia, "Times New Roman", serif$/);
+  assert.equal(theme.safeFontFamily('lora'), 'lora');
+  assert.deepEqual(theme.motion.duration, { instant: 80, fast: 150, base: 240, slow: 400 });
+  assert.equal(theme.motionVar('duration', 'base'), 'var(--mairie-motion-base)');
+  assert.equal(theme.motionVar('easing', 'spring'), 'var(--mairie-ease-spring)');
+  const env = browser(true);
+  assert.equal(applyConfirmedAppearance({ density: null, font_family: 'lora' }, env), true);
+  assert.equal(env.properties.get('--mairie-user-font'), theme.fontFamilies.lora);
+  assert.match(env.document.cookie, /lora/);
 });

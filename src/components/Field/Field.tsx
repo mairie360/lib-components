@@ -20,9 +20,12 @@ export interface FieldProps extends Omit<React.HTMLAttributes<HTMLDivElement>, '
   children: React.ReactNode;
 }
 
-/** Ids a field component links to the control through aria-describedby. */
+/**
+ * Ids a field component links to the control through aria-describedby. The error replaces the hint
+ * (Field renders only one of them), so it never points at a hint that is not in the page (MAIR-1104).
+ */
 export function fieldDescriptionIds(id: string, hint: unknown, error: unknown) {
-  return [error ? `${id}-error` : null, hint ? `${id}-hint` : null].filter(Boolean).join(' ') || undefined;
+  return error ? `${id}-error` : hint ? `${id}-hint` : undefined;
 }
 
 /** Text size of the label and hint for a control size (one step below the control text on the small end). */
