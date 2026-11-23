@@ -115,6 +115,7 @@ const fixtures: Record<string, Fixture> = {
   IconButton: { element: <L.IconButton preset="close" /> },
   LinkButton: { element: <L.LinkButton href="/aide" label="Aide" /> },
   Logo: { element: <L.Logo /> },
+  PublicBackdrop: { element: <L.PublicBackdrop /> },
   MetricCard: { element: <L.MetricCard label="Projets" value={3} /> },
   Modal: { element: <L.Modal open title="Fenêtre" onClose={noop}>Contenu</L.Modal> },
   MultiSelect: { element: <L.MultiSelect label="Membres" options={[{ value: 'a', label: 'Camille' }]} value={[]} onChange={noop} /> },
