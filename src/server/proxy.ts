@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server.js';
 import { publicOrigin, serviceBase } from './config';
+import { userAgentOf } from './refresh';
 import { readSessionCookies, validSessionToken } from './session';
 
 export type PublishedPaths = Record<string, Record<string, unknown>>;
@@ -31,8 +32,8 @@ async function readBoundedBody(request: NextRequest, maximum: number): Promise<A
   };
   try {return await read();} finally {reader.releaseLock();}
 }
-const errorResponse = (status: number, message: string, loginRequired = false) => Response.json({ error: { message } }, {
-  status, headers: { 'Cache-Control': 'no-store', ...(loginRequired ? { 'X-Mairie360-Login-Required': 'true', 'X-Mairie360-Refresh-Refused':'true' } : {}) },
+const errorResponse = (status: number, message: string, loginRequired = false, superseded = false) => Response.json({ error: { message } }, {
+  status, headers: { 'Cache-Control': 'no-store', ...(loginRequired ? { 'X-Mairie360-Login-Required': 'true', 'X-Mairie360-Refresh-Refused':'true' } : {}), ...(superseded ? { 'X-Mairie360-Refresh-Superseded': 'true' } : {}) },
 });
 
 /** Only an existing published route and method can reach the configured BFF. */
@@ -88,9 +89,12 @@ export async function proxyPublishedBffRequest(request: NextRequest, path: strin
       // No browser-readable token: another frontend calls the Login owner with
       // only the already shared HttpOnly session cookie. It coordinates User.
       const renewal = await fetch(new URL('/api/auth/refresh', login), {
-        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', Origin: origin, 'Sec-Fetch-Site': 'same-site', Cookie: `refreshToken=${encodeURIComponent(refresh)}` },
+        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', Origin: origin, 'Sec-Fetch-Site': 'same-site', Cookie: `refreshToken=${encodeURIComponent(refresh)}`, ...userAgentOf(request) },
         body: '{}', cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(12_000),
       });
+      // 409: another tab renewed this session a few seconds ago. Not a lost session: the browser replays the request
+      // once with the cookies that renewal set (`sessionFetch`), nothing is marked as refused.
+      if (renewal.status === 409) { await renewal.body?.cancel(); return errorResponse(401, 'La session vient d’être renouvelée par un autre onglet.', false, true); }
       if (!renewal.ok) return errorResponse(renewal.status === 401 ? 401 : 503, 'Votre session n’a pas pu être renouvelée.', renewal.status === 401);
       const session = readSessionCookies(renewal);
       const receipt: unknown = await renewal.json();

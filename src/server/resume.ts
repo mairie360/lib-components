@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server.js';
 import { publicOrigin, serviceBase } from './config';
-import { rejectSessionMutation } from './refresh';
+import { rejectSessionMutation, userAgentOf } from './refresh';
 import { readSessionCookies, setSessionCookies, validSessionToken } from './session';
 import type { SessionPeerConfig } from './session-peer';
 
 function unavailable(status:number) {
-  return NextResponse.json({message:status===401?'Votre session a expiré.':'La session est temporairement indisponible.'},{status,headers:{'Cache-Control':'no-store'}});
+  const message=status===401?'Votre session a expiré.':status===409?'La session vient d’être renouvelée par un autre onglet.':'La session est temporairement indisponible.';
+  return NextResponse.json({message},{status,headers:{'Cache-Control':'no-store'}});
 }
 async function renewAtOwner(request:NextRequest,config:SessionPeerConfig):Promise<NextResponse> {
   const own = publicOrigin(config.frontUrl()), login = serviceBase(config.loginUrl());
@@ -15,10 +16,11 @@ async function renewAtOwner(request:NextRequest,config:SessionPeerConfig):Promis
   if (!validSessionToken(token)) return unavailable(401);
   try {
     const response = await fetch(new URL('/api/auth/refresh', login),{
-      method:'POST',headers:{Accept:'application/json','Content-Type':'application/json',Origin:own,'Sec-Fetch-Site':'same-site',Cookie:`refreshToken=${encodeURIComponent(token)}`},
+      method:'POST',headers:{Accept:'application/json','Content-Type':'application/json',Origin:own,'Sec-Fetch-Site':'same-site',Cookie:`refreshToken=${encodeURIComponent(token)}`,...userAgentOf(request)},
       body:'{}',cache:'no-store',redirect:'manual',signal:AbortSignal.timeout(12000),
     });
-    if (!response.ok) { await response.body?.cancel(); return unavailable(response.status===401?401:503); }
+    // 409: superseded by a concurrent renewal, not a lost session.
+    if (!response.ok) { await response.body?.cancel(); return unavailable([401,409].includes(response.status)?response.status:503); }
     const session=readSessionCookies(response); const body:unknown=await response.json();
     if (!session || !body || typeof body!=='object' || !('message' in body) || typeof body.message!=='string' || !body.message.trim()) return unavailable(502);
     const receipt=NextResponse.json({message:'Session renouvelée.'},{headers:{'Cache-Control':'no-store'}});
@@ -46,6 +48,8 @@ export function createSessionResumeHandler(config:SessionPeerConfig) {
       for(const cookie of renewed.headers.getSetCookie()) result.headers.append('Set-Cookie',cookie);
       result.headers.set('Cache-Control','no-store');return result;
     }
+    // A 409 (another tab renewed the session meanwhile) is answered as is, never redirected: until that tab's cookies
+    // reach the browser, the page would send the replaced ones again and come back here.
     if (renewed.status!==401) return renewed;
     const login=publicOrigin(config.loginUrl());if(!login) return unavailable(503);
     const target=new URL('/',login);target.searchParams.set('redirect',destination.href);

@@ -106,3 +106,49 @@ test('a refused logout preserves the 30-day rotated refresh when its short acces
     assert.equal(response.status,503);assert.equal(response.cookies.get('refreshToken').value,'rotated-short');assert.equal(response.cookies.get('refreshToken').maxAge,2592000);
   }finally{globalThis.fetch=saved;Date.now=clock;forgetUserSession(config.userBffUrl(),cookie.split('=')[1]);}
 });
+
+test('MAIR-776 the Login owner relays a superseded renewal as 409 and the browser device to User',async()=>{
+  const saved=globalThis.fetch, cookie=cookies();let agent;
+  globalThis.fetch=async(_url,init)=>{agent=new Headers(init.headers).get('user-agent');return Response.json({error:{code:'CONFLICT'}},{status:409});};
+  try{
+    const response=await createSessionRefreshHandler(config)(request(cookie,undefined,{'user-agent':'Firefox 140'}));
+    assert.equal(response.status,409);assert.equal(response.cookies.get('accessToken'),undefined);
+    assert.equal(agent,'Firefox 140');
+  }finally{forgetUserSession(config.userBffUrl(),cookie.split('=')[1]);globalThis.fetch=saved;}
+});
+
+test('MAIR-776 a peer front keeps the 409 of a superseded renewal and never sends the page back to its guard',async()=>{
+  const saved=globalThis.fetch, cookie=cookies();let agent;
+  globalThis.fetch=async(_url,init)=>{agent=new Headers(init.headers).get('user-agent');return Response.json({message:'superseded'},{status:409});};
+  try{
+    assert.equal((await createSessionRefreshProxy(peer)(request(cookie,'https://projects.example.test/api/auth/refresh',{'user-agent':'Firefox 140'}))).status,409);
+    assert.equal(agent,'Firefox 140');
+    const resumed=await createSessionResumeHandler(peer)(new NextRequest('https://projects.example.test/api/auth/resume?next=%2Ftasks',{headers:{cookie}}));
+    // A redirect to the page would come back here while the replaced cookies are still the browser's.
+    assert.equal(resumed.status,409);assert.equal(resumed.headers.get('location'),null);
+  }finally{globalThis.fetch=saved;}
+});
+
+test('MAIR-776 the business proxy answers a superseded renewal without the refused marker and the browser replays once',async()=>{
+  const saved=globalThis.fetch;let businessCalls=0,renewals=0,access='expired';
+  globalThis.fetch=async(url,init)=>{
+    if(new URL(String(url)).hostname==='login.example.test'){renewals++;return Response.json({message:'superseded'},{status:409});}
+    businessCalls++;return new Headers(init.headers).get('authorization')===`Bearer ${token}`?Response.json({ok:true}):new Response(null,{status:401});
+  };
+  const browserFetch=async(path,init)=>{
+    const req=new NextRequest('https://projects.example.test'+path,{...init,headers:{...init?.headers,cookie:`accessToken=${access}; refreshToken=replaced`,origin:'https://projects.example.test','sec-fetch-site':'same-origin'}});
+    const response=await proxyPublishedBffRequest(req,['data'],{...peer,baseUrl:()=> 'https://bff.example.test',paths:{'/data':{get:{}}}});
+    // The other tab's renewal lands in the browser meanwhile.
+    access=token;
+    return response;
+  };
+  try{
+    const first=await browserFetch('/data');
+    assert.equal(first.status,401);assert.equal(first.headers.get('X-Mairie360-Refresh-Superseded'),'true');
+    assert.equal(first.headers.get('X-Mairie360-Refresh-Refused'),null);
+    access='expired';
+    const response=await createSessionFetch(browserFetch)('/data');
+    assert.equal(response.status,200,'replayed with the cookies of the other renewal');
+    assert.equal(renewals,2,'one renewal per proxied 401, none for the replay');assert.equal(businessCalls,3);
+  }finally{globalThis.fetch=saved;}
+});
