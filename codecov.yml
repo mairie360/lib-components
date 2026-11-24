@@ -1,0 +1,33 @@
+# Project and patch targets: 60 %, the same number as the 60 % Jest gate of `src/`.
+# Without this file Codecov applies its default target `auto`, which compares with the base commit
+# of the PR and refuses any drop, even above 60 %.
+coverage:
+  status:
+    project:
+      default:
+        target: 60%
+        # No extra tolerance: 60 % is already the floor.
+        threshold: 0%
+        if_ci_failed: error
+    patch:
+      default:
+        target: 60%
+        threshold: 0%
+
+# Jest counts a line as covered as soon as it runs; Codecov would otherwise count a line with a
+# partly covered branch as a miss and read a lower percentage than the Jest line gate.
+parsers:
+  lcov:
+    partials_as_hits: true
+
+ignore:
+  - "tests/**"
+  - "scripts/**"
+  # Not in the Jest report: `npm run test:kit` measures the built `dist/` entries and
+  # `scripts/check-kit-coverage.mjs` gates them per entry. Ignored here so that Codecov
+  # does not report a patch on kit sources as covered without having measured it.
+  - "src/kit/**"
+
+comment:
+  layout: "condensed_header, diff, files"
+  require_changes: true
