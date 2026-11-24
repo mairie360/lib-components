@@ -56,6 +56,7 @@ export function createSessionFetch(fetcher: typeof fetch = (...args) => fetch(..
           // the other renewal's cookie once it has landed.
           await response.body?.cancel();
           const renewed = await renew();
+          signal?.throwIfAborted();
           if (renewed.ok) return send();
           if (renewed.status !== 409) return renewed.clone();
           response = Response.json({ message: 'La session vient d’être renouvelée par un autre onglet.' }, { status: 401, headers: { 'X-Mairie360-Refresh-Superseded': 'true' } });

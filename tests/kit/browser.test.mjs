@@ -96,15 +96,26 @@ test('MAIR-776 a superseded 401 is replayed a bounded number of times without re
 });
 
 test('MAIR-776 a superseded request waits for the other tab\'s cookies when they land late', async () => {
+  // The cookies land between the second and the third business call, whatever the timer latency.
   let calls=0;
-  const landed=Date.now()+1000;
   const sessionFetch=createSessionFetch(async url=>{
     if(url==='/api/auth/refresh') return Response.json({message:'renewed'});
     calls++;
-    return Date.now()<landed?new Response(null,{status:401,headers:{'X-Mairie360-Refresh-Superseded':'true'}}):Response.json({ok:true});
+    return calls<3?new Response(null,{status:401,headers:{'X-Mairie360-Refresh-Superseded':'true'}}):Response.json({ok:true});
   });
   assert.equal((await sessionFetch('/data')).status,200,'a renewal slower than the first wait is still waited for');
-  assert.ok(calls>=3);
+  assert.equal(calls,3);
+});
+
+test('MAIR-776 a replay aborted while it renews through the own route rejects', async () => {
+  const controller=new AbortController();
+  let calls=0;
+  const sessionFetch=createSessionFetch(async url=>{
+    if(url==='/api/auth/refresh'){controller.abort();return new Response(null,{status:503});}
+    calls++;
+    return calls===1?new Response(null,{status:401,headers:{'X-Mairie360-Refresh-Superseded':'true'}}):new Response(null,{status:401});
+  });
+  await assert.rejects(sessionFetch('/data',{signal:controller.signal}));
 });
 
 test('MAIR-776 a superseded replay stops when the request is aborted', async () => {
