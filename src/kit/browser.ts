@@ -1,36 +1,23 @@
 export type SessionFetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
 
-/** Time left to another tab's renewal to hand its cookies to the browser before a superseded request is replayed. */
-const SUPERSEDED_REPLAY_DELAY_MS = 300;
-const settle = (signal?: AbortSignal | null) => new Promise<void>(resolve => {
-  const timer = setTimeout(resolve, SUPERSEDED_REPLAY_DELAY_MS);
+/**
+ * Waits before each replay of a request superseded by another tab's renewal. That renewal's cookies reach this tab
+ * when its response arrives, which this tab cannot observe: the cookies are HttpOnly and the fronts are different
+ * origins (no shared channel). The request is replayed after each wait while the answer is still superseded, then the
+ * last answer is returned (about 3 s in all), so a slow renewal is waited for and a dead one does not hold the page.
+ */
+const SUPERSEDED_REPLAY_DELAYS_MS = [300, 900, 2000];
+const settle = (delay: number, signal?: AbortSignal | null) => new Promise<void>(resolve => {
+  const timer = setTimeout(resolve, delay);
   signal?.addEventListener('abort', () => { clearTimeout(timer); resolve(); }, { once: true });
 });
+const isSuperseded = (response: Response) => response.status === 401 && response.headers.get('X-Mairie360-Refresh-Superseded') === 'true';
 
 /** The cookie-scoped refresh route is same-origin; a retry never exposes credentials. */
 export function createSessionFetch(fetcher: typeof fetch = (...args) => fetch(...args)): SessionFetch {
   let flight: Promise<Response> | undefined;
   let revision = 0;
-  return async (input, init) => {
-    const startedAtRevision = revision;
-    const replay = input instanceof Request ? new Request(input, init) : undefined;
-    const signal = init?.signal ?? replay?.signal;
-    const response = await fetcher(replay ? replay.clone() : input, replay ? undefined : init);
-    if (response.type === 'opaqueredirect' || response.status !== 401 || signal?.aborted || response.headers.get('X-Mairie360-Refresh-Refused') === 'true') {
-      if (replay && !replay.bodyUsed) void replay.body?.cancel().catch(() => undefined);
-      return response;
-    }
-    await response.body?.cancel();
-    // Another tab renewed the session while the server tried to: replay once with the cookies that renewal set,
-    // without renewing again (the token this tab holds is the one that renewal replaced).
-    if (response.headers.get('X-Mairie360-Refresh-Superseded') === 'true') {
-      await settle(signal);
-      signal?.throwIfAborted();
-      return fetcher(replay ?? input, replay ? undefined : init);
-    }
-    // A previous request may report its 401 after another request already renewed.
-    // Its replay uses the current cookies rather than rotating the new token again.
-    if (revision !== startedAtRevision) return fetcher(replay ?? input, replay ? undefined : init);
+  const renew = (): Promise<Response> => {
     if (!flight) {
       const renewal = fetcher('/api/auth/refresh', {
         method: 'POST', credentials: 'same-origin', cache: 'no-store', redirect: 'manual',
@@ -47,15 +34,56 @@ export function createSessionFetch(fetcher: typeof fetch = (...args) => fetch(..
       flight = renewal;
       void renewal.finally(() => { if (flight === renewal) flight = undefined; });
     }
-    const refreshed = await flight;
-    if (refreshed.status === 409 && !signal?.aborted) {
-      // Superseded by another tab's renewal: same replay as above.
-      await settle(signal);
-      signal?.throwIfAborted();
-      return fetcher(replay ?? input, replay ? undefined : init);
+    return flight;
+  };
+  return async (input, init) => {
+    const startedAtRevision = revision;
+    const replay = input instanceof Request ? new Request(input, init) : undefined;
+    const signal = init?.signal ?? replay?.signal;
+    const send = () => fetcher(replay ? replay.clone() : input, replay ? undefined : init);
+    const release = () => { if (replay && !replay.bodyUsed) void replay.body?.cancel().catch(() => undefined); };
+    // Another tab renewed the session while this one tried to: replay with the cookies that renewal set, without
+    // rotating again (the refresh token this tab sent is the one that renewal replaced).
+    const awaitOtherRenewal = async (last: Response): Promise<Response> => {
+      let response = last;
+      /* eslint-disable no-await-in-loop -- each replay depends on the previous answer: sequential on purpose */
+      for (const delay of SUPERSEDED_REPLAY_DELAYS_MS) {
+        await settle(delay, signal);
+        signal?.throwIfAborted();
+        response = await send();
+        if (response.status === 401 && !isSuperseded(response) && response.headers.get('X-Mairie360-Refresh-Refused') !== 'true') {
+          // A route whose proxy cannot renew answers a plain 401: renew through the own API route, which now carries
+          // the other renewal's cookie once it has landed.
+          await response.body?.cancel();
+          const renewed = await renew();
+          if (renewed.ok) return send();
+          if (renewed.status !== 409) return renewed.clone();
+          response = Response.json({ message: 'La session vient d’être renouvelée par un autre onglet.' }, { status: 401, headers: { 'X-Mairie360-Refresh-Superseded': 'true' } });
+          continue;
+        }
+        if (!isSuperseded(response)) return response;
+        if (delay !== SUPERSEDED_REPLAY_DELAYS_MS.at(-1)) await response.body?.cancel();
+      }
+      /* eslint-enable no-await-in-loop */
+      return response;
+    };
+    const response = await send();
+    if (response.type === 'opaqueredirect' || response.status !== 401 || signal?.aborted || response.headers.get('X-Mairie360-Refresh-Refused') === 'true') {
+      release();
+      return response;
     }
+    if (isSuperseded(response)) {
+      await response.body?.cancel();
+      return awaitOtherRenewal(response);
+    }
+    await response.body?.cancel();
+    // A previous request may report its 401 after another request already renewed.
+    // Its replay uses the current cookies rather than rotating the new token again.
+    if (revision !== startedAtRevision) return fetcher(replay ?? input, replay ? undefined : init);
+    const refreshed = await renew();
+    if (refreshed.status === 409 && !signal?.aborted) return awaitOtherRenewal(refreshed.clone());
     if (signal?.aborted || !refreshed.ok) {
-      if (replay && !replay.bodyUsed) void replay.body?.cancel().catch(() => undefined);
+      release();
       signal?.throwIfAborted();
       return refreshed.clone();
     }

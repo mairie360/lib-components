@@ -117,14 +117,15 @@ test('MAIR-776 the Login owner relays a superseded renewal as 409 and the browse
   }finally{forgetUserSession(config.userBffUrl(),cookie.split('=')[1]);globalThis.fetch=saved;}
 });
 
-test('MAIR-776 a peer front keeps the 409 of a superseded renewal and resumes the page instead of signing out',async()=>{
+test('MAIR-776 a peer front keeps the 409 of a superseded renewal and never sends the page back to its guard',async()=>{
   const saved=globalThis.fetch, cookie=cookies();let agent;
   globalThis.fetch=async(_url,init)=>{agent=new Headers(init.headers).get('user-agent');return Response.json({message:'superseded'},{status:409});};
   try{
     assert.equal((await createSessionRefreshProxy(peer)(request(cookie,'https://projects.example.test/api/auth/refresh',{'user-agent':'Firefox 140'}))).status,409);
     assert.equal(agent,'Firefox 140');
     const resumed=await createSessionResumeHandler(peer)(new NextRequest('https://projects.example.test/api/auth/resume?next=%2Ftasks',{headers:{cookie}}));
-    assert.equal(resumed.status,303);assert.equal(resumed.headers.get('location'),'https://projects.example.test/tasks');
+    // A redirect to the page would come back here while the replaced cookies are still the browser's.
+    assert.equal(resumed.status,409);assert.equal(resumed.headers.get('location'),null);
   }finally{globalThis.fetch=saved;}
 });
 
@@ -148,5 +149,6 @@ test('MAIR-776 the business proxy answers a superseded renewal without the refus
     access='expired';
     const response=await createSessionFetch(browserFetch)('/data');
     assert.equal(response.status,200,'replayed with the cookies of the other renewal');
+    assert.equal(renewals,2,'one renewal per proxied 401, none for the replay');assert.equal(businessCalls,3);
   }finally{globalThis.fetch=saved;}
 });

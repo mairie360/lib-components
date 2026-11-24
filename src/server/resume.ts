@@ -48,10 +48,8 @@ export function createSessionResumeHandler(config:SessionPeerConfig) {
       for(const cookie of renewed.headers.getSetCookie()) result.headers.append('Set-Cookie',cookie);
       result.headers.set('Cache-Control','no-store');return result;
     }
-    if (renewed.status===409) {
-      // Another tab renewed the session meanwhile: its cookies are the browser's now, the page loads with them.
-      const result=NextResponse.redirect(destination,303);result.headers.set('Cache-Control','no-store');return result;
-    }
+    // A 409 (another tab renewed the session meanwhile) is answered as is, never redirected: until that tab's cookies
+    // reach the browser, the page would send the replaced ones again and come back here.
     if (renewed.status!==401) return renewed;
     const login=publicOrigin(config.loginUrl());if(!login) return unavailable(503);
     const target=new URL('/',login);target.searchParams.set('redirect',destination.href);
