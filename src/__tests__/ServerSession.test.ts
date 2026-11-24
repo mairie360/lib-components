@@ -209,7 +209,7 @@ describe('published paths and one retry', () => {
     // The session-revoke POST is a published User write operation. The path below
     // exercises transparent transport only; its handler remains independently tested.
     const declared = { '/bff/admin/sessions/revoke': contract.paths['/bff/admin/sessions/revoke'] };
-    const result = await proxyPublishedBffRequest(new NextRequest(origin + '/api/bff/bff/admin/sessions/revoke', { method: 'POST', headers: { Cookie: `refreshToken=${token}`, Authorization: 'Bearer browser-storage' }, body: payload }), ['bff', 'admin', 'sessions', 'revoke'], { ...options(), paths: declared, loginUrl: () => origin + '/login' });
+    const result = await proxyPublishedBffRequest(new NextRequest(origin + '/api/bff/bff/admin/sessions/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json', Cookie: `refreshToken=${token}`, Authorization: 'Bearer browser-storage' }, body: payload }), ['bff', 'admin', 'sessions', 'revoke'], { ...options(), paths: declared, loginUrl: () => origin + '/login' });
     expect(result.status).toBe(502); expect(result.headers.getSetCookie()).toHaveLength(2); expect(businessCalls).toBe(2);
   });
   it.each([401, 503])('keeps owner failure%d explicit without forwarding cookies or looping', async status => {

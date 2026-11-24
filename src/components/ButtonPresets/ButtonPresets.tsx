@@ -27,8 +27,15 @@ export const SaveButton = preset('Save', { label: 'Enregistrer', icon: Check, va
 export const CancelButton = preset('Cancel', { label: 'Annuler', variant: 'outline', tone: 'neutral' });
 /** Modifier: switches an item to edit mode. */
 export const EditButton = preset('Edit', { label: 'Modifier', icon: Pencil, variant: 'outline', tone: 'neutral' });
+/**
+ * The red rule (MAIR-1095): red is kept for deletions, always on the danger tokens. Solid = critical
+ * (ConfirmDeleteButton, inside the confirmation), outline = not critical (DeleteButton), ghost =
+ * discreet (DeleteGhostButton, in a list or a toolbar).
+ */
 /** Supprimer / Retirer: asks for a deletion, always followed by a ConfirmModal. */
 export const DeleteButton = preset('Delete', { label: 'Supprimer', icon: Trash2, variant: 'outline', tone: 'danger' });
+/** MAIR-1095: Supprimer, discreet (Figma `Button/DeleteGhost`): a deletion inside a row, a card or a toolbar. */
+export const DeleteGhostButton = preset('DeleteGhost', { label: 'Supprimer', icon: Trash2, variant: 'ghost', tone: 'danger' });
 /** Confirmer la suppression: the final confirmation inside the dialog. */
 export const ConfirmDeleteButton = preset('ConfirmDelete', { label: 'Confirmer la suppression', icon: Trash2, variant: 'solid', tone: 'danger' });
 /** Actualiser: reloads the data of a panel. */
@@ -57,6 +64,7 @@ export const ButtonPresets = {
   cancel: CancelButton,
   edit: EditButton,
   delete: DeleteButton,
+  deleteGhost: DeleteGhostButton,
   confirmDelete: ConfirmDeleteButton,
   refresh: RefreshButton,
   retry: RetryButton,

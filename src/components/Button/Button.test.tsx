@@ -80,7 +80,7 @@ describe('Button presets (MAIR-608)', () => {
   });
 
   it('exposes every preset by role name', () => {
-    expect(Object.keys(ButtonPresets).sort()).toEqual(['back', 'cancel', 'close', 'confirmDelete', 'create', 'createPasskey', 'delete', 'download', 'edit', 'logout', 'passkey', 'refresh', 'retry', 'save', 'send']);
+    expect(Object.keys(ButtonPresets).sort()).toEqual(['back', 'cancel', 'close', 'confirmDelete', 'create', 'createPasskey', 'delete', 'deleteGhost', 'download', 'edit', 'logout', 'passkey', 'refresh', 'retry', 'save', 'send']);
   });
 });
 

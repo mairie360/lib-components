@@ -6,8 +6,16 @@ import { AppShell, type AppShellProps } from '../AppShell';
 // The published `react` entry owns the instance context; bundling src/kit/react here would create a second one.
 import { useInstanceRole, useModalFocusScope } from '@mairie360/lib-components/react';
 import { componentMarker, withoutMarker } from '../component-marker';
+import { PublicBackdrop } from '../PublicBackdrop';
 
-export type AccessibleShellProps = Omit<AppShellProps, 'collapsibleSidebar' | 'desktopNavigation' | 'skipLinkInactive' | 'isAdmin' | 'footerPlacement'>;
+export type AccessibleShellProps = Omit<AppShellProps, 'collapsibleSidebar' | 'desktopNavigation' | 'skipLinkInactive' | 'isAdmin' | 'footerPlacement'> & {
+  /**
+   * MAIR-1103: `ribbons` lays `PublicBackdrop` behind the content area. The shell cannot tell a public
+   * page from a signed-in one (it always renders the navigation of the instance), so the default is
+   * `none`: a public page asks for the ribbons explicitly.
+   */
+  backdrop?: 'ribbons' | 'none';
+};
 
 const alertDialogSelector = '[role="alertdialog"][aria-modal="true"]';
 
@@ -47,14 +55,15 @@ function useAlertDialogScope(frame: React.RefObject<HTMLDivElement | null>) {
  * role, the content footer, and a shell kept inert (skip link included) while a
  * dialog or alert dialog opened inside the frame owns the focus.
  */
-export const AccessibleShell = ({ children, footerProps, sidebarProps, className = '', ...props }: AccessibleShellProps) => {
+export const AccessibleShell = ({ children, footerProps, sidebarProps, backdrop = 'none', className = '', ...props }: AccessibleShellProps) => {
   const role = useInstanceRole();
   const frame = React.useRef<HTMLDivElement>(null);
   const modalActive = useModalFocusScope(frame);
   const alertDialogActive = useAlertDialogScope(frame);
   const navigationInactive = modalActive || alertDialogActive;
   return (
-    <div {...componentMarker('AccessibleShell', props)} ref={frame} className="app-shell-root" data-navigation-inactive={navigationInactive || undefined}>
+    <div {...componentMarker('AccessibleShell', props)} ref={frame} className="app-shell-root" data-navigation-inactive={navigationInactive || undefined} data-backdrop={backdrop === 'ribbons' ? 'ribbons' : undefined}>
+      {backdrop === 'ribbons' && <PublicBackdrop />}
       <AppShell
         {...withoutMarker(props)}
         className={className}

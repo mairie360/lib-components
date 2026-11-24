@@ -12,10 +12,17 @@ describe('MAIR-548 shared shell stylesheet', () => {
     expect(desktop).not.toContain(':focus-within');
   });
 
-  it('rests the desktop navigation at 71 px and expands it on hover and keyboard focus', () => {
-    expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 71px;/);
-    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :has\(:focus-visible\)\) \{ width: max-content;/);
-    expect(desktop).toMatch(/:not\(\[data-expanded="true"\]\):not\(:has\(:focus-visible\)\) :is\(\.app-navigation-label, \.app-navigation-commune\)/);
+  // MAIR-1092: 72 ↔ 248 px in 280 ms, labels fading in with a delay once the band is open.
+  it('rests the desktop navigation at 72 px and opens it to 248 px in 280 ms on hover and keyboard focus', () => {
+    expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 72px;[^}]*transition: width 280ms var\(--mairie-ease-standard\);/);
+    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :has\(:focus-visible\)\) \{ width: 248px; \}/);
+    expect(desktop).toMatch(/\.app-desktop-navigation :is\(\.app-navigation-label, \.app-navigation-commune\) \{[^}]*opacity: 0;/);
+    expect(desktop).toMatch(/:has\(:focus-visible\)\) :is\(\.app-navigation-label, \.app-navigation-commune\) \{ opacity: 1; transform: none; transition-delay: 90ms; \}/);
+  });
+
+  it('MAIR-1092 marks the active entry with a 3 px indicator bar and keeps the counter on the icon when the band rests', () => {
+    expect(desktop).toMatch(/nav button\[aria-current="page"\]::before \{[^}]*width: 3px;[^}]*background: var\(--mairie-navigation-active-indicator\);/);
+    expect(desktop).toMatch(/:not\(\[data-expanded="true"\]\):not\(:has\(:focus-visible\)\) \.app-navigation-badge \{ position: absolute;/);
   });
 
   it('pushes the module aside instead of covering it', () => {
@@ -26,7 +33,7 @@ describe('MAIR-548 shared shell stylesheet', () => {
   });
 
   it('removes the expansion animation for reduced motion', () => {
-    expect(desktop).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ body\.mairie-ui \.app-desktop-navigation \{ transition: none; \} \}/);
+    expect(desktop).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ body\.mairie-ui \.app-desktop-navigation \{ transition: none; \} \.app-desktop-navigation :is\(\.app-navigation-label, \.app-navigation-commune, \.app-navigation-logo\) \{ transition: none; \} \}/);
   });
 
   it('keeps one compact full-width footer and a module area without margin', () => {
@@ -52,15 +59,16 @@ describe('MAIR-765 teal application frame', () => {
   });
 
   it('tints the top bar and the footer with a border towards the module', () => {
-    expect(source('components/Header/Header.tsx')).toMatch(/<header className="[^"]*border-b-\[var\(--mairie-shell-bar-border\)\] bg-\[var\(--mairie-shell-bar-background\)\]/);
+    // MAIR-1092: the Header sits on the white frame with the shell border.
+    expect(source('components/Header/Header.tsx')).toMatch(/<header className="[^"]*border-b-\[var\(--mairie-shell-border\)\] bg-\[var\(--mairie-shell-background\)\]/);
     const footer = source('components/Footer/Footer.tsx');
     expect(footer).toContain('border-t border-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)]');
     expect(footer).not.toContain('hover:text-[var(--mairie-accent)]');
   });
 
   it('draws the navigation band with a border on its right and no shadow', () => {
-    expect(desktop).toMatch(/border-right: 1px solid var\(--mairie-navigation-border\); box-shadow: none;/);
-    expect(source('components/Sidebar/Sidebar.tsx')).toContain('border-r border-[var(--mairie-navigation-border)] bg-[var(--mairie-navigation-background)]');
+    expect(desktop).toMatch(/border-right: 1px solid var\(--mairie-shell-border\); box-shadow: none;/);
+    expect(source('components/Sidebar/Sidebar.tsx')).toContain('border-r border-[var(--mairie-shell-border)] bg-[var(--mairie-shell-background)]');
     expect(css).toMatch(/--mairie-navigation-shadow: none;/);
   });
 });
@@ -71,8 +79,7 @@ describe('MAIR-886 / MAIR-890 shared stylesheet scope', () => {
   it.each([
     'nav button:hover',
     'nav button[aria-current="page"]',
-    'nav button[data-admin="true"]',
-    'nav button[data-admin="true"][aria-current="page"]',
+    'nav button[aria-current="page"]::before',
   ])('scopes .app-desktop-navigation %s under body.mairie-ui', selector => {
     expect(desktop).toContain(`body.mairie-ui .app-desktop-navigation ${selector} {`);
     expect(desktop).not.toMatch(new RegExp(`\\n\\s+\\.app-desktop-navigation ${selector.replace(/[[\]().*+?^$|]/g, '\\$&')} \\{`));
@@ -99,5 +106,51 @@ describe('MAIR-1066 overlay colour', () => {
   it('uses the Figma slate for --mairie-overlay-background', () => {
     expect(css).toMatch(/--mairie-overlay-background: #383f51;/);
     expect(css).not.toMatch(/--mairie-overlay-background: #000/);
+  });
+});
+
+// MAIR-1093: one icon animation per destination, 400 ms with the spring easing, none under reduced motion.
+describe('MAIR-1093 navigation icon animations', () => {
+  const block = css.slice(css.indexOf('/* MAIR-1093'), css.indexOf('/* MAIR-1139'));
+  it.each([
+    ['dashboard', 'mairie-nav-tiles'], ['projects', 'mairie-nav-rummage'], ['calendar', 'mairie-nav-page-turn'], ['messages', 'mairie-nav-talk'],
+    ['training', 'mairie-nav-toss'], ['admin', 'mairie-nav-straighten'], ['settings', 'mairie-nav-spin'],
+  ])('animates the %s icon with %s', (destination, keyframes) => {
+    expect(block).toContain(`@keyframes ${keyframes} {`);
+    expect(block).toMatch(new RegExp(`\\[data-nav-anim="${destination}"\\]:is\\(:hover, :focus-visible\\) \\.mairie-nav-icon[^{]*\\{[^}]*${keyframes}`));
+  });
+
+  it('runs in 400 ms with the spring easing, only when motion is allowed', () => {
+    const allowed = block.slice(block.indexOf('@media (prefers-reduced-motion: no-preference)'));
+    expect(allowed).toContain('animation-duration: var(--mairie-motion-slow); animation-timing-function: var(--mairie-ease-spring);');
+    expect(css).toMatch(/--mairie-motion-slow: 400ms;/);
+    expect(block).toMatch(/@media \(prefers-reduced-motion: reduce\) \{ \[data-nav-anim\] \.mairie-nav-icon, \[data-nav-anim\] \.mairie-nav-icon rect \{ animation: none !important; \} \}/);
+    expect(block.slice(0, block.indexOf('@media'))).not.toMatch(/animation:/);
+  });
+});
+
+describe('MAIR-1139 focus layout', () => {
+  const block = css.slice(css.indexOf('/* MAIR-1139'), css.indexOf('/* MAIR-1103'));
+  it('lays out the bar (64 px), the 300 px table of contents, the content (28/40) and the sticky actions', () => {
+    expect(block).toMatch(/\.app-focus-shell-with-aside \{ grid-template-columns: 300px minmax\(0, 1fr\);/);
+    expect(block).toMatch(/\.app-focus-bar \{[^}]*height: 64px;[^}]*background: var\(--mairie-surface\); border-bottom: 1px solid var\(--mairie-border\);/);
+    expect(block).toMatch(/\.app-focus-aside \{[^}]*background: var\(--mairie-surface\); border-right: 1px solid var\(--mairie-border\);/);
+    expect(block).toMatch(/\.app-focus-aside-nav \{[^}]*overflow-y: auto;/);
+    expect(block).toMatch(/\.app-focus-content \{[^}]*padding: 28px 40px; background: var\(--mairie-background\);/);
+    expect(block).toMatch(/\.app-focus-footer \{[^}]*position: sticky; bottom: 0;[^}]*background: var\(--mairie-surface\); border-top: 1px solid var\(--mairie-border\);/);
+  });
+
+  it('folds the table of contents behind « Sommaire » below 900 px', () => {
+    const narrow = block.slice(block.indexOf('@media (max-width: 899px)'));
+    expect(narrow).toContain('.app-focus-aside-toggle {');
+    expect(narrow).toContain('.app-focus-shell:not([data-aside-open="true"]) .app-focus-aside-nav { display: none; }');
+    expect(block).toMatch(/^\.app-focus-aside-toggle \{ display: none; \}/m);
+  });
+});
+
+describe('MAIR-1103 public backdrop', () => {
+  it('lets the ribbons show through the frame and the main area only', () => {
+    expect(css).toContain('.app-shell-root[data-backdrop="ribbons"] :is(.app-shell-veil, .app-shell-main-area) { background: transparent; }');
+    expect(css).toContain('.app-shell-root[data-backdrop="ribbons"] > .mairie-public-backdrop { z-index: -1; }');
   });
 });

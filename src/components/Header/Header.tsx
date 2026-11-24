@@ -20,6 +20,8 @@ import {
   DropdownMenuSeparator
 } from '../DropdownMenu';
 import { ConfirmModal } from '../ConfirmModal';
+import { Counter, counterText } from '../Counter';
+import { CurrentDate } from '../CurrentDate';
 import { componentMarker } from '../component-marker';
 
 type User = {
@@ -110,6 +112,20 @@ export interface HeaderProps {
   showProfile?: boolean;
   showSettings?: boolean;
   showAdministration?: boolean;
+  /** MAIR-1109: shows the commune block (« Mairie de » + name) left of the search; true by default. */
+  showCommune?: boolean;
+  /** Commune name, supplied by the application (tenant or commune configuration); « Saint-André » by default. */
+  commune?: string;
+  /** MAIR-1109: shows the date at the start of the right zone; false by default. */
+  showDate?: boolean;
+  /** Date text to show; today's date in the instance time zone (`CurrentDate`) when omitted. */
+  date?: string;
+}
+
+/** Accessible name of the bell: « Notifications, 3 non lues », « plus de 9 » above 9. */
+export function notificationsLabel(count?: number): string {
+  if (typeof count !== 'number' || !Number.isFinite(count) || count <= 0) return 'Notifications';
+  return `Notifications, ${counterText(count) === '9+' ? 'plus de 9' : Math.trunc(count)} non lues`;
 }
 
 export const Header = ({
@@ -131,6 +147,10 @@ export const Header = ({
   showProfile,
   showSettings,
   showAdministration,
+  showCommune = true,
+  commune = 'Saint-André',
+  showDate = false,
+  date,
 }: HeaderProps) => {
   const [ownQuery, setOwnQuery] = React.useState('');
   const searchQuery = searchValue ?? ownQuery;
@@ -141,6 +161,8 @@ export const Header = ({
   };
   const clearSearch = () => { updateSearch(''); searchInputRef.current?.focus(); };
   const showSearch = Boolean(onSearch || onSearchChange);
+  const communeName = commune.trim();
+  const communeShown = showCommune && Boolean(communeName);
 
   // MAIR-834: the menu item hands focus back to the account trigger before the confirmation opens,
   // so the dialog restores focus there on Annuler, the close button or Échap.
@@ -180,8 +202,8 @@ export const Header = ({
   };
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-b-[var(--mairie-shell-bar-border)] bg-[var(--mairie-shell-bar-background)] px-4 text-[var(--mairie-text)] sm:px-6" {...componentMarker('Header')}>
-      <div className="flex flex-1 items-center gap-3 sm:gap-4">
+    <header className="flex h-16 items-center justify-between gap-3 border-b border-b-[var(--mairie-shell-border)] bg-[var(--mairie-shell-background)] px-4 text-[var(--mairie-text)] sm:px-6" {...componentMarker('Header')}>
+      <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
         <button
           ref={menuButtonRef}
           type="button"
@@ -192,10 +214,18 @@ export const Header = ({
           <Menu className="h-4 w-4" />
         </button>
 
+        {/* MAIR-1109: the commune block reads « Mairie de <commune> »; on mobile the caption is only
+            visually hidden, so assistive technologies still read the whole name. */}
+        {communeShown && <p data-header-commune className="m-0 flex min-w-0 max-w-[16rem] flex-col leading-tight">
+          <span className="sr-only text-xs text-[var(--mairie-muted)] sm:not-sr-only">Mairie de </span>
+          <strong className="truncate text-lg font-bold text-[var(--mairie-text)] sm:text-xl">{communeName}</strong>
+        </p>}
+        {communeShown && showSearch && <span aria-hidden="true" data-header-separator className="hidden h-8 w-px shrink-0 bg-[var(--mairie-border)] sm:block" />}
+
         {showSearch && <form
           role="search"
           aria-label={searchLabel}
-          className="relative"
+          className="relative min-w-0"
           onSubmit={(event) => { event.preventDefault(); onSearch?.(searchQuery); }}
         >
           <Search aria-hidden="true" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
@@ -220,17 +250,18 @@ export const Header = ({
         </form>}
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex shrink-0 items-center gap-4">
+        {showDate && (date?.trim()
+          ? <span data-header-date className="hidden whitespace-nowrap text-sm text-[var(--mairie-muted)] md:inline">{date.trim()}</span>
+          : <CurrentDate data-header-date className="hidden whitespace-nowrap text-sm text-[var(--mairie-muted)] md:inline" />)}
         {onNotificationsClick && <button
           type="button"
-          aria-label="Notifications"
+          aria-label={notificationsLabel(notificationCount)}
           className="relative inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-[var(--mairie-text)] transition-colors hover:border-[var(--mairie-accent)]/30 hover:bg-[var(--mairie-success-action-background)]/10"
           onClick={onNotificationsClick}
         >
           <Bell className="h-[17px] w-[17px]" strokeWidth={1.8} />
-          {typeof notificationCount === 'number' && notificationCount > 0 && <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-md border border-[var(--mairie-surface)]/70 bg-[var(--mairie-error-action-background)] px-0.5 text-[11px] font-semibold leading-none text-[var(--mairie-navigation-admin-text)] shadow-md">
-            {notificationCount > 99 ? '99+' : notificationCount}
-          </span>}
+          {typeof notificationCount === 'number' && <Counter value={notificationCount} className="absolute -right-1 -top-1" />}
         </button>}
 
         {hasIdentity && <DropdownMenu>
