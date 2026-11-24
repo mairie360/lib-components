@@ -31,6 +31,12 @@ export function rejectSessionMutation(request: NextRequest, origins: readonly st
   return null;
 }
 
+/** The browser's User-Agent, relayed by the fronts' servers so the renewal is recorded with the real device. */
+export function userAgentOf(request: { headers: Headers }): Record<string, string> {
+  const value = request.headers.get('user-agent');
+  return value ? { 'User-Agent': value } : {};
+}
+
 function keyFor(base: string, refresh: string): string {
   return base + ':' + createHash('sha256').update(refresh).digest('hex');
 }
@@ -53,7 +59,8 @@ export async function renewUserSession(request: NextRequest, config: SessionServ
   const result = (async (): Promise<Renewal> => {
     try {
       const response = await fetch(`${base}/auth/refresh`, {
-        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...config.trustedHeaders?.(request) },
+        // The browser's User-Agent is the device Core records when the token turns out to be reused.
+        method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...userAgentOf(request), ...config.trustedHeaders?.(request) },
         body: JSON.stringify({ refresh_token: token }), cache: 'no-store', redirect: 'manual', signal: AbortSignal.timeout(10_000),
       });
       if (response.status !== 200) return { status: response.status >= 400 && response.status < 600 ? response.status : 502 };
@@ -83,7 +90,9 @@ export function createSessionRefreshHandler(config: SessionServerConfig) {
     const options = config.cookieOptions();
     if (options.secure && !options.domain?.trim()) return NextResponse.json({ message: 'La session partagée n’est pas configurée.' }, { status: 503, headers: { 'Cache-Control': 'no-store' } });
     const renewed = await renewUserSession(request, config);
-    if (!('session' in renewed)) return NextResponse.json({ message: 'La session n’a pas pu être renouvelée.' }, { status: renewed.status, headers: { 'Cache-Control': 'no-store' } });
+    // 409: another front renewed this session a few seconds ago; the browser already holds (or is about to receive)
+    // the cookies of that renewal, so it replays its request instead of signing the agent out.
+    if (!('session' in renewed)) return NextResponse.json({ message: renewed.status === 409 ? 'La session vient d’être renouvelée par un autre onglet.' : 'La session n’a pas pu être renouvelée.' }, { status: renewed.status, headers: { 'Cache-Control': 'no-store' } });
     const maxAge = Math.min(renewed.session.maxAge, Math.floor((renewed.expiresAt - Date.now()) / 1000));
     if (maxAge <= 0) return NextResponse.json({ message: 'La session a expiré.' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
     const response = NextResponse.json({ message: 'Session renouvelée.' }, { headers: { 'Cache-Control': 'no-store' } });

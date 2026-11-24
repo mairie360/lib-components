@@ -71,3 +71,26 @@ test('a late 401 from an older request reuses the completed renewal without rota
   assert.equal((await sessionFetch('/later')).status, 200);
   assert.equal(refreshes, 2);
 });
+
+test('MAIR-776 a renewal superseded by another tab replays the request once instead of signing out', async () => {
+  let refreshes=0, calls=0;
+  const sessionFetch=createSessionFetch(async url=>{
+    if(url==='/api/auth/refresh'){refreshes++;return Response.json({message:'superseded'},{status:409});}
+    calls++;return calls===1?new Response(null,{status:401}):Response.json({ok:true});
+  });
+  assert.equal((await sessionFetch('/data')).status,200);
+  assert.equal(refreshes,1);assert.equal(calls,2);
+});
+
+test('MAIR-776 a superseded 401 is replayed once without renewing again, never in a loop', async () => {
+  let refreshes=0, calls=0;
+  const superseded=()=>new Response(null,{status:401,headers:{'X-Mairie360-Refresh-Superseded':'true'}});
+  const sessionFetch=createSessionFetch(async url=>{
+    if(url==='/api/auth/refresh'){refreshes++;return Response.json({message:'renewed'});}
+    calls++;return superseded();
+  });
+  const response=await sessionFetch('/data');
+  assert.equal(response.status,401);
+  assert.equal(refreshes,0,'the token this tab holds was replaced: no new renewal');
+  assert.equal(calls,2);
+});
