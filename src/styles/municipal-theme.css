@@ -243,7 +243,8 @@ body.mairie-ui main :is([class~="bg-white"], [class~="bg-card"]) { background: v
 body.mairie-ui main :is([class~="text-[#172033]"], [class~="text-[#243041]"], [class~="text-gray-800"]) { color: var(--mairie-text); }
 body.mairie-ui main :is([class~="text-[#687385]"], [class~="text-[#64748b]"], [class~="text-muted-foreground"]) { color: var(--mairie-muted); }
 body.mairie-ui main h1 { font-size: 36px; line-height: 1.2; font-weight: 750; letter-spacing: -0.02em; }
-body.mairie-ui main h1 + p { font-size: 18px; color: var(--mairie-muted); line-height: 1.5; }
+/* The page subtitle rule leaves PageHero alone: its subtitle sits on the slate band (on-hero-muted). */
+body.mairie-ui main h1 + p:not([data-m360-component~="PageHero"] p) { font-size: 18px; color: var(--mairie-muted); line-height: 1.5; }
 body.mairie-ui main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
   border-color: var(--mairie-control-border);
   border-radius: 8px;
@@ -272,7 +273,7 @@ body.mairie-ui main [class~="bg-[#00a844]"] { background: var(--mairie-success-a
 body.mairie-ui main [class~="text-[#dc2626]"] { color: var(--mairie-error-text); }
 @media (max-width: 767px) {
   body.mairie-ui main h1 { font-size: 30px; }
-  body.mairie-ui main h1 + p { font-size: 16px; }
+  body.mairie-ui main h1 + p:not([data-m360-component~="PageHero"] p) { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) {
   /* MAIR-1091: every motion token collapses, so a component bound to them never animates. */
