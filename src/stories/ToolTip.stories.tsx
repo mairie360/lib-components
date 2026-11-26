@@ -50,3 +50,15 @@ export const Immediate: Story = {
     </ToolTip>
   ),
 };
+
+/** Under the trigger and lined up with its end: a button at the top right of a clipped panel, under the top bar. */
+export const BelowEnd: Story = {
+  args: { text: 'Nouvelle conversation', placement: 'bottom', align: 'end' },
+  render: (args) => (
+    <div className="flex justify-end">
+      <ToolTip {...args}>
+        <button type="button" aria-label="Nouvelle conversation" className="rounded border border-[var(--mairie-control-border)] px-3 py-2">+</button>
+      </ToolTip>
+    </div>
+  ),
+};
