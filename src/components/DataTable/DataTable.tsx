@@ -7,6 +7,7 @@ import { DataState, type DataStateProps } from '../DataState';
 import { Icon } from '../Icon';
 import { Skeleton } from '../Skeleton';
 import { componentMarker, withoutMarker } from '../component-marker';
+import { useMountedAnnouncement } from '../use-mounted-announcement';
 
 export type SortDirection = 'asc' | 'desc';
 /** Cell value a column sorts on; empty values (`null`, `undefined`, `''`) always go last. */
@@ -97,6 +98,7 @@ export function sortRows<Row>(rows: Row[], column: Pick<DataTableColumn<Row>, 'k
 }
 
 export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default', stateProps, sort, onSort, sortable = false, sortKey, sortDirection, onSortChange, skeletonRows = 4, onRowClick, rowLabel, rowProps, className = '', style, ...props }: DataTableProps<Row>) {
+  const loadingAnnouncement = useMountedAnnouncement(state === 'loading' ? `${label} : chargement…` : undefined);
   // MAIR-1129: the table sorts by itself when asked to (table `sortable`, a controlled key or `onSortChange`).
   const ownSort = sortable || sortKey !== undefined || sortDirection !== undefined || Boolean(onSortChange);
   const [internalSort, setInternalSort] = React.useState<{ key: string; direction: SortDirection } | null>(null);
@@ -176,7 +178,8 @@ export function DataTable<Row>({ label, columns, rows, rowKey, state = 'default'
           )}
         </tbody>
       </table>
-      {state === 'loading' && <div role="status" aria-live="polite" className="sr-only">{stateProps?.title ?? 'Chargement…'}</div>}
+      {/* Always mounted, written once mounted (RGAA 7.5); it names the table, not the title of its empty state. */}
+      <div role="status" aria-live="polite" className="sr-only">{loadingAnnouncement}</div>
     </div>
   );
 }
