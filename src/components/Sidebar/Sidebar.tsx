@@ -41,11 +41,14 @@ export function navigationCount(item: Pick<SidebarItem, 'count' | 'badge'>): num
   return badge && /^\d+$/.test(badge) && Number(badge) > 0 ? Number(badge) : undefined;
 }
 
-/** Accessible name of a navigation entry: « Messagerie, 4 à traiter », « plus de 9 » above 9. */
+/**
+ * Accessible name of a navigation entry: « Messagerie 4 à traiter », « Messagerie 9+ à traiter » above 9. It starts
+ * with the visible label and counter, in their order on screen (RGAA 11.9: the visible text is in the name).
+ */
 export function navigationLabel(item: Pick<SidebarItem, 'label' | 'count' | 'badge'>): string {
   const count = navigationCount(item);
   if (count === undefined) return item.label;
-  return `${item.label}, ${counterText(count) === '9+' ? 'plus de 9' : count} à traiter`;
+  return `${item.label} ${counterText(count)} à traiter`;
 }
 
 export interface SidebarProps {

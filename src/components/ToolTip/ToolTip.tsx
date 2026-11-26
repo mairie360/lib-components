@@ -10,6 +10,13 @@ export interface TooltipProps {
    * control undescribed.
    */
   children: React.ReactNode;
+  /**
+   * Side of the trigger the bubble sits on: `top` (default) or `bottom`, for a trigger at the top edge of a
+   * clipped panel or under a top bar, where a bubble above would be cut or hidden.
+   */
+  placement?: 'top' | 'bottom';
+  /** Edge of the trigger the bubble lines up with: `start` (default) or `end`, for a trigger at the right edge. */
+  align?: 'start' | 'end';
 }
 
 /**
@@ -18,7 +25,7 @@ export interface TooltipProps {
  * focus is. Hover and focus are tracked apart, so leaving with the pointer keeps it shown while the
  * trigger still has the focus. The trigger is described by it (`aria-describedby`).
  */
-export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
+export const ToolTip = ({ text, children, placement = 'top', align = 'start', ...props }: TooltipProps) => {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const visible = hovered || focused;
@@ -51,9 +58,16 @@ export const ToolTip = ({ text, children, ...props }: TooltipProps) => {
       onBlur={() => setFocused(false)}
     >
       {trigger}
-      {/* The transparent bottom padding replaces a margin: it bridges the gap above the trigger, so
+      {/* The transparent padding on the trigger side replaces a margin: it bridges the gap to the trigger, so
           the pointer can move onto the bubble without leaving the wrapper (RGAA 10.13). */}
-      <div id={id} role="tooltip" hidden={!visible} className="absolute bottom-full pb-2">
+      <div
+        id={id}
+        role="tooltip"
+        hidden={!visible}
+        data-placement={placement}
+        data-align={align}
+        className={`absolute z-50 ${placement === 'bottom' ? 'top-full pt-2' : 'bottom-full pb-2'} ${align === 'end' ? 'right-0' : 'left-0'}`}
+      >
         <div className="mairie-tooltip-bubble whitespace-nowrap bg-[var(--mairie-neutral-action)] font-medium text-[var(--mairie-on-neutral)] shadow-lg" style={{ padding: '6px 10px', borderRadius: 'var(--mairie-radius-s)', fontSize: 13 }}>{text}</div>
       </div>
     </div>

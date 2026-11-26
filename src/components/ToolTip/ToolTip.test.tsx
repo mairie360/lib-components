@@ -97,4 +97,23 @@ describe('ToolTip component', () => {
     expect(css).toMatch(/\.mairie-tooltip-bubble \{ animation: mairie-tooltip-in var\(--mairie-motion-instant\) var\(--mairie-ease-standard\) var\(--mairie-tooltip-delay\) both; \}/);
     expect(css).toContain('--mairie-tooltip-delay: 0ms;');
   });
+
+  it('MAIR-1225 sits above and from the start of the trigger by default', () => {
+    render(<ToolTip text="Info"><button type="button">Trigger</button></ToolTip>);
+    fireEvent.mouseEnter(screen.getByRole('button', { name: 'Trigger' }));
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveClass('bottom-full', 'pb-2', 'left-0');
+    expect(tooltip).toHaveAttribute('data-placement', 'top');
+  });
+
+  it('MAIR-1225 sits under the trigger and lines up with its end when asked, still bridging the gap with padding', () => {
+    render(<ToolTip text="Nouvelle conversation" placement="bottom" align="end"><button type="button">+</button></ToolTip>);
+    fireEvent.mouseEnter(screen.getByRole('button', { name: '+' }));
+    const tooltip = screen.getByRole('tooltip');
+    expect(tooltip).toHaveClass('top-full', 'pt-2', 'right-0');
+    expect(tooltip).not.toHaveClass('bottom-full');
+    expect(tooltip.className).not.toMatch(/\bm[bt]?-\d/);
+    expect(tooltip).toHaveAttribute('data-placement', 'bottom');
+    expect(tooltip).toHaveAttribute('data-align', 'end');
+  });
 });

@@ -70,9 +70,9 @@ describe('Sidebar component', () => {
 
   it('MAIR-1094 shows the items to handle with Counter and names them', () => {
     render(<Sidebar items={[{ id: 'messages', label: 'Messagerie', icon: Folder, count: 4 }, { id: 'admin', label: 'Administration', icon: Folder, badge: '12' }, { id: 'calendar', label: 'Calendrier', icon: Folder, count: 0 }]} isAdmin />);
-    const messages = screen.getByRole('button', { name: 'Messagerie, 4 à traiter' });
+    const messages = screen.getByRole('button', { name: 'Messagerie 4 à traiter' });
     expect(messages.querySelector('[data-m360-component~="Counter"]')).toHaveTextContent('4');
-    const administration = screen.getByRole('button', { name: 'Administration, plus de 9 à traiter' });
+    const administration = screen.getByRole('button', { name: 'Administration 9+ à traiter' });
     expect(administration.querySelector('[data-m360-component~="Counter"]')).toHaveTextContent('9+');
     expect(screen.getByRole('button', { name: 'Calendrier' }).querySelector('[data-m360-component~="Counter"]')).toBeNull();
   });
@@ -83,12 +83,24 @@ describe('Sidebar component', () => {
     expect(navigationCount({ badge: 'Nouveau' })).toBeUndefined();
     expect(navigationCount({ count: -1 })).toBeUndefined();
     expect(navigationLabel({ label: 'Projets' })).toBe('Projets');
-    expect(navigationLabel({ label: 'Projets', count: 10 })).toBe('Projets, plus de 9 à traiter');
+    expect(navigationLabel({ label: 'Projets', count: 10 })).toBe('Projets 9+ à traiter');
   });
 
   it('has no axe violation', async () => {
     const { container } = render(<Sidebar isAdmin activeItem="projects" items={[...defaultSidebarItems.slice(0, 2), { id: 'messages', label: 'Messagerie', icon: Folder, count: 2 }]} />);
     expect((await axe(container)).violations).toEqual([]);
+  });
+
+  it('MAIR-1225 RGAA 11.9: the name of an entry with a counter contains its visible label and counter', async () => {
+    const { container } = render(<Sidebar items={[{ id: 'messages', label: 'Messagerie', icon: Folder, count: 1 }, { id: 'projects', label: 'Projets', icon: Folder, count: 12 }]} />);
+    for (const [name, visible] of [['Messagerie 1 à traiter', 'Messagerie 1'], ['Projets 9+ à traiter', 'Projets 9+']]) {
+      const entry = screen.getByRole('button', { name });
+      // Label and Counter are adjacent elements: compare without the white space between them.
+      const compact = (text: string) => text.replace(/\s+/g, '');
+      expect(compact(entry.textContent ?? '')).toBe(compact(visible));
+      expect(name.startsWith(visible)).toBe(true);
+    }
+    expect((await axe(container, { rules: { 'label-content-name-mismatch': { enabled: true } } })).violations).toEqual([]);
   });
 
   it('hides Administration when the user is not an administrator', () => {
