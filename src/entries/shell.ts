@@ -23,4 +23,6 @@ export type { NavigationAnimation, SidebarItem, SidebarProps } from '../componen
 export { defaultSidebarItems } from '../components/Sidebar';
 export { mairie360LogoSrc } from '../assets/logo';
 export { formatCurrentDate } from '../components/CurrentDate';
+export { createBffSearchSource, globalSearchHref, globalSearchModuleLabels } from '../components/Header';
+export type { GlobalSearchGroup, GlobalSearchItem, GlobalSearchKind, GlobalSearchModule, GlobalSearchResult, GlobalSearchResultHref, GlobalSearchSource } from '../components/Header';
 export { SIDEBAR_COOKIE, configureSidebarCookieDomain, readSidebarPreference, sidebarPreferenceCookie, validSidebarCookieDomain } from '../utils/sidebar-preference';

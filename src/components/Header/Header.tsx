@@ -1,14 +1,12 @@
 import React from 'react';
 import {
   Menu,
-  Search,
   Bell,
   ChevronDown,
   User as UserIcon,
   Settings,
   Shield,
   LogOut,
-  X
 } from 'lucide-react';
 
 import { Avatar } from '../Avatar';
@@ -23,6 +21,7 @@ import { ConfirmModal } from '../ConfirmModal';
 import { Counter, counterText } from '../Counter';
 import { CurrentDate } from '../CurrentDate';
 import { componentMarker } from '../component-marker';
+import { HeaderSearch, type GlobalSearchResultHref, type GlobalSearchSource } from './components/HeaderSearch';
 
 type User = {
   name?: string;
@@ -107,6 +106,18 @@ export interface HeaderProps {
   /** Accessible name of the search field (default « Rechercher »). */
   searchLabel?: string;
   searchPlaceholder?: string;
+  /**
+   * Global search: the field shows on every front and lists the results of every module, grouped by
+   * module (`createBffSearchSource()` calls the front's `/search`). `onSearch` then stays available as
+   * the first option « Rechercher « q » dans <searchScopeLabel> ».
+   */
+  searchSource?: GlobalSearchSource;
+  /** Name of the module `onSearch` searches, shown in that first option (« Calendrier »). */
+  searchScopeLabel?: string;
+  /** Destination of a global search result (`globalSearchHref` with the shell `hrefs` in `AppShell`). */
+  searchResultHref?: GlobalSearchResultHref;
+  /** Opens a global search result (full-page navigation by default). */
+  onSearchNavigate?: (href: string) => void;
   onNotificationsClick?: () => void;
   notificationCount?: number;
   showProfile?: boolean;
@@ -142,6 +153,10 @@ export const Header = ({
   searchValue,
   searchLabel = 'Rechercher',
   searchPlaceholder = 'Rechercher...',
+  searchSource,
+  searchScopeLabel,
+  searchResultHref,
+  onSearchNavigate,
   onNotificationsClick,
   notificationCount,
   showProfile,
@@ -152,15 +167,7 @@ export const Header = ({
   showDate = false,
   date,
 }: HeaderProps) => {
-  const [ownQuery, setOwnQuery] = React.useState('');
-  const searchQuery = searchValue ?? ownQuery;
-  const searchInputRef = React.useRef<HTMLInputElement>(null);
-  const updateSearch = (query: string) => {
-    if (searchValue === undefined) setOwnQuery(query);
-    onSearchChange?.(query);
-  };
-  const clearSearch = () => { updateSearch(''); searchInputRef.current?.focus(); };
-  const showSearch = Boolean(onSearch || onSearchChange);
+  const showSearch = Boolean(onSearch || onSearchChange || searchSource);
   const communeName = commune?.trim() ?? '';
   const communeShown = showCommune && Boolean(communeName);
 
@@ -222,32 +229,17 @@ export const Header = ({
         </p>}
         {communeShown && showSearch && <span aria-hidden="true" data-header-separator className="hidden h-8 w-px shrink-0 bg-[var(--mairie-border)] sm:block" />}
 
-        {showSearch && <form
-          role="search"
-          aria-label={searchLabel}
-          className="relative min-w-0"
-          onSubmit={(event) => { event.preventDefault(); onSearch?.(searchQuery); }}
-        >
-          <Search aria-hidden="true" className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--mairie-muted)]" />
-          <input
-            ref={searchInputRef}
-            type="search"
-            aria-label={searchLabel}
-            placeholder={searchPlaceholder}
-            value={searchQuery}
-            onChange={(event) => updateSearch(event.target.value)}
-            onKeyDown={(event) => { if (event.key === 'Escape' && searchQuery) { event.preventDefault(); updateSearch(''); } }}
-            className="h-9 w-40 rounded-md border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] pl-10 pr-9 text-sm text-[var(--mairie-text)] shadow-none outline-none transition-colors placeholder:text-[var(--mairie-muted)] focus:border-[var(--mairie-accent)] focus:ring-2 focus:ring-[var(--mairie-accent)]/15 sm:w-64 [&::-webkit-search-cancel-button]:hidden"
-          />
-          {searchQuery && <button
-            type="button"
-            aria-label="Effacer la recherche"
-            onClick={clearSearch}
-            className="absolute right-1.5 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-md text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"
-          >
-            <X aria-hidden="true" className="h-3.5 w-3.5" />
-          </button>}
-        </form>}
+        {showSearch && <HeaderSearch
+          label={searchLabel}
+          placeholder={searchPlaceholder}
+          value={searchValue}
+          onChange={onSearchChange}
+          onSearch={onSearch}
+          scopeLabel={searchScopeLabel}
+          searchSource={searchSource}
+          resultHref={searchResultHref}
+          onNavigate={onSearchNavigate}
+        />}
       </div>
 
       <div className="flex shrink-0 items-center gap-4">

@@ -3,7 +3,7 @@ import React from 'react';
 import { Footer, type FooterProps } from '../Footer';
 import { DesktopNavigation } from '../DesktopNavigation';
 import { configureSidebarCookieDomain } from '../../utils/sidebar-preference';
-import { Header, type HeaderProps } from '../Header';
+import { Header, globalSearchHref, type GlobalSearchResultHref, type GlobalSearchSource, type HeaderProps } from '../Header';
 import { Sidebar, defaultSidebarItems, type SidebarItem, type SidebarProps } from '../Sidebar';
 import { NotificationCenter, type NotificationSource } from '../NotificationCenter';
 import { joinClasses } from '../shared-classes';
@@ -64,6 +64,13 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   /** Compatibility callback for pages that already navigate by item id. */
   onPageChange?: (itemId: string) => void;
   notificationsSource?: NotificationSource;
+  /**
+   * Global search of the header, usually `createBffSearchSource()`: the field shows on every page
+   * and opens the result in its module, built from `hrefs` (`projects?project=7`, `calendar?date=…&event=4`).
+   */
+  searchSource?: GlobalSearchSource;
+  /** Overrides the destination of a global search result (default: `globalSearchHref` with `hrefs`). */
+  searchResultHref?: GlobalSearchResultHref;
   headerProps?: Omit<HeaderProps, 'user' | 'isAdmin' | 'setSidebarOpen' | 'menuButtonRef' | 'onPageChange' | 'onLogout' | 'profileHref'>;
   sidebarProps?: Omit<SidebarProps, 'activeItem' | 'isAdmin' | 'items' | 'onItemSelect' | 'footer'> & {
     items?: SidebarItem[];
@@ -107,6 +114,8 @@ export const AppShell = ({
   onPageChange,
   headerProps,
   notificationsSource,
+  searchSource,
+  searchResultHref,
   sidebarProps,
   footerProps,
   footerPlacement = 'sidebar',
@@ -268,6 +277,7 @@ export const AppShell = ({
 
         <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen || notificationsOpen}>
           <Header
+            key={accountKey}
             {...headerProps}
             commune={communeName}
             showCommune={Boolean(communeName)}
@@ -283,6 +293,9 @@ export const AppShell = ({
             showProfile={canNavigate('profile') || canNavigate('settings')}
             showSettings={canNavigate('settings')}
             showAdministration={canNavigate('admin')}
+            searchSource={searchSource ?? headerProps?.searchSource}
+            searchResultHref={searchResultHref ?? headerProps?.searchResultHref ?? ((item, module) => (module === 'agents' && !isAdmin ? undefined : globalSearchHref(item, module, hrefs)))}
+            onSearchNavigate={headerProps?.onSearchNavigate ?? (onNavigate ? (href) => (isAbsoluteWebUrl(href) ? window.location.assign(href) : onNavigate(href, 'search')) : undefined)}
           />
           <main id={mainId} ref={mainRef} tabIndex={-1} data-layout={mainLayout} className={joinClasses('app-shell-main-area min-h-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', mainLayout === 'fill' ? undefined : 'overflow-auto', collapsibleSidebar ? 'app-shell-main' : mainLayout === 'fill' ? undefined : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
             {children}
