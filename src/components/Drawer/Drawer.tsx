@@ -32,10 +32,10 @@ export const Drawer = ({ open, title, onClose, size = 'm', footer, closeLabel = 
       <div {...withoutMarker(props)} ref={panel} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} data-size={size}
         className={`flex h-full w-full flex-col border-l border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: drawerWidths[size], ...style }}>
-        <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
+        <div data-dialog-header="" className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
           <ModalTitle id={titleId}>{title}</ModalTitle>
           <button type="button" aria-label={closeLabel} onClick={onClose} className="-mr-2 inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"><Icon icon={X} size="m" /></button>
-        </header>
+        </div>
         <div className="min-h-0 flex-1 overflow-y-auto" style={{ padding: 'var(--mairie-space-l)' }}>{children}</div>
         {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>{footer}</footer>}
       </div>

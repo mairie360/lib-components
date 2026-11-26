@@ -121,7 +121,7 @@ export const Modal = ({ open, title, description, onClose, size = 'm', footer, f
       <div {...withoutMarker(props)} ref={panel} role={role} aria-modal="true" aria-labelledby={titleId} aria-describedby={[description ? descriptionId : '', stepped ? stepId : ''].filter(Boolean).join(' ') || undefined} tabIndex={-1} data-size={size}
         className={`flex max-h-full w-full flex-col overflow-hidden border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] shadow-xl outline-none ${className}`.trim()}
         style={{ maxWidth: modalWidths[size], borderRadius: 'var(--mairie-radius-xl)', ...style }}>
-        <header className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
+        <div data-dialog-header="" className="flex items-start justify-between gap-4 border-b border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>
           <div className="min-w-0 flex-1">
             <ModalTitle id={titleId} ref={heading} tabIndex={stepped ? -1 : undefined} className={stepped ? 'outline-none' : undefined}>{title}</ModalTitle>
             {description ? <Help id={descriptionId} as="div" className="mt-1">{description}</Help> : null}
@@ -136,7 +136,7 @@ export const Modal = ({ open, title, description, onClose, size = 'm', footer, f
             ) : null}
           </div>
           <button type="button" aria-label={closeLabel} onClick={onClose} className="-mr-2 inline-flex size-9 shrink-0 items-center justify-center rounded-md text-[var(--mairie-muted)] hover:bg-[var(--mairie-surface-raised)] hover:text-[var(--mairie-text)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)]"><Icon icon={X} size="m" /></button>
-        </header>
+        </div>
         <div ref={body} className={`min-h-0 flex-1 overflow-y-auto ${stepped ? 'mairie-scroll-hidden' : ''}`.trim()} style={{ padding: 'var(--mairie-space-l)', minHeight: stepped && bodyHeight ? bodyHeight : undefined }}>{children}</div>
         {hasFooter && (
           <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-[var(--mairie-border)]" style={{ padding: 'var(--mairie-space-m) var(--mairie-space-l)' }}>

@@ -103,7 +103,7 @@ export function NotificationCenter({ source, onClose, onUnreadCount }: {
         event.preventDefault(); controls[event.shiftKey ? controls.length - 1 : 0]?.focus();
       }
     }}>
-      <header className="flex items-center justify-between gap-3"><h2 id="notification-center-title" className="text-xl font-bold">Notifications</h2><button type="button" aria-label="Fermer les notifications" className="rounded border px-3 py-2" onClick={onClose}>Fermer</button></header>
+      <div data-dialog-header="" className="flex items-center justify-between gap-3"><h2 id="notification-center-title" className="text-xl font-bold">Notifications</h2><button type="button" aria-label="Fermer les notifications" className="rounded border px-3 py-2" onClick={onClose}>Fermer</button></div>
       {!source ? <p role="status" className="mt-5">Les notifications ne sont pas encore disponibles pour ce compte.</p> : <>
         <div className="my-5 flex flex-wrap gap-3">
           <label>Activités <select aria-label="Filtrer les notifications" className="rounded border p-2" value={filter} onChange={event => setFilter(event.target.value)}>{[['all','Toutes'],['messages','Messages'],['projects','Projets'],['calendar','Calendrier']].map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
