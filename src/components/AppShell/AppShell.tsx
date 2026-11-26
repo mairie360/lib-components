@@ -179,10 +179,10 @@ export const AppShell = ({
     );
   }
 
-  // One header for every front: the logo always comes from the library (`brandLogoSrc` is ignored here) and the
+  // One header for every front: the logo always comes from the library (`brandLogoSrc` and its `brandLogoAlt` are ignored here) and the
   // commune from the shell's `commune` prop, falling back to the legacy `brandLabel` / `headerProps.commune`.
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, brandLogoSrc: _ignoredLogo, ...brandSidebarProps } = sidebarProps ?? {};
+  const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, brandLogoSrc: _ignoredLogo, brandLogoAlt: _ignoredLogoAlt, ...brandSidebarProps } = sidebarProps ?? {};
   const communeName = (commune ?? sidebarProps?.brandLabel ?? (headerProps?.showCommune === false ? undefined : headerProps?.commune))?.trim() || undefined;
   const restSidebarProps = { ...brandSidebarProps, brandLabel: communeName };
   const shellSidebarProps = { ...restSidebarProps, items, onItemSelect };

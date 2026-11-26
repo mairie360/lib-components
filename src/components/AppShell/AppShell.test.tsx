@@ -306,7 +306,7 @@ describe('MAIR-1218 one header for every front', () => {
   });
 
   it('always shows the library logo, whatever brandLogoSrc a front passes', () => {
-    const { container } = render(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} sidebarProps={{ brandLogoSrc: '/mairie360-logo.png' }}><p>Contenu</p></AppShell>);
+    const { container } = render(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} sidebarProps={{ brandLogoSrc: '/mairie360-logo.png', brandLogoAlt: 'Blason de Lyon' }}><p>Contenu</p></AppShell>);
     const logo = container.querySelector('aside.app-desktop-navigation img.app-navigation-logo')!;
     expect(logo).toHaveAttribute('alt', 'Logo Mairie360');
     expect(logo.getAttribute('src')).not.toBe('/mairie360-logo.png');
