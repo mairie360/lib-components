@@ -259,14 +259,21 @@ describe('Header component', () => {
   });
 
   describe('commune and date (MAIR-1109)', () => {
-    it('shows « Mairie de Saint-André » by default, left of the search, with a separator', () => {
-      const { container } = render(<Header onSearch={jest.fn()} />);
+    it('shows « Mairie de Saint-André » left of the search, with a separator', () => {
+      const { container } = render(<Header commune="Saint-André" onSearch={jest.fn()} />);
       const block = container.querySelector('[data-header-commune]')!;
       expect(block).toHaveTextContent('Mairie de Saint-André');
       expect(screen.getByText('Saint-André').tagName).toBe('STRONG');
       expect(screen.getByText('Saint-André')).toHaveClass('truncate', 'sm:text-xl');
       expect(block.compareDocumentPosition(screen.getByRole('search')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       expect(container.querySelector('[data-header-separator]')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('MAIR-1218 shows no placeholder commune when none is given', () => {
+      const { container } = render(<Header onSearch={jest.fn()} />);
+      expect(container.querySelector('[data-header-commune]')).toBeNull();
+      expect(container.querySelector('[data-header-separator]')).toBeNull();
+      expect(screen.queryByText('Saint-André')).toBeNull();
     });
 
     it('keeps the caption for assistive technologies on mobile and truncates a long name', () => {
@@ -277,10 +284,10 @@ describe('Header component', () => {
     });
 
     it('hides the commune block on demand and without separator when there is no search', () => {
-      const { container, rerender } = render(<Header showCommune={false} onSearch={jest.fn()} />);
+      const { container, rerender } = render(<Header commune="Saint-André" showCommune={false} onSearch={jest.fn()} />);
       expect(container.querySelector('[data-header-commune]')).toBeNull();
       expect(container.querySelector('[data-header-separator]')).toBeNull();
-      rerender(<Header />);
+      rerender(<Header commune="Saint-André" />);
       expect(container.querySelector('[data-header-commune]')).not.toBeNull();
       expect(container.querySelector('[data-header-separator]')).toBeNull();
     });

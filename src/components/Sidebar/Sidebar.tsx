@@ -57,9 +57,15 @@ export interface SidebarProps {
   items?: SidebarItem[];
   /** Callback called when a navigation item is selected */
   onItemSelect?: (item: SidebarItem) => void;
-  /** Commune name, shown under « Commune de » next to the logo. Without it the legacy « Mairie360 » label is shown. */
+  /**
+   * Commune name, shown under « Commune de » next to the logo. Without it the legacy « Mairie360 » label is shown.
+   * Inside `AppShell` / `AccessibleShell`, pass the shell's `commune` instead: it feeds the header and the navigation.
+   */
   brandLabel?: string;
-  /** Sidebar logo source. Defaults to the bundled Mairie360 logo. Set to null to use the brand initial fallback. */
+  /**
+   * Sidebar logo source. Defaults to the bundled Mairie360 logo. Set to null to use the brand initial fallback.
+   * @deprecated Ignored inside `AppShell` / `AccessibleShell`, which always show the bundled logo so every front looks the same.
+   */
   brandLogoSrc?: string | null;
   /** Sidebar logo alternative text */
   brandLogoAlt?: string;

@@ -13,9 +13,10 @@ describe('MAIR-548 shared shell stylesheet', () => {
   });
 
   // MAIR-1092: 72 ↔ 248 px in 280 ms, labels fading in with a delay once the band is open.
+  // MAIR-1218: expressed in rem (4.5rem / 15.5rem = 72 / 248 px at the default text size) so the band follows enlarged text.
   it('rests the desktop navigation at 72 px and opens it to 248 px in 280 ms on hover and keyboard focus', () => {
-    expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 72px;[^}]*transition: width 280ms var\(--mairie-ease-standard\);/);
-    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :has\(:focus-visible\)\) \{ width: 248px; \}/);
+    expect(desktop).toMatch(/\.app-desktop-navigation \{[^}]*width: 4\.5rem;[^}]*transition: width 280ms var\(--mairie-ease-standard\);/);
+    expect(desktop).toMatch(/\.app-desktop-navigation:is\(\[data-expanded="true"\], :has\(:focus-visible\)\) \{ width: 15\.5rem; \}/);
     expect(desktop).toMatch(/\.app-desktop-navigation :is\(\.app-navigation-label, \.app-navigation-commune\) \{[^}]*opacity: 0;/);
     expect(desktop).toMatch(/:has\(:focus-visible\)\) :is\(\.app-navigation-label, \.app-navigation-commune\) \{ opacity: 1; transform: none; transition-delay: 90ms; \}/);
   });
@@ -44,7 +45,8 @@ describe('MAIR-548 shared shell stylesheet', () => {
   });
 
   it('sizes navigation commands as the Figma item: 42 px high, 16 px text', () => {
-    expect(desktop).toMatch(/\.app-desktop-navigation nav button \{[^}]*height: 42px;[^}]*font-size: 16px;/);
+    // MAIR-1218: a minimum height and rem sizes, so an entry grows with its label (RGAA 10.4 / 10.12).
+    expect(desktop).toMatch(/\.app-desktop-navigation nav button \{[^}]*height: auto; min-height: 2\.625rem;[^}]*font-size: 1rem;[^}]*white-space: normal;/);
   });
 });
 
@@ -152,5 +154,38 @@ describe('MAIR-1103 public backdrop', () => {
   it('lets the ribbons show through the frame and the main area only', () => {
     expect(css).toContain('.app-shell-root[data-backdrop="ribbons"] :is(.app-shell-veil, .app-shell-main-area) { background: transparent; }');
     expect(css).toContain('.app-shell-root[data-backdrop="ribbons"] > .mairie-public-backdrop { z-index: -1; }');
+  });
+});
+
+// MAIR-1218: RGAA 10.4 (text doubled) and 10.12 (WCAG text spacing) failed on `aside > nav` in every
+// front: the resting band kept its transparent labels in the layout, overflowing the clipped band.
+describe('MAIR-1218 navigation passes RGAA 10.4 and 10.12', () => {
+  const rule = (selector: string) => {
+    const start = desktop.indexOf(`${selector} {`);
+    expect(start).toBeGreaterThanOrEqual(0);
+    return desktop.slice(start, desktop.indexOf('}', start));
+  };
+
+  it('takes labels and commune out of the flow while the band rests, instead of overflowing it', () => {
+    const resting = rule('.app-desktop-navigation:not([data-expanded="true"]):not(:has(:focus-visible)) :is(.app-navigation-label, .app-navigation-commune)');
+    expect(resting).toMatch(/position: absolute; width: 1px; height: 1px;[^}]*overflow: hidden; clip-path: inset\(50%\);/);
+    expect(rule('.app-desktop-navigation :is(.app-navigation-label, .app-navigation-commune)')).not.toContain('white-space: nowrap');
+  });
+
+  it('lets an entry grow with its label: no fixed height, no nowrap, wrapping long words', () => {
+    const button = rule('body.mairie-ui .app-desktop-navigation nav button');
+    expect(button).not.toMatch(/[^-]height: \d+px/);
+    expect(button).not.toContain('white-space: nowrap');
+    expect(rule('.app-navigation-label')).toContain('overflow-wrap: anywhere');
+    expect(rule('body.mairie-ui .app-desktop-navigation .app-navigation-brand')).toMatch(/min-height: 4rem/);
+  });
+
+  it('sizes the band and its text in rem so they follow enlarged text', () => {
+    for (const selector of [
+      'body.mairie-ui .app-desktop-navigation nav button',
+      '.app-navigation-commune-caption',
+      '.app-navigation-commune-name',
+    ]) expect(rule(selector)).not.toMatch(/font-size: \d+px/);
+    expect(rule('.app-navigation-commune')).toContain('max-width: 8.75rem');
   });
 });

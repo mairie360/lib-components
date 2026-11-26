@@ -86,6 +86,9 @@ states:
     story: components-navigation-appshell--default
   - id: navigation-appshell--anonymous
     story: components-navigation-appshell--anonymous
+  - id: navigation-appshell--shared-header-with-counters
+    description: Shared header and collapsed navigation with counters (10.4 / 10.12 failed on aside > nav in every front)
+    story: components-navigation-appshell--shared-header-with-counters
   - id: navigation-appshell--mobile-keyboard-navigation
     description: Mobile navigation drawer opened (the story's play function opens and closes it)
     story: components-navigation-appshell--mobile-keyboard-navigation

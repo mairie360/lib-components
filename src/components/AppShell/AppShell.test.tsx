@@ -278,3 +278,44 @@ describe('AppShell focus layout (MAIR-1139)', () => {
     expect(onPageChange).not.toHaveBeenCalled();
   });
 });
+
+describe('MAIR-1218 one header for every front', () => {
+  it('feeds the header and the navigation from the single commune prop', () => {
+    const { container } = render(<AppShell collapsibleSidebar commune=" Saint-André " user={user} hrefs={{ projects: '/projects' }}><p>Contenu</p></AppShell>);
+    expect(container.querySelector('[data-header-commune]')).toHaveTextContent('Mairie de Saint-André');
+    const navigation = container.querySelector('aside.app-desktop-navigation')!;
+    expect(within(navigation as HTMLElement).getByText('Saint-André')).toHaveClass('app-navigation-commune-name');
+  });
+
+  it('shows no placeholder commune when the front gives none', () => {
+    const { container } = render(<AppShell collapsibleSidebar user={user} hrefs={{ projects: '/projects' }}><p>Contenu</p></AppShell>);
+    expect(container.querySelector('[data-header-commune]')).toBeNull();
+    expect(container.querySelector('.app-navigation-commune')).toBeNull();
+    expect(screen.queryByText('Saint-André')).toBeNull();
+  });
+
+  it('keeps the legacy brandLabel and headerProps.commune as fallbacks, the shell prop winning', () => {
+    const { container, rerender } = render(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} sidebarProps={{ brandLabel: 'Lyon' }}><p>Contenu</p></AppShell>);
+    expect(container.querySelector('[data-header-commune]')).toHaveTextContent('Mairie de Lyon');
+    rerender(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} headerProps={{ commune: 'Nantes' }}><p>Contenu</p></AppShell>);
+    expect(container.querySelector('[data-header-commune]')).toHaveTextContent('Mairie de Nantes');
+    expect(container.querySelector('.app-navigation-commune-name')).toHaveTextContent('Nantes');
+    rerender(<AppShell collapsibleSidebar commune="Rennes" hrefs={{ projects: '/projects' }} sidebarProps={{ brandLabel: 'Lyon' }} headerProps={{ commune: 'Nantes' }}><p>Contenu</p></AppShell>);
+    expect(container.querySelector('[data-header-commune]')).toHaveTextContent('Mairie de Rennes');
+    expect(container.querySelector('.app-navigation-commune-name')).toHaveTextContent('Rennes');
+  });
+
+  it('always shows the library logo, whatever brandLogoSrc a front passes', () => {
+    const { container } = render(<AppShell collapsibleSidebar hrefs={{ projects: '/projects' }} sidebarProps={{ brandLogoSrc: '/mairie360-logo.png' }}><p>Contenu</p></AppShell>);
+    const logo = container.querySelector('aside.app-desktop-navigation img.app-navigation-logo')!;
+    expect(logo).toHaveAttribute('alt', 'Logo Mairie360');
+    expect(logo.getAttribute('src')).not.toBe('/mairie360-logo.png');
+  });
+
+  it('shows the user name, the bell and its badge in the header', () => {
+    render(<AppShell collapsibleSidebar commune="Saint-André" user={user} hrefs={{ projects: '/projects' }} headerProps={{ notificationCount: 5, onNotificationsClick: jest.fn() }}><p>Contenu</p></AppShell>);
+    const header = screen.getByRole('banner');
+    expect(within(header).getByText('Marie Martin')).toBeInTheDocument();
+    expect(within(header).getByRole('button', { name: 'Notifications, 5 non lues' })).toBeInTheDocument();
+  });
+});
