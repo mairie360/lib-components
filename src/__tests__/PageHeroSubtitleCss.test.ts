@@ -17,7 +17,10 @@ afterEach(() => { document.body.innerHTML = ''; document.body.className = ''; })
 it('MAIR-1227 keeps the muted page subtitle out of the PageHero band (RGAA 3.2)', () => {
   document.body.className = 'mairie-ui';
   document.body.innerHTML = '<main><h1>Paramètres</h1><p id="page">Mardi</p>'
-    + '<section data-m360-component="PageHero"><div><h1>Camille Martin</h1><p id="hero">camille@mairie.fr</p></div></section></main>';
+    + '<section data-m360-component="PageHero"><div><h1>Camille Martin</h1><p id="hero">camille@mairie.fr</p></div></section>'
+    // A caller marker composes the value (« SettingsHero PageHero »): the band still keeps its colour.
+    + '<section data-m360-component="SettingsHero PageHero"><div><h1>Anne</h1><p id="marked">anne@mairie.fr</p></div></section></main>';
   expect(getComputedStyle(document.getElementById('page')!).color).toBe('var(--mairie-muted)');
   expect(getComputedStyle(document.getElementById('hero')!).color).not.toBe('var(--mairie-muted)');
+  expect(getComputedStyle(document.getElementById('marked')!).color).not.toBe('var(--mairie-muted)');
 });
