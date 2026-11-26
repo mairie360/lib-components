@@ -4,6 +4,7 @@ import React from 'react';
 
 import { CancelButton, SaveButton } from '../ButtonPresets';
 import { componentMarker } from '../component-marker';
+import { useMountedAnnouncement } from '../use-mounted-announcement';
 
 export interface FormActionsProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Status text on the left ("Aucune modification à enregistrer.", "Enregistré."). */
@@ -34,6 +35,7 @@ export const FormActions = ({ status, busy = false, saveDisabled = false, saveLa
   const tracked = dirty !== undefined;
   const clean = dirty === false;
   const shownStatus = status ?? (clean ? FORM_ACTIONS_CLEAN_STATUS : null);
+  const announcedStatus = useMountedAnnouncement(shownStatus);
   const frame = dirty
     ? 'border border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)]'
     : tracked ? `border border-transparent border-t-[var(--mairie-border)] ${sticky ? 'bg-[var(--mairie-surface)]' : ''}`
@@ -44,8 +46,8 @@ export const FormActions = ({ status, busy = false, saveDisabled = false, saveLa
   return (
     <div {...props} {...componentMarker('FormActions', props)} data-dirty={tracked ? String(Boolean(dirty)) : undefined} data-sticky={sticky || undefined}
       className={`flex flex-wrap items-center justify-end ${frame} ${sticky ? 'sticky bottom-0 z-10' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ ...box, ...style }}>
-      {/* Kept in the page while the dirty state is tracked, so the change of status is announced (polite). */}
-      {shownStatus || tracked ? <p role="status" aria-live="polite" className="mr-auto text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>{shownStatus}</p> : null}
+      {/* Always mounted and written once mounted, so every status, the first one included, is announced (RGAA 7.5). */}
+      <p role="status" aria-live="polite" className="mr-auto text-[var(--mairie-muted)]" style={{ fontSize: 'var(--mairie-text-s)' }}>{announcedStatus}</p>
       {children ?? (
         <>
           {onCancel ? <CancelButton label={cancelLabel} onClick={onCancel} disabled={busy || clean} /> : null}

@@ -24,18 +24,33 @@ export function paginationSummary(page: number, pageSize: number, total: number,
   return `${first} – ${last} sur ${total} ${itemsLabel}`;
 }
 
+/** The current page, given to the live region only after a page change: the first page is read in place, not announced. */
+function usePageChangeAnnouncement(current: string): string {
+  const [announced, setAnnounced] = React.useState('');
+  const first = React.useRef(current);
+  React.useEffect(() => {
+    if (current === first.current) return;
+    first.current = '';
+    setAnnounced(current);
+  }, [current]);
+  return announced;
+}
+
 /** List pagination: shown range, previous/next, current page (MAIR-608, Figma `Base/Pagination`). */
 export const Pagination = ({ page, pageSize, total, onChange, loading = false, itemsLabel, label = 'Pagination', className = '', ...props }: PaginationProps) => {
   const pages = Math.max(1, Math.ceil(total / Math.max(1, pageSize)));
+  const currentPage = usePageChangeAnnouncement(`Page ${page} / ${pages}`);
   const state = loading ? 'loading' : page <= 1 && page >= pages ? 'single' : page <= 1 ? 'first' : page >= pages ? 'last' : 'default';
   return (
     <nav {...props} {...componentMarker('Pagination', props)} aria-label={label} aria-busy={loading || undefined} data-state={state} className={`flex flex-wrap items-center justify-between gap-3 ${className}`.trim()}>
       <Caption>{paginationSummary(page, pageSize, total, itemsLabel)}</Caption>
       <div className="flex items-center gap-2">
         <IconButton preset="previous" size="s" disabled={loading || page <= 1} onClick={() => onChange(page - 1)} />
-        <BodySmall as="span" aria-live="polite" aria-current="page">Page {page} / {pages}</BodySmall>
+        <BodySmall as="span" aria-current="page">Page {page} / {pages}</BodySmall>
         <IconButton preset="next" size="s" disabled={loading || page >= pages} onClick={() => onChange(page + 1)} />
       </div>
+      {/* Page changes are announced from a region mounted before them (RGAA 7.5); the visible text stays plain. */}
+      <span role="status" aria-live="polite" className="sr-only">{currentPage}</span>
     </nav>
   );
 };

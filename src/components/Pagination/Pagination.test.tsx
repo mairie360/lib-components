@@ -15,3 +15,15 @@ describe('Pagination (MAIR-608)', () => {
     expect(paginationSummary(1, 20, 0)).toBe('0 éléments');
   });
 });
+
+describe('MAIR-1221 page changes are announced (RGAA 7.5)', () => {
+  it('reads the first page in place and announces a page change from a region mounted before it', () => {
+    const { rerender } = render(<Pagination page={1} pageSize={10} total={30} onChange={() => undefined} />);
+    const status = screen.getByRole('status');
+    expect(status).toBeEmptyDOMElement();
+    expect(screen.getByText('Page 1 / 3')).not.toHaveAttribute('aria-live');
+    rerender(<Pagination page={2} pageSize={10} total={30} onChange={() => undefined} />);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent('Page 2 / 3');
+  });
+});

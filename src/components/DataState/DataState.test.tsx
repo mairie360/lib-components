@@ -17,7 +17,8 @@ it('names an empty region, defaults its French text and delegates its create act
   expect(screen.getByRole('region', { name: 'Une erreur est survenue.' })).toBeInTheDocument();
   rerender(<DataState state="loading" title="Chargement des projets" />);
   expect(screen.getByRole('status')).toHaveTextContent('Chargement des projets');
-  expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
+  // MAIR-1221: no aria-busy on the status region, it would hold its announcement back.
+  expect(screen.getByRole('status')).not.toHaveAttribute('aria-busy');
 });
 
 describe('MAIR-1098 DataState', () => {
@@ -38,5 +39,35 @@ describe('MAIR-1098 DataState', () => {
     expect(container.querySelectorAll('.mairie-loading-dot')).toHaveLength(3);
     expect(container.querySelector('.mairie-skeleton')).toBeNull();
     expect((await axe(container)).violations).toEqual([]);
+  });
+});
+
+describe('MAIR-1221 the loading state is announced (RGAA 7.5)', () => {
+  it('mounts the status region empty, then writes its title into it', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    const markup = renderToStaticMarkup(<DataState state="loading" title="Chargement du groupe…" />);
+    expect(markup).toContain('role="status"');
+    expect(markup).not.toContain('Chargement du groupe');
+    render(<DataState state="loading" title="Chargement du groupe…" />);
+    expect(screen.getByRole('status')).toHaveTextContent('Chargement du groupe…');
+  });
+
+  it('announces again when an existing data area goes back to loading', () => {
+    const { container, rerender } = render(<DataState state="empty" title="Aucun agent" />);
+    const observer = new MutationObserver(() => undefined);
+    observer.observe(container, { childList: true, subtree: true });
+    rerender(<DataState state="loading" title="Chargement des agents…" />);
+    const records = observer.takeRecords();
+    observer.disconnect();
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Chargement des agents…');
+    // The message is written into the region after the region itself was inserted, not together with it.
+    const message = status.querySelector('.sr-only');
+    expect(records.some((record) => record.target === message && [...record.addedNodes].some((node) => node.nodeType === Node.TEXT_NODE))).toBe(true);
+  });
+
+  it('keeps the other states readable at once', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    expect(renderToStaticMarkup(<DataState state="empty" title="Aucun agent" />)).toContain('Aucun agent');
   });
 });

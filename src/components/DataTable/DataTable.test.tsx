@@ -141,3 +141,19 @@ describe('MAIR-1112 IconButton hovered in a hovered row', () => {
     expect(container.firstElementChild).toHaveClass('mairie-data-table');
   });
 });
+
+describe('MAIR-1221 loading is announced (RGAA 7.5)', () => {
+  const columns = [{ key: 'name', header: 'Nom', cell: (row: { name: string }) => row.name }];
+  it('mounts its status region empty, then announces the table it loads, never the title of its empty state', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    const table = <DataTable label="Projets sans groupe" columns={columns} rows={[]} rowKey={(row) => row.name} state="loading" stateProps={{ title: 'Tous les projets ont un groupe' }} />;
+    const markup = renderToStaticMarkup(table);
+    expect(markup).toContain('role="status"');
+    expect(markup).not.toContain('chargement…');
+    const { rerender } = render(table);
+    expect(screen.getByRole('status')).toHaveTextContent('Projets sans groupe : chargement…');
+    expect(screen.getByRole('status')).not.toHaveTextContent('Tous les projets ont un groupe');
+    rerender(<DataTable label="Projets sans groupe" columns={columns} rows={[{ name: 'Médiathèque' }]} rowKey={(row) => row.name} />);
+    expect(screen.getByRole('status')).toBeEmptyDOMElement();
+  });
+});

@@ -10,6 +10,7 @@ import { Help, PanelTitle } from '../Text';
 import { componentMarker } from '../component-marker';
 import { EmptyIllustration } from './components/EmptyIllustration';
 import { LoadingDots } from './components/LoadingDots';
+import { LoadingMessage } from './components/LoadingMessage';
 
 export type DataStateKind = 'loading' | 'empty' | 'unavailable' | 'error';
 export type DataStateSize = Extract<Size, 's' | 'm' | 'l'>;
@@ -51,8 +52,8 @@ export const DataState = ({ state, title, description, size = 'm', onRetry, onCr
   const button = action ?? (state === 'empty' && onCreate ? <CreateButton label={createLabel} onClick={onCreate} size={size} /> : (state === 'unavailable' || state === 'error') && onRetry ? <RetryButton onClick={onRetry} size={size} /> : null);
   if (state === 'loading') {
     return (
-      <div {...props} {...componentMarker('DataState', props)} role="status" aria-live="polite" aria-busy="true" data-state={state} data-size={size} className={`flex flex-col items-center justify-center gap-3 ${className}`.trim()} style={{ padding: padding[size], ...style }}>
-        <span className="sr-only">{heading}</span>
+      <div {...props} {...componentMarker('DataState', props)} role="status" aria-live="polite" data-state={state} data-size={size} className={`flex flex-col items-center justify-center gap-3 ${className}`.trim()} style={{ padding: padding[size], ...style }}>
+        <LoadingMessage message={heading} />
         <LoadingDots size={size} />
       </div>
     );

@@ -46,8 +46,24 @@ describe('FormActions (MAIR-608)', () => {
       const bar = container.firstElementChild as HTMLElement;
       expect(bar).toHaveClass('border-t');
       expect(bar).not.toHaveAttribute('data-dirty');
-      expect(screen.queryByRole('status')).toBeNull();
+      // MAIR-1221: the status region is always there, empty when there is nothing to say (RGAA 7.5).
+      expect(screen.getByRole('status')).toBeEmptyDOMElement();
       expect(screen.getByRole('button', { name: 'Enregistrer' })).toBeEnabled();
     });
+  });
+});
+
+describe('MAIR-1221 the status is announced (RGAA 7.5)', () => {
+  it('mounts the status region empty, then writes the status, and keeps it mounted', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    const markup = renderToStaticMarkup(<FormActions dirty onCancel={() => undefined} status="Modifications non enregistrées" />);
+    expect(markup).toContain('role="status"');
+    expect(markup).not.toContain('Modifications non enregistrées');
+    const { rerender } = render(<FormActions dirty onCancel={() => undefined} status="Modifications non enregistrées" />);
+    const status = screen.getByRole('status');
+    expect(status).toHaveTextContent('Modifications non enregistrées');
+    rerender(<FormActions dirty={false} onCancel={() => undefined} />);
+    expect(screen.getByRole('status')).toBe(status);
+    expect(status).toHaveTextContent('Aucune modification à enregistrer.');
   });
 });
