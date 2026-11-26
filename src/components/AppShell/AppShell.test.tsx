@@ -360,6 +360,36 @@ describe('MAIR-1218 one header for every front', () => {
       expect(onNavigate).toHaveBeenCalledWith('/custom', 'search');
     });
 
+    it('drops the previous account results and pending search when the account changes', async () => {
+      jest.useFakeTimers();
+      let resolveFirst!: (value: typeof results) => void;
+      const signals: AbortSignal[] = [];
+      const searchSource = jest.fn((_query: string, signal: AbortSignal) => {
+        signals.push(signal);
+        return signals.length === 1 ? new Promise<typeof results>((resolve) => { resolveFirst = resolve; }) : Promise.resolve({ groups: [], unavailable: [] });
+      });
+      const { rerender } = render(<AppShell user={user} hrefs={{ projects: '/projects' }} searchSource={searchSource}><h1>Accueil</h1></AppShell>);
+      fireEvent.change(screen.getByRole('combobox'), { target: { value: 'dupont' } });
+      await act(async () => { jest.advanceTimersByTime(250); });
+
+      rerender(<AppShell user={{ ...user, name: 'Paul Durand' }} hrefs={{ projects: '/projects' }} searchSource={searchSource}><h1>Accueil</h1></AppShell>);
+      expect(signals[0].aborted).toBe(true);
+      await act(async () => { resolveFirst(results); });
+      jest.useRealTimers();
+
+      expect(screen.getByRole('combobox')).toHaveValue('');
+      expect(screen.queryByRole('option', { name: /Devis Dupont/ })).not.toBeInTheDocument();
+    });
+
+    it('never hands an absolute result link to the client router', async () => {
+      const onNavigate = jest.fn();
+      await search({ onNavigate, hrefs: { projects: 'https://projets.mairie.fr/' } });
+      const errors = jest.spyOn(console, 'error').mockImplementation(() => undefined); // jsdom: navigation not implemented
+      fireEvent.click(screen.getByRole('option', { name: /Devis Dupont/ }));
+      errors.mockRestore();
+      expect(onNavigate).not.toHaveBeenCalled();
+    });
+
     it('opens an agent in Administration for an administrator by default', async () => {
       const onNavigate = jest.fn();
       await search({ isAdmin: true, onNavigate });

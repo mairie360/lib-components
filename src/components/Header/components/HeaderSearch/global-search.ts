@@ -62,9 +62,15 @@ export function isGlobalSearchTerm(query: string): boolean {
   return term.length >= GLOBAL_SEARCH_MIN_LENGTH && term.length <= GLOBAL_SEARCH_MAX_LENGTH;
 }
 
+const isOptional = (value: unknown, check: (present: unknown) => boolean) => value === undefined || value === null || check(value);
+
 const isItem = (value: unknown): value is GlobalSearchItem => {
   const item = value as GlobalSearchItem;
-  return Boolean(item) && kinds.includes(item.kind) && Number.isInteger(item.id) && typeof item.title === 'string';
+  return Boolean(item) && typeof item === 'object'
+    && kinds.includes(item.kind) && Number.isInteger(item.id) && typeof item.title === 'string'
+    && isOptional(item.excerpt, (excerpt) => typeof excerpt === 'string')
+    && isOptional(item.parent_id, (parent) => Number.isInteger(parent))
+    && isOptional(item.updated_at, (date) => typeof date === 'string');
 };
 
 /** Keeps the known modules and well-formed items of an answer; rejects anything else. */
@@ -114,6 +120,8 @@ export function localDay(value?: string | null): string | undefined {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
+const targetParams = ['user', 'project', 'task', 'date', 'event', 'conversation', 'message', 'course'];
+
 function resultParams(item: GlobalSearchItem): [string, string][] {
   const id = String(item.id);
   const parent = item.parent_id == null ? [] : [String(item.parent_id)];
@@ -139,9 +147,16 @@ function resultParams(item: GlobalSearchItem): [string, string][] {
 export function globalSearchHref(item: GlobalSearchItem, module: GlobalSearchModule, hrefs: Record<string, string | undefined>): string | undefined {
   const base = hrefs[globalSearchDestinations[module]]?.trim();
   if (!base || !(isAbsoluteWebUrl(base) || isSafeRelativeUrl(base))) return undefined;
-  const [path, hash = ''] = base.split('#', 2);
-  const query = new URLSearchParams(resultParams(item)).toString();
-  return `${path}${path.includes('?') ? '&' : '?'}${query}${hash ? `#${hash}` : ''}`;
+  const hashAt = base.indexOf('#');
+  const withoutHash = hashAt < 0 ? base : base.slice(0, hashAt);
+  const hash = hashAt < 0 ? '' : base.slice(hashAt);
+  const queryAt = withoutHash.indexOf('?');
+  const path = queryAt < 0 ? withoutHash : withoutHash.slice(0, queryAt);
+  // The destination's own parameters stay; the target parameters replace any it already carries.
+  const params = new URLSearchParams(queryAt < 0 ? '' : withoutHash.slice(queryAt + 1));
+  for (const key of targetParams) params.delete(key);
+  for (const [key, value] of resultParams(item)) params.set(key, value);
+  return `${path}?${params}${hash}`;
 }
 
 const dayFormat = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long' });

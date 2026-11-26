@@ -128,6 +128,36 @@ describe('MAIR-1230 global search of the header', () => {
     expect(field).toHaveFocus();
   });
 
+  it('forgets the arrow selection as soon as the term is edited', async () => {
+    const onSearch = jest.fn(); const onNavigate = jest.fn();
+    const { source } = fakeSource();
+    render(<HeaderSearch label="Rechercher" placeholder="" searchSource={source} resultHref={resultHref} onSearch={onSearch} onNavigate={onNavigate} />);
+    const field = screen.getByRole('combobox');
+    await type(field, 'dupont');
+    fireEvent.keyDown(field, { key: 'ArrowDown' });
+    fireEvent.keyDown(field, { key: 'ArrowDown' });
+
+    fireEvent.change(field, { target: { value: 'duponts' } });
+    fireEvent.change(field, { target: { value: 'dupont' } });
+    expect(field).not.toHaveAttribute('aria-activedescendant');
+    fireEvent.keyDown(field, { key: 'Enter' });
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
+  it('scrolls the active option into view while focus stays in the field', async () => {
+    const scrollIntoView = jest.fn();
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView });
+    const { source } = fakeSource();
+    render(<HeaderSearch label="Rechercher" placeholder="" searchSource={source} resultHref={resultHref} />);
+    const field = screen.getByRole('combobox');
+    await type(field, 'dupont');
+
+    fireEvent.keyDown(field, { key: 'ArrowUp' });
+    expect(scrollIntoView).toHaveBeenLastCalledWith({ block: 'nearest' });
+    expect(scrollIntoView.mock.contexts.at(-1)).toBe(screen.getAllByRole('option').at(-1));
+    delete (HTMLElement.prototype as { scrollIntoView?: unknown }).scrollIntoView;
+  });
+
   it('opens a result on click', async () => {
     const onNavigate = jest.fn();
     const { source } = fakeSource();
@@ -247,6 +277,11 @@ describe('MAIR-1230 global search helpers', () => {
     expect(globalSearchHref(item('agent', 4, 'A'), 'agents', hrefs)).toBe('/admin?user=4');
   });
 
+  it('replaces the target parameters a destination already carries and keeps the others', () => {
+    expect(globalSearchHref(item('project', 7, 'P'), 'projects', { projects: '/projects?project=2&view=board#top' })).toBe('/projects?view=board&project=7#top');
+    expect(globalSearchHref(item('task', 9, 'T'), 'projects', { projects: '/projects?project=2' })).toBe('/projects?task=9');
+  });
+
   it('has no link without a safe destination', () => {
     expect(globalSearchHref(item('agent', 4, 'A'), 'agents', {})).toBeUndefined();
     expect(globalSearchHref(item('project', 1, 'P'), 'projects', { projects: 'javascript:alert(1)' })).toBeUndefined();
@@ -267,7 +302,13 @@ describe('MAIR-1230 global search helpers', () => {
 
   it('createBffSearchSource calls the same-origin /search and keeps only well-formed results', async () => {
     const fetchImpl = jest.fn(async () => reply({
-      groups: [{ module: 'projects', items: [item('project', 1, 'P'), { kind: 'nope', id: 2, title: 'X' }] }, { module: 'other', items: [] }],
+      groups: [{ module: 'projects', items: [
+        item('project', 1, 'P'),
+        { kind: 'nope', id: 2, title: 'X' },
+        { ...item('project', 3, 'Q'), excerpt: 42 },
+        { ...item('task', 4, 'R'), parent_id: '7' },
+        { ...item('project', 5, 'S'), updated_at: 0 },
+      ] }, { module: 'other', items: [] }],
       unavailable: ['calendar', 'other'],
     }));
     const controller = new AbortController();

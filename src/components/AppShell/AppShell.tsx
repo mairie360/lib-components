@@ -277,6 +277,7 @@ export const AppShell = ({
 
         <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen || notificationsOpen}>
           <Header
+            key={accountKey}
             {...headerProps}
             commune={communeName}
             showCommune={Boolean(communeName)}
@@ -294,7 +295,7 @@ export const AppShell = ({
             showAdministration={canNavigate('admin')}
             searchSource={searchSource ?? headerProps?.searchSource}
             searchResultHref={searchResultHref ?? headerProps?.searchResultHref ?? ((item, module) => (module === 'agents' && !isAdmin ? undefined : globalSearchHref(item, module, hrefs)))}
-            onSearchNavigate={headerProps?.onSearchNavigate ?? (onNavigate ? (href) => onNavigate(href, 'search') : undefined)}
+            onSearchNavigate={headerProps?.onSearchNavigate ?? (onNavigate ? (href) => (isAbsoluteWebUrl(href) ? window.location.assign(href) : onNavigate(href, 'search')) : undefined)}
           />
           <main id={mainId} ref={mainRef} tabIndex={-1} data-layout={mainLayout} className={joinClasses('app-shell-main-area min-h-0 flex-1 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--mairie-accent)]', mainLayout === 'fill' ? undefined : 'overflow-auto', collapsibleSidebar ? 'app-shell-main' : mainLayout === 'fill' ? undefined : 'px-4 py-6 sm:px-6 lg:px-8 lg:py-8')}>
             {children}

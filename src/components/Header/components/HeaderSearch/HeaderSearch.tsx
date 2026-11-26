@@ -88,6 +88,7 @@ export function HeaderSearch({ label, placeholder, value, onChange, onSearch, sc
   const [activeState, setActiveState] = React.useState({ term: '', index: -1 });
 
   const update = (next: string) => {
+    setActiveState({ term: '', index: -1 });
     if (value === undefined) setOwnQuery(next);
     onChange?.(next);
   };
@@ -131,6 +132,12 @@ export function HeaderSearch({ label, placeholder, value, onChange, onSearch, sc
   }
   const expanded = global && open && searchable;
   const activeOption = expanded && active >= 0 ? options[active] : undefined;
+
+  // Focus stays in the field, so the browser does not scroll the list: bring the active option into view.
+  const activeId = activeOption?.id;
+  React.useEffect(() => {
+    if (activeId) document.getElementById(activeId)?.scrollIntoView?.({ block: 'nearest' });
+  }, [activeId]);
 
   const choose = (option: Option) => {
     if (option.type === 'result' && !option.href) return;
