@@ -42,6 +42,11 @@ export interface AppShellProps extends Omit<React.HTMLAttributes<HTMLDivElement>
   skipLinkInactive?: boolean;
   /** @deprecated The desktop navigation no longer stores a collapse preference; kept for compatibility. */
   sidebarCookieDomain?: string;
+  /**
+   * Name of the commune, the single source of the header's « Mairie de » block and of the navigation's
+   * « Commune de » caption. Blank or omitted: neither shows a commune (no placeholder name).
+   */
+  commune?: string;
   activeItem?: string;
   isAdmin?: boolean;
   user?: HeaderProps['user'];
@@ -91,6 +96,7 @@ export const AppShell = ({
   collapsibleSidebar = false, sidebarCookieDomain,
   desktopNavigation,
   skipLinkInactive = false,
+  commune,
   activeItem = 'dashboard',
   isAdmin = false,
   user,
@@ -173,7 +179,13 @@ export const AppShell = ({
     );
   }
 
-  const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, ...restSidebarProps } = sidebarProps ?? {};
+  // One header for every front: the logo always comes from the library (`brandLogoSrc` and its `brandLogoAlt` are ignored here) and the
+  // commune from the shell's `commune` prop, falling back to the legacy `brandLabel` / `headerProps.commune`.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { items = defaultSidebarItems, onItemSelect, className: sidebarClassName, brandLogoSrc: _ignoredLogo, brandLogoAlt: _ignoredLogoAlt, ...brandSidebarProps } = sidebarProps ?? {};
+  const communeName = (commune ?? sidebarProps?.brandLabel ?? (headerProps?.showCommune === false ? undefined : headerProps?.commune))?.trim() || undefined;
+  const restSidebarProps = { ...brandSidebarProps, brandLabel: communeName };
+  const shellSidebarProps = { ...restSidebarProps, items, onItemSelect };
   const canNavigate = (itemId: string) => {
     return Boolean(safeHref(hrefs[itemId]) || onPageChange);
   };
@@ -227,7 +239,7 @@ export const AppShell = ({
       </div>
       {notificationsOpen && <NotificationCenter key={accountKey} source={notificationsSource} onClose={() => setNotificationsOwner(null)} onUnreadCount={receiveNotificationCount} />}
       <div className={collapsibleSidebar ? 'app-shell-body flex min-h-0 flex-1' : 'flex h-screen'}>
-        {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={sidebarProps} inactive={skipLinkInactive || sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
+        {desktopNavigation !== undefined ? desktopNavigation : collapsibleSidebar && <DesktopNavigation activeItem={activeItem} isAdmin={isAdmin} hrefs={hrefs} onNavigate={onNavigate} onPageChange={onPageChange} sidebarProps={shellSidebarProps} inactive={skipLinkInactive || sidebarOpen || notificationsOpen} onCollapsedChange={setCollapsed} />}
         {!collapsibleSidebar && <div className="hidden shrink-0 lg:block">{renderSidebar()}</div>}
 
         {sidebarOpen && (
@@ -257,6 +269,8 @@ export const AppShell = ({
         <div className="flex min-w-0 flex-1 flex-col" inert={sidebarOpen || notificationsOpen}>
           <Header
             {...headerProps}
+            commune={communeName}
+            showCommune={Boolean(communeName)}
             notificationCount={notificationCount ?? headerProps?.notificationCount}
             onNotificationsClick={headerProps?.onNotificationsClick ?? (() => setNotificationsOwner(accountKey))}
             user={user}

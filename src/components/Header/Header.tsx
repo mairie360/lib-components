@@ -114,7 +114,7 @@ export interface HeaderProps {
   showAdministration?: boolean;
   /** MAIR-1109: shows the commune block (« Mairie de » + name) left of the search; true by default. */
   showCommune?: boolean;
-  /** Commune name, supplied by the application (tenant or commune configuration); « Saint-André » by default. */
+  /** Commune name, supplied by the application (tenant or commune configuration). Blank or omitted: no commune block. */
   commune?: string;
   /** MAIR-1109: shows the date at the start of the right zone; false by default. */
   showDate?: boolean;
@@ -148,7 +148,7 @@ export const Header = ({
   showSettings,
   showAdministration,
   showCommune = true,
-  commune = 'Saint-André',
+  commune,
   showDate = false,
   date,
 }: HeaderProps) => {
@@ -161,7 +161,7 @@ export const Header = ({
   };
   const clearSearch = () => { updateSearch(''); searchInputRef.current?.focus(); };
   const showSearch = Boolean(onSearch || onSearchChange);
-  const communeName = commune.trim();
+  const communeName = commune?.trim() ?? '';
   const communeShown = showCommune && Boolean(communeName);
 
   // MAIR-834: the menu item hands focus back to the account trigger before the confirmation opens,

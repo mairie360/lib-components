@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, fn, userEvent, within } from 'storybook/test';
 
 import { AppShell } from '../components/AppShell';
+import { defaultSidebarItems } from '../components/Sidebar';
 
 const meta: Meta<typeof AppShell> = {
   title: 'Components/Navigation/AppShell',
@@ -63,6 +64,22 @@ export const CollapsibleNavigation: StoryObj<typeof AppShell> = {
     isAdmin: true,
     hrefs: { dashboard: '/', projects: '/projects', calendar: '/calendar', messages: '/messages', training: '/training', admin: '/admin', settings: '/settings' },
     headerProps: { showDate: true, date: 'jeudi 19 novembre', notificationCount: 4 },
+  },
+};
+
+/**
+ * The shared header as every front shows it (« Mairie de » + commune, bell with its badge, user name),
+ * and navigation counters, which must stay inside the band with doubled text (RGAA 10.4) and text spacing (10.12).
+ */
+export const SharedHeaderWithCounters: StoryObj<typeof AppShell> = {
+  args: {
+    collapsibleSidebar: true,
+    isAdmin: true,
+    commune: 'Saint-André',
+    activeItem: 'dashboard',
+    hrefs: { dashboard: '/', projects: '/projects', calendar: '/calendar', messages: '/messages', training: '/training', admin: '/admin', settings: '/settings' },
+    headerProps: { notificationCount: 5, onNotificationsClick: fn() },
+    sidebarProps: { items: defaultSidebarItems.map((item) => item.id === 'messages' ? { ...item, count: 12 } : item.id === 'projects' ? { ...item, count: 3 } : item) },
   },
 };
 
