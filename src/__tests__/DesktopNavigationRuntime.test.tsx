@@ -23,7 +23,7 @@ it('MAIR-548 routes a collapsed command from the keyboard and expands while focu
   expect(onCollapsedChange).toHaveBeenLastCalledWith(true);
 
   await keyboard.tab();
-  const command = screen.getByRole('button', { name: 'Paramètres, 3 à traiter' });
+  const command = screen.getByRole('button', { name: 'Paramètres 3 à traiter' });
   expect(command).toHaveFocus();
   expect(command).toHaveAttribute('aria-current', 'page');
   expect(aside).toHaveAttribute('data-expanded', 'true');
@@ -85,7 +85,7 @@ it.each([
   [undefined, false],
 ] as const)('only offers a usable destination for %s', (destination, offered) => {
   render(<DesktopNavigation activeItem="settings" hrefs={{ settings: destination }} sidebarProps={{ items: [settings] }} onCollapsedChange={() => undefined} />);
-  expect(screen.queryByRole('button', { name: 'Paramètres, 3 à traiter' }) !== null).toBe(offered);
+  expect(screen.queryByRole('button', { name: 'Paramètres 3 à traiter' }) !== null).toBe(offered);
 });
 
 it('allows an item callback to handle an unavailable destination without inventing a current page', async () => {
@@ -95,7 +95,7 @@ it('allows an item callback to handle an unavailable destination without inventi
   render(<DesktopNavigation activeItem="unknown" hrefs={{ settings: 'javascript:alert(1)' }} onPageChange={onPageChange} onNavigate={onNavigate}
     sidebarProps={{ items: [settings] }} onCollapsedChange={() => undefined} />);
   const navigation = screen.getByRole('navigation', { name: 'Menu principal' });
-  const command = within(navigation).getByRole('button', { name: 'Paramètres, 3 à traiter' });
+  const command = within(navigation).getByRole('button', { name: 'Paramètres 3 à traiter' });
   expect(command).not.toHaveAttribute('aria-current');
   await keyboard.tab();
   await keyboard.keyboard('{Enter}');
