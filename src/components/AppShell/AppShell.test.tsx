@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 
@@ -317,5 +317,54 @@ describe('MAIR-1218 one header for every front', () => {
     const header = screen.getByRole('banner');
     expect(within(header).getByText('Marie Martin')).toBeInTheDocument();
     expect(within(header).getByRole('button', { name: 'Notifications, 5 non lues' })).toBeInTheDocument();
+  });
+
+  describe('global search (MAIR-1230)', () => {
+    const results = {
+      groups: [
+        { module: 'agents' as const, items: [{ kind: 'agent' as const, id: 4, title: 'Anne Dupont', excerpt: null, parent_id: null, updated_at: null }] },
+        { module: 'projects' as const, items: [{ kind: 'task' as const, id: 9, title: 'Devis Dupont', excerpt: null, parent_id: 7, updated_at: null }] },
+      ],
+      unavailable: [],
+    };
+
+    async function search(props: Partial<React.ComponentProps<typeof AppShell>>) {
+      jest.useFakeTimers();
+      const searchSource = jest.fn(async () => results);
+      render(<AppShell user={user} hrefs={{ projects: '/projects', admin: '/admin' }} searchSource={searchSource} {...props}><h1>Accueil</h1></AppShell>);
+      const field = within(screen.getByRole('banner')).getByRole('combobox', { name: 'Rechercher' });
+      fireEvent.change(field, { target: { value: 'dupont' } });
+      await act(async () => { jest.advanceTimersByTime(250); });
+      jest.useRealTimers();
+      return { field, searchSource };
+    }
+
+    it('shows the search on every front and opens a result in its module through onNavigate', async () => {
+      const onNavigate = jest.fn();
+      const { searchSource } = await search({ onNavigate });
+      expect(searchSource).toHaveBeenCalledWith('dupont', expect.any(AbortSignal));
+      fireEvent.click(screen.getByRole('option', { name: /Devis Dupont/ }));
+      expect(onNavigate).toHaveBeenCalledWith('/projects?project=7&task=9', 'search');
+    });
+
+    it('shows an agent without a link to a non-administrator', async () => {
+      await search({});
+      expect(screen.getByRole('option', { name: /Anne Dupont/ })).toHaveAttribute('aria-disabled', 'true');
+    });
+
+    it('lets a front override the result links', async () => {
+      const onNavigate = jest.fn();
+      await search({ isAdmin: true, onNavigate, searchResultHref: (item) => (item.kind === 'task' ? '/custom' : undefined) });
+      expect(screen.getByRole('option', { name: /Anne Dupont/ })).toHaveAttribute('aria-disabled', 'true');
+      fireEvent.click(screen.getByRole('option', { name: /Devis Dupont/ }));
+      expect(onNavigate).toHaveBeenCalledWith('/custom', 'search');
+    });
+
+    it('opens an agent in Administration for an administrator by default', async () => {
+      const onNavigate = jest.fn();
+      await search({ isAdmin: true, onNavigate });
+      fireEvent.click(screen.getByRole('option', { name: /Anne Dupont/ }));
+      expect(onNavigate).toHaveBeenCalledWith('/admin?user=4', 'search');
+    });
   });
 });
