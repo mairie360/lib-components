@@ -1,7 +1,15 @@
+'use client';
+
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
 import { componentMarker, withoutMarker } from '../component-marker';
+import { useMountedAnnouncement } from '../use-mounted-announcement';
+
+/** Announced loading text: the status region is mounted empty, then given its label (RGAA 7.5). */
+function LoadingLabel({ label }: { label: string }) {
+  return <span className="sr-only">{useMountedAnnouncement(label)}</span>;
+}
 
 export type SkeletonShape = 'line' | 'block' | 'circle';
 export interface SkeletonProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'children' | 'role'> {
@@ -22,12 +30,12 @@ function SkeletonBase({ shape = 'line', size = 'm', label, animated = true, clas
   const visual = <div {...withoutMarker(props)} {...(label ? {} : componentMarker('Skeleton', props))} aria-hidden="true" data-shape={shape} data-size={size}
     className={`mairie-skeleton ${shape === 'circle' ? 'shrink-0 rounded-full' : 'w-full'} ${animated ? 'mairie-skeleton-animated' : ''} ${className}`.replace(/\s+/g, ' ').trim()}
     style={{ borderRadius: shape === 'circle' ? '9999px' : `var(--mairie-radius-${shape === 'block' ? 'l' : 's'})`, ...dimension, ...style }} />;
-  return label ? <div {...componentMarker('Skeleton', props)} role="status" aria-live="polite"><span className="sr-only">{label}</span>{visual}</div> : visual;
+  return label ? <div {...componentMarker('Skeleton', props)} role="status" aria-live="polite"><LoadingLabel label={label} />{visual}</div> : visual;
 }
 
 type PresetProps = Pick<SkeletonProps, 'label' | 'animated' | 'className'>;
 const wrap = (label: string | undefined, children: React.ReactNode, className: string, style?: React.CSSProperties) =>
-  label ? <div {...componentMarker('Skeleton')} role="status" aria-live="polite" className={className} style={style}><span className="sr-only">{label}</span>{children}</div> : <div {...componentMarker('Skeleton')} aria-hidden="true" className={className} style={style}>{children}</div>;
+  label ? <div {...componentMarker('Skeleton')} role="status" aria-live="polite" className={className} style={style}><LoadingLabel label={label} />{children}</div> : <div {...componentMarker('Skeleton')} aria-hidden="true" className={className} style={style}>{children}</div>;
 
 /** Three text lines (Figma Skeleton/TextBlock). */
 const TextBlock = ({ label, animated, className = '' }: PresetProps) => wrap(label, <>

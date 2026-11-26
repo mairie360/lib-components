@@ -40,3 +40,19 @@ describe('MAIR-1098 DataState', () => {
     expect((await axe(container)).violations).toEqual([]);
   });
 });
+
+describe('MAIR-1221 the loading state is announced (RGAA 7.5)', () => {
+  it('mounts the status region empty, then writes its title into it', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    const markup = renderToStaticMarkup(<DataState state="loading" title="Chargement du groupe…" />);
+    expect(markup).toContain('role="status"');
+    expect(markup).not.toContain('Chargement du groupe');
+    render(<DataState state="loading" title="Chargement du groupe…" />);
+    expect(screen.getByRole('status')).toHaveTextContent('Chargement du groupe…');
+  });
+
+  it('keeps the other states readable at once', () => {
+    const { renderToStaticMarkup } = jest.requireActual<typeof import('react-dom/server')>('react-dom/server');
+    expect(renderToStaticMarkup(<DataState state="empty" title="Aucun agent" />)).toContain('Aucun agent');
+  });
+});

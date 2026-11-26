@@ -8,6 +8,7 @@ import { Icon } from '../Icon';
 import { CreateButton, RetryButton } from '../ButtonPresets';
 import { Help, PanelTitle } from '../Text';
 import { componentMarker } from '../component-marker';
+import { useMountedAnnouncement } from '../use-mounted-announcement';
 import { EmptyIllustration } from './components/EmptyIllustration';
 import { LoadingDots } from './components/LoadingDots';
 
@@ -46,13 +47,15 @@ export const DataState = ({ state, title, description, size = 'm', onRetry, onCr
   const titleId = useId();
   const text = defaults[state];
   const heading = title ?? text.title;
+  // Loading is announced once its status region exists (RGAA 7.5); the other states are regions read in place.
+  const announced = useMountedAnnouncement(state === 'loading' ? heading : undefined);
   const body = description === undefined ? text.description : description;
   const iconSize: Size = size === 's' ? 'm' : size === 'm' ? 'l' : 'xl';
   const button = action ?? (state === 'empty' && onCreate ? <CreateButton label={createLabel} onClick={onCreate} size={size} /> : (state === 'unavailable' || state === 'error') && onRetry ? <RetryButton onClick={onRetry} size={size} /> : null);
   if (state === 'loading') {
     return (
       <div {...props} {...componentMarker('DataState', props)} role="status" aria-live="polite" aria-busy="true" data-state={state} data-size={size} className={`flex flex-col items-center justify-center gap-3 ${className}`.trim()} style={{ padding: padding[size], ...style }}>
-        <span className="sr-only">{heading}</span>
+        <span className="sr-only">{announced}</span>
         <LoadingDots size={size} />
       </div>
     );

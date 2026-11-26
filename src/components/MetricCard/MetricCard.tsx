@@ -43,13 +43,6 @@ export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLElement>,
 const valueSize: Record<MetricSize, Size> = { s: 'l', m: 'xl', l: 'xl' };
 const padding: Record<MetricSize, string> = { s: 'var(--mairie-space-s)', m: 'var(--mairie-space-m)', l: 'var(--mairie-space-l)' };
 
-/** Plain text of a value for the default accessible name (« Sessions actives : 3 »). */
-function textOf(node: React.ReactNode): string {
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(textOf).join('');
-  return '';
-}
-
 /**
  * Numeric indicator card: label, icon, value, trend or freshness (MAIR-608, Figma `Base/MetricCard`).
  * MAIR-1117 inline layout; MAIR-1140 clickable card (`href` = link, `onClick` = button, `active`).
@@ -92,9 +85,11 @@ export const MetricCard = ({ label, value, icon, size = 'm', trend = 'none', tre
     style: { padding: layout === 'inline' ? 20 : padding[size], ...(interactive ? { paddingRight: 36 } : {}), borderRadius: 'var(--mairie-radius-l)', ...(interactive ? { transitionDuration: 'var(--mairie-motion-fast)' } : {}), ...style } as React.CSSProperties,
   };
   if (!interactive) {
-    return <section {...props} {...componentMarker('MetricCard', props)} aria-label={label} {...shared}>{content}</section>;
+    // A named group, not a region landmark: a page of counters would otherwise hold several landmarks of the same name (RGAA 9.2).
+    return <div {...props} {...componentMarker('MetricCard', props)} role="group" aria-label={label} {...shared}>{content}</div>;
   }
-  const name = props['aria-label'] ?? (textOf(value) ? `${label} : ${textOf(value)}` : label);
+  // Without an explicit `aria-label`, the visible text names the card, so the name contains the visible label (RGAA 11.9).
+  const name = props['aria-label'];
   const chevron = <span aria-hidden="true" className="absolute text-[var(--mairie-muted)]" style={{ right: 12, bottom: 12 }}><Icon icon={ArrowRight} size="s" /></span>;
   if (href) {
     return <a {...props} {...componentMarker('MetricCard', props)} {...shared} aria-label={name} aria-current={active ? 'true' : undefined} href={href} onClick={onClick}>{content}{chevron}</a>;
