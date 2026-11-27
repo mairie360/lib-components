@@ -83,7 +83,7 @@ describe('Header component', () => {
     expect(screen.getByText('Adresse e-mail')).toBeInTheDocument();
     expect(screen.getByText('Rôle')).toBeInTheDocument();
     expect(screen.getByText('admin@mairie360.fr')).toBeInTheDocument();
-    expect(screen.getByText('Administrateur')).toBeInTheDocument();
+    expect(screen.getAllByText('Administrateur')).toHaveLength(2);
     expect(screen.getByText('Profil')).toBeInTheDocument();
     expect(screen.getByText('Paramètres')).toBeInTheDocument();
     expect(screen.getByText('Administration')).toBeInTheDocument();
@@ -232,7 +232,7 @@ describe('Header component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /Jean User/ }));
 
-    expect(screen.getByText('Utilisateur')).toBeInTheDocument();
+    expect(screen.getAllByText('Utilisateur')).toHaveLength(2);
     expect(screen.queryByText('Administration')).not.toBeInTheDocument();
   });
 
@@ -252,7 +252,7 @@ describe('Header component', () => {
     fireEvent.click(screen.getByRole('button', { name: /Admin User/ }));
 
     expect(screen.getAllByText('Admin User')).toHaveLength(2);
-    expect(screen.getByText('Administrateur')).toBeInTheDocument();
+    expect(screen.getAllByText('Administrateur')).toHaveLength(2);
     expect(screen.getByText('Groupe ou service')).toBeInTheDocument();
     expect(screen.getByText('Direction générale')).toBeInTheDocument();
     expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();
@@ -292,10 +292,10 @@ describe('Header component', () => {
       expect(container.querySelector('[data-header-separator]')).toBeNull();
     });
 
-    it('hides the date by default and shows the given text at the start of the right zone', () => {
-      const { container, rerender } = render(<Header date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
+    it('shows the date by default at the start of the right zone and hides it on demand', () => {
+      const { container, rerender } = render(<Header showDate={false} date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
       expect(screen.queryByText('jeudi 19 novembre')).toBeNull();
-      rerender(<Header showDate date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
+      rerender(<Header date="jeudi 19 novembre" onNotificationsClick={jest.fn()} />);
       const date = screen.getByText('jeudi 19 novembre');
       expect(date).toHaveClass('text-sm', 'text-[var(--mairie-muted)]');
       expect(date.parentElement!.firstElementChild).toBe(date);
@@ -307,6 +307,24 @@ describe('Header component', () => {
       const date = container.querySelector('[data-header-date]')!;
       expect(date).toHaveAttribute('data-m360-component', 'CurrentDate');
       expect(date.textContent).not.toBe('');
+    });
+
+    it('shows the role under the name in the account button', () => {
+      const { container } = render(<Header user={{ first_name: 'Marie', last_name: 'Martin', email: 'marie@mairie.fr', role: 'admin' }} />);
+      const identity = container.querySelector('[data-header-identity]')!;
+      expect(identity).toHaveClass('hidden', 'sm:flex', 'flex-col');
+      expect(identity.textContent).toBe('Marie MartinAdministrateur');
+      expect(container.querySelector('[data-header-role]')).toHaveTextContent('Administrateur');
+    });
+
+    it('omits the role line when the user has no role', () => {
+      const { container } = render(<Header user={{ first_name: 'Marie', last_name: 'Martin' }} />);
+      expect(container.querySelector('[data-header-role]')).toBeNull();
+    });
+
+    it('uses the shared search placeholder by default', () => {
+      render(<Header onSearch={jest.fn()} />);
+      expect(screen.getByPlaceholderText('Rechercher un dossier, un agent…')).toBeInTheDocument();
     });
 
     it('has no axe violation', async () => {
