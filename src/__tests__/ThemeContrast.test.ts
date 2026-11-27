@@ -27,6 +27,8 @@ const text: [string, string][] = [
   ['on-hero', 'hero-background'], ['on-hero-muted', 'hero-background'], ['hero-overline', 'hero-background'],
   ['on-hero', 'hero-tile-background'], ['on-hero-muted', 'hero-tile-background'],
   ['on-hero', 'hero-tile-hover-background'], ['on-hero-muted', 'hero-tile-hover-background'],
+  // Avatar initials on their module colour.
+  ...['dashboard', 'projects', 'calendar', 'messaging', 'training'].map(module => [`on-avatar-${module}`, `module-${module}`] as [string, string]),
 ];
 const graphics: [string, string][] = [
   ['control-border', 'control-background'], ['control-border', 'surface'],

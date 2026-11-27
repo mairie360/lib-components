@@ -19,18 +19,28 @@ export function initialsOf(name: string | undefined): string {
   const words = (name ?? '').trim().split(/[\s._-]+/).filter(Boolean);
   return words.slice(0, 2).map(word => word[0]!.toUpperCase()).join('') || '?';
 }
+/** Module identity colours an initials avatar can take; the initials use `--mairie-on-avatar-<colour>` (4.5:1 in Light and Dark). */
+export const avatarColours = ['dashboard', 'projects', 'calendar', 'messaging', 'training'] as const;
+/** Stable colour of a person: the same name always gets the same module colour. */
+export function avatarColourOf(name: string | undefined): (typeof avatarColours)[number] {
+  const key = (name ?? '').trim().toLowerCase();
+  let hash = 0;
+  for (const char of key) hash = (hash * 31 + char.codePointAt(0)!) >>> 0;
+  return avatarColours[hash % avatarColours.length]!;
+}
 const fontSizes: Record<Size, string> = { xs: '9px', s: '10px', m: 'var(--mairie-text-xs)', l: 'var(--mairie-text-s)', xl: 'var(--mairie-text-l)' };
 
-/** A person's avatar: photo or initials on the shared scale (MAIR-608, Figma `Base/Avatar`). Brick of UserIdentity and AvatarStack. */
+/** A person's avatar: photo or initials on a colour derived from the name, on the shared scale (MAIR-608, Figma `Base/Avatar`). Brick of UserIdentity and AvatarStack. */
 export function Avatar({ className = '', src, alt = '', fallback, size = 'm', style, ...props }: AvatarProps) {
   const [imageError, setImageError] = React.useState(false);
   const showImage = Boolean(src) && !imageError;
+  const colour = avatarColourOf(alt);
   return (
     <div data-slot="avatar" data-size={size} {...props} {...componentMarker('Avatar', props)} className={`relative flex shrink-0 overflow-hidden rounded-full ${className}`.trim()} style={{ width: `var(--mairie-avatar-${size})`, height: `var(--mairie-avatar-${size})`, ...style }}>
       {showImage ? (
         <img data-slot="avatar-image" src={src} alt={alt} className="aspect-square size-full object-cover" onError={() => setImageError(true)} />
       ) : (
-        <div data-slot="avatar-fallback" role={alt ? 'img' : undefined} aria-label={alt || undefined} className="flex size-full items-center justify-center rounded-full bg-[var(--mairie-action-background)] font-semibold leading-none text-[var(--mairie-on-action)]" style={{ fontSize: fontSizes[size] }}>
+        <div data-slot="avatar-fallback" role={alt ? 'img' : undefined} aria-label={alt || undefined} data-colour={colour} className="flex size-full items-center justify-center rounded-full font-semibold leading-none " style={{ fontSize: fontSizes[size], backgroundColor: `var(--mairie-module-${colour})`, color: `var(--mairie-on-avatar-${colour})` }}>
           {fallback ?? initialsOf(alt)}
         </div>
       )}

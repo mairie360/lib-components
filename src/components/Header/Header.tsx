@@ -127,7 +127,7 @@ export interface HeaderProps {
   showCommune?: boolean;
   /** Commune name, supplied by the application (tenant or commune configuration). Blank or omitted: no commune block. */
   commune?: string;
-  /** MAIR-1109: shows the date at the start of the right zone; false by default. */
+  /** Shows the date at the start of the right zone (from `md`); true by default. */
   showDate?: boolean;
   /** Date text to show; today's date in the instance time zone (`CurrentDate`) when omitted. */
   date?: string;
@@ -152,7 +152,7 @@ export const Header = ({
   onSearchChange,
   searchValue,
   searchLabel = 'Rechercher',
-  searchPlaceholder = 'Rechercher...',
+  searchPlaceholder = 'Rechercher un dossier, un agent…',
   searchSource,
   searchScopeLabel,
   searchResultHref,
@@ -164,7 +164,7 @@ export const Header = ({
   showAdministration,
   showCommune = true,
   commune,
-  showDate = false,
+  showDate = true,
   date,
 }: HeaderProps) => {
   const showSearch = Boolean(onSearch || onSearchChange || searchSource);
@@ -270,7 +270,10 @@ export const Header = ({
                 size="s"
                 className="border-2 border-[var(--mairie-accent)]"
               />
-              <span className="hidden whitespace-nowrap sm:inline">{displayName}</span>
+              <span data-header-identity className="hidden min-w-0 max-w-[12rem] flex-col text-left leading-tight sm:flex">
+                <span className="truncate">{displayName}</span>
+                {roleLabel && <span data-header-role className="truncate text-xs font-normal text-[var(--mairie-muted)]">{roleLabel}</span>}
+              </span>
               <ChevronDown className="hidden h-4 w-4 sm:inline" strokeWidth={1.8} />
             </button>
           </DropdownMenuTrigger>
