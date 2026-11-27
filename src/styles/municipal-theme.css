@@ -75,6 +75,12 @@
   --mairie-hero-dot-danger: #f2a7b1;
   /* MAIR-1097, MAIR-1108: text and icons on a module colour (avatars, IconChip tone module). */
   --mairie-on-module: #ffffff;
+  /* Initials of an Avatar on each module colour (white only reaches 4.5:1 on dashboard in Light). */
+  --mairie-on-avatar-dashboard: #ffffff;
+  --mairie-on-avatar-projects: #161920;
+  --mairie-on-avatar-calendar: #161920;
+  --mairie-on-avatar-messaging: #161920;
+  --mairie-on-avatar-training: #161920;
   /* MAIR-1091 motion: durations and easings shared by every component; all cut under prefers-reduced-motion. */
   --mairie-motion-instant: 80ms;
   --mairie-motion-fast: 150ms;
@@ -213,6 +219,11 @@ html[data-theme="dark"] {
   --mairie-module-workflows: #eeb3c2;
   --mairie-module-training: #b5d4ae;
   --mairie-on-module: #161920;
+  --mairie-on-avatar-dashboard: #161920;
+  --mairie-on-avatar-projects: #161920;
+  --mairie-on-avatar-calendar: #161920;
+  --mairie-on-avatar-messaging: #161920;
+  --mairie-on-avatar-training: #161920;
   --mairie-hero-background: #222736;
   --mairie-on-hero: #f8f7f8;
   --mairie-on-hero-muted: #c9c4ca;

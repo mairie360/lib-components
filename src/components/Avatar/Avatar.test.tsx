@@ -19,5 +19,5 @@ it('gives initials a stable module colour derived from the name', () => {
   const fallback = screen.getByRole('img', { name: 'Marie Martin' });
   expect(fallback).toHaveAttribute('data-colour', avatarColourOf('Marie Martin'));
   expect(fallback.style.backgroundColor).toBe(`var(--mairie-module-${avatarColourOf('Marie Martin')})`);
-  expect(fallback).toHaveClass('text-[var(--mairie-on-module)]');
+  expect(fallback.style.color).toBe(`var(--mairie-on-avatar-${avatarColourOf('Marie Martin')})`);
 });

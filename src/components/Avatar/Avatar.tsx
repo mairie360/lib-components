@@ -19,8 +19,8 @@ export function initialsOf(name: string | undefined): string {
   const words = (name ?? '').trim().split(/[\s._-]+/).filter(Boolean);
   return words.slice(0, 2).map(word => word[0]!.toUpperCase()).join('') || '?';
 }
-/** Module identity colours an initials avatar can take (each passes 3:1 against the page and 4.5:1 with `--mairie-on-module`). */
-export const avatarColours = ['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'] as const;
+/** Module identity colours an initials avatar can take; the initials use `--mairie-on-avatar-<colour>` (4.5:1 in Light and Dark). */
+export const avatarColours = ['dashboard', 'projects', 'calendar', 'messaging', 'training'] as const;
 /** Stable colour of a person: the same name always gets the same module colour. */
 export function avatarColourOf(name: string | undefined): (typeof avatarColours)[number] {
   const key = (name ?? '').trim().toLowerCase();
@@ -40,7 +40,7 @@ export function Avatar({ className = '', src, alt = '', fallback, size = 'm', st
       {showImage ? (
         <img data-slot="avatar-image" src={src} alt={alt} className="aspect-square size-full object-cover" onError={() => setImageError(true)} />
       ) : (
-        <div data-slot="avatar-fallback" role={alt ? 'img' : undefined} aria-label={alt || undefined} data-colour={colour} className="flex size-full items-center justify-center rounded-full font-semibold leading-none text-[var(--mairie-on-module)]" style={{ fontSize: fontSizes[size], backgroundColor: `var(--mairie-module-${colour})` }}>
+        <div data-slot="avatar-fallback" role={alt ? 'img' : undefined} aria-label={alt || undefined} data-colour={colour} className="flex size-full items-center justify-center rounded-full font-semibold leading-none " style={{ fontSize: fontSizes[size], backgroundColor: `var(--mairie-module-${colour})`, color: `var(--mairie-on-avatar-${colour})` }}>
           {fallback ?? initialsOf(alt)}
         </div>
       )}
