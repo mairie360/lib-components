@@ -317,6 +317,15 @@ describe('Header component', () => {
       expect(container.querySelector('[data-header-role]')).toHaveTextContent('Administrateur');
     });
 
+    it('truncates a long role in the account button and keeps it whole in the menu', () => {
+      const role = 'Responsable de la coordination des services techniques et de l’urbanisme';
+      const { container } = render(<Header user={{ first_name: 'Marie', last_name: 'Martin', role }} />);
+      expect(container.querySelector('[data-header-identity]')).toHaveClass('max-w-[12rem]', 'min-w-0');
+      expect(container.querySelector('[data-header-role]')).toHaveClass('truncate');
+      fireEvent.click(screen.getByRole('button', { name: /Marie Martin/ }));
+      expect(screen.getAllByText(role)).toHaveLength(2);
+    });
+
     it('omits the role line when the user has no role', () => {
       const { container } = render(<Header user={{ first_name: 'Marie', last_name: 'Martin' }} />);
       expect(container.querySelector('[data-header-role]')).toBeNull();

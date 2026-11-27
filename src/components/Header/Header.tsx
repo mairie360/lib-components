@@ -270,9 +270,9 @@ export const Header = ({
                 size="s"
                 className="border-2 border-[var(--mairie-accent)]"
               />
-              <span data-header-identity className="hidden min-w-0 flex-col text-left leading-tight sm:flex">
-                <span className="whitespace-nowrap">{displayName}</span>
-                {roleLabel && <span data-header-role className="whitespace-nowrap text-xs font-normal text-[var(--mairie-muted)]">{roleLabel}</span>}
+              <span data-header-identity className="hidden min-w-0 max-w-[12rem] flex-col text-left leading-tight sm:flex">
+                <span className="truncate">{displayName}</span>
+                {roleLabel && <span data-header-role className="truncate text-xs font-normal text-[var(--mairie-muted)]">{roleLabel}</span>}
               </span>
               <ChevronDown className="hidden h-4 w-4 sm:inline" strokeWidth={1.8} />
             </button>
