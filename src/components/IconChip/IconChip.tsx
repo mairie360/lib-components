@@ -10,7 +10,7 @@ import { componentMarker } from '../component-marker';
 export const iconChipModules = ['dashboard', 'projects', 'calendar', 'messaging', 'workflows', 'training'] as const;
 export type IconChipModule = (typeof iconChipModules)[number];
 export type IconChipTone = 'neutral' | 'module';
-export type IconChipSize = 'm' | 'l';
+export type IconChipSize = 's' | 'm' | 'l';
 /** A module name, or any theme token (`var(--mairie-warning-text)`) for an exceptional chip. */
 export type IconChipColor = IconChipModule | `var(--mairie-${string})`;
 
@@ -18,13 +18,14 @@ export interface IconChipProps extends Omit<React.HTMLAttributes<HTMLSpanElement
   icon: LucideIcon;
   /** `neutral` (default): accent icon on the accent surface. `module`: the module colour behind an `--mairie-on-module` icon. */
   tone?: IconChipTone;
-  /** m = 36 px (radius m), l = 40 px (radius l). */
+  /** s = 28 px (radius m, 16 px icon: the artifacts' metric chips, MAIR-1260), m = 36 px (radius m), l = 40 px (radius l). */
   size?: IconChipSize;
   /** Background of a `module` chip; `dashboard` by default. Ignored by the neutral tone. */
   color?: IconChipColor;
 }
 
 const boxes: Record<IconChipSize, { side: number; radius: string }> = {
+  s: { side: 28, radius: 'var(--mairie-radius-m)' },
   m: { side: 36, radius: 'var(--mairie-radius-m)' },
   l: { side: 40, radius: 'var(--mairie-radius-l)' },
 };
@@ -53,7 +54,7 @@ export const IconChip = ({ icon, tone = 'neutral', size = 'm', color, className 
       className={`inline-grid shrink-0 place-items-center border ${className}`.trim()}
       style={{ width: box.side, height: box.side, borderRadius: box.radius, ...colours, ...style }}
     >
-      <Icon icon={icon} size="m" />
+      <Icon icon={icon} size={size === 's' ? 's' : 'm'} />
     </span>
   );
 };

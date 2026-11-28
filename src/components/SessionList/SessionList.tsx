@@ -2,10 +2,11 @@
 
 import React from 'react';
 
-import { Monitor, Smartphone, Tablet, type LucideIcon } from 'lucide-react';
+import { ChevronRight, LogOut, Monitor, Smartphone, Tablet, type LucideIcon } from 'lucide-react';
 
 import { RetryButton } from '../ButtonPresets';
 import { Button } from '../Button';
+import { Icon } from '../Icon';
 import { DataState } from '../DataState';
 import { StatusBadge, StatusPill, type Status } from '../StatusPill';
 import { Skeleton } from '../Skeleton';
@@ -202,6 +203,8 @@ export const SessionList = ({
   const revokeButton = (session: SessionRecord) => (
     <Button
       label={revokingId === session.id ? 'Déconnexion…' : 'Déconnecter'}
+      // MAIR-1260 (artifact): the log-out icon before « Déconnecter ».
+      icon={LogOut}
       size="s"
       variant="outline"
       tone="danger"
@@ -283,7 +286,12 @@ export const SessionList = ({
               <td className="px-4 py-3.5"><StatusBadge status={sessionStateStatuses[state]} label={sessionStateLabels[state]} size="s" /></td>
               {onRevoke ? (
                 <td className="px-4 py-3.5 text-right">
-                  {revocable ? revokeButton(session) : <span className="text-[var(--mairie-muted)]" aria-hidden="true">—</span>}
+                  {revocable
+                    ? revokeButton(session)
+                    // MAIR-1260 (artifact): a row that opens its detail but cannot be revoked (this device) shows a chevron.
+                    : onSelect
+                      ? <Icon icon={ChevronRight} size="s" className="ml-auto text-[var(--mairie-muted)]" data-session-open="" />
+                      : <span className="text-[var(--mairie-muted)]" aria-hidden="true">—</span>}
                 </td>
               ) : null}
             </tr>

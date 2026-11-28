@@ -34,4 +34,14 @@ describe('MAIR-1108 IconChip', () => {
     expect(iconChipColor()).toBe('var(--mairie-module-dashboard)');
     expect(iconChipColor('var(--mairie-warning-text)')).toBe('var(--mairie-warning-text)');
   });
+
+  it('MAIR-1260: has a 28 px size with a 16 px icon for the artifacts\' metric chips', () => {
+    const { container } = render(<p>Inscriptions <IconChip icon={icons.camera} size="s" tone="module" color="training" /></p>);
+    const chip = container.querySelector('[data-m360-component="IconChip"]') as HTMLElement;
+    expect(chip).toHaveAttribute('data-size', 's');
+    expect(chip.style.width).toBe('28px');
+    expect(chip.style.height).toBe('28px');
+    expect(chip.style.borderRadius).toBe('var(--mairie-radius-m)');
+    expect(chip.querySelector('svg')).toHaveAttribute('data-size', 's');
+  });
 });
