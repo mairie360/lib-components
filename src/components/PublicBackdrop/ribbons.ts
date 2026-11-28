@@ -15,18 +15,21 @@ export interface Ribbon {
   thickness: number;
   /** Amplitude of the wave. */
   amplitude: number;
-  /** Length of one wave cycle, in seconds (10 to 20 s). */
+  /** Length of one wave cycle, in seconds (22 to 33 s, as the artifact). */
   duration: number;
   /** Alternate direction of the wave. */
   reverse: boolean;
 }
 
-/** The four ribbons of the public pages (Figma Login, « Rubans fluides »). */
+/**
+ * The four ribbons of the public pages, top to bottom (MAIR-1260: the « Rubans fluides » of the validated Login
+ * artifact, whose bands are action, secondary, action, accent, 170–240 px thick over the whole height and wave in 22–33 s).
+ */
 export const ribbons: readonly Ribbon[] = [
-  { token: '--mairie-action-background', opacity: 0.17, start: 760, rise: 640, thickness: 170, amplitude: 60, duration: 14, reverse: false },
-  { token: '--mairie-secondary', opacity: 0.07, start: 980, rise: 620, thickness: 120, amplitude: 48, duration: 18, reverse: true },
-  { token: '--mairie-action-background', opacity: 0.24, start: 560, rise: 700, thickness: 90, amplitude: 44, duration: 11, reverse: true },
-  { token: '--mairie-accent', opacity: 0.17, start: 1120, rise: 560, thickness: 70, amplitude: 70, duration: 20, reverse: false },
+  { token: '--mairie-action-background', opacity: 0.17, start: -58, rise: 210, thickness: 236, amplitude: 63, duration: 29, reverse: false },
+  { token: '--mairie-secondary', opacity: 0.07, start: 443, rise: 473, thickness: 173, amplitude: 81, duration: 22, reverse: true },
+  { token: '--mairie-action-background', opacity: 0.24, start: 790, rise: 525, thickness: 205, amplitude: 72, duration: 25, reverse: false },
+  { token: '--mairie-accent', opacity: 0.17, start: 1041, rise: 473, thickness: 236, amplitude: 54, duration: 33, reverse: true },
 ];
 
 const round = (value: number) => Math.round(value * 10) / 10;

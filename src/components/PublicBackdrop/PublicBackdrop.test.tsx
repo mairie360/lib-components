@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { axe } from 'jest-axe';
 
 import { PublicBackdrop } from './PublicBackdrop';
-import { ribbonPath, ribbons } from './ribbons';
+import { BACKDROP_HEIGHT, ribbonPath, ribbons } from './ribbons';
 
 type Listener = () => void;
 function mockReducedMotion(reduce: boolean) {
@@ -49,21 +49,36 @@ describe('PublicBackdrop (MAIR-1103)', () => {
     expect(container.querySelector('linearGradient, radialGradient')).toBeNull();
   });
 
-  it('waves each ribbon in 10 to 20 s, in alternate directions', () => {
+  it('MAIR-1260 waves each ribbon in 22 to 33 s as the artifact, in alternate directions', () => {
     mockReducedMotion(false);
     const { container } = render(<PublicBackdrop />);
     const animations = [...container.querySelectorAll('animate')];
     expect(animations).toHaveLength(4);
     for (const animation of animations) {
       const seconds = parseFloat(animation.getAttribute('dur')!);
-      expect(seconds).toBeGreaterThanOrEqual(10);
-      expect(seconds).toBeLessThanOrEqual(20);
+      expect(seconds).toBeGreaterThanOrEqual(22);
+      expect(seconds).toBeLessThanOrEqual(33);
       expect(animation).toHaveAttribute('repeatCount', 'indefinite');
     }
     expect(new Set(ribbons.map((ribbon) => ribbon.reverse))).toEqual(new Set([true, false]));
     const [first] = animations;
     const [from, to] = first.getAttribute('values')!.split(';');
     expect(from).not.toBe(to);
+  });
+
+  it('MAIR-1260 spreads four wide bands over the whole height in the artifact order', () => {
+    // Top edge on the left side (x = -120) and band thickness, in the 1440×900 drawing.
+    expect(ribbons.map((ribbon) => ribbon.token)).toEqual([
+      '--mairie-action-background', '--mairie-secondary', '--mairie-action-background', '--mairie-accent',
+    ]);
+    const tops = ribbons.map((ribbon) => ribbon.start);
+    expect([...tops].sort((a, b) => a - b)).toEqual(tops);
+    expect(tops[0]).toBeLessThan(0);
+    expect(tops[3] - ribbons[3].rise).toBeLessThan(BACKDROP_HEIGHT);
+    for (const ribbon of ribbons) {
+      expect(ribbon.thickness).toBeGreaterThanOrEqual(170);
+      expect(ribbon.thickness).toBeLessThanOrEqual(240);
+    }
   });
 
   it('stays still under prefers-reduced-motion and when animation is turned off', () => {

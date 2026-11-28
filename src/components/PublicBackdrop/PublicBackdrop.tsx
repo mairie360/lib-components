@@ -28,7 +28,7 @@ const never = () => false;
 
 /**
  * Backdrop of the public pages (MAIR-1103, Figma Login « Rubans fluides »): four flat ribbons crossing
- * the page diagonally and waving slowly (one cycle of 10 to 20 s per ribbon, alternate directions).
+ * the page diagonally and waving slowly (one cycle of 22 to 33 s per ribbon, alternate directions; geometry of the Login artifact, MAIR-1260).
  * Decorative: fixed behind the content, hidden from assistive technologies, never catches the pointer.
  * The waves pause while the tab is hidden and are not drawn at all under prefers-reduced-motion, nor
  * before hydration, so the server renders the still image.
