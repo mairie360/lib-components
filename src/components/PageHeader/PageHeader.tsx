@@ -18,10 +18,12 @@ export interface PageHeaderProps extends Omit<React.HTMLAttributes<HTMLElement>,
    * spacing, 14 px muted subtitle 2 px below; the charte's one exception to the 20 px limit). Still the page's single h1.
    */
   variant?: 'default' | 'welcome';
+  /** MAIR-1260, `default` variant: `m` (PageTitle 20 px) or `l` (the artifacts' page title: 26 px, weight 650, -1.5 % letter spacing). */
+  size?: 'm' | 'l';
 }
 
 /** Top of a page: h1 and subtitle, today's date and actions on the right (MAIR-608, Figma `Base/PageHeader`). */
-export const PageHeader = ({ title, subtitle, showDate = false, actions, variant = 'default', className = '', ...props }: PageHeaderProps) => (
+export const PageHeader = ({ title, subtitle, showDate = false, actions, variant = 'default', size = 'm', className = '', ...props }: PageHeaderProps) => (
   <header {...props} {...componentMarker('PageHeader', props)} data-variant={variant === 'welcome' ? 'welcome' : actions ? 'with-actions' : showDate ? 'with-date' : 'default'} className={`flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between ${className}`.trim()}>
     {variant === 'welcome' ? (
       <div className="min-w-0">
@@ -30,7 +32,9 @@ export const PageHeader = ({ title, subtitle, showDate = false, actions, variant
       </div>
     ) : (
       <div className="min-w-0">
-        <PageTitle>{title}</PageTitle>
+        {size === 'l'
+          ? <Text as="h1" data-preset="PageTitle" data-title-size="l" style={{ fontSize: 26, fontWeight: 650, lineHeight: 1.25, letterSpacing: '-0.015em' }}>{title}</Text>
+          : <PageTitle>{title}</PageTitle>}
         {subtitle && <Help size="m" className="mt-0.5">{subtitle}</Help>}
       </div>
     )}

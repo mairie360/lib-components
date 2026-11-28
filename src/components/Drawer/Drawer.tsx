@@ -9,18 +9,18 @@ import { dialogBackdropClass, useDialogFocus } from '../Modal';
 import { ModalTitle } from '../Text';
 import { componentMarker, withoutMarker } from '../component-marker';
 
-export type DrawerSize = Extract<Size, 'm' | 'l'>;
+export type DrawerSize = Extract<Size, 's' | 'm' | 'l'>;
 export interface DrawerProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'title' | 'children'> {
   open: boolean;
   title: string;
   onClose: () => void;
-  /** m 480 px, l 720 px. */
+  /** s 420 px (MAIR-1260: the artifacts' side panels), m 480 px, l 720 px. */
   size?: DrawerSize;
   footer?: React.ReactNode;
   closeLabel?: string;
   children?: React.ReactNode;
 }
-export const drawerWidths: Record<DrawerSize, number> = { m: 480, l: 720 };
+export const drawerWidths: Record<DrawerSize, number> = { s: 420, m: 480, l: 720 };
 
 /** Right side panel, full height, for a detail sheet read without leaving the list (MAIR-608, Figma `Base/Drawer`). */
 export const Drawer = ({ open, title, onClose, size = 'm', footer, closeLabel = 'Fermer le panneau', children, className = '', style, ...props }: DrawerProps) => {

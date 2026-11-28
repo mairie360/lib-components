@@ -3,7 +3,10 @@
 import React from 'react';
 
 import type { Size } from '@mairie360/lib-components/theme';
+import { Mail } from 'lucide-react';
+
 import { Avatar } from '../Avatar';
+import { Icon } from '../Icon';
 import { Caption, Text } from '../Text';
 import { componentMarker } from '../component-marker';
 
@@ -15,17 +18,21 @@ export interface UserIdentityProps extends Omit<React.HTMLAttributes<HTMLDivElem
   size?: Size;
   /** full = avatar + name + e-mail, nameOnly = avatar + name, photo = avatar only (name as accessible label). */
   variant?: UserIdentityVariant;
+  /** MAIR-1260: a mail icon before the e-mail (`full` only), as in the artifacts' user tables. */
+  emailIcon?: boolean;
 }
 const nameSize: Record<Size, Size> = { xs: 'xs', s: 's', m: 's', l: 'm', xl: 'l' };
 
 /** One way to show a person everywhere: avatar + name + e-mail (MAIR-608, Figma `Base/UserIdentity`). */
-export const UserIdentity = ({ name, email, avatarSrc, size = 'm', variant = 'full', className = '', ...props }: UserIdentityProps) => (
+export const UserIdentity = ({ name, email, avatarSrc, size = 'm', variant = 'full', emailIcon = false, className = '', ...props }: UserIdentityProps) => (
   <div {...props} {...componentMarker('UserIdentity', props)} data-size={size} data-variant={variant} className={`inline-flex min-w-0 items-center gap-2 ${className}`.trim()} title={variant === 'photo' ? name : props.title}>
     <Avatar src={avatarSrc} alt={name} size={size} />
     {variant !== 'photo' && (
       <span className="flex min-w-0 flex-col">
         <Text size={nameSize[size]} weight="medium" truncate>{name}</Text>
-        {variant === 'full' && email && <Caption truncate>{email}</Caption>}
+        {variant === 'full' && email && (emailIcon
+          ? <Caption className="inline-flex min-w-0 items-center gap-1"><Icon icon={Mail} size="xs" /><span className="truncate">{email}</span></Caption>
+          : <Caption truncate>{email}</Caption>)}
       </span>
     )}
   </div>

@@ -73,10 +73,12 @@ export function DesktopNavigation({ activeItem = 'dashboard', isAdmin = false, h
       </span>}
     </div>
     <nav aria-label="Menu principal">
-      {items.map(item => {
+      {items.map((item, index) => {
         const Icon = item.icon;
+        // MAIR-1260: a rule separates the modules from Administration / Paramètres (artifact shell).
+        const sectionStart = (item.id === 'admin' || item.id === 'settings') && index > 0 && items[index - 1].id !== 'admin';
         const count = navigationCount(item);
-        return <button key={item.id} type="button" aria-label={navigationLabel(item)} aria-current={activeItem === item.id ? 'page' : undefined} data-admin={item.id === 'admin'} data-nav-anim={item.animation ?? item.id} onClick={() => navigate(item)}>
+        return <button key={item.id} type="button" aria-label={navigationLabel(item)} aria-current={activeItem === item.id ? 'page' : undefined} data-admin={item.id === 'admin'} data-section-start={sectionStart || undefined} data-nav-anim={item.animation ?? item.id} onClick={() => navigate(item)}>
           <Icon aria-hidden="true" size={20} className="mairie-nav-icon" />
           <span className="app-navigation-label">{item.label}</span>
           {count !== undefined && <Counter value={count} className="app-navigation-badge" />}

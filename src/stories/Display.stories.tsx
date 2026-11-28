@@ -4,7 +4,9 @@ import { Bell, History, Lock, MapPin, MonitorSmartphone, ShieldCheck, Users } fr
 import React from 'react';
 
 import { PriorityPill, StatusBadge, StatusPill, statuses } from '../components/StatusPill';
-import { TagList } from '../components/Tag';
+import { Tag, TagList } from '../components/Tag';
+import { UserIdentity } from '../components/UserIdentity';
+import { FilterSelect } from '../components/FilterSelect';
 import { MetricCard } from '../components/MetricCard';
 import { ProgressMeter } from '../components/ProgressMeter';
 import { Panel } from '../components/Panel';
@@ -115,6 +117,27 @@ export const SortableTable: Story = {
           { key: 'seen', header: 'Connexions', align: 'end' },
           { key: 'actions', header: 'Actions', kind: 'actions', hideHeader: true, sortable: false, cell: (row) => <><EditIconButton size="s" label={`Modifier ${row.name}`} onClick={fn()} /><IconButton icon={Lock} size="s" label={`Suspendre ${row.name}`} onClick={fn()} /></> },
         ]} />
+    </div>
+  ),
+};
+
+/** MAIR-1260: the variants the artifacts use (sentence-case metrics, progress, tinted icon, large title, role pill, plain filters). */
+export const ArtifactVariants: Story = {
+  render: () => (
+    <div className="flex w-full max-w-[900px] flex-col gap-6">
+      <PageHeader size="l" title="Administration" subtitle="Utilisateurs, rôles et groupes de la commune" />
+      <div className="grid grid-cols-3 gap-4">
+        <MetricCard labelCase="normal" label="Utilisateurs" value="12" trend="up" trendLabel="8 actifs" />
+        <MetricCard labelCase="normal" label="Avancement" value="67 %" progress={67} />
+        <MetricCard labelCase="normal" label="Réunions" value="8" icon={Users} iconColor="calendar" />
+      </div>
+      <Panel divider title="Projets récents" description="Les cinq derniers dossiers mis à jour."><p>Contenu du panneau</p></Panel>
+      <div className="flex flex-wrap items-center gap-3">
+        <Tag label="Administrateur" shape="pill" tone="purple" />
+        <Tag label="Agent" shape="pill" />
+        <FilterSelect label="Rôle" allLabel="tous" showAllLabel icon={false} options={[{ value: 'admin', label: 'Administrateur' }]} value="" onChange={fn()} />
+        <UserIdentity name="Marie Dubois" email="marie.dubois@mairie.test" size="l" emailIcon />
+      </div>
     </div>
   ),
 };

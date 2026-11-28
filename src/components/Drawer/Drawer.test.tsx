@@ -28,3 +28,13 @@ it('closes on the veil but not on the panel (MAIR-857)', () => {
   fireEvent.mouseDown(screen.getByRole('dialog').parentElement!);
   expect(close).toHaveBeenCalledTimes(1);
 });
+
+describe('MAIR-1260 420 px drawer', () => {
+  it('keeps 480 px by default and offers 420 px as size="s"', () => {
+    const { rerender } = render(<Drawer open title="Membres" onClose={() => undefined}>x</Drawer>);
+    expect(screen.getByRole('dialog')).toHaveStyle({ maxWidth: '480px' });
+    rerender(<Drawer open size="s" title="Membres" onClose={() => undefined}>x</Drawer>);
+    expect(screen.getByRole('dialog')).toHaveStyle({ maxWidth: '420px' });
+    expect(screen.getByRole('dialog')).toHaveAttribute('data-size', 's');
+  });
+});

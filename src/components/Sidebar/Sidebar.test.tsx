@@ -15,7 +15,7 @@ describe('Sidebar component', () => {
     expect(screen.getByRole('button', { name: /Messagerie/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /E-mails/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Fichiers/ })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Formation/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /E-learning/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Calendrier/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Administration/ })).toBeInTheDocument();
     expect(screen.queryByText('Admin')).not.toBeInTheDocument();
@@ -50,7 +50,7 @@ describe('Sidebar component', () => {
   it('MAIR-1092 no longer offers Workflows among the default destinations', () => {
     render(<Sidebar isAdmin />);
     expect(screen.queryByRole('button', { name: /Workflows/ })).not.toBeInTheDocument();
-    expect(defaultSidebarItems.map((item) => item.id)).toEqual(['dashboard', 'projects', 'messages', 'training', 'calendar', 'admin', 'settings']);
+    expect(defaultSidebarItems.map((item) => item.id)).toEqual(['dashboard', 'projects', 'calendar', 'messages', 'training', 'admin', 'settings']);
   });
 
   it('MAIR-1093 keys the icon animation of each default destination by its id', () => {

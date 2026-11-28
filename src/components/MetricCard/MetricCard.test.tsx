@@ -68,3 +68,36 @@ describe('MetricCard (MAIR-608)', () => {
   });
 });
 
+
+describe('MAIR-1260 artifact metric card', () => {
+  it('keeps the Overline label by default and writes it in sentence case with labelCase="normal"', () => {
+    const { rerender } = render(<MetricCard label="Utilisateurs" value="12" />);
+    expect(screen.getByText('Utilisateurs').getAttribute('data-preset')).not.toBe('BodySmall');
+    rerender(<MetricCard label="Utilisateurs" value="12" labelCase="normal" />);
+    expect(screen.getByRole('group', { name: 'Utilisateurs' })).toHaveTextContent('Utilisateurs12');
+  });
+  it('draws a progress bar under the value, clamped to 0–100, only when asked', () => {
+    const { rerender } = render(<MetricCard label="Avancement" value="67 %" />);
+    expect(screen.queryByRole('progressbar')).toBeNull();
+    rerender(<MetricCard label="Avancement" value="67 %" progress={67} />);
+    expect(screen.getByRole('progressbar', { name: 'Avancement' })).toHaveAttribute('aria-valuenow', '67');
+    rerender(<MetricCard label="Avancement" value="140 %" progress={140} progressTone="success" />);
+    const bar = screen.getByRole('progressbar', { name: 'Avancement' });
+    expect(bar).toHaveAttribute('aria-valuenow', '100');
+    expect(bar).toHaveAttribute('data-tone', 'success');
+  });
+  it('hides the progress bar while loading', () => {
+    render(<MetricCard label="Avancement" value="67 %" progress={67} loading />);
+    expect(screen.queryByRole('progressbar')).toBeNull();
+  });
+  it('tints the stacked icon with a module chip when a colour is given, plain icon otherwise', () => {
+    const { container, rerender } = render(<MetricCard label="Réunions" value="8" icon={Users} />);
+    expect(container.querySelector('[data-m360-component~="IconChip"]')).toBeNull();
+    rerender(<MetricCard label="Réunions" value="8" icon={Users} iconColor="calendar" />);
+    expect(container.querySelector('[data-m360-component~="IconChip"]')).not.toBeNull();
+  });
+  it('has no axe violation with a progress bar', async () => {
+    const { container } = render(<MetricCard label="Avancement" value="67 %" progress={67} labelCase="normal" />);
+    expect((await axe(container)).violations).toEqual([]);
+  });
+});
