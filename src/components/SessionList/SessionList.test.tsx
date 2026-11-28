@@ -171,3 +171,31 @@ describe('SessionList V2 (MAIR-845, MAIR-1000)', () => {
     } finally { window.matchMedia = original; }
   });
 });
+
+describe('MAIR-1260 SessionList artifact details', () => {
+  it('puts the log-out icon in « Déconnecter »', () => {
+    render(<SessionList sessions={sessions} currentSessionId="cur" onRevoke={jest.fn()} now={NOW} timeZone="Europe/Paris" />);
+    const button = screen.getByRole('button', { name: 'Déconnecter la session Safari · iPhone' });
+    expect(button.querySelector('svg')).not.toBeNull();
+  });
+
+  it('shows a chevron instead of « — » on a clickable row that cannot be revoked', () => {
+    const { container, unmount } = render(<SessionList sessions={sessions} currentSessionId="cur" onRevoke={jest.fn()} onSelect={jest.fn()} now={NOW} timeZone="Europe/Paris" />);
+    const current = container.querySelector('tr[data-current="true"]') as HTMLElement;
+    expect(current.querySelector('[data-session-open]')).not.toBeNull();
+    expect(current.textContent).not.toContain('—');
+    unmount();
+    const plain = render(<SessionList sessions={sessions} currentSessionId="cur" onRevoke={jest.fn()} now={NOW} timeZone="Europe/Paris" />);
+    const row = plain.container.querySelector('tr[data-current="true"]') as HTMLElement;
+    expect(row.querySelector('[data-session-open]')).toBeNull();
+    expect(row.textContent).toContain('—');
+  });
+
+  it('keeps the chevron column for a selectable list without revocation', () => {
+    const { container } = render(<SessionList sessions={sessions} currentSessionId="cur" onSelect={jest.fn()} now={NOW} timeZone="Europe/Paris" />);
+    const rows = Array.from(container.querySelectorAll('tbody tr'));
+    expect(rows.every(row => row.querySelector('[data-session-open]'))).toBe(true);
+    expect(screen.queryByRole('button', { name: /^Déconnecter/ })).toBeNull();
+    expect(screen.getAllByRole('columnheader').at(-1)).toHaveTextContent('Actions');
+  });
+});
