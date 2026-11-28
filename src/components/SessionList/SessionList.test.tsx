@@ -190,4 +190,12 @@ describe('MAIR-1260 SessionList artifact details', () => {
     expect(row.querySelector('[data-session-open]')).toBeNull();
     expect(row.textContent).toContain('—');
   });
+
+  it('keeps the chevron column for a selectable list without revocation', () => {
+    const { container } = render(<SessionList sessions={sessions} currentSessionId="cur" onSelect={jest.fn()} now={NOW} timeZone="Europe/Paris" />);
+    const rows = Array.from(container.querySelectorAll('tbody tr'));
+    expect(rows.every(row => row.querySelector('[data-session-open]'))).toBe(true);
+    expect(screen.queryByRole('button', { name: /^Déconnecter/ })).toBeNull();
+    expect(screen.getAllByRole('columnheader').at(-1)).toHaveTextContent('Actions');
+  });
 });

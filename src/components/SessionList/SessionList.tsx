@@ -258,7 +258,7 @@ export const SessionList = ({
             <th scope="col" className="px-4 py-3">Créée le</th>
             <th scope="col" className="px-4 py-3">{dateColumnLabel}</th>
             <th scope="col" className="px-4 py-3">État</th>
-            {onRevoke ? <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th> : null}
+            {onRevoke || onSelect ? <th scope="col" className="px-4 py-3"><span className="sr-only">Actions</span></th> : null}
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--mairie-border)]">
@@ -284,7 +284,7 @@ export const SessionList = ({
                   : <>{end.label} <SessionDate value={end.at} timeZone={timeZone} /></>}
               </td>
               <td className="px-4 py-3.5"><StatusBadge status={sessionStateStatuses[state]} label={sessionStateLabels[state]} size="s" /></td>
-              {onRevoke ? (
+              {onRevoke || onSelect ? (
                 <td className="px-4 py-3.5 text-right">
                   {revocable
                     ? revokeButton(session)
