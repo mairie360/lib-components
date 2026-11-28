@@ -24,6 +24,10 @@ export interface FilterSelectProps<T extends string = string> extends Omit<React
    * and one radio choice per option, the same on every browser.
    */
   mode?: 'native' | 'menu';
+  /** MAIR-1260: the leading funnel icon (default true); the artifacts' selects have none. */
+  icon?: boolean;
+  /** MAIR-1260: without a value the button reads « <label> : <allLabel> » (« Rôle : tous ») instead of the bare label. */
+  showAllLabel?: boolean;
 }
 
 /** Compact filter of a list toolbar (MAIR-608, Figma `Base/FilterSelect`): active look while a value is chosen. */
@@ -33,10 +37,13 @@ export function FilterSelect<T extends string = string>({ mode = 'native', ...pr
 
 const frameClass = (active: boolean, disabled: boolean | undefined, className: string) =>
   `relative inline-flex items-center rounded-[var(--mairie-radius-m)] border font-medium transition ${active ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]' : 'border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]'} ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim();
+/** Text of the button: « Statut », « Statut : Actif », or « Statut : tous » with `showAllLabel`. */
+const buttonText = (label: string, current: { label: string } | undefined, allLabel: string, showAllLabel: boolean) =>
+  current ? `${label} : ${current.label}` : showAllLabel ? `${label} : ${allLabel}` : label;
 const frameStyle = (size: Extract<Size, 's' | 'm' | 'l'>, style?: React.CSSProperties): React.CSSProperties => ({ height: `var(--mairie-control-${size})`, paddingInline: 'var(--mairie-space-s)', gap: 'var(--mairie-space-xs)', fontSize: `var(--mairie-text-${size})`, ...style });
 
 /** Menu mode: a button (aria-haspopup) opening a menu of radio choices; arrows, Home / End, Escape. */
-function FilterMenu<T extends string = string>({ label, options, value, onChange, allLabel = 'Tous', size = 'm', disabled, className = '', style, id, ...props }: Omit<FilterSelectProps<T>, 'mode'>) {
+function FilterMenu<T extends string = string>({ label, options, value, onChange, allLabel = 'Tous', size = 'm', icon = true, showAllLabel = false, disabled, className = '', style, id, ...props }: Omit<FilterSelectProps<T>, 'mode'>) {
   const generated = React.useId();
   const base = id ?? `filter-${generated}`;
   const [open, setOpen] = React.useState(false);
@@ -69,13 +76,13 @@ function FilterMenu<T extends string = string>({ label, options, value, onChange
     <span {...componentMarker('FilterSelect', props)} className="relative inline-flex" data-mode="menu">
       <button {...(withoutMarker(props) as React.ButtonHTMLAttributes<HTMLButtonElement>)} ref={button} id={base} type="button" disabled={disabled}
         aria-haspopup="menu" aria-expanded={open} aria-controls={open ? `${base}-menu` : undefined}
-        aria-label={`${label}${current ? ` : ${current.label}` : ''}`}
+        aria-label={buttonText(label, current, allLabel, showAllLabel)}
         onClick={() => setOpen(value => !value)}
         onKeyDown={event => { if (event.key === 'ArrowDown' || event.key === 'ArrowUp') { event.preventDefault(); setOpen(true); } }}
         className={`${frameClass(active, disabled, className)} cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--mairie-accent)] disabled:cursor-not-allowed`}
         style={frameStyle(size, style)} data-active={active || undefined} data-size={size}>
-        <Icon icon={Filter} size={size === 'l' ? 'm' : 's'} />
-        <span className="whitespace-nowrap">{label}{current ? ` : ${current.label}` : ''}</span>
+        {icon && <Icon icon={Filter} size={size === 'l' ? 'm' : 's'} />}
+        <span className="whitespace-nowrap">{buttonText(label, current, allLabel, showAllLabel)}</span>
         <Icon icon={ChevronDown} size={size === 'l' ? 'm' : 's'} />
       </button>
       {open && (
@@ -103,13 +110,13 @@ function FilterMenu<T extends string = string>({ label, options, value, onChange
 }
 
 /** Native mode: an invisible native select laid over the button. */
-function NativeFilter<T extends string = string>({ label, options, value, onChange, allLabel = 'Tous', size = 'm', disabled, className = '', style, ...props }: Omit<FilterSelectProps<T>, 'mode'>) {
+function NativeFilter<T extends string = string>({ label, options, value, onChange, allLabel = 'Tous', size = 'm', icon = true, showAllLabel = false, disabled, className = '', style, ...props }: Omit<FilterSelectProps<T>, 'mode'>) {
   const active = value !== '';
   const current = options.find((option) => option.value === value);
   return (
     <span {...componentMarker('FilterSelect', props)} className={`relative inline-flex items-center rounded-[var(--mairie-radius-m)] border font-medium transition focus-within:ring-2 focus-within:ring-[var(--mairie-accent)]/20 ${active ? 'border-[var(--mairie-accent)] bg-[var(--mairie-accent-surface)] text-[var(--mairie-accent)]' : 'border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]'} ${disabled ? 'opacity-60' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ height: `var(--mairie-control-${size})`, paddingInline: 'var(--mairie-space-s)', gap: 'var(--mairie-space-xs)', fontSize: `var(--mairie-text-${size})`, ...style }} data-active={active || undefined} data-size={size}>
-      <Icon icon={Filter} size={size === 'l' ? 'm' : 's'} />
-      <span aria-hidden="true" className="whitespace-nowrap">{label}{current ? ` : ${current.label}` : ''}</span>
+      {icon && <Icon icon={Filter} size={size === 'l' ? 'm' : 's'} />}
+      <span aria-hidden="true" className="whitespace-nowrap">{buttonText(label, current, allLabel, showAllLabel)}</span>
       <Icon icon={ChevronDown} size={size === 'l' ? 'm' : 's'} />
       <select {...withoutMarker(props)} aria-label={label} value={value} disabled={disabled} onChange={(event) => onChange(event.target.value as T | '')} className="absolute inset-0 h-full w-full cursor-pointer opacity-0">
         <option value="">{allLabel}</option>

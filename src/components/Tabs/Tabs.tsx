@@ -95,7 +95,7 @@ export function Tabs<Key extends string = string>({ label, items, value, onChang
               className={look} style={box}>
               {item.icon && <Icon icon={item.icon} size={size} />}
               {item.label}
-              {typeof item.count === 'number' && <span className="rounded-full bg-[var(--mairie-surface-raised)] px-1.5 text-[var(--mairie-text)]" style={{ fontSize: 'var(--mairie-text-xs)' }}>{item.count}</span>}
+              {typeof item.count === 'number' && <span data-tab-count="" className="rounded-full border border-[var(--mairie-border)] bg-[var(--mairie-surface-raised)] font-semibold text-[var(--mairie-muted)]" style={{ fontSize: 12, lineHeight: '18px', paddingInline: 7 }}>{item.count}</span>}
             </button>
           );
         })}

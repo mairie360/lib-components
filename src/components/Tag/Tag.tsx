@@ -15,13 +15,17 @@ export interface TagProps extends Omit<React.HTMLAttributes<HTMLSpanElement>, 'c
   /** Shows the remove button; its accessible name is « Retirer <label> ». */
   onRemove?: () => void;
   removeLabel?: string;
+  /** MAIR-1260: `rounded` (default, radius 6) or `pill` (fully rounded, the artifacts' role tags). */
+  shape?: 'rounded' | 'pill';
+  /** MAIR-1260: `neutral` (default, bordered) or `purple` (tinted, no border: « Administrateur »). */
+  tone?: 'neutral' | 'purple';
 }
 const heights: Record<TagSize, number> = { s: 22, m: 26, l: 30 };
 
 /** Free label (keyword, theme), removable or not (MAIR-608, Figma `Base/Tag`). */
-export const Tag = React.forwardRef<HTMLSpanElement, TagProps>(function Tag({ label, size = 'm', onRemove, removeLabel, className = '', style, ...props }, ref) {
+export const Tag = React.forwardRef<HTMLSpanElement, TagProps>(function Tag({ label, size = 'm', onRemove, removeLabel, shape = 'rounded', tone = 'neutral', className = '', style, ...props }, ref) {
   return (
-    <span {...props} {...componentMarker('Tag', props)} ref={ref} data-size={size} className={`inline-flex shrink-0 items-center gap-1 rounded-md border border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] font-medium leading-none text-[var(--mairie-text)] ${className}`.trim()}
+    <span {...props} {...componentMarker('Tag', props)} ref={ref} data-size={size} data-shape={shape} data-tone={tone} className={`inline-flex shrink-0 items-center gap-1 border font-medium leading-none ${shape === 'pill' ? 'rounded-full' : 'rounded-md'} ${tone === 'purple' ? 'border-transparent bg-[var(--mairie-purple-surface)] text-[var(--mairie-purple-text)]' : 'border-[var(--mairie-control-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)]'} ${className}`.replace(/\s+/g, ' ').trim()}
       style={{ height: heights[size], paddingInline: 'var(--mairie-space-s)', fontSize: `var(--mairie-text-${size === 'l' ? 'm' : 's'})`, ...style }}>
       {label}
       {onRemove && (

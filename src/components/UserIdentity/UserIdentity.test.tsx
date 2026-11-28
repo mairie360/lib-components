@@ -9,3 +9,17 @@ it('renders a person one way everywhere', async () => {
   expect(screen.queryByText('marie.martin@mairie.fr')).not.toBeInTheDocument(); expect(screen.getByRole('img', { name: 'Marie Martin' })).toBeInTheDocument();
   expect((await axe(container)).violations).toEqual([]);
 });
+
+describe('MAIR-1260 e-mail icon', () => {
+  it('adds a mail icon before the e-mail only when asked', () => {
+    const { container, rerender } = render(<UserIdentity name="Marie Dubois" email="marie@example.test" />);
+    expect(container.querySelectorAll('svg')).toHaveLength(0);
+    rerender(<UserIdentity name="Marie Dubois" email="marie@example.test" emailIcon />);
+    expect(screen.getByText('marie@example.test')).toBeInTheDocument();
+    expect(container.querySelectorAll('svg')).toHaveLength(1);
+  });
+  it('shows no icon without an e-mail', () => {
+    const { container } = render(<UserIdentity name="Marie Dubois" emailIcon />);
+    expect(container.querySelectorAll('svg')).toHaveLength(0);
+  });
+});

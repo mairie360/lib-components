@@ -13,3 +13,20 @@ describe('Tag (MAIR-608)', () => {
     rerender(<Tag label="Lecture seule" />); expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
+
+describe('MAIR-1260 tag shape and tone', () => {
+  it('is rounded and neutral by default', () => {
+    render(<Tag label="Agent" />);
+    const tag = screen.getByText('Agent');
+    expect(tag).toHaveAttribute('data-shape', 'rounded');
+    expect(tag).toHaveAttribute('data-tone', 'neutral');
+    expect(tag.className).toContain('rounded-md');
+  });
+  it('draws the purple role pill', () => {
+    render(<Tag label="Administrateur" shape="pill" tone="purple" />);
+    const tag = screen.getByText('Administrateur');
+    expect(tag.className).toContain('rounded-full');
+    expect(tag.className).toContain('--mairie-purple-surface');
+    expect(tag.className).not.toContain('rounded-md');
+  });
+});

@@ -368,6 +368,11 @@ body.mairie-ui .app-accessible-footer :is(div, nav, a, button, span), .app-acces
     transition: background-color var(--mairie-motion-fast) var(--mairie-ease-standard), color var(--mairie-motion-fast) var(--mairie-ease-standard);
   }
   .app-desktop-navigation nav button svg { flex-shrink: 0; }
+  /* MAIR-1260: a rule above Administration / Paramètres separates them from the modules (artifact shell). */
+  body.mairie-ui .app-desktop-navigation nav button[data-section-start="true"] { margin-top: 17px; }
+  body.mairie-ui .app-desktop-navigation nav button[data-section-start="true"]::after {
+    content: ""; position: absolute; left: 0; right: 0; top: -13px; height: 1px; background: var(--mairie-shell-border); pointer-events: none;
+  }
   /* MAIR-886: as specific as the base button rule above, so it cannot reset the hover and active
    * backgrounds. */
   body.mairie-ui .app-desktop-navigation nav button:hover { background: var(--mairie-navigation-hover-background); color: var(--mairie-navigation-active-text); }

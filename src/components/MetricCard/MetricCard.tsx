@@ -39,7 +39,17 @@ export interface MetricCardProps extends Omit<React.HTMLAttributes<HTMLElement>,
   onClick?: React.MouseEventHandler<HTMLElement>;
   /** MAIR-1140: selected card (the filter it applies is on); a button card given `active` is a toggle (`aria-pressed`). */
   active?: boolean;
+  /** MAIR-1260, `stacked`: `upper` (default, Overline) or `normal` (the artifacts: sentence case, 14 px muted). */
+  labelCase?: 'upper' | 'normal';
+  /** MAIR-1260, `stacked`: a progress bar under the value, 0–100 (« Avancement 67 % »). */
+  progress?: number;
+  /** MAIR-1260: tone of the progress bar (`primary` by default). */
+  progressTone?: MetricProgressTone;
 }
+export type MetricProgressTone = 'primary' | 'success' | 'warning' | 'danger';
+const progressFills: Record<MetricProgressTone, string> = {
+  primary: 'var(--mairie-action-background)', success: 'var(--mairie-success-action-background)', warning: 'var(--mairie-warning-text)', danger: 'var(--mairie-error-action-background)',
+};
 const valueSize: Record<MetricSize, Size> = { s: 'l', m: 'xl', l: 'xl' };
 const padding: Record<MetricSize, string> = { s: 'var(--mairie-space-s)', m: 'var(--mairie-space-m)', l: 'var(--mairie-space-l)' };
 
@@ -47,7 +57,7 @@ const padding: Record<MetricSize, string> = { s: 'var(--mairie-space-s)', m: 'va
  * Numeric indicator card: label, icon, value, trend or freshness (MAIR-608, Figma `Base/MetricCard`).
  * MAIR-1117 inline layout; MAIR-1140 clickable card (`href` = link, `onClick` = button, `active`).
  */
-export const MetricCard = ({ label, value, icon, size = 'm', trend = 'none', trendLabel, loading = false, layout = 'stacked', iconTone = 'neutral', iconColor, href, onClick, active, className = '', style, ...props }: MetricCardProps) => {
+export const MetricCard = ({ label, value, icon, size = 'm', trend = 'none', trendLabel, loading = false, layout = 'stacked', iconTone = 'neutral', iconColor, href, onClick, active, labelCase = 'upper', progress, progressTone = 'primary', className = '', style, ...props }: MetricCardProps) => {
   const trendTone = trend === 'up' ? 'success' : trend === 'down' ? 'danger' : 'muted';
   const interactive = Boolean(href || onClick);
   const valueNode = loading ? <Skeleton shape="line" size="l" label="Chargement de l’indicateur" className="w-24" /> : null;
@@ -62,10 +72,20 @@ export const MetricCard = ({ label, value, icon, size = 'm', trend = 'none', tre
   ) : (
     <>
       <span className="flex items-center justify-between gap-2">
-        <Overline>{label}</Overline>
-        {icon && <span className="text-[var(--mairie-accent)]"><Icon icon={icon} size={size} /></span>}
+        {labelCase === 'normal' ? <BodySmall as="span" tone="muted">{label}</BodySmall> : <Overline>{label}</Overline>}
+        {icon && (iconTone === 'module' || iconColor
+          // MAIR-1260: a tinted chip per category (Calendrier: Réunions, Animations…).
+          ? <IconChip icon={icon} size="m" tone="module" color={iconColor} />
+          : <span className="text-[var(--mairie-accent)]"><Icon icon={icon} size={size} /></span>)}
       </span>
       {valueNode ?? <Metric size={valueSize[size]} style={{ fontSize: size === 'l' ? '28px' : undefined }}>{value}</Metric>}
+      {typeof progress === 'number' && !loading && (
+        // A bare bar: the card already shows the label and the value (« Avancement », « 67 % »).
+        <span role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(Math.max(0, Math.min(100, progress)))} data-tone={progressTone}
+          className="block w-full overflow-hidden rounded-full bg-[var(--mairie-surface-raised)]" style={{ height: 6 }}>
+          <span className="block h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, progress))}%`, background: progressFills[progressTone] }} />
+        </span>
+      )}
       {trendLabel && (
         <Caption tone={trendTone} className="inline-flex items-center gap-1">
           {trend === 'up' && <Icon icon={TrendingUp} size="xs" />}

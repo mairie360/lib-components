@@ -68,3 +68,26 @@ describe('FilterSelect menu mode (MAIR-849)', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 });
+
+describe('MAIR-1260 artifact filter selects', () => {
+  const options = [{ value: 'admin', label: 'Administrateur' }, { value: 'agent', label: 'Agent' }] as const;
+  it('reads « Rôle : tous » without a value and keeps the funnel by default', () => {
+    const { container } = render(<FilterSelect label="Rôle" allLabel="tous" showAllLabel options={options} value="" onChange={() => undefined} />);
+    expect(container).toHaveTextContent('Rôle : tous');
+    expect(container.querySelectorAll('svg')).toHaveLength(2);
+  });
+  it('drops the funnel with icon={false} and shows the chosen value', () => {
+    const { container } = render(<FilterSelect label="Rôle" allLabel="tous" showAllLabel icon={false} options={options} value="agent" onChange={() => undefined} />);
+    expect(container).toHaveTextContent('Rôle : Agent');
+    expect(container.querySelectorAll('svg')).toHaveLength(1);
+  });
+  it('names the menu button « Statut : tous » in menu mode', () => {
+    render(<FilterSelect mode="menu" label="Statut" allLabel="tous" showAllLabel icon={false} options={options} value="" onChange={() => undefined} />);
+    expect(screen.getByRole('button', { name: 'Statut : tous' })).toBeInTheDocument();
+  });
+  it('keeps the bare label without showAllLabel', () => {
+    const { container } = render(<FilterSelect label="Rôle" options={options} value="" onChange={() => undefined} />);
+    expect(container).toHaveTextContent(/^Rôle/);
+    expect(container).not.toHaveTextContent('Rôle : ');
+  });
+});

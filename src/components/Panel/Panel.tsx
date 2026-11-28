@@ -25,6 +25,8 @@ export interface PanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'tit
   icon?: LucideIcon;
   /** MAIR-1114: the panel fills the height of its grid row; the content stretches so its actions sit at the bottom. */
   fill?: boolean;
+  /** MAIR-1260: a rule under the header (the artifacts' dashboard panels). */
+  divider?: boolean;
   children?: React.ReactNode;
 }
 
@@ -32,7 +34,7 @@ export interface PanelProps extends Omit<React.HTMLAttributes<HTMLElement>, 'tit
  * Page block with a header (title, description, action) and content; states through DataState (MAIR-608, Figma `Base/Panel`).
  * MAIR-1114: radius 16 (`--mairie-radius-xl`) in every state, optional icon chip and `fill`.
  */
-export const Panel = ({ title, description, action, state = 'default', stateProps, flush = false, icon, fill = false, children, className = '', style, ...props }: PanelProps) => {
+export const Panel = ({ title, description, action, state = 'default', stateProps, flush = false, icon, fill = false, divider = false, children, className = '', style, ...props }: PanelProps) => {
   const titleId = useId();
   const heading = (
     <div className="min-w-0">
@@ -44,7 +46,7 @@ export const Panel = ({ title, description, action, state = 'default', stateProp
   return (
     <section {...props} {...componentMarker('Panel', props)} aria-labelledby={titleId} aria-busy={state === 'loading' || undefined} data-state={state} data-fill={fill || undefined}
       className={`flex flex-col border border-[var(--mairie-border)] bg-[var(--mairie-surface)] text-[var(--mairie-text)] ${fill ? 'h-full' : ''} ${className}`.replace(/\s+/g, ' ').trim()} style={{ borderRadius: 'var(--mairie-radius-xl)', ...style }}>
-      <header className="flex items-start justify-between gap-4 px-5 pt-4" style={{ paddingBottom: 'var(--mairie-space-m)' }}>
+      <header data-divider={divider || undefined} className={`flex items-start justify-between gap-4 px-5 pt-4 ${divider ? 'mb-4 border-b border-[var(--mairie-border)]' : ''}`.trim()} style={{ paddingBottom: 'var(--mairie-space-m)' }}>
         {icon ? <div className="flex min-w-0 items-center" style={{ gap: 12 }}><IconChip icon={icon} size="l" />{heading}</div> : heading}
         {action && <div className="shrink-0">{action}</div>}
       </header>

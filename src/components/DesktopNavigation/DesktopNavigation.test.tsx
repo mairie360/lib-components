@@ -34,3 +34,15 @@ test('the desktop menu rejects unsafe destinations and filters administration by
   expect(container.querySelectorAll('nav button')).toHaveLength(1);
   expect(screen.getByRole('button', { name: 'Paramètres' })).toBeVisible();
 });
+
+test('MAIR-1260 artifact order and a rule before Administration / Paramètres', () => {
+  const hrefs = { dashboard: '/', projects: '/p', calendar: '/c', messages: '/m', training: '/e', admin: '/a', settings: '/s' };
+  const { rerender } = render(<DesktopNavigation isAdmin hrefs={hrefs} onCollapsedChange={() => undefined} />);
+  const names = screen.getAllByRole('button').map(button => button.querySelector('.app-navigation-label')?.textContent);
+  expect(names).toEqual(['Tableau de bord', 'Projets', 'Calendrier', 'Messagerie', 'E-learning', 'Administration', 'Paramètres']);
+  expect(screen.getByRole('button', { name: 'Administration' })).toHaveAttribute('data-section-start', 'true');
+  expect(screen.getByRole('button', { name: 'Paramètres' })).not.toHaveAttribute('data-section-start');
+  rerender(<DesktopNavigation hrefs={hrefs} onCollapsedChange={() => undefined} />);
+  expect(screen.getByRole('button', { name: 'Paramètres' })).toHaveAttribute('data-section-start', 'true');
+  expect(screen.queryByRole('button', { name: 'Administration' })).toBeNull();
+});

@@ -48,3 +48,13 @@ describe('Panel (MAIR-608)', () => {
     });
   });
 });
+
+describe('MAIR-1260 header divider', () => {
+  it('draws a rule under the header only with divider', () => {
+    const { container, rerender } = render(<Panel title="Projets récents">x</Panel>);
+    expect(container.querySelector('header')).not.toHaveAttribute('data-divider');
+    rerender(<Panel title="Projets récents" divider>x</Panel>);
+    expect(container.querySelector('header')).toHaveAttribute('data-divider', 'true');
+    expect(container.querySelector('header')?.className).toContain('border-b');
+  });
+});

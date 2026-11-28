@@ -91,3 +91,15 @@ describe('Tabs (MAIR-608)', () => {
     });
   });
 });
+
+describe('MAIR-1260 bordered tab counters', () => {
+  it('shows each count in a bordered pill after the label', () => {
+    render(<Tabs label="Sections" value="users" onChange={() => undefined} items={[{ key: 'users', label: 'Utilisateurs', count: 12 }, { key: 'roles', label: 'Rôles', count: 4 }, { key: 'groups', label: 'Groupes' }]} />);
+    const users = screen.getByRole('tab', { name: /Utilisateurs/ });
+    const pill = users.querySelector('[data-tab-count]');
+    expect(pill).toHaveTextContent('12');
+    expect(pill?.className).toContain('border');
+    expect(screen.getByRole('tab', { name: /Rôles/ })).toHaveTextContent('Rôles4');
+    expect(screen.getByRole('tab', { name: 'Groupes' }).querySelector('[data-tab-count]')).toBeNull();
+  });
+});

@@ -29,3 +29,15 @@ describe('PageHeader (MAIR-608)', () => {
     expect((await axe(container)).violations).toEqual([]);
   });
 });
+
+describe('MAIR-1260 large page title', () => {
+  it('keeps the 20 px PageTitle by default and draws the 26 px artifact title with size="l"', () => {
+    const { rerender } = render(<PageHeader title="Administration" />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Administration' })).not.toHaveAttribute('data-title-size');
+    rerender(<PageHeader title="Administration" size="l" subtitle="Utilisateurs, rôles et groupes" />);
+    const title = screen.getByRole('heading', { level: 1, name: 'Administration' });
+    expect(title).toHaveAttribute('data-title-size', 'l');
+    expect(title).toHaveStyle({ fontSize: '26px' });
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+  });
+});

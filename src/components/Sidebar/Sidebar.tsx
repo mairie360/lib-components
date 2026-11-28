@@ -83,9 +83,9 @@ export interface SidebarProps {
 export const defaultSidebarItems: SidebarItem[] = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
   { id: 'projects', label: 'Projets', icon: Briefcase },
-  { id: 'messages', label: 'Messagerie', icon: MessageSquare },
-  { id: 'training', label: 'Formation', icon: GraduationCap },
   { id: 'calendar', label: 'Calendrier', icon: Calendar },
+  { id: 'messages', label: 'Messagerie', icon: MessageSquare },
+  { id: 'training', label: 'E-learning', icon: GraduationCap },
   { id: 'admin', label: 'Administration', icon: Shield, adminOnly: true },
   { id: 'settings', label: 'Paramètres', icon: Settings },
 ];

@@ -67,7 +67,7 @@ export type { KanbanColumnProps } from '../components/KanbanColumn';
 export { LinkButton } from '../components/LinkButton';
 export type { LinkButtonProps } from '../components/LinkButton';
 export { MetricCard } from '../components/MetricCard';
-export type { MetricSize, MetricLayout, MetricCardProps } from '../components/MetricCard';
+export type { MetricSize, MetricLayout, MetricCardProps, MetricProgressTone } from '../components/MetricCard';
 export { Modal } from '../components/Modal';
 export type { ModalProps } from '../components/Modal';
 export { MultiSelect } from '../components/MultiSelect';
